@@ -1,0 +1,6 @@
+django
+MySQL-python
+redis
+django-redis-sessions
+djangorestframework
+celery
