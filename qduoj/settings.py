@@ -46,6 +46,12 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
+    'account',
+
+
+    'rest_framework',
+    'rest_framework_swagger',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -113,6 +119,12 @@ STATIC_URL = '/static/'
 
 STATICFILES_DIRS = (os.path.join(BASE_DIR, "static"),)
 
+TEMPLATE_DIRS = (
+    os.path.join(BASE_DIR, "template"),
+)
+
+AUTH_USER_MODEL = 'account.User'
+
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': True,
@@ -147,7 +159,7 @@ LOGGING = {
         },
         'django.db.backends': {
             'handlers': ['console'],
-            'level': 'DEBUG',
+            'level': 'ERROR',
             'propagate': True,
         }
     },
