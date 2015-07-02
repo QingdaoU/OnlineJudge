@@ -3,7 +3,13 @@
 # 如果MAX_RUNNING_NUMBER大于等于5，那么这5组数据就会同时进行评测，然后返回结果。
 # 如果MAX_RUNNING_NUMBER小于5，为3，那么就会同时运行前三组测试数据，然后再运行后两组数据
 # 这样可以避免同时运行的程序过多导致的cpu占用太高
-MAX_RUNNING_NUMBER = 10
-USE_TMPFS = True
-LRUN_UID = 1001
-LRUN_GID = 1002
+max_running_number = 10
+
+# 是否使用tmpfs来缓存程序输出。开启可以提高性能，在内存不足的情况下，可以关闭
+use_tmpfs = True
+
+# lrun运行用户的uid
+lrun_uid = 1001
+
+# lrun用户组gid
+lrun_gid = 1002
