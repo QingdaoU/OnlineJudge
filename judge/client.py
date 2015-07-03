@@ -1,16 +1,15 @@
 # coding=utf-8
-import json
-import time
 import commands
+from copy_reg import pickle
+from types import MethodType
 from multiprocessing import Pool
+
 from settings import max_running_number, lrun_gid, lrun_uid, use_tmpfs
 from consts import Language, Result
 
-from copy_reg import pickle
-from types import MethodType
-
 
 # 下面两个函数告诉Python怎么pickle类实例中的方法，否则Python2会报错，是Python2的已知bug
+# http://stackoverflow.com/questions/1816958/cant-pickle-type-instancemethod-when-using-pythons-multiprocessing-pool-ma/7309686
 def _pickle_method(method):
     func_name = method.im_func.__name__
     obj = method.im_self
@@ -127,7 +126,6 @@ class JudgeClient(object):
         for line in lines:
             name = line[:9].strip(" ")
             value = line[9:]
-            print name, value
             if name == "MEMORY":
                 result[translate[name]] = int(value)
             elif name == "CPUTIME":
@@ -157,7 +155,7 @@ class JudgeClient(object):
 
         run_result["test_case_id"] = test_case_id
 
-        # 如果返回值非0，代表非正常结束
+        # 如果返回值非0 或者信号量不是0 代表非正常结束
         if run_result["exit_code"] or run_result["term_sig"] or run_result["siginaled"]:
             run_result["result"] = Result.RUNTIME_ERROR
             return run_result
@@ -169,7 +167,7 @@ class JudgeClient(object):
             elif run_result["exceed"] in ["cpu_time", "real_time"]:
                 run_result["result"] = Result.TIME_LIMIT_EXCEEDED
             else:
-                run_result["result"] = Result.SYSTEM_ERROR
+                raise JudgeClientException("Error exceeded type: " + run_result["exceed"])
             return run_result
 
         # 下面就是代码正常运行了
@@ -181,15 +179,24 @@ class JudgeClient(object):
 
     def run(self):
         # 添加到任务队列
+        _results = []
+        results = []
         for i in range(self.test_case_info["test_case_number"]):
-            self.pool.apply_async(self.judge_one, args=(i + 1, ),
-                                  callback=self.collect_result)
+            _results.append(self.pool.apply_async(self.judge_one, args=(i + 1, )))
         self.pool.close()
         self.pool.join()
-        print self.results
+        for item in _results:
+            # 注意多进程中的异常只有在get()的时候才会被引发
+            # http://stackoverflow.com/questions/22094852/how-to-catch-exceptions-in-workers-in-multiprocessing
+            try:
+                results.append(item.get())
+            except Exception as e:
+                results.append({"result": Result.SYSTEM_ERROR})
+        return results
 
     def __getstate__(self):
         # 不同的pool之间进行pickle的时候要排除自己，否则报错
+        # http://stackoverflow.com/questions/25382455/python-notimplementederror-pool-objects-cannot-be-passed-between-processes
         self_dict = self.__dict__.copy()
         del self_dict['pool']
         return self_dict
@@ -202,4 +209,4 @@ client = JudgeClient(language=Language.C,
                      max_real_time=200000,
                      max_memory=1,
                      test_case_dir="/var/test_case/1/")
-client.run()
+print client.run()
