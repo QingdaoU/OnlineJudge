@@ -8,28 +8,14 @@ from settings import max_running_number, lrun_gid, lrun_uid, use_tmpfs
 from consts import Language, Result
 
 
-# 下面两个函数告诉Python怎么pickle类实例中的方法，否则Python2会报错，是Python2的已知bug
-# http://stackoverflow.com/questions/1816958/cant-pickle-type-instancemethod-when-using-pythons-multiprocessing-pool-ma/7309686
-def _pickle_method(method):
-    func_name = method.im_func.__name__
-    obj = method.im_self
-    cls = method.im_class
-    return _unpickle_method, (func_name, obj, cls)
-
-
-def _unpickle_method(func_name, obj, cls):
-    for cls in cls.mro():
-        try:
-            func = cls.__dict__[func_name]
-        except KeyError:
-            pass
-        else:
-            break
-    return func.__get__(obj, cls)
-
-
 class JudgeClientException(Exception):
     pass
+
+
+# 下面这个函数作为代理访问实例变量，否则Python2会报错，是Python2的已知问题
+# http://stackoverflow.com/questions/1816958/cant-pickle-type-instancemethod-when-using-pythons-multiprocessing-pool-ma/7309686
+def _run(instance, test_case_id):
+    return instance.judge_one(test_case_id)
 
 
 class JudgeClient(object):
@@ -182,7 +168,7 @@ class JudgeClient(object):
         _results = []
         results = []
         for i in range(self.test_case_info["test_case_number"]):
-            _results.append(self.pool.apply_async(self.judge_one, args=(i + 1, )))
+            _results.append(self.pool.apply_async(_run, (self, i + 1)))
         self.pool.close()
         self.pool.join()
         for item in _results:
@@ -202,7 +188,7 @@ class JudgeClient(object):
         return self_dict
 
 
-pickle(MethodType, _pickle_method, _unpickle_method)
+# pickle(MethodType, _pickle_method, _unpickle_method)
 client = JudgeClient(language=Language.C,
                      exec_file_path="/var/judge/a.out",
                      max_cpu_time=1000000,
