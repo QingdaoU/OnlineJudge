@@ -5,11 +5,11 @@
 # 这样可以避免同时运行的程序过多导致的cpu占用太高
 max_running_number = 10
 
-# 是否使用tmpfs来缓存程序输出。开启可以提高性能，在内存不足的情况下，可以关闭
-use_tmpfs = True
-
 # lrun运行用户的uid
 lrun_uid = 1001
 
 # lrun用户组gid
 lrun_gid = 1002
+
+#judger工作目录
+judger_workspace = "/var/judger/"

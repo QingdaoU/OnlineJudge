@@ -1,10 +1,9 @@
 # coding=utf-8
 import commands
-from copy_reg import pickle
-from types import MethodType
+import hashlib
 from multiprocessing import Pool
 
-from settings import max_running_number, lrun_gid, lrun_uid, use_tmpfs
+from settings import max_running_number, lrun_gid, lrun_uid, judger_workspace
 from consts import Language, Result
 
 
@@ -57,14 +56,15 @@ class JudgeClient(object):
                     {
                         "1": {"input_name": "1.in",
                               "output_name": "1.out",
-                              "output_md5": "yyy",
+                              "output_md5": "b10a8db164e0754105b7a99be72e3fe5",
                               "output_size": 100},
 
                         "2": {"input_name": "2.in",
                               "output_name": "2.out",
-                              "output_md5": "yyy",
+                              "output_md5": "3e25960a79dbc69b674cd4ec67a72c62",
                               "output_size": 100}
-                    }
+                    },
+                "output_total_size": 200
                 }
 
     def generate_command(self, test_case_id):
@@ -80,17 +80,14 @@ class JudgeClient(object):
                   " --network false" + \
                   " --uid " + str(lrun_uid) + \
                   " --gid " + str(lrun_gid)
-        #if use_tmpfs:
-        #    command += (" --tmpfs /var " +
-        #                str(int(self.test_case_info["test_cases"][str(test_case_id)]["output_size"] * 1.2)))
 
         if self.language == Language.JAVA:
             command += (" java " + self.exec_file_path)
         else:
             command += (" " + self.exec_file_path)
-        # fixme 输出路径
+
         command += (" 0<" + self.test_case_dir + str(test_case_id) + ".in" +
-                    " 1>" + "/var/judge/" + str(test_case_id) + ".out" +
+                    " 1>" + judger_workspace + str(test_case_id) + ".out" +
                     " 3>&2")
         return command
 
@@ -115,9 +112,9 @@ class JudgeClient(object):
             if name == "MEMORY":
                 result[translate[name]] = int(value)
             elif name == "CPUTIME":
-                result[translate[name]] = float(value) * 1000
+                result[translate[name]] = int(float(value) * 1000)
             elif name == "REALTIME":
-                result[translate[name]] = float(value) * 1000
+                result[translate[name]] = int(float(value) * 1000)
             elif name == "EXITCODE":
                 result[translate[name]] = int(value)
             elif name == "TERMSIG":
@@ -130,6 +127,30 @@ class JudgeClient(object):
                 else:
                     result[translate[name]] = translate[value]
         return result
+
+    def compare_output(self, test_case_id):
+        test_case_md5 = self.test_case_info["test_cases"][str(test_case_id)]["output_md5"]
+        output_path = judger_workspace + str(test_case_id) + ".out"
+
+        try:
+            f = open(output_path, "rb")
+        except IOError:
+            # 文件不存在等引发的异常 返回结果错误
+            return False
+
+        # 计算输出文件的md5 和之前测试用例文件的md5进行比较
+        md5 = hashlib.md5()
+        while True:
+            data = f.read(2 ** 8)
+            if not data:
+                break
+            md5.update(data)
+
+        # 对比文件是否一致
+        print "my", md5.hexdigest()
+        print test_case_md5
+        # todo 去除最后的空行
+        return md5.hexdigest() == test_case_md5
 
     def judge_one(self, test_case_id):
         # 运行lrun程序 接收返回值
@@ -156,8 +177,13 @@ class JudgeClient(object):
                 raise JudgeClientException("Error exceeded type: " + run_result["exceed"])
             return run_result
 
-        # 下面就是代码正常运行了
-        run_result["result"] = Result.ACCEPTED
+        # 下面就是代码正常运行了 需要判断代码的输出是否正确
+
+        if self.compare_output(test_case_id):
+            run_result["result"] = Result.ACCEPTED
+        else:
+            run_result["result"] = Result.WRONG_ANSWER
+
         return run_result
 
     def collect_result(self, result):
@@ -177,6 +203,7 @@ class JudgeClient(object):
             try:
                 results.append(item.get())
             except Exception as e:
+                print e
                 results.append({"result": Result.SYSTEM_ERROR})
         return results
 
@@ -188,11 +215,10 @@ class JudgeClient(object):
         return self_dict
 
 
-# pickle(MethodType, _pickle_method, _unpickle_method)
 client = JudgeClient(language=Language.C,
-                     exec_file_path="/var/judge/a.out",
+                     exec_file_path="/var/judger/a.out",
                      max_cpu_time=1000000,
                      max_real_time=200000,
                      max_memory=1,
-                     test_case_dir="/var/test_case/1/")
+                     test_case_dir="/var/test_cases/1/")
 print client.run()
