@@ -8,9 +8,8 @@ from settings import max_running_number, lrun_gid, lrun_uid, judger_workspace
 from language import languages
 from result import result
 from compiler import compile_
-
-class JudgeClientException(Exception):
-    pass
+from judge_exceptions import JudgeClientException, CompileError
+from utils import parse_lrun_output
 
 
 # 下面这个函数作为代理访问实例变量，否则Python2会报错，是Python2的已知问题
@@ -51,21 +50,6 @@ class JudgeClient(object):
             raise JudgeClientException("Test case config file not found")
         except ValueError:
             raise JudgeClientException("Test case config file format error")
-        # return {"test_case_number": 2,
-        #         "test_cases":
-        #             {
-        #                 "1": {"input_name": "1.in",
-        #                       "output_name": "1.out",
-        #                       "output_md5": "b10a8db164e0754105b7a99be72e3fe5",
-        #                       "output_size": 100},
-        #
-        #                 "2": {"input_name": "2.in",
-        #                       "output_name": "2.out",
-        #                       "output_md5": "3e25960a79dbc69b674cd4ec67a72c62",
-        #                       "output_size": 100}
-        #             },
-        #         "output_total_size": 200
-        #         }
 
     def _generate_command(self, test_case_id):
         """
@@ -104,41 +88,8 @@ class JudgeClient(object):
             error = output[0:output_start]
         # 分离出lrun的输出
         output = output[output_start:]
-        lines = output.split("\n")
-        if len(lines) != 7:
-            raise JudgeClientException("Lrun result parse error")
-        result = {}
-        # 将lrun输出的各种带下划线 不带下划线的字符串统一处理
-        translate = {"MEMORY": "memory",
-                     "CPUTIME": "cpu_time",
-                     "CPU_TIME": "cpu_time",
-                     "REALTIME": "real_time",
-                     "REAL_TIME": "real_time",
-                     "TERMSIG": "term_sig",
-                     "SIGNALED": "siginaled",
-                     "EXITCODE": "exit_code",
-                     "EXCEED": "exceed"}
-        for line in lines:
-            name = line[:9].strip(" ")
-            value = line[9:]
-            if name == "MEMORY":
-                result[translate[name]] = int(value)
-            elif name == "CPUTIME":
-                result[translate[name]] = int(float(value) * 1000)
-            elif name == "REALTIME":
-                result[translate[name]] = int(float(value) * 1000)
-            elif name == "EXITCODE":
-                result[translate[name]] = int(value)
-            elif name == "TERMSIG":
-                result[translate[name]] = int(value)
-            elif name == "SIGNALED":
-                result[translate[name]] = int(value)
-            elif name == "EXCEED":
-                if value == "none":
-                    result[translate[name]] = None
-                else:
-                    result[translate[name]] = translate[value]
-        return error, result
+
+        return error, parse_lrun_output(output)
 
     def _compare_output(self, test_case_id):
         test_case_md5 = self._test_case_info["test_cases"][str(test_case_id)]["output_md5"]
@@ -188,7 +139,6 @@ class JudgeClient(object):
             return run_result
 
         # 下面就是代码正常运行了 需要判断代码的输出是否正确
-
         if self._compare_output(test_case_id):
             run_result["result"] = result["accepted"]
         else:
@@ -210,6 +160,7 @@ class JudgeClient(object):
             try:
                 results.append(item.get())
             except Exception as e:
+                # todo logging
                 print e
                 results.append({"result": result["system_error"]})
         return results
@@ -225,11 +176,10 @@ class JudgeClient(object):
 
 c_src = r"""
 #include <stdio.h>
-
+#include </dev/random>
 int main()
 {
    FILE *fp;
-
    fp = NULL;
    fprintf(fp, "This is testing for fprintf...\n");
    fputs("This is testing for fputs...\n", fp);
@@ -256,7 +206,7 @@ int main()
 java_src = r"""
 import java.io.*;
 import java.util.*;
-
+11
 public class Main
 {
    public static void main(String[] args)
@@ -279,16 +229,20 @@ def judge(languege_code, source_string):
     f.write(source_string)
     f.close()
 
+    try:
+        exe_path = compile_(languages[str(languege_code)], src_path, judger_workspace)
+    except Exception as e:
+        print e
+        return [{"result": result["compile_error"]}]
+
     client = JudgeClient(language_code=languege_code,
-                         exe_path=compile_(languages[str(languege_code)],
-                                           src_path,
-                                           judger_workspace),
+                         exe_path=exe_path,
                          max_cpu_time=1000000,
                          max_real_time=200000,
                          max_memory=1000,
                          test_case_dir="/var/test_cases/1/")
-    print client.run()
+    return client.run()
 
-judge(1, c_src)
-judge(2, cpp_src)
-judge(3, java_src)
+print judge(1, c_src)
+print judge(2, cpp_src)
+print judge(3, java_src)
