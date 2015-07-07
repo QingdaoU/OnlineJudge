@@ -5,8 +5,9 @@ import hashlib
 from multiprocessing import Pool
 
 from settings import max_running_number, lrun_gid, lrun_uid, judger_workspace
-from consts import Language, Result
-
+from language import languages
+from result import result
+from compiler import compile_
 
 class JudgeClientException(Exception):
     pass
@@ -19,19 +20,19 @@ def _run(instance, test_case_id):
 
 
 class JudgeClient(object):
-    def __init__(self, language, exec_file_path, max_cpu_time,
+    def __init__(self, language_code, exe_path, max_cpu_time,
                  max_real_time, max_memory, test_case_dir):
         """
-        :param language: 语言，见consts.py
-        :param exec_file_path: 可执行文件路径
+        :param language_code: 语言编号
+        :param exe_path: 可执行文件路径
         :param max_cpu_time: 最大cpu时间，单位ms
         :param max_real_time: 最大执行时间，单位ms
         :param max_memory: 最大内存，单位MB
         :param test_case_dir: 测试用例文件夹路径
         :return:返回结果list
         """
-        self._language = language
-        self._exec_file_path = exec_file_path
+        self._language = languages[str(language_code)]
+        self._exe_path = exe_path
         self._max_cpu_time = max_cpu_time
         self._max_real_time = max_real_time
         self._max_memory = max_memory
@@ -79,12 +80,11 @@ class JudgeClient(object):
                   " --uid " + str(lrun_uid) + \
                   " --gid " + str(lrun_gid)
 
-        if self._language == Language.JAVA:
-            command += (" java " + self._exec_file_path)
-        else:
-            command += (" " + self._exec_file_path)
+        execute_command = self._language["execute_command"].format(exe_path=self._exe_path)
 
-        command += (" 0<" + self._test_case_dir + str(test_case_id) + ".in" +
+        command += (" " +
+                    execute_command +
+                    " 0<" + self._test_case_dir + str(test_case_id) + ".in" +
                     " 1>" + judger_workspace + str(test_case_id) + ".out" +
                     " 3>&2")
         return command
@@ -160,15 +160,15 @@ class JudgeClient(object):
 
         # 如果返回值非0 或者信号量不是0 代表非正常结束
         if run_result["exit_code"] or run_result["term_sig"] or run_result["siginaled"]:
-            run_result["result"] = Result.RUNTIME_ERROR
+            run_result["result"] = result["runtime_error"]
             return run_result
 
         # 代表内存或者时间超过限制了
         if run_result["exceed"]:
             if run_result["exceed"] == "memory":
-                run_result["result"] = Result.MEMORY_LIMIT_EXCEEDED
+                run_result["result"] = result["memory_limit_exceeded"]
             elif run_result["exceed"] in ["cpu_time", "real_time"]:
-                run_result["result"] = Result.TIME_LIMIT_EXCEEDED
+                run_result["result"] = result["time_limit_exceeded"]
             else:
                 raise JudgeClientException("Error exceeded type: " + run_result["exceed"])
             return run_result
@@ -176,9 +176,9 @@ class JudgeClient(object):
         # 下面就是代码正常运行了 需要判断代码的输出是否正确
 
         if self._compare_output(test_case_id):
-            run_result["result"] = Result.ACCEPTED
+            run_result["result"] = result["accepted"]
         else:
-            run_result["result"] = Result.WRONG_ANSWER
+            run_result["result"] = result["wrong_answer"]
 
         return run_result
 
@@ -197,7 +197,7 @@ class JudgeClient(object):
                 results.append(item.get())
             except Exception as e:
                 print e
-                results.append({"result": Result.SYSTEM_ERROR})
+                results.append({"result": result["system_error"]})
         return results
 
     def __getstate__(self):
@@ -208,8 +208,21 @@ class JudgeClient(object):
         return self_dict
 
 
-client = JudgeClient(language=Language.C,
-                     exec_file_path="/var/judger/a.out",
+
+src = """
+#include <stdio.h>
+int main()
+{
+    printf("Hello world");
+    return 0;
+}
+"""
+f = open("/var/judger/main.c", "w")
+f.write(src)
+f.close()
+
+client = JudgeClient(language_code=1,
+                     exe_path=compile_(languages["1"], "/var/judger/main.c", "/var/judger/main"),
                      max_cpu_time=1000000,
                      max_real_time=200000,
                      max_memory=1,
