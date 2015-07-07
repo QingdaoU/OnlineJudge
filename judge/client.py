@@ -209,7 +209,7 @@ class JudgeClient(object):
 
 
 
-src = """
+c_src = """
 #include <stdio.h>
 int main()
 {
@@ -217,14 +217,30 @@ int main()
     return 0;
 }
 """
-f = open("/var/judger/main.c", "w")
-f.write(src)
-f.close()
 
-client = JudgeClient(language_code=1,
-                     exe_path=compile_(languages["1"], "/var/judger/main.c", "/var/judger/main"),
-                     max_cpu_time=1000000,
-                     max_real_time=200000,
-                     max_memory=1,
-                     test_case_dir="/var/test_cases/1/")
-print client.run()
+java_src = """
+public class Main {
+    public static void main(String[] args) {
+        System.out.print("Hello world");
+    }
+}
+"""
+def judge(languege_code, source_string):
+    language = languages[str(languege_code)]
+    src_path = judger_workspace + language["src_name"]
+    f = open(src_path, "w")
+    f.write(source_string)
+    f.close()
+
+    client = JudgeClient(language_code=languege_code,
+                         exe_path=compile_(languages[str(languege_code)],
+                                           src_path,
+                                           judger_workspace),
+                         max_cpu_time=1000000,
+                         max_real_time=200000,
+                         max_memory=1000,
+                         test_case_dir="/var/test_cases/1/")
+    print client.run()
+
+judge(1, c_src)
+judge(3, java_src)
