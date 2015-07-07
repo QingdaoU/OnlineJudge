@@ -84,12 +84,26 @@ class JudgeClient(object):
 
         command += (" " +
                     execute_command +
+                    # 0就是stdin
                     " 0<" + self._test_case_dir + str(test_case_id) + ".in" +
+                    # 1就是stdout
                     " 1>" + judger_workspace + str(test_case_id) + ".out" +
+                    # 3是stderr，包含lrun的输出和程序的异常输出
                     " 3>&2")
         return command
 
     def _parse_lrun_output(self, output):
+        # 要注意的是 lrun把结果输出到了stderr，所以有些情况下lrun的输出可能与程序的一些错误输出的混合的，要先分离一下
+        error = None
+        # 倒序找到MEMORY的位置
+        output_start = output.rfind("MEMORY")
+        if output_start == -1:
+            raise JudgeClientException("Lrun result parse error")
+        # 如果不是0，说明lrun输出前面有输出，也就是程序的stderr有内容
+        if output_start != 0:
+            error = output[0:output_start]
+        # 分离出lrun的输出
+        output = output[output_start:]
         lines = output.split("\n")
         if len(lines) != 7:
             raise JudgeClientException("Lrun result parse error")
@@ -124,7 +138,7 @@ class JudgeClient(object):
                     result[translate[name]] = None
                 else:
                     result[translate[name]] = translate[value]
-        return result
+        return error, result
 
     def _compare_output(self, test_case_id):
         test_case_md5 = self._test_case_info["test_cases"][str(test_case_id)]["output_md5"]
@@ -154,12 +168,12 @@ class JudgeClient(object):
         status_code, output = commands.getstatusoutput(command)
         if status_code:
             raise JudgeClientException(output)
-        run_result = self._parse_lrun_output(output)
+        error, run_result = self._parse_lrun_output(output)
 
         run_result["test_case_id"] = test_case_id
 
-        # 如果返回值非0 或者信号量不是0 代表非正常结束
-        if run_result["exit_code"] or run_result["term_sig"] or run_result["siginaled"]:
+        # 如果返回值非0 或者信号量不是0 或者程序的stderr有输出 代表非正常结束
+        if run_result["exit_code"] or run_result["term_sig"] or run_result["siginaled"] or error:
             run_result["result"] = result["runtime_error"]
             return run_result
 
@@ -209,20 +223,53 @@ class JudgeClient(object):
 
 
 
-c_src = """
+c_src = r"""
 #include <stdio.h>
+
 int main()
 {
-    printf("Hello world");
+   FILE *fp;
+
+   fp = NULL;
+   fprintf(fp, "This is testing for fprintf...\n");
+   fputs("This is testing for fputs...\n", fp);
+   fclose(fp);
+   printf("111111");
+   return 0;
+}
+"""
+
+cpp_src = r"""
+#include <iostream>
+
+using namespace std;
+
+int main()
+{
+    int a,b;
+    cin >> a >> b;
+    cout << a+b;
     return 0;
 }
 """
 
-java_src = """
-public class Main {
-    public static void main(String[] args) {
-        System.out.print("Hello world");
-    }
+java_src = r"""
+import java.io.*;
+import java.util.*;
+
+public class Main
+{
+   public static void main(String[] args)
+   {
+      Scanner in = new Scanner(System.in);
+      PrintWriter out = new PrintWriter(System.out);
+
+      int a = in.nextInt();
+      int b = in.nextInt();
+      out.print(a + b);
+      throw new EmptyStackException();
+
+   }
 }
 """
 def judge(languege_code, source_string):
@@ -243,4 +290,5 @@ def judge(languege_code, source_string):
     print client.run()
 
 judge(1, c_src)
+judge(2, cpp_src)
 judge(3, java_src)
