@@ -2,7 +2,7 @@
 import commands
 
 from settings import lrun_uid, lrun_gid
-from judge_exceptions import CompileError
+from judge_exceptions import CompileError, JudgeClientError
 from utils import parse_lrun_output
 
 
@@ -22,7 +22,7 @@ def compile_(language_item, src_path, exe_path):
     output_start = output.rfind("MEMORY")
 
     if output_start == -1:
-        raise CompileError("Error running compiler in lrun")
+        raise JudgeClientError("Error running compiler in lrun")
 
     # 返回值不为0 或者 stderr中lrun的输出之前有东西
     if status or output_start:
@@ -33,5 +33,4 @@ def compile_(language_item, src_path, exe_path):
     if parse_result["exit_code"] or parse_result["term_sig"] or parse_result["siginaled"] or parse_result["exceed"]:
         raise CompileError("Compile error")
 
-    # 对于正常编译和超时等其他的错误
     return exe_path

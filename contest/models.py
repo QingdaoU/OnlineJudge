@@ -4,5 +4,9 @@ from django.db import models
 from problem.models import AbstractProblem
 
 
-class ContestProblem(AbstractProblem):
+class Contest(models.Model):
     pass
+
+
+class ContestProblem(AbstractProblem):
+    contest = models.ForeignKey(Contest)

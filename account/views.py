@@ -36,3 +36,11 @@ class UserRegisterView(APIView):
 
     def post(self, request):
         pass
+
+
+class UserChangePasswordView(APIView):
+    def get(self, request):
+        pass
+
+    def post(self, request):
+        pass

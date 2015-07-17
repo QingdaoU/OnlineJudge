@@ -1,7 +1,7 @@
 # coding=utf-8
 
 
-class JudgeClientException(Exception):
+class JudgeClientError(Exception):
     pass
 
 

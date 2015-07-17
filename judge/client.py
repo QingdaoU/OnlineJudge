@@ -8,7 +8,7 @@ from settings import max_running_number, lrun_gid, lrun_uid, judger_workspace
 from language import languages
 from result import result
 from compiler import compile_
-from judge_exceptions import JudgeClientException, CompileError
+from judge_exceptions import JudgeClientError, CompileError
 from utils import parse_lrun_output
 
 
@@ -47,9 +47,9 @@ class JudgeClient(object):
             f = open(self._test_case_dir + "info")
             return json.loads(f.read())
         except IOError:
-            raise JudgeClientException("Test case config file not found")
+            raise JudgeClientError("Test case config file not found")
         except ValueError:
-            raise JudgeClientException("Test case config file format error")
+            raise JudgeClientError("Test case config file format error")
 
     def _generate_command(self, test_case_id):
         """
@@ -82,7 +82,7 @@ class JudgeClient(object):
         # 倒序找到MEMORY的位置
         output_start = output.rfind("MEMORY")
         if output_start == -1:
-            raise JudgeClientException("Lrun result parse error")
+            raise JudgeClientError("Lrun result parse error")
         # 如果不是0，说明lrun输出前面有输出，也就是程序的stderr有内容
         if output_start != 0:
             error = output[0:output_start]
@@ -118,7 +118,7 @@ class JudgeClient(object):
         command = self._generate_command(test_case_id)
         status_code, output = commands.getstatusoutput(command)
         if status_code:
-            raise JudgeClientException(output)
+            raise JudgeClientError(output)
         error, run_result = self._parse_lrun_output(output)
 
         run_result["test_case_id"] = test_case_id
@@ -135,7 +135,7 @@ class JudgeClient(object):
             elif run_result["exceed"] in ["cpu_time", "real_time"]:
                 run_result["result"] = result["time_limit_exceeded"]
             else:
-                raise JudgeClientException("Error exceeded type: " + run_result["exceed"])
+                raise JudgeClientError("Error exceeded type: " + run_result["exceed"])
             return run_result
 
         # 下面就是代码正常运行了 需要判断代码的输出是否正确
