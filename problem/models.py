@@ -26,7 +26,7 @@ class AbstractProblem(models.Model):
     # 最后更新时间
     last_update_time = models.DateTimeField(auto_now=True)
     # 这个题是谁创建的
-    author = models.ForeignKey(User)
+    created_by = models.ForeignKey(User)
     # 来源
     source = models.CharField(max_length=30, blank=True)
     # 时间限制 单位是毫秒
