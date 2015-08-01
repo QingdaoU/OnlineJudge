@@ -1,18 +1,21 @@
 ({
 	// RequireJS 通过一个相对的路径 baseUrl来加载所有代码。baseUrl通常被设置成data-main属性指定脚本的同级目录。
 	baseUrl: ".",
-	//dir: '../built',
 	// 第三方脚本模块的别名,jquery比libs/jquery-1.11.1.min.js简洁明了；
     paths: {
         //百度webuploader
         webuploader: "lib/webuploader/webuploader",
 
-        jquery: "empty:",
+        jquery: "lib/jquery/jquery",
         avalon: "lib/avalon/avalon",
         editor: "utils/editor",
         uploader: "utils/uploader",
         validation: "utils/validation",
         code_mirror: "utils/code_mirror",
+        login: "app/account/login",
+        oj: "app/oj",
+        "bs_alert": "utils/bs_alert",
+
 
         //formValidation 不要在代码中单独使用，而是使用和修改utils/validation
         base: "lib/formValidation/base",
@@ -25,7 +28,7 @@
         "validator/integer": "lib/formValidation/validator/integer",
         "validator/between": "lib/formValidation/validator/between",
 
-        //富文本编辑器
+        //富文本编辑器 不要直接使用，而是使用上面的editor
         simditor: "lib/simditor/simditor",
         "simple-module": "lib/simditor/module",
         "simple-hotkeys": "lib/simditor/hotkeys",
@@ -33,10 +36,17 @@
 
         //code mirroe 代码编辑器
         _code_mirror: "lib/codeMirror/codemirror",
-        code_mirror_clang: "lib/codeMirror/language/clike"
+        code_mirror_clang: "lib/codeMirror/language/clike",
+
+        //bootstrap
+        bootstrap: "lib/bootstrap/bootstrap"
+
     },
-    modules: [{name: "app/main1"}],
-    dir: "app",
+    shim: {
+        "bootstrap": {"deps": ['jquery']}
+    },
+    name: "oj",
+    out: "oj-build.js",
     findNestedDependencies: true
     //wrapShim: true
 })

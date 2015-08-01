@@ -1,4 +1,3 @@
 
-require(["../config"], function(){
-    require(["bootstrap", "login"])
-});
+
+require(["bootstrap", "login"]);
