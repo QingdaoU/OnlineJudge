@@ -1,44 +1,44 @@
 require.config({
     // RequireJS 通过一个相对的路径 baseUrl来加载所有代码。baseUrl通常被设置成data-main属性指定脚本的同级目录。
-    baseUrl: "/static/js/lib/",
+    baseUrl: "/static/js/",
     paths: {
         //百度webuploader
-        webuploader: "webuploader/webuploader",
+        webuploader: "lib/webuploader/webuploader",
 
-        jquery: "jquery/jquery",
-        avalon: "avalon/avalon",
-        editor: "../utils/editor",
-        uploader: "../utils/uploader",
-        validation: "../utils/validation",
-        code_mirror: "../utils/code_mirror",
-        login: "../app/account/login",
-        oj: "../app/oj",
-        "bs_alert": "../utils/bs_alert",
+        jquery: "lib/jquery/jquery",
+        avalon: "lib/avalon/avalon",
+        editor: "utils/editor",
+        uploader: "utils/uploader",
+        validation: "utils/validation",
+        code_mirror: "utils/code_mirror",
+        login: "app/account/login",
+        oj: "app/oj",
+        "bs_alert": "utils/bs_alert",
 
 
         //formValidation 不要在代码中单独使用，而是使用和修改utils/validation
-        base: "formValidation/base",
-        helper: "formValidation/helper",
-        "language/zh_CN": "formValidation/language/zh_CN",
-        "framework/bootstrap": "formValidation/framework/bootstrap",
-        "validator/notEmpty": "formValidation/validator/notEmpty",
-        "validator/stringLength": "formValidation/validator/stringLength",
-        "validator/date": "formValidation/validator/date",
-        "validator/integer": "formValidation/validator/integer",
-        "validator/between": "formValidation/validator/between",
+        base: "lib/formValidation/base",
+        helper: "lib/formValidation/helper",
+        "language/zh_CN": "lib/formValidation/language/zh_CN",
+        "framework/bootstrap": "lib/formValidation/framework/bootstrap",
+        "validator/notEmpty": "lib/formValidation/validator/notEmpty",
+        "validator/stringLength": "lib/formValidation/validator/stringLength",
+        "validator/date": "lib/formValidation/validator/date",
+        "validator/integer": "lib/formValidation/validator/integer",
+        "validator/between": "lib/formValidation/validator/between",
 
         //富文本编辑器 不要直接使用，而是使用上面的editor
-        simditor: "simditor/simditor",
-        "simple-module": "simditor/module",
-        "simple-hotkeys": "simditor/hotkeys",
-        "simple-uploader": "simditor/uploader",
+        simditor: "lib/simditor/simditor",
+        "simple-module": "lib/simditor/module",
+        "simple-hotkeys": "lib/simditor/hotkeys",
+        "simple-uploader": "lib/simditor/uploader",
 
         //code mirroe 代码编辑器
-        _code_mirror: "codeMirror/codemirror",
-        code_mirror_clang: "codeMirror/language/clike",
+        _code_mirror: "lib/codeMirror/codemirror",
+        code_mirror_clang: "lib/codeMirror/language/clike",
 
         //bootstrap
-        bootstrap: "bootstrap/bootstrap"
+        bootstrap: "lib/bootstrap/bootstrap"
 
     },
     shim: {
