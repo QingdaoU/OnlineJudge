@@ -56,3 +56,4 @@ db.db
 db.sqlite3
 .DS_Store
 log/
+release/

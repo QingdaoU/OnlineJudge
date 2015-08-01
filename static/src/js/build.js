@@ -1,6 +1,6 @@
 ({
 	// RequireJS 通过一个相对的路径 baseUrl来加载所有代码。baseUrl通常被设置成data-main属性指定脚本的同级目录。
-	baseUrl: ".",
+	baseUrl: "js/",
 	// 第三方脚本模块的别名,jquery比libs/jquery-1.11.1.min.js简洁明了；
     paths: {
         //百度webuploader
@@ -15,7 +15,6 @@
         login: "app/account/login",
         oj: "app/oj",
         "bs_alert": "utils/bs_alert",
-
 
         //formValidation 不要在代码中单独使用，而是使用和修改utils/validation
         base: "lib/formValidation/base",
@@ -45,8 +44,12 @@
     shim: {
         "bootstrap": {"deps": ['jquery']}
     },
-    name: "oj",
-    out: "oj-build.js",
-    findNestedDependencies: true
-    //wrapShim: true
+    findNestedDependencies: true,
+    appDir: "../",
+    dir: "../../release/",
+    modules: [
+        {
+            name: "oj"
+        }
+    ]
 })
