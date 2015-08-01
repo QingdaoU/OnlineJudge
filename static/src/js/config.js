@@ -13,6 +13,8 @@ require.config({
         code_mirror: "../utils/code_mirror",
         login: "../app/account/login",
         oj: "../app/oj",
+        "bs_alert": "../utils/bs_alert",
+
 
         //formValidation 不要在代码中单独使用，而是使用和修改utils/validation
         base: "formValidation/base",
@@ -33,7 +35,13 @@ require.config({
 
         //code mirroe 代码编辑器
         _code_mirror: "codeMirror/codemirror",
-        code_mirror_clang: "codeMirror/language/clike"
+        code_mirror_clang: "codeMirror/language/clike",
 
+        //bootstrap
+        bootstrap: "bootstrap/bootstrap"
+
+    },
+    shim: {
+        "bootstrap": {"deps": ['jquery']}
     }
 });

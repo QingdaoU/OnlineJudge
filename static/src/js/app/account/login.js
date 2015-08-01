@@ -1,4 +1,4 @@
-define("login", ["jquery", "validation"], function($){
+define("login", ["jquery", "bs_alert", "validation"], function($, bs_alert){
     $("#login-form")
             .formValidation({
             framework: "bootstrap",
@@ -33,12 +33,10 @@ define("login", ["jquery", "validation"], function($){
                         window.location.href="/";
                     }
                     else{
-                        alert(data.data);
+                        bs_alert(data.data);
                     }
                 }
 
             })
         });
-
-
 });
