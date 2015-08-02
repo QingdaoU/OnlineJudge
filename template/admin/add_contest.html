@@ -1,0 +1,183 @@
+{% extends "admin_base.html" %}
+{% block body %}
+    {% verbatim %}
+    <div ms-controller="add_contest">
+
+
+        <form id="add-contest-form">
+            <div class="col-md-9">
+                <div class="col-md-12">
+                    <label>比赛题目</label>
+                </div>
+                <div class="col-md-12">
+                    <div class="form-group">
+                        <input type="text" name="name" class="form-control">
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    <label>说明</label>
+                </div>
+                <div class="col-md-12">
+                    <div class="form-group">
+                        <textarea id="editor" placeholder="这里输入内容" autofocus></textarea>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <label>开始时间</label>
+                </div>
+                <div class="col-md-6">
+                    <label>结束时间</label>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <input type="text" class="form-control" name="start_time" id="contest_start_time">
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <input type="text" class="form-control" name="end_time" id="contest_end_time">
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <label>
+                        密码保护
+                    </label>
+                </div>
+                <div class="col-md-3">
+                    <label>
+                        模式
+                    </label>
+                </div>
+                <div class="col-md-3">
+                    <label>
+                        结束前是否开放排名
+                    </label>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <input type="text" class="form-control" name="password" placeholder="留空就是公开赛">
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <input type="radio" name="mode">OI
+                        <input type="radio" name="mode">ACM
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <input type="checkbox" value="open_rank">开放排名
+                    </div>
+                </div>
+
+                <div class="col-md-12">
+                    <label>添加题目</label>
+                    <a href="javascript:void(0)" class="btn btn-primary btn-sm" ms-click="add_problem()">添加</a>
+                </div>
+                <div class="col-md-12">
+                    <div class="problem" ms-repeat-problem="problems">
+                        <div class="panel panel-default problem-panel" ms-attr-id="problem-{{ problem.id }}">
+                            <div class="panel-heading">
+                                <span class="panel-title">题目{{$index + 1}} </span>
+                                <a href="javascript:void(0)" class="btn btn-primary btn-sm"
+                                   ms-click="toggle_problem(problem)">
+                                    {{ problem.toggle_string }}
+                                </a>
+                                <a href="javascript:void(0)" class="btn btn-danger btn-sm"
+                                   ms-click="del_problem(problem)">
+                                    删除
+                                </a>
+                            </div>
+                            <div class="panel-body" ms-attr-id="problem-{{ problem.id }}-body">
+                                <div class="col-md-12">
+                                    <label>题目</label>
+                                </div>
+
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        <input type="text" name="problem_name[]" class="form-control">
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label>cpu</label>
+                                </div>
+                                <div class="col-md-6">
+                                    <label>内存</label>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <input type="text" name="cpu[]" class="form-control">
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <input type="text" name="memory[]" class="form-control">
+                                    </div>
+                                </div>
+                                <div class="col-md-12">
+
+                                    <label>样例</label>
+                                    <a href="javascript:void(0)" class="btn btn-primary btn-sm"
+                                       ms-click="add_sample(problem)">
+                                        添加
+                                    </a>
+
+                                    <div class="sample">
+                                        <div class="panel panel-default sample-panel"
+                                             ms-repeat-sample="problem.samples">
+                                            <div class="panel-heading">
+                                                <span class="panel-title">样例{{$index + 1}}</span>
+
+                                                <a href="javascript:void(0)" class="btn btn-primary btn-sm"
+                                                   ms-click="toggle_sample(problem, sample)">
+                                                    {{ sample.toggle_string }}
+                                                </a>
+                                                <a href="javascript:void(0)" class="btn btn-danger btn-sm"
+                                                   ms-click="del_sample(problem, sample)">
+                                                    删除
+                                                </a>
+
+                                            </div>
+                                            <div class="panel-body"
+                                                 ms-attr-id="problem-{{ problem.id }}-sampleio-{{ sample.id }}-body">
+                                                <div class="col-md-12">
+                                                    <label>样例输入</label>
+
+                                                </div>
+                                                <div class="col-md-12">
+                                                    <div class="form-group">
+                                                        <textarea class="form-control" rows="5"></textarea>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-12">
+                                                    <label>样例输出</label>
+                                                </div>
+                                                <div class="col-md-12">
+                                                    <div class="form-group">
+                                                        <textarea class="form-control" rows="5"></textarea>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-12">
+                                    <label>测试数据</label>
+                                </div>
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        <div ms-attr-id="problem-{{ problem.id }}-uploader">选择文件</div>
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </form>
+    </div>
+    {% endverbatim %}
+{% endblock %}

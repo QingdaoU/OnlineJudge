@@ -1,5 +1,5 @@
-define(["jquery", "avalon", "editor", "uploader", "datetime_picker",
-        "validation", "dropdown"
+require(["jquery", "avalon", "editor", "uploader", "datetimepicker",
+        "validation"
     ],
     function ($, avalon, editor, uploader) {
         $("#add-contest-form")
@@ -102,7 +102,6 @@ define(["jquery", "avalon", "editor", "uploader", "datetime_picker",
                 text += possible.charAt(Math.floor(Math.random() * possible.length));
             return text;
         }
-
         var editor1 = editor("#editor");
 
         var vm = avalon.define({

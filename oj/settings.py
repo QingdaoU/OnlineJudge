@@ -31,8 +31,6 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'hzfp^8mbgapc&x%$#xv)0=t8s7_ilingw(q3!@h&2fty6v6fxz'
 
-
-
 ALLOWED_HOSTS = []
 
 
@@ -103,7 +101,7 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
-STATICFILES_DIRS = (os.path.join(BASE_DIR, "static/release/"),)
+STATICFILES_DIRS = (os.path.join(BASE_DIR, "static/src/"),)
 
 TEMPLATE_DIRS = (
     os.path.join(BASE_DIR, "template"),
