@@ -1,4 +1,4 @@
-define("login", ["jquery", "bs_alert", "validation"], function($, bs_alert){
+require(["jquery", "bs_alert", "validation"], function($, bs_alert){
     $("#login-form")
             .formValidation({
             framework: "bootstrap",

@@ -20,6 +20,14 @@
 
 <body>
 
+<!--browser happy begin -->
+<!--[if lt IE 9]>
+<div class="alert alert-danger text-center" role="alert">
+    当前网页 <strong>不支持</strong> 你正在使用的浏览器. 为了正常的访问, 请 <a href="http://browsehappy.com/">升级你的浏览器</a>.
+</div>
+<![endif]-->
+<!-- browser happy end -->
+
 <!-- nav begin -->
 <nav class="navbar navbar-masthead navbar-default navbar-static-top">
     <div class="container">
@@ -57,14 +65,6 @@
 </nav>
 <!-- nav end -->
 
-<!--browser happy begin -->
-<!--[if lt IE 9]>
-<div class="alert alert-danger text-center" role="alert">
-    当前网页 <strong>不支持</strong> 你正在使用的浏览器. 为了正常的访问, 请 <a href="http://browsehappy.com/">升级你的浏览器</a>.
-</div>
-<![endif]-->
-<!-- browser happy end -->
-
 <!-- custom body begin -->
 {% block body %}{% endblock %}
 <!-- custom body end -->
@@ -88,7 +88,7 @@
 </div>
 
 <script src="/static/js/config.js"></script>
-<script src="/static/js/require.js" data-main="/static/js/app/oj.js"></script>
+{% block js_block %}{% endblock %}
 <!-- footer begin -->
 <div class="footer">
     <p class="text-muted text-center">Copyright © 2015 青岛大学信息工程学院 创新实验室</p>

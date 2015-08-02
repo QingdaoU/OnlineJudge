@@ -11,11 +11,11 @@ var require = {
         uploader: "utils/uploader",
         validation: "utils/validation",
         code_mirror: "utils/code_mirror",
-        login: "app/oj/account/login",
         oj: "app/oj/oj",
-        "bs_alert": "utils/bs_alert",
+        bs_alert: "utils/bs_alert",
         submit_code: "app/oj/problem/submit_code",
         contest: "app/admin/contest/contest",
+        admin: "app/admin",
 
         //formValidation 不要在代码中单独使用，而是使用和修改utils/validation
         base: "lib/formValidation/base",
