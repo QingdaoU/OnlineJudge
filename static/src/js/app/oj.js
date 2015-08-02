@@ -1,3 +1,3 @@
 
 
-require(["bootstrap", "login"]);
+require(["bootstrap", "login", "submit_code"]);

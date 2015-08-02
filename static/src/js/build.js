@@ -15,6 +15,7 @@
         login: "app/account/login",
         oj: "app/oj",
         "bs_alert": "utils/bs_alert",
+        submit_code: "app/problem/submit_code",
 
         //formValidation 不要在代码中单独使用，而是使用和修改utils/validation
         base: "lib/formValidation/base",

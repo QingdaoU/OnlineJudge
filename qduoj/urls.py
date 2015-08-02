@@ -16,5 +16,6 @@ urlpatterns = [
     url(r'^login/$', TemplateView.as_view(template_name="account/login.html"), name="user_login_page"),
     url(r'^api/login/$', UserLoginAPIView.as_view(), name="login_api"),
     url(r'^api/login/$', UserLoginAPIView.as_view(), name="user_login_api"),
+    url(r'^problem/(?P<problem_id>\d+)/$', "problem.views.problem_page", name="problem_page"),
 
 ]
