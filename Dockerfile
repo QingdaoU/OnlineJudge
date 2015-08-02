@@ -6,4 +6,4 @@ COPY . /var/oj/
 WORKDIR /var/oj/
 RUN pip install -r requirements.txt
 EXPOSE 8080
-RUN python manage,py runserver 8080
+RUN python manage.py runserver 8080
