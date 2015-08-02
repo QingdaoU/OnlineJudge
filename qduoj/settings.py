@@ -31,8 +31,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'hzfp^8mbgapc&x%$#xv)0=t8s7_ilingw(q3!@h&2fty6v6fxz'
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+
 
 ALLOWED_HOSTS = []
 
@@ -48,7 +47,6 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
 
     'account',
-
 
     'rest_framework',
     'rest_framework_swagger',
@@ -86,18 +84,6 @@ TEMPLATES = [
 WSGI_APPLICATION = 'qduoj.wsgi.application'
 
 
-# Database
-# https://docs.djangoproject.com/en/1.8/ref/settings/#databases
-
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-        'CONN_MAX_AGE': 1,
-    }
-}
-
-
 # Internationalization
 # https://docs.djangoproject.com/en/1.8/topics/i18n/
 
@@ -117,7 +103,7 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
-STATICFILES_DIRS = (os.path.join(BASE_DIR, "static/src/"),)
+STATICFILES_DIRS = (os.path.join(BASE_DIR, "static/release/"),)
 
 TEMPLATE_DIRS = (
     os.path.join(BASE_DIR, "template"),
