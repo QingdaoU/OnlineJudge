@@ -1,0 +1,127 @@
+@import url("bootstrap/bootstrap.min.css");
+@import url("bootstrap/todc-bootstrap.min.css");
+@import url("codeMirror/codemirror.css");
+html, body {
+    height: 100%;
+}
+
+img {
+    max-width: 100%;
+    height: auto;
+}
+
+.footer {
+    padding-top: 30px;
+    padding-bottom: 30px;
+    float: bottom;
+    bottom: 0;
+}
+
+label {
+    font-size: 16px;
+}
+
+#language-selector {
+    width: 130px;
+}
+
+#code-field {
+    padding-top: 15px;
+}
+
+
+
+#loading {
+    display: none;
+}
+
+#code-editor {
+    border: 0;
+    height: 300px;
+}
+
+.glyphicon-refresh-animate {
+    -animation: spin .9s infinite linear;
+    -webkit-animation: spin2 .9s infinite linear;
+}
+
+@-webkit-keyframes spin2 {
+    from {
+        -webkit-transform: rotate(0deg);
+    }
+    to {
+        -webkit-transform: rotate(360deg);
+    }
+}
+
+@keyframes spin {
+    from {
+        transform: scale(1) rotate(0deg);
+    }
+    to {
+        transform: scale(1) rotate(360deg);
+    }
+}
+
+.callout {
+    padding: 5px;
+    margin: 20px 0;
+    border: 1px solid #eee;
+    border-left-width: 5px;
+    border-radius: 3px;
+}
+
+.callout-danger {
+    border-left-color: #dd4b39;
+}
+
+.callout-info {
+    border-left-color: #d0e3f0;
+}
+
+.callout-warning {
+    border-left-color: #f1e7bc;
+}
+
+.callout p {
+    font-size: 16px;;
+}
+
+.problem-section {
+    padding-top: 5px;
+    padding-bottom: 5px;
+}
+
+.problem-detail {
+    font-size: 15px;
+}
+
+/* index css */
+.jumbotron {
+    text-align: center;
+    background-color: transparent;
+}
+
+.jumbotron .btn {
+    padding: 14px 24px;
+    font-size: 21px;
+}
+
+.admin-container{
+    padding-left: 10px;
+    padding-right: 10px;
+}
+
+.problem, .sample{
+    padding-top: 15px;
+}
+
+#loading-gif{
+    width: 40px;
+    height: 40px;
+    display: none;
+}
+
+#submit-code-button{
+    margin: 10px;
+}
