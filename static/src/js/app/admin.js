@@ -1,1 +1,1 @@
-require(["contest"]);
+require(["bootstrap", "contest"]);
