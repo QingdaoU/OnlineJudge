@@ -11,7 +11,7 @@ class UserLoginTest(TestCase):
     def test_login_page(self):
         client = Client()
         response = client.get(reverse("user_login_page"))
-        self.assertTemplateUsed(response, "account/login.html")
+        self.assertTemplateUsed(response, "oj/account/login.html")
 
 
 class UserLoginAPITest(APITestCase):
