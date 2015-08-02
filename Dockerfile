@@ -7,4 +7,5 @@ WORKDIR /var/oj/
 RUN pip install -r requirements.txt
 EXPOSE 8080
 RUN mkdir LOG
+RUN python manage.py migrate
 CMD python manage.py runserver 0.0.0.0:8080
