@@ -1,6 +1,6 @@
 FROM python:2.7
 ENV PYTHONUNBUFFERED 1
-EVN oj_env daocloud
+ENV oj_env daocloud
 RUN mkdir /var/oj
 COPY . /var/oj/
 WORKDIR /var/oj/
