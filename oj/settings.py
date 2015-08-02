@@ -15,12 +15,14 @@ https://docs.djangoproject.com/en/1.8/ref/settings/
 import os
 
 # todo 判断运行环境
-ENV = "local"
+ENV = os.environ.get("oj_env", "local")
 
 if ENV == "local":
     from .local_settings import *
-else:
+elif ENV == "server":
     from .server_settings import *
+elif ENV == "daocloud":
+    from .daocloud_settings import *
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
