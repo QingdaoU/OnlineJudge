@@ -1,0 +1,25 @@
+@import url("bootstrap/bootstrap.min.css");
+@import url("bootstrap/todc-bootstrap.min.css");
+@import url("codeMirror/codemirror.css");
+@import url("simditor/simditor.css");
+@import url("webuploader/webuploader.css");
+@import url("datetime_picker/bootstrap-datetimepicker.css");
+html, body {
+    height: 100%;
+}
+
+img {
+    max-width: 100%;
+    height: auto;
+}
+
+.footer {
+    padding-top: 30px;
+    padding-bottom: 30px;
+    float: bottom;
+    bottom: 0;
+}
+
+label {
+    font-size: 16px;
+}
