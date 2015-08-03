@@ -3,7 +3,7 @@ from django.conf.urls import include, url
 from django.contrib import admin
 from django.views.generic import TemplateView
 
-from account.views import UserLoginAPIView, UsernameCheckAPIView, UserRegisterAPIView
+from account.views import UserLoginAPIView, UsernameCheckAPIView, UserRegisterAPIView, UserChangePasswordAPIView
 
 urlpatterns = [
     url("^$", TemplateView.as_view(template_name="oj/index.html"), name="index_page"),
@@ -12,6 +12,7 @@ urlpatterns = [
     url(r'^login/$', TemplateView.as_view(template_name="oj/account/login.html"), name="user_login_page"),
     url(r'^api/login/$', UserLoginAPIView.as_view(), name="user_login_api"),
     url(r'^api/register/$', UserRegisterAPIView.as_view(), name="user_register_api"),
+    url(r'^api/change_password/$', UserChangePasswordAPIView.as_view(), name="user_change_password_api"),
     url(r'^api/username_check/$', UsernameCheckAPIView.as_view(), name="username_check_api"),
     url(r'^problem/(?P<problem_id>\d+)/$', "problem.views.problem_page", name="problem_page"),
 

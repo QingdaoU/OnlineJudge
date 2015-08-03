@@ -6,7 +6,8 @@ from rest_framework.views import APIView
 from utils.shortcuts import serializer_invalid_response, error_response, success_response
 
 from .models import User
-from .serializers import UserLoginSerializer, UsernameCheckSerializer, UserRegisterSerializer
+from .serializers import UserLoginSerializer, UsernameCheckSerializer, UserRegisterSerializer, \
+    UserChangePasswordSerializer
 
 
 class UserLoginAPIView(APIView):
@@ -52,12 +53,25 @@ class UserRegisterAPIView(APIView):
             return serializer_invalid_response(serializer)
 
 
-class UserChangePasswordView(APIView):
-    def get(self, request):
-        pass
-
+class UserChangePasswordAPIView(APIView):
     def post(self, request):
-        pass
+        """
+        用户修改密码json api接口
+        ---
+        request_serializer: UserChangePasswordSerializer
+        """
+        serializer = UserChangePasswordSerializer(data=request.DATA)
+        if serializer.is_valid():
+            data = serializer.data
+            user = auth.authenticate(username=data["username"], password=data["old_password"])
+            if user:
+                user.set_password(data["new_password"])
+                user.save()
+                return success_response(u"用户密码修改成功！")
+            else:
+                return error_response(u"密码不正确，请重新修改！")
+        else:
+            return serializer_invalid_response(serializer)
 
 
 class UsernameCheckAPIView(APIView):

@@ -16,3 +16,9 @@ class UserRegisterSerializer(serializers.Serializer):
     real_name = serializers.CharField(max_length=30)
     password = serializers.CharField(max_length=30, min_length=6)
 
+
+class UserChangePasswordSerializer(serializers.Serializer):
+    username = serializers.CharField(max_length=30)
+    old_password = serializers.CharField(max_length=30, min_length=6)
+    new_password = serializers.CharField(max_length=30, min_length=6)
+
