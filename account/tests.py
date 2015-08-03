@@ -55,3 +55,26 @@ class UsernameCheckTest(APITestCase):
     def test_username_does_not_exist(self):
         response = self.client.post(self.url, data={"username": "testtest123"})
         self.assertEqual(response.data, {"code": 0, "data": False})
+
+
+class UserRegisterAPITest(APITestCase):
+    def setUp(self):
+        self.client = APIClient()
+        self.url = reverse("user_register_api")
+
+    def test_invalid_data(self):
+        data = {"username": "test", "real_name": "TT"}
+        response = self.client.post(self.url, data=data)
+        self.assertEqual(response.data["code"], 1)
+
+    def test_short_password(self):
+        data = {"username": "test", "real_name": "TT", "password": "qq"}
+        response = self.client.post(self.url, data=data)
+        self.assertEqual(response.data["code"], 1)
+
+    def test_same_username(self):
+        User.objects.create(username="aa", real_name="ww")
+        data = {"username": "aa", "real_name": "ww", "password": "zzzzzzz"}
+        response = self.client.post(self.url, data=data)
+        self.assertEqual(response.data, {"code": 1, "data": u"用户名已存在"})
+
