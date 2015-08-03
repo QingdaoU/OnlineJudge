@@ -20,46 +20,6 @@
 
 <body>
 
-<!-- nav begin -->
-<nav class="navbar navbar-masthead navbar-default navbar-static-top">
-    <div class="container">
-        <div class="navbar-header">
-            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar"
-                    aria-expanded="false" aria-controls="navbar">
-                <span class="sr-only">Toggle navigation</span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-            </button>
-            <a class="navbar-brand" href="#">qduoj</a>
-        </div>
-        <div id="navbar" class="navbar-collapse collapse">
-            <ul class="nav navbar-nav">
-                <li class="active"><a href="#">主页</a></li>
-                <li><a href="#about">题目</a></li>
-                <li><a href="#contact">提交</a></li>
-            </ul>
-            <ul class="nav navbar-nav navbar-right">
-                <li class="dropdown">
-                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
-                       aria-expanded="false">
-                        李扬
-                        <span class="caret"></span></a>
-                    <ul class="dropdown-menu">
-                        <li><a href="#">我的资料</a></li>
-                        <li><a href="#">设置</a></li>
-                        <li><a href="#">我的提交</a></li>
-                        <li role="separator" class="divider"></li>
-                        <li class="dropdown-header">修改密码</li>
-                        <li><a href="#">退出</a></li>
-                    </ul>
-                </li>
-            </ul>
-        </div>
-    </div>
-</nav>
-<!-- nav end -->
-
 <!--browser happy begin -->
 <!--[if lt IE 9]>
 <div class="alert alert-danger text-center" role="alert">
@@ -68,8 +28,58 @@
 <![endif]-->
 <!-- browser happy end -->
 
+<!-- nav begin -->
+<nav class="navbar navbar-masthead navbar-default navbar-static-top">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar"
+                    aria-expanded="false" aria-controls="navbar">
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">qduoj</a>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+            <ul class="nav navbar-nav">
+                <li><a href="/problems/">题目</a></li>
+                <li><a href="/submissions/">提交</a></li>
+                <li><a href="/contests/">比赛</a></li>
+                <li><a href="/about/">关于</a></li>
+            </ul>
+            {% if not request.user.is_authenticated %}
+            <ul class="nav navbar-nav navbar-right">
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
+                       aria-expanded="false">
+                        李扬
+                        <span class="caret"></span></a>
+                    <ul class="dropdown-menu">
+                        <li><a href="#">我的提交</a></li>
+                        <li><a href="#">我的资料</a></li>
+                        <li role="separator" class="divider"></li>
+                        <li><a href="#">退出</a></li>
+                    </ul>
+                </li>
+            </ul>
+            {% else %}
+                <ul class="nav navbar-nav navbar-right">
+                <li class="dropdown">
+                    <a href="/login/" class="dropdown-toggle">
+                        登录
+                    </a>
+                </li>
+            </ul>
+            {% endif %}
+        </div>
+    </div>
+</nav>
+<!-- nav end -->
+
 <!-- custom body begin -->
 {% block body %}{% endblock %}
+<!-- custom body end -->
+
 <div class="modal fade" id="modal" tabindex="-1" role="dialog">
     <div class="modal-dialog modal-sm">
         <div class="modal-content">
@@ -88,9 +98,12 @@
     </div>
 </div>
 
-<!-- custom body end -->
 <script src="/static/js/config.js"></script>
-<script src="/static/js/require.js" data-main="/static/js/app/oj.js"></script>
+<script src="/static/js/require.js"></script>
+<script>
+    require(["bootstrap"]);
+</script>
+{% block js_block %}{% endblock %}
 <!-- footer begin -->
 <div class="footer">
     <p class="text-muted text-center">Copyright © 2015 青岛大学信息工程学院 创新实验室</p>

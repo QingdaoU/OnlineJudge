@@ -29,8 +29,6 @@ label {
     padding-top: 15px;
 }
 
-
-
 #loading {
     display: none;
 }
@@ -38,53 +36,6 @@ label {
 #code-editor {
     border: 0;
     height: 300px;
-}
-
-.glyphicon-refresh-animate {
-    -animation: spin .9s infinite linear;
-    -webkit-animation: spin2 .9s infinite linear;
-}
-
-@-webkit-keyframes spin2 {
-    from {
-        -webkit-transform: rotate(0deg);
-    }
-    to {
-        -webkit-transform: rotate(360deg);
-    }
-}
-
-@keyframes spin {
-    from {
-        transform: scale(1) rotate(0deg);
-    }
-    to {
-        transform: scale(1) rotate(360deg);
-    }
-}
-
-.callout {
-    padding: 5px;
-    margin: 20px 0;
-    border: 1px solid #eee;
-    border-left-width: 5px;
-    border-radius: 3px;
-}
-
-.callout-danger {
-    border-left-color: #dd4b39;
-}
-
-.callout-info {
-    border-left-color: #d0e3f0;
-}
-
-.callout-warning {
-    border-left-color: #f1e7bc;
-}
-
-.callout p {
-    font-size: 16px;;
 }
 
 .problem-section {
@@ -124,4 +75,14 @@ label {
 
 #submit-code-button{
     margin: 10px;
+}
+
+li.list-group-item {
+    padding: 10px 15px;
+    margin-bottom: -1px;
+    border: 1px solid #e5e5e5;
+}
+
+.panel>.list-group{
+    padding: 0 0;
 }

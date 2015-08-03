@@ -1,0 +1,91 @@
+{% extends "oj_base.html" %}
+{% block body %}
+    <div class="container" ms-controller="problem_list">
+        <div class="row">
+            <div class="col-lg-9">
+                <div class="row">
+                    <div class="col-lg-3 col-lg-offset-9">
+                        <input type="text" class="form-control" placeholder="搜索题号，标题">
+                    </div>
+                </div>
+                <div>
+                    <table class="table table-striped">
+                        <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>题目</th>
+                            <th>难度</th>
+                            <th>通过率</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr>
+                            <th scope="row"><a href="/problem/1/">1</a></th>
+                            <td><a href="/problem/1/">Mark</a></td>
+                            <td>Otto</td>
+                            <td>@mdo</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">2</th>
+                            <td>Jacob</td>
+                            <td>Thornton</td>
+                            <td>@fat</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">3</th>
+                            <td>Larry</td>
+                            <td>the Bird</td>
+                            <td>@twitter</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="col-lg-3">
+                <div class="panel panel-info">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">
+                            <span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span>
+                            公告
+                        </h3></div>
+                    <div class="panel-body"> Panel content</div>
+                </div>
+                <div class="panel panel-info">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">
+                            <span class="glyphicon glyphicon-tag" aria-hidden="true"></span>
+                            分类
+                        </h3>
+                    </div>
+                    <ul class="list-group">
+                        <li class="list-group-item problem-tag">
+                            <span class="badge">14</span>
+                            Cras justo odio
+                        </li>
+                        <li class="list-group-item problem-tag">
+                            <span class="badge">14</span>
+                            Cras justo odio
+                        </li>
+                        <li class="list-group-item problem-tag">
+                            <span class="badge">14</span>
+                            Cras justo odio
+                        </li>
+                        <li class="list-group-item problem-tag">
+                            <span class="badge">14</span>
+                            Cras justo odio
+                        </li>
+                        <li class="list-group-item problem-tag">
+                            <span class="badge">14</span>
+                            Cras justo odio
+                        </li>
+                    </ul>
+                </div>
+
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block js_block %}
+<script src="/static/js/app/oj/problem/problem_list.js"></script>
+{% endblock %}

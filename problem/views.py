@@ -4,4 +4,4 @@ from django.shortcuts import render
 
 def problem_page(request, problem_id):
     # todo
-    return render(request, "problem/problem.html")
+    return render(request, "oj/problem/problem.html")
