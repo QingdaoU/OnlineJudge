@@ -36,3 +36,22 @@ class UserLoginAPITest(APITestCase):
         data = {"username": "test", "password": "test"}
         response = self.client.post(self.url, data=data)
         self.assertEqual(response.data, {"code": 0, "data": u"登录成功"})
+
+
+class UsernameCheckTest(APITestCase):
+    def setUp(self):
+        self.client = APIClient()
+        self.url = reverse("username_check_api")
+        User.objects.create(username="testtest")
+
+    def test_invalid_data(self):
+        response = self.client.post(self.url, data={"username111": "testtest"})
+        self.assertEqual(response.data["code"], 1)
+
+    def test_username_exists(self):
+        response = self.client.post(self.url, data={"username": "testtest"})
+        self.assertEqual(response.data, {"code": 0, "data": True})
+
+    def test_username_does_not_exist(self):
+        response = self.client.post(self.url, data={"username": "testtest123"})
+        self.assertEqual(response.data, {"code": 0, "data": False})

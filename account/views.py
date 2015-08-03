@@ -6,7 +6,7 @@ from rest_framework.views import APIView
 from utils.shortcuts import serializer_invalid_response, error_response, success_response
 
 from .models import User
-from .serializers import UserLoginSerializer
+from .serializers import UserLoginSerializer, UsernameCheckSerializer
 
 
 class UserLoginAPIView(APIView):
@@ -44,3 +44,21 @@ class UserChangePasswordView(APIView):
 
     def post(self, request):
         pass
+
+
+class UsernameCheckAPIView(APIView):
+    def post(self, request):
+        """
+        检测用户名是否存在，存在返回True，不存在返回False
+        ---
+        request_serializer: UsernameCheckSerializer
+        """
+        serializer = UsernameCheckSerializer(data=request.DATA)
+        if serializer.is_valid():
+            try:
+                User.objects.get(username=serializer.data["username"])
+                return success_response(True)
+            except User.DoesNotExist:
+                return success_response(False)
+        else:
+            return serializer_invalid_response(serializer)
