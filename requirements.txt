@@ -5,3 +5,4 @@ django-redis-sessions
 djangorestframework
 django-rest-swagger
 celery
+gunicorn

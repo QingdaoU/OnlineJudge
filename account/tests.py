@@ -11,7 +11,7 @@ class UserLoginTest(TestCase):
     def test_login_page(self):
         client = Client()
         response = client.get(reverse("user_login_page"))
-        self.assertTemplateUsed(response, "account/login.html")
+        self.assertTemplateUsed(response, "oj/account/login.html")
 
 
 class UserLoginAPITest(APITestCase):
@@ -36,3 +36,66 @@ class UserLoginAPITest(APITestCase):
         data = {"username": "test", "password": "test"}
         response = self.client.post(self.url, data=data)
         self.assertEqual(response.data, {"code": 0, "data": u"登录成功"})
+
+
+class UsernameCheckTest(APITestCase):
+    def setUp(self):
+        self.client = APIClient()
+        self.url = reverse("username_check_api")
+        User.objects.create(username="testtest")
+
+    def test_invalid_data(self):
+        response = self.client.post(self.url, data={"username111": "testtest"})
+        self.assertEqual(response.data["code"], 1)
+
+    def test_username_exists(self):
+        response = self.client.post(self.url, data={"username": "testtest"})
+        self.assertEqual(response.data, {"code": 0, "data": True})
+
+    def test_username_does_not_exist(self):
+        response = self.client.post(self.url, data={"username": "testtest123"})
+        self.assertEqual(response.data, {"code": 0, "data": False})
+
+
+class UserRegisterAPITest(APITestCase):
+    def setUp(self):
+        self.client = APIClient()
+        self.url = reverse("user_register_api")
+
+    def test_invalid_data(self):
+        data = {"username": "test", "real_name": "TT"}
+        response = self.client.post(self.url, data=data)
+        self.assertEqual(response.data["code"], 1)
+
+    def test_short_password(self):
+        data = {"username": "test", "real_name": "TT", "password": "qq"}
+        response = self.client.post(self.url, data=data)
+        self.assertEqual(response.data["code"], 1)
+
+    def test_same_username(self):
+        User.objects.create(username="aa", real_name="ww")
+        data = {"username": "aa", "real_name": "ww", "password": "zzzzzzz"}
+        response = self.client.post(self.url, data=data)
+        self.assertEqual(response.data, {"code": 1, "data": u"用户名已存在"})
+
+
+class UserChangePasswordAPITest(APITestCase):
+    def setUp(self):
+        self.client = APIClient()
+        self.url = reverse("user_change_password_api")
+        User.objects.create(username="test", password="aaabbb")
+
+    def test_error_old_password(self):
+        data = {"username": "test", "old_password": "aaaccc", "new_password": "aaaddd"}
+        response = self.client.post(self.url, data=data)
+        self.assertEqual(response.data, {"code": 1, "data": u"密码不正确，请重新修改！"})
+
+    def test_invalid_data_format(self):
+        data = {"username": "test", "old_password": "aaa", "new_password": "aaaddd"}
+        response = self.client.post(self.url, data=data)
+        self.assertEqual(response.data["code"], 1)
+
+    def test_username_does_not_exist(self):
+        data = {"username": "test1", "old_password": "aaabbb", "new_password": "aaaddd"}
+        response = self.client.post(self.url, data=data)
+        self.assertEqual(response.data["code"], 1)

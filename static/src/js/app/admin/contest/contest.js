@@ -1,4 +1,4 @@
-define("contest", ["jquery", "avalon", "editor", "uploader", "datetimepicker",
+require(["jquery", "avalon", "editor", "uploader", "datetimepicker",
         "validation"
     ],
     function ($, avalon, editor, uploader) {

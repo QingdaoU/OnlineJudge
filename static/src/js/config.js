@@ -11,9 +11,7 @@ var require = {
         uploader: "utils/uploader",
         validation: "utils/validation",
         code_mirror: "utils/code_mirror",
-        login: "app/oj/account/login",
-        oj: "app/oj/oj",
-        "bs_alert": "utils/bs_alert",
+        bs_alert: "utils/bs_alert",
         submit_code: "app/oj/problem/submit_code",
         contest: "app/admin/contest/contest",
 
@@ -44,7 +42,6 @@ var require = {
         //
         "_datetimepicker": "lib/datetime_picker/bootstrap-datetimepicker",
         "datetimepicker": "lib/datetime_picker/bootstrap-datetimepicker.zh-CN"
-
     },
     shim: {
         "bootstrap": {"deps": ['jquery']},

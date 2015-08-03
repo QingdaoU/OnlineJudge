@@ -76,3 +76,13 @@ label {
 #submit-code-button{
     margin: 10px;
 }
+
+li.list-group-item {
+    padding: 10px 15px;
+    margin-bottom: -1px;
+    border: 1px solid #e5e5e5;
+}
+
+.panel>.list-group{
+    padding: 0 0;
+}
