@@ -1,7 +1,4 @@
-
 require(["jquery", "bs_alert", "csrf", "validation"], function($, bs_alert, csrfHeader){
-
-
     $("#change_password-form").formValidation({
             framework: "bootstrap",
             fields: {
@@ -28,20 +25,11 @@ require(["jquery", "bs_alert", "csrf", "validation"], function($, bs_alert, csrf
                             min: 6,
                             max: 30,
                             message: '密码长度必须在6到30位之间'
-                        },
-                        confirm: {
-                            firstPassword: $("#new_password"),
-                            secondPassword: $("#confirm_password"),
-                            message: "两次输入的密码必须一致"
                         }
                     },
                     onSuccess: function(e, data) {
-
-                        if (!data.fv.isValidField('confirm_password')) {
                             data.fv.revalidateField('confirm_password');
-                        }
                     }
-
                 },
                 confirm_password: {
                     validators: {
@@ -49,17 +37,10 @@ require(["jquery", "bs_alert", "csrf", "validation"], function($, bs_alert, csrf
                             message: "请填写确认密码"
                         },
                         confirm: {
-                            firstPassword: $("#new_password"),
-                            secondPassword: $("#confirm_password"),
+                            original: $("#new_password"),
                             message: "两次输入的密码必须一致"
                         }
                     },
-                    onSuccess: function(e, data) {
-
-                        if (!data.fv.isValidField('new_password')) {
-                            data.fv.revalidateField('new_password');
-                        }
-                    }
                 }
             }
         }
@@ -83,8 +64,6 @@ require(["jquery", "bs_alert", "csrf", "validation"], function($, bs_alert, csrf
                         bs_alert(data.data);
                     }
                 }
-
             })
         });
-
 });

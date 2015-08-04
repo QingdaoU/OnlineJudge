@@ -22,13 +22,11 @@
             }
         }
     });
-
     FormValidation.Validator.confirm = {
-
         validate: function(validator, $field, options) {
-                if (options.firstPassword.val() == options.secondPassword.val()  ||options.secondPassword.val()== '')
-                    return true;
-                return false;
-            }
+                    if (options.original.val() == $field.val() || $field.val()== '')
+                        return true;
+                    return false;
+                   }
     };
 }));
