@@ -11,5 +11,4 @@ define("validation",
         'validator/confirm',
         'validator/usernameCheck'],
         function () {
-
     });
