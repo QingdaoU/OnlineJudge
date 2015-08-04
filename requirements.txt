@@ -6,3 +6,4 @@ djangorestframework
 django-rest-swagger
 celery
 gunicorn
+coverage
