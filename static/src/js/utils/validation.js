@@ -7,5 +7,8 @@ define("validation",
         'validator/stringLength',
         'validator/date',
         'validator/integer',
-        'validator/between'], function () {
+        'validator/between',
+        'validator/confirm'],
+        function () {
+
     });
