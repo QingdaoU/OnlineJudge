@@ -25,6 +25,7 @@ var require = {
         "validator/date": "lib/formValidation/validator/date",
         "validator/integer": "lib/formValidation/validator/integer",
         "validator/between": "lib/formValidation/validator/between",
+        'validator/confirm':"lib/formValidation/validator/confirm",
 
         //富文本编辑器 不要直接使用，而是使用上面的editor
         simditor: "lib/simditor/simditor",
