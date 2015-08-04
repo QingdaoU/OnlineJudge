@@ -1,4 +1,4 @@
-require(["jquery", "bs_alert", "validation"], function($, bs_alert){
+require(["jquery", "bs_alert", "csrf", "validation"], function($, bs_alert, csrfHeader){
 
     $("#register-form")
             .formValidation({
@@ -13,6 +13,9 @@ require(["jquery", "bs_alert", "validation"], function($, bs_alert){
                             min: 3,
                             max: 30,
                             message: '用户名长度必须在3到30位之间'
+                        },
+                        usernameCheck:{
+                            message: '用户名已存在'
                         }
                     }
                 },
@@ -75,6 +78,7 @@ require(["jquery", "bs_alert", "validation"], function($, bs_alert){
             var real_name = $("#real_name").val();
             var password = $("#password").val();
             $.ajax({
+                beforeSend: csrfHeader,
                 url: "/api/register/",
                 data: {username: username, real_name: real_name, password: password},
                 dataType: "json",

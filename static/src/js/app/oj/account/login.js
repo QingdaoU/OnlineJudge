@@ -1,4 +1,4 @@
-require(["jquery", "bs_alert", "validation"], function($, bs_alert){
+require(["jquery", "bs_alert", "csrf", "validation"], function($, bs_alert, csrfHeader){
     $("#login-form")
             .formValidation({
             framework: "bootstrap",
@@ -24,6 +24,7 @@ require(["jquery", "bs_alert", "validation"], function($, bs_alert){
             var username = $("#username").val();
             var password = $("#password").val();
             $.ajax({
+                beforeSend: csrfHeader,
                 url: "/api/login/",
                 data: {username: username, password: password},
                 dataType: "json",

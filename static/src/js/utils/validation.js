@@ -8,7 +8,8 @@ define("validation",
         'validator/date',
         'validator/integer',
         'validator/between',
-        'validator/confirm'],
+        'validator/confirm',
+        'validator/usernameCheck'],
         function () {
 
     });

@@ -1,5 +1,5 @@
 
-require(["jquery", "bs_alert", "validation"], function($, bs_alert){
+require(["jquery", "bs_alert", "csrf", "validation"], function($, bs_alert, csrfHeader){
 
 
     $("#change_password-form").formValidation({
@@ -69,6 +69,7 @@ require(["jquery", "bs_alert", "validation"], function($, bs_alert){
             var new_password  = $("#new_password ").val();
             var password = $("#password").val();
             $.ajax({
+                beforeSend: csrfHeader,
                 url: "/api/change_password/",
                 data: {username: username, new_password: new_password , old_password : password},
                 dataType: "json",
