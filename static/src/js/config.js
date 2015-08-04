@@ -14,6 +14,7 @@ var require = {
         bs_alert: "utils/bs_alert",
         submit_code: "app/oj/problem/submit_code",
         contest: "app/admin/contest/contest",
+        csrf: "utils/csrf",
 
         //formValidation 不要在代码中单独使用，而是使用和修改utils/validation
         base: "lib/formValidation/base",
@@ -26,7 +27,7 @@ var require = {
         "validator/integer": "lib/formValidation/validator/integer",
         "validator/between": "lib/formValidation/validator/between",
         'validator/confirm':"lib/formValidation/validator/confirm",
-
+        "validator/usernameCheck":"lib/formValidation/validator/usernameCheck",
         //富文本编辑器 不要直接使用，而是使用上面的editor
         simditor: "lib/simditor/simditor",
         "simple-module": "lib/simditor/module",

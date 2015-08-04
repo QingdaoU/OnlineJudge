@@ -10,6 +10,8 @@ urlpatterns = [
     url(r'^docs/', include('rest_framework_swagger.urls')),
     url(r'^admin/$', TemplateView.as_view(template_name="admin/index.html"), name="admin_index_page"),
     url(r'^login/$', TemplateView.as_view(template_name="oj/account/login.html"), name="user_login_page"),
+    url(r'^register/$', TemplateView.as_view(template_name="oj/account/register.html"), name="user_register_page"),
+    url(r'^change_password/$', TemplateView.as_view(template_name="oj/account/change_password.html"), name="user_change_password_page"),
     url(r'^api/login/$', UserLoginAPIView.as_view(), name="user_login_api"),
     url(r'^api/register/$', UserRegisterAPIView.as_view(), name="user_register_api"),
     url(r'^api/change_password/$', UserChangePasswordAPIView.as_view(), name="user_change_password_api"),
