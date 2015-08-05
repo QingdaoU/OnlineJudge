@@ -1,7 +1,6 @@
 # coding=utf-8
 from django.core.paginator import Paginator
 
-from rest_framework import pagination
 from rest_framework.response import Response
 
 
@@ -20,6 +19,31 @@ def success_response(data):
 def paginate(request, query_set, object_serializer):
     """
     用于分页的函数
+    如果 url 里面不含有paging=true，那么将返回全部数据。类似
+    [
+        {
+            "username": "1111111",
+            "password": "123456"
+        }
+    ]
+    如果 url 中有 paging=true 的参数，
+    然后还需要读取其余的两个参数，page=[int]，需要的页码，p
+    age_size=[int]，一页的数据条数
+    参数错误的时候，返回{"code": 1, "data": u"参数错误"}
+    返回的数据格式
+    {
+        "code": 0,
+        "data": {
+            "previous_page": null,
+            "results": [
+                {
+                    "username": "1111111",
+                    "password": "123456"
+                }
+            ],
+            "next_page": 2
+        }
+    }
     :param query_set 数据库查询结果
     :param object_serializer: 序列化单个object的serializer
     :return response

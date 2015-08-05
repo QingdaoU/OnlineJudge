@@ -35,19 +35,19 @@ class PaginatorTest(APITestCase):
         response = self.client.get(self.url + "?paging=true")
         self.assertEqual(response.data, {"code": 1, "data": u"参数错误"})
 
-        response = self.client.get(self.url + "?paging=true&limit=-1")
+        response = self.client.get(self.url + "?paging=true&page_size=-1")
         self.assertEqual(response.data, {"code": 1, "data": u"参数错误"})
 
-        response = self.client.get(self.url + "?paging=true&limit=aa")
+        response = self.client.get(self.url + "?paging=true&page_size=aa")
         self.assertEqual(response.data, {"code": 1, "data": u"参数错误"})
 
-        response = self.client.get(self.url + "?paging=true&limit=1&page_size=1&page=-1")
+        response = self.client.get(self.url + "?paging=true&page_size=1&page=-1")
         self.assertEqual(response.data, {"code": 1, "data": u"参数错误"})
 
-        response = self.client.get(self.url + "?paging=true&limit=1&page_size=aaa&page=1")
+        response = self.client.get(self.url + "?paging=true&page_size=aaa&page=1")
         self.assertEqual(response.data, {"code": 1, "data": u"参数错误"})
 
-        response = self.client.get(self.url + "?paging=true&limit=1&page_size=1&page=aaa")
+        response = self.client.get(self.url + "?paging=true&page_size=1&page=aaa")
         self.assertEqual(response.data, {"code": 1, "data": u"参数错误"})
 
     def test_correct_paginate(self):
