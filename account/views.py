@@ -7,7 +7,7 @@ from utils.shortcuts import serializer_invalid_response, error_response, success
 
 from .models import User
 from .serializers import UserLoginSerializer, UsernameCheckSerializer, UserRegisterSerializer, \
-    UserChangePasswordSerializer
+    UserChangePasswordSerializer, EmailCheckSerializer
 
 
 class UserLoginAPIView(APIView):
@@ -45,7 +45,13 @@ class UserRegisterAPIView(APIView):
                 User.objects.get(username=data["username"])
                 return error_response(u"用户名已存在")
             except User.DoesNotExist:
-                user = User.objects.create(username=data["username"], real_name=data["real_name"])
+                pass
+            try:
+                User.objects.get(email=data["email"])
+                return error_response(u"该邮箱已被注册，请换其他邮箱进行注册")
+            except User.DoesNotExist:
+                user = User.objects.create(username=data["username"], real_name=data["real_name"],
+                                           email=data["email"])
                 user.set_password(data["password"])
                 user.save()
                 return success_response(u"注册成功！")
@@ -85,6 +91,23 @@ class UsernameCheckAPIView(APIView):
         if serializer.is_valid():
             try:
                 User.objects.get(username=serializer.data["username"])
+                return success_response(True)
+            except User.DoesNotExist:
+                return success_response(False)
+        else:
+            return serializer_invalid_response(serializer)
+
+class EmailCheckAPIView(APIView):
+    def post(self, request):
+        """
+        检测邮箱是否存在，存在返回True，不存在返回False
+        ---
+        request_serializer: EmailCheckSerializer
+        """
+        serializer = EmailCheckSerializer(data=request.DATA)
+        if serializer.is_valid():
+            try:
+                User.objects.get(email=serializer.data["email"])
                 return success_response(True)
             except User.DoesNotExist:
                 return success_response(False)

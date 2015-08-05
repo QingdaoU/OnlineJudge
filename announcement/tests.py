@@ -4,7 +4,7 @@ from django.core.urlresolvers import reverse
 from rest_framework.test import APITestCase, APIClient
 
 
-class AbstractAnnouncementAPITest(APITestCase):
+class AnnouncementAPITest(APITestCase):
         def setUp(self):
             self.client = APIClient()
             self.url = reverse("announcement_api")
