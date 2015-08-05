@@ -1,3 +1,5 @@
+
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -81,7 +83,7 @@
         <!-- admin left end -->
 
         <!-- custom body begin -->
-        {% block body %}{% endblock %}
+        <div ms-include-src="template_url"></div>
         <!-- custom body end -->
     </div>
 </div>
@@ -110,7 +112,7 @@
 <script>
     require(["bootstrap", "admin"]);
 </script>
-{% block js_block %}{% endblock %}
+
 <!-- footer begin -->
 <div class="footer">
     <p class="text-muted text-center">Copyright © 2015 青岛大学信息工程学院 创新实验室</p>

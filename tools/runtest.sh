@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
 coverage run --source='.' manage.py test
-coverage html
-open htmlcov/index.html
+test_result=$?
+if [ "$test_result" -eq 0 ];then
+    coverage html
+    open htmlcov/index.html
+fi
