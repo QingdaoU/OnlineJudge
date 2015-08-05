@@ -1,8 +1,6 @@
 # coding=utf-8
 import json
 
-from django.contrib import auth
-
 from django.core.urlresolvers import reverse
 from django.test import TestCase, Client
 from django.http import HttpResponse
@@ -73,7 +71,6 @@ class EmailCheckTest(APITestCase):
 
     def test_invalid_data(self):
         response = self.client.post(self.url, data={"email000": "11@qq.com"})
-        self.assertEqual(response.data["code"], 1)
         self.assertEqual(response.data["code"], 1)
 
     def test_email_exists(self):
