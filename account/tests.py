@@ -1,6 +1,8 @@
 # coding=utf-8
 import json
 
+from django.contrib import auth
+
 from django.core.urlresolvers import reverse
 from django.test import TestCase, Client
 from django.http import HttpResponse
@@ -63,6 +65,26 @@ class UsernameCheckTest(APITestCase):
         self.assertEqual(response.data, {"code": 0, "data": False})
 
 
+class EmailCheckTest(APITestCase):
+    def setUp(self):
+        self.client = APIClient()
+        self.url = reverse("email_check_api")
+        User.objects.create(email="11@qq.com")
+
+    def test_invalid_data(self):
+        response = self.client.post(self.url, data={"email000": "11@qq.com"})
+        self.assertEqual(response.data["code"], 1)
+        self.assertEqual(response.data["code"], 1)
+
+    def test_email_exists(self):
+        response = self.client.post(self.url, data={"email": "11@qq.com"})
+        self.assertEqual(response.data, {"code": 0, "data": True})
+
+    def test_email_does_not_exist(self):
+        response = self.client.post(self.url, data={"email": "33@qq.com"})
+        self.assertEqual(response.data, {"code": 0, "data": False})
+
+
 class UserRegisterAPITest(APITestCase):
     def setUp(self):
         self.client = APIClient()
@@ -74,22 +96,35 @@ class UserRegisterAPITest(APITestCase):
         self.assertEqual(response.data["code"], 1)
 
     def test_short_password(self):
-        data = {"username": "test", "real_name": "TT", "password": "qq"}
+        data = {"username": "test", "real_name": "TT", "password": "qq", "email": "6060@qq.com"}
         response = self.client.post(self.url, data=data)
         self.assertEqual(response.data["code"], 1)
 
     def test_same_username(self):
-        User.objects.create(username="aa", real_name="ww")
-        data = {"username": "aa", "real_name": "ww", "password": "zzzzzzz"}
+        User.objects.create(username="aa")
+        data = {"username": "aa", "real_name": "ww", "password": "zzzzzzz", "email": "6060@qq.com"}
         response = self.client.post(self.url, data=data)
         self.assertEqual(response.data, {"code": 1, "data": u"用户名已存在"})
+
+    def test_same_email(self):
+        User.objects.create(username="bb", email="8080@qq.com")
+        data = {"username": "aa", "real_name": "ww", "password": "zzzzzzz", "email": "8080@qq.com"}
+        response = self.client.post(self.url, data=data)
+        self.assertEqual(response.data, {"code": 1, "data": u"该邮箱已被注册，请换其他邮箱进行注册"})
+
+    def test_success_email(self):
+        data = {"username": "cc", "real_name": "dd", "password": "xxxxxx", "email": "9090@qq.com"}
+        response = self.client.post(self.url, data=data)
+        self.assertEqual(response.data, {"code": 0, "data": u"注册成功！"})
 
 
 class UserChangePasswordAPITest(APITestCase):
     def setUp(self):
         self.client = APIClient()
         self.url = reverse("user_change_password_api")
-        User.objects.create(username="test", password="aaabbb")
+        user = User.objects.create(username="test")
+        user.set_password("aaabbb")
+        user.save()
 
     def test_error_old_password(self):
         data = {"username": "test", "old_password": "aaaccc", "new_password": "aaaddd"}
@@ -105,6 +140,11 @@ class UserChangePasswordAPITest(APITestCase):
         data = {"username": "test1", "old_password": "aaabbb", "new_password": "aaaddd"}
         response = self.client.post(self.url, data=data)
         self.assertEqual(response.data["code"], 1)
+
+    def test_success_change_password(self):
+        data = {"username": "test", "old_password": "aaabbb", "new_password": "aaaccc"}
+        response = self.client.post(self.url, data=data)
+        self.assertEqual(response.data, {"code": 0, "data": u"用户密码修改成功！"})
 
 
 @login_required

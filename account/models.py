@@ -19,6 +19,8 @@ class User(AbstractBaseUser):
     username = models.CharField(max_length=30, unique=True)
     # 真实姓名
     real_name = models.CharField(max_length=30, blank=True, null=True)
+    # 用户邮箱
+    email = models.EmailField(max_length=254, blank=True, null=True)
     admin_group = models.ForeignKey(AdminGroup, null=True, on_delete=models.SET_NULL)
 
     USERNAME_FIELD = 'username'
