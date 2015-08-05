@@ -28,7 +28,7 @@ var require = {
         "validator/integer": "lib/formValidation/validator/integer",
         "validator/between": "lib/formValidation/validator/between",
         "validator/confirm":"lib/formValidation/validator/confirm",
-        "validator/remoteCSRF":"lib/formValidation/validator/remoteCSRF",
+        "validator/remote":"lib/formValidation/validator/remote",
         "validator/emailAddress":"lib/formValidation/validator/emailAddress",
         //富文本编辑器 不要直接使用，而是使用上面的editor
         simditor: "lib/simditor/simditor",

@@ -9,7 +9,7 @@ define("validation",
         'validator/integer',
         'validator/between',
         'validator/confirm',
-        'validator/remoteCSRF',
+        'validator/remote',
         'validator/emailAddress'],
         function () {
     });
