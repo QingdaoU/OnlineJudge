@@ -2,6 +2,11 @@ require(["jquery", "bs_alert", "csrf", "validation"], function($, bs_alert, csrf
     $("#register-form")
             .formValidation({
             framework: "bootstrap",
+            icon: {
+                valid: 'glyphicon glyphicon-ok',
+                invalid: 'glyphicon glyphicon-remove',
+                validating: 'glyphicon glyphicon-refresh'
+            },
             fields: {
                 username: {
                     validators: {
@@ -13,8 +18,10 @@ require(["jquery", "bs_alert", "csrf", "validation"], function($, bs_alert, csrf
                             max: 30,
                             message: '用户名长度必须在3到30位之间'
                         },
-                        usernameCheck:{
-                            message: '用户名已存在'
+                        remote: {
+                            message: "用户名已存在",
+                            url: "/api/username_check/",
+                            field: 'username'
                         }
                     }
                 },
@@ -50,6 +57,21 @@ require(["jquery", "bs_alert", "csrf", "validation"], function($, bs_alert, csrf
                             message: "两次输入的密码必须一致"
                         }
                     }
+                },
+                email: {
+                    validators: {
+                        notEmpty: {
+                            message: "请填写电子邮箱邮箱地址"
+                        },
+                        emailAddress: {
+                            message: "请填写有效的邮箱地址"
+                        },
+                        remote: {
+                            message: "您已经注册过了",
+                            url: "/api/email_check/",
+                            field: 'email'
+                        }
+                    }
                 }
             }
         }
@@ -72,8 +94,6 @@ require(["jquery", "bs_alert", "csrf", "validation"], function($, bs_alert, csrf
                         bs_alert(data.data);
                     }
                 }
-
             })
         });
-
 });
