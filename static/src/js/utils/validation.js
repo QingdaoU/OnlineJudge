@@ -9,6 +9,7 @@ define("validation",
         'validator/integer',
         'validator/between',
         'validator/confirm',
-        'validator/usernameCheck'],
+        'validator/remote',
+        'validator/emailAddress'],
         function () {
     });

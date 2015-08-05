@@ -6,11 +6,12 @@ from django.views.generic import TemplateView
 from account.views import UserLoginAPIView, UsernameCheckAPIView, UserRegisterAPIView, UserChangePasswordAPIView, \
     EmailCheckAPIView
 from announcement.views import AnnouncementAPIView
+from admin.views import AdminTemplateView
 
 urlpatterns = [
     url("^$", TemplateView.as_view(template_name="oj/index.html"), name="index_page"),
     url(r'^docs/', include('rest_framework_swagger.urls')),
-    url(r'^admin/$', TemplateView.as_view(template_name="admin/index.html"), name="admin_index_page"),
+    url(r'^admin/$', TemplateView.as_view(template_name="admin/admin.html"), name="admin_spa_page"),
     url(r'^login/$', TemplateView.as_view(template_name="oj/account/login.html"), name="user_login_page"),
     url(r'^register/$', TemplateView.as_view(template_name="oj/account/register.html"), name="user_register_page"),
     url(r'^change_password/$', TemplateView.as_view(template_name="oj/account/change_password.html"), name="user_change_password_page"),
@@ -24,4 +25,5 @@ urlpatterns = [
 
     url(r'^admin/contest/$', TemplateView.as_view(template_name="admin/contest/add_contest.html"), name="add_contest_page"),
     url(r'^problems/$', TemplateView.as_view(template_name="oj/problem/problem_list.html"), name="problem_list_page"),
+    url(r'^admin/template/(?P<template_dir>\w+)/(?P<template_name>\w+).html', AdminTemplateView.as_view(), name="admin_template")
 ]
