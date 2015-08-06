@@ -21,7 +21,8 @@ class User(AbstractBaseUser):
     real_name = models.CharField(max_length=30, blank=True, null=True)
     # 用户邮箱
     email = models.EmailField(max_length=254, blank=True, null=True)
-    admin_group = models.ForeignKey(AdminGroup, null=True, on_delete=models.SET_NULL)
+    # 0代表不是管理员 1是普通管理员 2是超级管理员
+    admin_type = models.IntegerField(default=0)
 
     USERNAME_FIELD = 'username'
     REQUIRED_FIELDS = []
