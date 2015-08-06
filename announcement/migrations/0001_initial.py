@@ -17,8 +17,9 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('title', models.CharField(max_length=50)),
-                ('description', models.TextField()),
+                ('content', models.TextField()),
                 ('create_time', models.DateTimeField(auto_now_add=True)),
+                ('last_update_time', models.DateTimeField(auto_now=True)),
                 ('visible', models.BooleanField(default=True)),
                 ('created_by', models.ForeignKey(to=settings.AUTH_USER_MODEL)),
             ],
