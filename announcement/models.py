@@ -7,8 +7,8 @@ from account.models import User
 class Announcement(models.Model):
     # 标题
     title = models.CharField(max_length=50)
-    # 公告的描述 HTML 格式
-    description = models.TextField()
+    # 公告的内容 HTML 格式
+    content = models.TextField()
     # 创建时间
     create_time = models.DateTimeField(auto_now_add=True)
     # 这个公告是谁创建的

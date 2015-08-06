@@ -21,7 +21,7 @@ class AnnouncementAPIView(APIView):
         if serializer.is_valid():
             data = serializer.data
             Announcement.objects.create(title=data["title"],
-                                        description=data["description"],
+                                        content=data["content"],
                                         created_by=request.user)
             return success_response(u"公告发布成功！")
         else:
