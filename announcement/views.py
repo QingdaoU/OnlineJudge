@@ -6,7 +6,8 @@ from utils.shortcuts import serializer_invalid_response, error_response, success
 from account.models import User
 from utils.shortcuts import paginate
 from .models import Announcement
-from .serializers import CreateAnnouncementSerializer, AnnouncementSerializer
+from .serializers import (CreateAnnouncementSerializer, AnnouncementSerializer,
+                          EditAnnouncementSerializer)
 
 
 class AnnouncementAdminAPIView(APIView):
@@ -23,6 +24,28 @@ class AnnouncementAdminAPIView(APIView):
                                         content=data["content"],
                                         created_by=request.user)
             return success_response(u"公告发布成功！")
+        else:
+            return serializer_invalid_response(serializer)
+
+    def put(self, request):
+        """
+        公告编辑json api接口
+        ---
+        request_serializer: EditAnnouncementSerializer
+        response_serializer: AnnouncementSerializer
+        """
+        serializer = EditAnnouncementSerializer(data=request.DATA)
+        if serializer.is_valid():
+            data = serializer.data
+            try:
+                announcement = Announcement.objects.get(id=data["id"])
+            except Announcement.DoesNotExist:
+                return error_response(u"该公告不存在！")
+            announcement.title = data["title"]
+            announcement.content = data["content"]
+            announcement.visible = data["visible"]
+            announcement.save()
+            return success_response(AnnouncementSerializer(announcement).data)
         else:
             return serializer_invalid_response(serializer)
 
