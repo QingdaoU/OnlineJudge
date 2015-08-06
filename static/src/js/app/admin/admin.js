@@ -20,12 +20,16 @@ define("admin", ["jquery", "avalon"], function($, avalon){
         if(hash){
             li_inactive(".list-group-item");
             li_active("#li-" + hash);
+            $("#loading-gif").show();
             vm.template_url = "template/index/" + hash + ".html";
         }
     };
 
     var vm = avalon.define({
         $id: "admin",
-        template_url: "template/index/index.html"
+        template_url: "template/index/index.html",
+        hide_loading: function(){
+            $("#loading-gif").hide();
+        }
     });
 });
