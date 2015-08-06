@@ -20,5 +20,13 @@ def login_required(func):
     return check
 
 
-def admin_required():
-    pass
+def admin_required(func):
+    def check(*args, **kwargs):
+        request = args[-1]
+        if request.user.is_authenticated() and request.user.admin_type:
+            return func(*args, **kwargs)
+        if request.is_ajax():
+            return error_response(u"需要管理员权限")
+        else:
+            return render(request, "utils/error.html", {"error": "需要管理员权限"})
+    return check
