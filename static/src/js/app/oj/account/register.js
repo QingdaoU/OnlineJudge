@@ -1,14 +1,10 @@
-require(["jquery", "bs_alert", "csrf", "validation"], function($, bs_alert, csrfHeader){
+require(["jquery", "bs_alert", "csrf", "validation"], function ($, bs_alert, csrfHeader) {
     $("#register-form")
-            .formValidation({
+        .formValidation({
             framework: "bootstrap",
-            icon: {
-                valid: 'glyphicon glyphicon-ok',
-                invalid: 'glyphicon glyphicon-remove',
-                validating: 'glyphicon glyphicon-refresh'
-            },
             fields: {
                 username: {
+                    trigger: 'blur',
                     validators: {
                         notEmpty: {
                             message: "请填写用户名"
@@ -29,23 +25,23 @@ require(["jquery", "bs_alert", "csrf", "validation"], function($, bs_alert, csrf
                     validators: {
                         notEmpty: {
                             message: "请填写密码"
-                            },
-                            stringLength: {
-                                min: 6,
-                                max: 30,
-                                message: '密码长度必须在6到30位之间'
-                            }
+                        },
+                        stringLength: {
+                            min: 6,
+                            max: 30,
+                            message: '密码长度必须在6到30位之间'
+                        }
                     },
-                    onSuccess: function(e, data) {
-                            data.fv.revalidateField('confirm_password');
+                    onSuccess: function (e, data) {
+                        data.fv.revalidateField('confirm_password');
                     }
                 },
                 real_name: {
                     validators: {
                         notEmpty: {
                             message: "请填写真实姓名"
-                            }
-                    },
+                        }
+                    }
                 },
                 confirm_password: {
                     validators: {
@@ -59,6 +55,7 @@ require(["jquery", "bs_alert", "csrf", "validation"], function($, bs_alert, csrf
                     }
                 },
                 email: {
+                    trigger: 'blur',
                     validators: {
                         notEmpty: {
                             message: "请填写电子邮箱邮箱地址"
@@ -75,22 +72,23 @@ require(["jquery", "bs_alert", "csrf", "validation"], function($, bs_alert, csrf
                 }
             }
         }
-    ).on('success.form.fv', function(e) {
+    ).on('success.form.fv', function (e) {
             e.preventDefault();
             var username = $("#username").val();
             var real_name = $("#real_name").val();
             var password = $("#password").val();
+            var email = $("#email").val();
             $.ajax({
                 beforeSend: csrfHeader,
                 url: "/api/register/",
-                data: {username: username, real_name: real_name, password: password},
+                data: {username: username, real_name: real_name, password: password, email: email},
                 dataType: "json",
                 method: "post",
                 success: function (data) {
-                    if(!data.code){
-                        window.location.href="/login/";
+                    if (!data.code) {
+                        window.location.href = "/login/";
                     }
-                    else{
+                    else {
                         bs_alert(data.data);
                     }
                 }
