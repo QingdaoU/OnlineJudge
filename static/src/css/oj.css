@@ -1,25 +1,7 @@
 @import url("bootstrap/bootstrap.min.css");
 @import url("bootstrap/todc-bootstrap.min.css");
 @import url("codeMirror/codemirror.css");
-html, body {
-    height: 100%;
-}
 
-img {
-    max-width: 100%;
-    height: auto;
-}
-
-.footer {
-    padding-top: 30px;
-    padding-bottom: 30px;
-    float: bottom;
-    bottom: 0;
-}
-
-label {
-    font-size: 16px;
-}
 
 #language-selector {
     width: 130px;
@@ -47,7 +29,6 @@ label {
     font-size: 15px;
 }
 
-/* index css */
 .jumbotron {
     text-align: center;
     background-color: transparent;
