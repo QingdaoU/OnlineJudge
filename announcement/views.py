@@ -32,7 +32,7 @@ class AnnouncementAPIView(APIView):
         """
         公告分页json api接口
         ---
-        request_serializer: AnnouncementSerializer
+        response_serializer: AnnouncementSerializer
         """
         announcement = Announcement.objects.all().order_by("last_update_time")
         return paginate(request, announcement, AnnouncementSerializer)
