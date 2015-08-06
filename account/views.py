@@ -97,6 +97,7 @@ class UsernameCheckAPIView(APIView):
         else:
             return serializer_invalid_response(serializer)
 
+
 class EmailCheckAPIView(APIView):
     def post(self, request):
         """

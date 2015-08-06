@@ -22,3 +22,9 @@ class AnnouncementSerializer(serializers.ModelSerializer):
     class Meta:
         model = Announcement
 
+
+class EditAnnouncementSerializer(serializers.Serializer):
+    id = serializers.IntegerField()
+    title = serializers.CharField(max_length=50)
+    content = serializers.CharField(max_length=10000)
+    visible = serializers.BooleanField()
