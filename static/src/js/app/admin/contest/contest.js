@@ -2,6 +2,7 @@ require(["jquery", "avalon", "editor", "uploader", "datetimepicker",
         "validation"
     ],
     function ($, avalon, editor, uploader) {
+        avalon.vmodels.add_contest = null;
         $("#add-contest-form")
             .formValidation({
                 framework: "bootstrap",
