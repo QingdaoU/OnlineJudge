@@ -4,7 +4,7 @@ from django.contrib import admin
 from django.views.generic import TemplateView
 
 from account.views import UserLoginAPIView, UsernameCheckAPIView, UserRegisterAPIView, UserChangePasswordAPIView, \
-    EmailCheckAPIView
+    EmailCheckAPIView, UserAPIView, UserAdminAPIView
 from announcement.views import AnnouncementAPIView, AnnouncementAdminAPIView
 from admin.views import AdminTemplateView
 
@@ -21,9 +21,11 @@ urlpatterns = [
     url(r'^api/username_check/$', UsernameCheckAPIView.as_view(), name="username_check_api"),
     url(r'^api/email_check/$', EmailCheckAPIView.as_view(), name="email_check_api"),
     url(r'^api/admin/announcement/$', AnnouncementAdminAPIView.as_view(), name="announcement_admin_api"),
+    url(r'^api/admin/user/$', UserAdminAPIView.as_view(), name="user_admin_api"),
     url(r'^problem/(?P<problem_id>\d+)/$', "problem.views.problem_page", name="problem_page"),
 
     url(r'^api/announcements/$', AnnouncementAPIView.as_view(), name="announcement_list_api"),
+    url(r'^api/users/$', UserAPIView.as_view(), name="user_list_api"),
 
     url(r'^admin/contest/$', TemplateView.as_view(template_name="admin/contest/add_contest.html"), name="add_contest_page"),
     url(r'^problems/$', TemplateView.as_view(template_name="oj/problem/problem_list.html"), name="problem_list_page"),
