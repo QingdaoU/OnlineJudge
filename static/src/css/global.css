@@ -1,3 +1,16 @@
+html{
+    height: 100%;
+}
+
+body{
+    height:100%; /*使内容高度和body一样*/
+    margin-bottom:-80px;/*向上缩减80像素，不至于footer超出屏幕可视范围*/
+}
+
+.main{
+    padding-bottom: 120px;
+}
+
 img {
     max-width: 100%;
     height: auto;
@@ -6,8 +19,7 @@ img {
 .footer {
     left: 0;
     right: 0;
-    position: absolute;
-    bottom: 30px;
+    height: 80px
 }
 
 label {
