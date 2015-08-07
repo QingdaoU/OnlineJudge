@@ -1,8 +1,7 @@
-<style> [ms-controller] {
-    display: none
-}</style>
-<h1>Announcement</h1>
-<div ms-controller="announcement">
+<style> </style>
+
+<div ms-controller="announcement" class="col-md-9">
+    <h1>Announcement</h1>
     <table class="table table-striped">
         <tr>
             <th>编号</th>
@@ -45,7 +44,8 @@
             <input type="checkbox" id="hidden">
         </div>
         <div class="form-group">
-            <button ms-click="submitChange()" class="btn btn-primary">提交</button><button ms-click="disEdit()" class="btn btn-danger">取消</button>
+            <button ms-click="submitChange()" class="btn btn-primary">提交</button>&nbsp;&nbsp;
+            <button ms-click="disEdit()" class="btn btn-danger">取消</button>
         </div>
     </div>
     <h3>添加公告</h3>
