@@ -144,6 +144,62 @@ class UserChangePasswordAPITest(APITestCase):
         self.assertEqual(response.data, {"code": 0, "data": u"用户密码修改成功！"})
 
 
+class UserAPITest(APITestCase):
+    def setUp(self):
+        self.client = APIClient()
+        self.url = reverse("user_list_api")
+
+    def test_success_get_data(self):
+        self.assertEqual(self.client.get(self.url).data["code"], 0)
+
+    def test_error_admin_type(self):
+        response = self.client.get(self.url + "?admin_type=error")
+        self.assertEqual(response.data, {"code": 1, "data": u"参数错误"})
+
+    def test_query_by_keyword(self):
+        user1 = User.objects.create(username="test1", real_name="aa")
+        user1.set_password("testaa")
+        user1.save()
+
+        user2 = User.objects.create(username="test2", real_name="bb")
+        user2.set_password("testbb")
+        user2.save()
+
+        user3 = User.objects.create(username="test3", real_name="cc")
+        user3.set_password("testcc")
+        user3.save()
+
+        response = self.client.get(self.url + "?keyword=test1")
+        self.assertEqual(response.data["code"], 0)
+
+
+class UserAdminAPITest(APITestCase):
+    def setUp(self):
+        self.client = APIClient()
+        self.url = reverse("user_admin_api")
+        user = User.objects.create(username="test")
+        user.set_password("testaa")
+        user.save()
+
+    def test_put_invalid_data(self):
+        self.client.login(username="test", password="test")
+        data = {"username": "test", "password": "testaa", "email": "60@qq.com", "admin_type": "2"}
+        response = self.client.put(self.url, data=data)
+        self.assertEqual(response.data["code"], 1)
+
+    def test_user_does_not_exist(self):
+        data = {"id": 2, "username": "test0", "real_name": "test00",
+                "password": "testaa","email": "60@qq.com", "admin_type": "2"}
+        response = self.client.put(self.url, data=data)
+        self.assertEqual(response.data, {"code": 1, "data": u"该用户不存在！"})
+
+    def test_success_user_edit_not_password(self):
+        data = {"id": 1, "username": "test0", "real_name": "test00", "password": "aaaaaa",
+                "email": "60@qq.com", "admin_type": "2"}
+        response = self.client.put(self.url, data=data)
+        self.assertEqual(response.data["code"], 0)
+
+
 @login_required
 def login_required_FBV_test_without_args(request):
     return HttpResponse("function based view test1")

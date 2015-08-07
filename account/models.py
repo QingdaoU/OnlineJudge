@@ -21,6 +21,8 @@ class User(AbstractBaseUser):
     real_name = models.CharField(max_length=30, blank=True, null=True)
     # 用户邮箱
     email = models.EmailField(max_length=254, blank=True, null=True)
+    # 用户注册时间
+    create_time = models.DateTimeField(auto_now_add=True)
     # 0代表不是管理员 1是普通管理员 2是超级管理员
     admin_type = models.IntegerField(default=0)
 
