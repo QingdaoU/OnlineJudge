@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html>
 <html>
 <head>
@@ -67,23 +65,46 @@
 <![endif]-->
 <!-- browser happy end -->
 
-<div class="container" ms-controller="admin">
+<div class="container main" ms-controller="admin">
     <div class="row">
         <!-- admin left begin-->
         <div class="col-md-2">
             <ul class="list-group">
-                <li class="list-group-header">List header</li>
-                <li class="list-group-item" id="li-index"><a href="#index">主页</a></li>
-                <li class="list-group-item" id="li-announcement"><a href="#announcement">公告</a></li>
-                <li class="list-group-item"><a href="#">Applications</a></li>
-                <li class="list-group-header">Another list header</li>
-                <li class="list-group-item"><a href="#">Help</a></li>
+                <li class="list-group-header">首页</li>
+                <li class="list-group-item" id="li-index-index">
+                    <a href="#index/index">主页</a>
+                </li>
+                <li class="list-group-item" id="li-monitor-monitor">
+                    <a href="#monitor/monitor">监控</a>
+                </li>
+                <li class="list-group-item" id="li-statistics-statistics">
+                    <a href="#statistics/statistics">统计</a>
+                </li>
+                <li class="list-group-item" id="li-announcement-announcement">
+                    <a href="#announcement/announcement">公告</a>
+                </li>
+                <li class="list-group-header">题目管理</li>
+                <li class="list-group-item" id="li-problem-problem_list">
+                    <a href="#problem/problem_list">题目列表</a>
+                </li>
+                <li class="list-group-item" id="li-problem-add_problem">
+                    <a href="#problem/add_problem">创建题目</a>
+                </li>
+                <li class="list-group-header">比赛管理</li>
+                <li class="list-group-item" id="li-contest-contest_list">
+                    <a href="#contest/contest_list">比赛列表</a>
+                </li>
+                <li class="list-group-item" id="li-contest-add_contest">
+                    <a href="#contest/add_contest">创建比赛</a>
+                </li>
             </ul>
         </div>
         <!-- admin left end -->
-
+        <img src="/static/img/loading.gif" id="loading-gif">
         <!-- custom body begin -->
-        <div ms-include-src="template_url"></div>
+
+        <div class='col-md-8'  ms-include-src="template_url" data-include-rendered="hide_loading"></div>
+
         <!-- custom body end -->
     </div>
 </div>

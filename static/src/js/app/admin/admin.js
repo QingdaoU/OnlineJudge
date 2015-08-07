@@ -7,25 +7,36 @@ define("admin", ["jquery", "avalon"], function($, avalon){
         $(".list-group-item").attr("class", "list-group-item");
     }
 
+    function show_template(url){
+        $("#loading-gif").show();
+        vm.template_url = url;
+    }
+
+    var vm = avalon.define({
+        $id: "admin",
+        template_url: "template/index/index.html",
+        hide_loading: function(){
+            $("#loading-gif").hide();
+        }
+    });
+
     var hash = window.location.hash.substring(1);
 
     if(hash){
-        li_active("#li-" + hash);
+        li_active("#li-" + hash.replace("/", "-"));
+        show_template("template/" + hash + ".html");
     }else {
-        li_active("#li-index");
+        li_active("#li-index-index");
     }
 
     window.onhashchange = function() {
         var hash = window.location.hash.substring(1);
         if(hash){
             li_inactive(".list-group-item");
-            li_active("#li-" + hash);
-            vm.template_url = "template/index/" + hash + ".html";
+            li_active("#li-" + hash.replace("/", "-"));
+            show_template("template/" + hash + ".html");
         }
     };
 
-    var vm = avalon.define({
-        $id: "admin",
-        template_url: "template/index/index.html"
-    });
+
 });
