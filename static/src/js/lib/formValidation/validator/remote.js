@@ -35,6 +35,8 @@
                 method: "post"
             });
             xhr.success(function(response) {
+                if (response.code == 1)
+                    dfd.resolve($field, 'remote',{valid:true, message:options.msg});
                 dfd.resolve($field, 'remote',{valid:!response.data, message:options.msg});
             })
             .error(function(response) {

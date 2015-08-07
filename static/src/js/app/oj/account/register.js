@@ -4,7 +4,6 @@ require(["jquery", "bs_alert", "csrf", "validation"], function ($, bs_alert, csr
             framework: "bootstrap",
             fields: {
                 username: {
-                    trigger: 'blur',
                     validators: {
                         notEmpty: {
                             message: "请填写用户名"
@@ -55,7 +54,6 @@ require(["jquery", "bs_alert", "csrf", "validation"], function ($, bs_alert, csr
                     }
                 },
                 email: {
-                    trigger: 'blur',
                     validators: {
                         notEmpty: {
                             message: "请填写电子邮箱邮箱地址"
