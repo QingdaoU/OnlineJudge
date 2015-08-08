@@ -13,3 +13,22 @@
     position: absolute;
     top: 0; left: 0; bottom: 0; right: 0;
 }
+
+.line-chart{
+    min-width:100%;
+    max-height: 300px;
+}
+
+.pie-chart{
+    min-width:100%;
+    max-height: 300px;
+}
+
+.chart-description{
+    text-align: center;
+}
+
+.pie-chart-container{
+    width: 50%;
+    float: left;
+}
