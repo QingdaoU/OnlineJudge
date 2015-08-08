@@ -19,7 +19,7 @@ class UserLoginAPIView(APIView):
         ---
         request_serializer: UserLoginSerializer
         """
-        serializer = UserLoginSerializer(data=request.DATA)
+        serializer = UserLoginSerializer(data=request.data)
         if serializer.is_valid():
             data = serializer.data
             user = auth.authenticate(username=data["username"], password=data["password"])
@@ -40,7 +40,7 @@ class UserRegisterAPIView(APIView):
         ---
         request_serializer: UserRegisterSerializer
         """
-        serializer = UserRegisterSerializer(data=request.DATA)
+        serializer = UserRegisterSerializer(data=request.data)
         if serializer.is_valid():
             data = serializer.data
             try:
@@ -68,7 +68,7 @@ class UserChangePasswordAPIView(APIView):
         ---
         request_serializer: UserChangePasswordSerializer
         """
-        serializer = UserChangePasswordSerializer(data=request.DATA)
+        serializer = UserChangePasswordSerializer(data=request.data)
         if serializer.is_valid():
             data = serializer.data
             user = auth.authenticate(username=data["username"], password=data["old_password"])
@@ -89,7 +89,7 @@ class UsernameCheckAPIView(APIView):
         ---
         request_serializer: UsernameCheckSerializer
         """
-        serializer = UsernameCheckSerializer(data=request.DATA)
+        serializer = UsernameCheckSerializer(data=request.data)
         if serializer.is_valid():
             try:
                 User.objects.get(username=serializer.data["username"])
@@ -107,7 +107,7 @@ class EmailCheckAPIView(APIView):
         ---
         request_serializer: EmailCheckSerializer
         """
-        serializer = EmailCheckSerializer(data=request.DATA)
+        serializer = EmailCheckSerializer(data=request.data)
         if serializer.is_valid():
             try:
                 User.objects.get(email=serializer.data["email"])
@@ -148,7 +148,7 @@ class UserAdminAPIView(APIView):
         request_serializer: EditUserSerializer
         response_serializer: UserSerializer
         """
-        serializer = EditUserSerializer(data=request.DATA)
+        serializer = EditUserSerializer(data=request.data)
         if serializer.is_valid():
             data = serializer.data
             try:

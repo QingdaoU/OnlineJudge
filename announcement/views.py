@@ -17,7 +17,7 @@ class AnnouncementAdminAPIView(APIView):
         ---
         request_serializer: CreateAnnouncementSerializer
         """
-        serializer = CreateAnnouncementSerializer(data=request.DATA)
+        serializer = CreateAnnouncementSerializer(data=request.data)
         if serializer.is_valid():
             data = serializer.data
             Announcement.objects.create(title=data["title"],
@@ -34,7 +34,7 @@ class AnnouncementAdminAPIView(APIView):
         request_serializer: EditAnnouncementSerializer
         response_serializer: AnnouncementSerializer
         """
-        serializer = EditAnnouncementSerializer(data=request.DATA)
+        serializer = EditAnnouncementSerializer(data=request.data)
         if serializer.is_valid():
             data = serializer.data
             try:
