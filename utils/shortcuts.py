@@ -70,7 +70,11 @@ def paginate(request, query_set, object_serializer):
     except Exception:
         return error_response(u"参数错误")
 
-    data = {"results": object_serializer(current_page, many=True).data, "previous_page": None, "next_page": None}
+    data = {"results": object_serializer(current_page, many=True).data,
+            "previous_page": None,
+            "next_page": None,
+            "count": paginator.count,
+            "total_page": paginator.num_pages}
 
     try:
         data["previous_page"] = current_page.previous_page_number()

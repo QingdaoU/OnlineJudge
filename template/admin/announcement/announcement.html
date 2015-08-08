@@ -1,0 +1,67 @@
+<style></style>
+
+<div ms-controller="announcement" class="col-md-9">
+    <h1>Announcement</h1>
+    <table class="table table-striped">
+        <tr>
+            <th>编号</th>
+            <th>标题</th>
+            <th>创建时间</th>
+            <th>更新时间</th>
+            <th>创建者</th>
+            <th>状态</th>
+            <th>操作</th>
+        </tr>
+        <tr ms-repeat="announcement">
+            <td>{{el.id}}</td>
+            <td>{{el.title}}</td>
+            <td>{{el.create_time|date("yyyy-MM-dd HH:mm:ss")}}</td>
+            <td>{{el.last_update_time|date("yyyy-MM-dd HH:mm:ss")}}</td>
+            <td>{{el.created_by.username}}</td>
+            <td>{{getState(el)}}</td>
+            <td>
+                <button class="btn-sm btn-info" ms-click="enEdit(el)">编辑</button>
+            </td>
+        </tr>
+    </table>
+    <div class="form-group">
+        <label>仅显示可见 <input ms-duplex-checked="visableOnly" type="checkbox"/></label>
+    </div>
+    <div class="text-right">
+        页数：{{page}}/{{page_count}}&nbsp;&nbsp;
+        <botton ms-attr-class="getBtnClass(0)" ms-click="getPrevious">上一页</botton>
+        <botton ms-attr-class="getBtnClass(1)" ms-click="getNext">下一页</botton>
+    </div>
+
+    <div ms-visible="isEditing">
+        <h3>编辑公告</h3>
+        <div class="form-group"><label for="title">标题</label>
+            <input name="title" type="text" class="form-control" id="newTitle" placeholder="公告标题" value=""></div>
+        <div class="form-group">
+            <label>内容</label>
+            <textarea id="editAnnouncementEditor"></textarea>
+        </div>
+        <div class="form-group">
+            <label>可见 <input ms-duplex-checked="announcementVisible" type="checkbox"/></label>
+        </div>
+        <div class="form-group">
+            <button ms-click="submitChange()" class="btn btn-primary">提交</button>
+            &nbsp;&nbsp;
+            <button ms-click="disEdit()" class="btn btn-danger">取消</button>
+        </div>
+    </div>
+    <h3>添加公告</h3>
+
+    <form id="announcement-form">
+        <div class="form-group"><label for="title">标题</label>
+            <input name="title" type="text" class="form-control" id="title" placeholder="公告标题"></div>
+        <div class="form-group">
+            <label>内容</label>
+            <textarea id="editor" placeholder="公告内容"></textarea>
+        </div>
+        <div class="form-group">
+            <button type="submit" class="btn btn-primary">提交</button>
+        </div>
+    </form>
+</div>
+<script src="/static/js/app/admin/announcement/announcement.js"></script>
