@@ -16,6 +16,7 @@ var require = {
         contest: "app/admin/contest/contest",
         csrf: "utils/csrf",
         admin: "app/admin/admin",
+        chart: "lib/chart/Chart",
 
         //formValidation 不要在代码中单独使用，而是使用和修改utils/validation
         base: "lib/formValidation/base",

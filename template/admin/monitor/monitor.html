@@ -1,0 +1,21 @@
+<div ms-controller="monitor" class="col-lg-9">
+    <h1>服务器监控</h1>
+
+    <div>
+        <h3>判题实例数量</h3>
+        <div>
+        <canvas id="myChart" style="min-width:100%;max-height: 300px;"></canvas>
+            <div style="text-align: center;">判题实例数量变化</div>
+            </div>
+        <div style="width: 50%;float: left;">
+            <canvas id="c1" width="250" height="125"></canvas>
+            <div style="text-align: center;">内存</div>
+        </div>
+        <div style="width: 50%;float: left;">
+            <canvas id="c2" width="250" height="125"></canvas>
+            <div style="text-align: center"> cpu</div>
+        </div>
+    </div>
+
+    <script src="/static/js/app/admin/monitor/monitor.js"></script>
+</div>
