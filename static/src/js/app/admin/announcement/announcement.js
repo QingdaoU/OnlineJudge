@@ -12,6 +12,18 @@ require(["jquery", "avalon", "csrf", "bs_alert", "editor", "validation"], functi
             next_page: 0,     //   之后的页数
             page: 1,          //    当前页数
             isEditing: 0,    //    正在编辑的公告的ID， 为零说明未在编辑
+            page_count: 1,
+            visableOnly : false,
+            showOrHide : "仅显示可见",
+            announcementVisible : true,
+            changeHiddenState : function () {
+                if (vm.visableOnly == false)
+                    vm.showOrHide = "显示全部";
+                else
+                    vm.showOrHide = "仅显示可见";
+                vm.visableOnly =! vm.visableOnly;
+                getPageData(vm.page);
+            },
             getState: function (el) {   //获取公告当前状态，显示
                 if (el.visible)
                     return "可见";
@@ -42,8 +54,7 @@ require(["jquery", "avalon", "csrf", "bs_alert", "editor", "validation"], functi
                 if (!editAnnouncementEditor)  //初始化编辑器
                     editAnnouncementEditor = editor("#editAnnouncementEditor");
                 editAnnouncementEditor.setValue(el.content);
-                if (el.visible == false)
-                    $("#hidden").attr("checked", true);
+                vm.announcementVisible=el.visible;
                 if (vm.isEditing == el.id)
                     vm.isEditing = 0;
                 else
@@ -54,17 +65,15 @@ require(["jquery", "avalon", "csrf", "bs_alert", "editor", "validation"], functi
                 vm.isEditing = 0;
             },
             submitChange: function () {                                                          // 处理编辑公告提交事件，顺便验证字段为空
-                var title = $("#newTitle").val(), content = editAnnouncementEditor.getValue(), visible = true;
-                if ($("#hidden").attr("checked") == true)
-                    visible = false;
+                var title = $("#newTitle").val(), content = editAnnouncementEditor.getValue();
                 if (title != "") {
                     if (content != "") {
                         $.ajax({                                                                      //发送修改公告请求
                             beforeSend: csrfHeader,
-                            url: "/api/edit_announcements/",
+                            url: "/api/announcements/",
                             dataType: "json",
-                            method: "post",
-                            data: {id: vm.isEditing, title: title, content: content, visible: visible},
+                            method: "put",
+                            data: {id: vm.isEditing, title: title, content: content, visible: vm.announcementVisible},
                             success: function (data) {
                                 if (!data.code) {
                                     bs_alert("修改成功");
@@ -91,14 +100,18 @@ require(["jquery", "avalon", "csrf", "bs_alert", "editor", "validation"], functi
     vm.isEditing = 0;
     //Ajax get数据
     function getPageData(page) {
+        var visible = '';
+        if (vm.visableOnly == true)
+            visible = "&visible=true";
         $.ajax({
             beforeSend: csrfHeader,
-            url: "/api/announcements/?paging=true&page=" + page + "&page_size=10",
+            url: "/api/announcements/?paging=true&page=" + page + "&page_size=10"+visible,
             dataType: "json",
             method: "get",
             success: function (data) {
                 if (!data.code) {
                     vm.announcement = data.data.results;
+                    vm.page_count = data.data.total_page;
                     vm.previous_page = data.data.previous_page;
                     vm.next_page = data.data.next_page;
                 }
