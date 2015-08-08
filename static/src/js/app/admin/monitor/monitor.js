@@ -5,7 +5,7 @@ require(["jquery", "chart"], function ($, Chart) {
         datasets: [
             {
                 label: "2222222",
-                fillColor: "rgba(50,187,205,0.2)",
+                fillColor: "rgba(255,255,255,0.2)",
                 strokeColor: "rgba(151,187,205,1)",
                 pointColor: "rgba(151,187,205,1)",
                 pointStrokeColor: "#fff",
@@ -33,7 +33,7 @@ require(["jquery", "chart"], function ($, Chart) {
             },
             {
                 label: "2222222",
-                fillColor: "rgba(50,187,205,0.2)",
+                fillColor: "rgba(255,255,255,0.2)",
                 strokeColor: "rgba(151,187,205,1)",
                 pointColor: "rgba(151,187,205,1)",
                 pointStrokeColor: "#fff",
@@ -52,7 +52,7 @@ require(["jquery", "chart"], function ($, Chart) {
         datasets: [
             {
                 label: "2222222",
-                fillColor: "rgba(50,187,205,0.2)",
+                fillColor: "rgba(255,255,255,0.2)",
                 strokeColor: "rgba(151,187,205,1)",
                 pointColor: "rgba(151,187,205,1)",
                 pointStrokeColor: "#fff",
@@ -62,7 +62,7 @@ require(["jquery", "chart"], function ($, Chart) {
             },
             {
                 label: "2222222",
-                fillColor: "rgba(50,187,205,0.2)",
+                fillColor: "rgba(255,255,255,0.2)",
                 strokeColor: "rgba(252,214,48,1)",
                 pointColor: "rgba(252,214,48,1)",
                 pointStrokeColor: "#fff",
