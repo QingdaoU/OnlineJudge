@@ -5,7 +5,11 @@ from account.models import User
 
 
 class ProblemTag(models.Model):
-    pass
+    name = models.CharField(max_length=30)
+    description = models.CharField(max_length=50)
+
+    class Meta:
+        db_table = "problem_tag"
 
 
 class AbstractProblem(models.Model):
@@ -39,14 +43,13 @@ class AbstractProblem(models.Model):
     total_submit_number = models.IntegerField(default=0)
     # 通过数量
     total_accepted_number = models.IntegerField(default=0)
-    # 标签
-    tags = models.ManyToManyField(ProblemTag, null=True)
-    # 难度 0 - n
-    difficulty = models.IntegerField()
 
     class Meta:
         abstract = True
 
 
 class Problem(AbstractProblem):
-    pass
+    # 难度 0 - n
+    difficulty = models.IntegerField()
+    # 标签
+    tags = models.ManyToManyField(ProblemTag, null=True)
