@@ -11,4 +11,4 @@ class AdminTemplateView(APIView):
         try:
             return HttpResponse(open(path).read(), content_type="text/html")
         except IOError:
-            raise Http404
+            raise HttpResponse(u"模板不存在", content_type="text/html")
