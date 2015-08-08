@@ -129,7 +129,7 @@ class UserAPIView(APIView):
         admin_type = request.GET.get("admin_type", None)
         if admin_type:
             try:
-                user = user.filter(admin_type=int(admin_type))
+                user = user.filter(admin_type__gte=int(admin_type))
             except ValueError:
                 return error_response(u"参数错误")
         keyword = request.GET.get("keyword", None)

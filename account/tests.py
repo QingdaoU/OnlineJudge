@@ -4,6 +4,7 @@ import json
 from django.core.urlresolvers import reverse
 from django.test import TestCase, Client
 from django.http import HttpResponse
+from django.contrib import auth
 
 from rest_framework.test import APITestCase, APIClient
 from rest_framework.views import APIView
@@ -194,10 +195,17 @@ class UserAdminAPITest(APITestCase):
         self.assertEqual(response.data, {"code": 1, "data": u"该用户不存在！"})
 
     def test_success_user_edit_not_password(self):
-        data = {"id": 1, "username": "test0", "real_name": "test00", "password": "aaaaaa",
+        data = {"id": 1, "username": "test0", "real_name": "test00",
                 "email": "60@qq.com", "admin_type": "2"}
         response = self.client.put(self.url, data=data)
         self.assertEqual(response.data["code"], 0)
+
+    def test_success_user_edit_change_password(self):
+        data = {"id": 1, "username": "test0", "real_name": "test00", "password": "111111",
+                "email": "60@qq.com", "admin_type": "2"}
+        response = self.client.put(self.url, data=data)
+        self.assertEqual(response.data["code"], 0)
+        self.assertIsNotNone(auth.authenticate(username="test0", password="111111"))
 
 
 @login_required

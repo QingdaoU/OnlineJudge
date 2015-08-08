@@ -1,0 +1,79 @@
+<div ms-controller="user_list" class="col-md-9">
+    <h1>User</h1>
+    <div class="text-right">
+        <form class="form-inline" onsubmit="return false;">
+            <div class="form-group-sm">
+                <label>搜索</label>
+                <input name="keyWord" class="form-control" placeholder="请输入关键词" ms-duplex="key_word">
+                <input type="submit" value="搜索" class="btn btn-primary" ms-click="getPage(1)">
+            </div>
+        </form>
+        <br>
+    </div>
+    <table class="table table-striped">
+        <tr>
+            <th>ID</th>
+            <th>用户名</th>
+            <th>注册时间</th>
+            <th>最近登陆</th>
+            <th>真实姓名</th>
+            <th>电子邮箱</th>
+            <th>用户类型</th>
+            <th>修改</th>
+        </tr>
+        <tr ms-repeat="user_list">
+            <td>{{el.id}}</td>
+            <td>{{el.username}}</td>
+            <td>{{el.create_time|date("yyyy-MM-dd HH:mm:ss")}}</td>
+            <td>{{el.last_login|date("yyyy-MM-dd HH:mm:ss")}}</td>
+            <td>{{el.real_name}}</td>
+            <td>{{el.email}}</td>
+            <td>{{user_type[el.admin_type]}}</td>
+            <td>
+                <button class="btn-sm btn-info" ms-click="enEdit(el)">编辑</button>
+            </td>
+        </tr>
+    </table>
+    <div class="form-group">
+        <label>仅显示管理员 <input ms-duplex-checked="showAdminOnly" type="checkbox"/></label>
+    </div>
+    <div class="text-right">
+        页数：{{page}}/{{page_count}}&nbsp;&nbsp;
+        <botton ms-attr-class="getBtnClass(0)" ms-click="getPrevious">上一页</botton>
+        <botton ms-attr-class="getBtnClass(1)" ms-click="getNext">下一页</botton>
+    </div>
+    <div ms-visible="isEditing">
+        <h3>修改用户信息</h3>
+        <form id="edit_user-form">
+            <div class="row">
+                <div class="form-group col-md-4"><label>ID</label>
+                    <input name="id" type="number" class="form-control" readonly ms-duplex="id">
+                </div>
+                <div class="form-group col-md-4"><label>用户名</label>
+                    <input name="username" type="text" class="form-control" ms-duplex="username">
+                </div>
+                <div class="form-group col-md-4"><label>真实姓名</label>
+                    <input name="real_name" type="text" class="form-control" ms-duplex="real_name">
+                </div>
+            </div>
+            <div class="row">
+                <div class="form-group col-md-4"><label>新密码（留空则保留原密码）</label>
+                    <input name="password" type="password" class="form-control" id="password" ms-duplex="password"
+                           placeholder="此项留空则保留原密码">
+                </div>
+                <div class="form-group col-md-4"><label>电子邮箱</label>
+                    <input name="email" type="email" class="form-control" ms-duplex="email">
+                </div>
+                <div class="form-group col-md-4"><label>用户类型</label>
+                    <select name="admin_type" class="form-control" ms-duplex="admin_type">
+                        <option ms-repeat="user_type" ms-attr-value="$index">{{el}}</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group">
+                <button type="sbumit" class="btn btn-primary">提交</button>
+            </div>
+        </form>
+    </div>
+</div>
+<script src="/static/js/app/admin/user/user_list.js"></script>
