@@ -62,6 +62,25 @@ class AnnouncementAPITest(APITestCase):
         def setUp(self):
             self.client = APIClient()
             self.url = reverse("announcement_list_api")
+            user = User.objects.create(username="test")
+            user.set_password("test")
+            user.save()
 
         def test_success_get_data(self):
             self.assertEqual(self.client.get(self.url).data["code"], 0)
+
+        def test_keyword_announcement(self):
+            Announcement.objects.create(title="aa",
+                                        content="AA",
+                                        created_by=User.objects.get(username="test"),
+                                        visible=True)
+
+            Announcement.objects.create(title="bb",
+                                        content="BB",
+                                        created_by=User.objects.get(username="test"),
+                                        visible=False)
+
+            response = self.client.get(self.url + "?visible=true")
+            self.assertEqual(response.data["code"], 0)
+            for item in response.data["data"]:
+                self.assertEqual(item["visible"], True)

@@ -57,5 +57,8 @@ class AnnouncementAPIView(APIView):
         ---
         response_serializer: AnnouncementSerializer
         """
-        announcement = Announcement.objects.all().order_by("last_update_time")
+        announcement = Announcement.objects.all().order_by("-last_update_time")
+        visible = request.GET.get("visible", None)
+        if visible:
+            announcement = announcement.filter(visible=(visible == "true"))
         return paginate(request, announcement, AnnouncementSerializer)

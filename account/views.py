@@ -1,13 +1,15 @@
 # coding=utf-8
 from django.contrib import auth
 from django.shortcuts import render
+from django.db.models import Q
+
 from rest_framework.views import APIView
 
-from utils.shortcuts import serializer_invalid_response, error_response, success_response
+from utils.shortcuts import serializer_invalid_response, error_response, success_response, paginate
 
 from .models import User
 from .serializers import UserLoginSerializer, UsernameCheckSerializer, UserRegisterSerializer, \
-    UserChangePasswordSerializer, EmailCheckSerializer
+    UserChangePasswordSerializer, EmailCheckSerializer, UserSerializer, EditUserSerializer
 
 
 class UserLoginAPIView(APIView):
@@ -112,5 +114,54 @@ class EmailCheckAPIView(APIView):
                 return success_response(True)
             except User.DoesNotExist:
                 return success_response(False)
+        else:
+            return serializer_invalid_response(serializer)
+
+
+class UserAPIView(APIView):
+    def get(self, request):
+        """
+        用户分页json api接口
+        ---
+        response_serializer: UserSerializer
+        """
+        user = User.objects.all().order_by("-create_time")
+        admin_type = request.GET.get("admin_type", None)
+        if admin_type:
+            try:
+                user = user.filter(admin_type=int(admin_type))
+            except ValueError:
+                return error_response(u"参数错误")
+        keyword = request.GET.get("keyword", None)
+        if keyword:
+            user = user.filter(Q(username__contains=keyword) |
+                               Q(real_name__contains=keyword) |
+                               Q(email__contains=keyword))
+        return paginate(request, user, UserSerializer)
+
+
+class UserAdminAPIView(APIView):
+    def put(self, request):
+        """
+        用户编辑json api接口
+        ---
+        request_serializer: EditUserSerializer
+        response_serializer: UserSerializer
+        """
+        serializer = EditUserSerializer(data=request.DATA)
+        if serializer.is_valid():
+            data = serializer.data
+            try:
+                user = User.objects.get(id=data["id"])
+            except User.DoesNotExist:
+                return error_response(u"该用户不存在！")
+            user.username = data["username"]
+            user.real_name = data["real_name"]
+            user.email = data["email"]
+            user.admin_type = data["admin_type"]
+            if data["password"]:
+                user.set_password(data["password"])
+            user.save()
+            return success_response(UserSerializer(user).data)
         else:
             return serializer_invalid_response(serializer)
