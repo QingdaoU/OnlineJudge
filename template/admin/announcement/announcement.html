@@ -25,8 +25,7 @@
         </tr>
     </table>
     <div class="form-group">
-
-        <button class="btn btn-info" ms-click="changeHiddenState()">{{showOrHide}}</button>
+        <label>仅显示可见 <input ms-duplex-checked="visableOnly" type="checkbox"/></label>
     </div>
     <div class="text-right">
         页数：{{page}}/{{page_count}}&nbsp;&nbsp;
@@ -36,7 +35,6 @@
 
     <div ms-visible="isEditing">
         <h3>编辑公告</h3>
-
         <div class="form-group"><label for="title">标题</label>
             <input name="title" type="text" class="form-control" id="newTitle" placeholder="公告标题" value=""></div>
         <div class="form-group">
@@ -44,7 +42,7 @@
             <textarea id="editAnnouncementEditor"></textarea>
         </div>
         <div class="form-group">
-            <label>显示 <input ms-duplex-checked="announcementVisible" type="checkbox"/></label>
+            <label>可见 <input ms-duplex-checked="announcementVisible" type="checkbox"/></label>
         </div>
         <div class="form-group">
             <button ms-click="submitChange()" class="btn btn-primary">提交</button>
