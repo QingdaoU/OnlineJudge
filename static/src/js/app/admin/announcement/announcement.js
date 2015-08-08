@@ -24,12 +24,12 @@ require(["jquery", "avalon", "csrf", "bs_alert", "editor", "validation"], functi
                 else
                     return "隐藏";
             },
-            getNext: function (el) {
+            getNext: function () {
                 if (!vm.next_page)
                     return;
                 getPageData(vm.page + 1);
             },
-            getPrevious: function (el) {
+            getPrevious: function () {
                 if (!vm.previous_page)
                     return;
                 getPageData(vm.page - 1);
@@ -156,8 +156,7 @@ require(["jquery", "avalon", "csrf", "bs_alert", "editor", "validation"], functi
                             bs_alert("提交成功！");
                             $("#title").val("");
                             announcementEditor.setValue("");
-                            getPageData(1, function (data) {
-                            });
+                            getPageData(1);
                         } else {
                             bs_alert(data.data);
                         }
