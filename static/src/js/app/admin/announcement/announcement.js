@@ -1,12 +1,14 @@
 require(["jquery", "avalon", "csrf", "bs_alert", "editor", "validation"], function ($, avalon, csrfHeader, bs_alert, editor) {
-    announcementEditor = editor("#editor");                                               //创建新建公告的内容编辑器
-    editAnnouncementEditor = editor("#editAnnouncementEditor");
+
 
     avalon.vmodels.announcement = null;
 
     // avalon:定义模式 announcement
     avalon.ready(function () {
-         var vm = avalon.define({
+        var announcementEditor = editor("#editor");                                               //创建新建公告的内容编辑器
+        var editAnnouncementEditor = editor("#editAnnouncementEditor");
+
+        var vm = avalon.define({
             $id: "announcement",
             //通用变量
             announcement: [],                 //  公告列表数据项
