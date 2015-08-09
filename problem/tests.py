@@ -30,9 +30,16 @@ class ProblemAdminTest(APITestCase):
     def test_success_problem(self):
         self.client.login(username="test", password="testaa")
         ProblemTag.objects.create(name="tag1", description="destag1")
-        data = {"title": "title1", "description": "des1", "test_case_id": "1", "source": "source1",
-                "sample": [{"input": "1 1", "output": "2"}], "time_limit": "100", "memory_limit": "1000",
-                "difficulty": "1", "hint": "hint1", "tags": [1]}
+        data = {"title": "title1",
+                "description": "des1",
+                "test_case_id": "1",
+                "source": "source1",
+                "sample": [{"input": "1 1", "output": "2"}],
+                "time_limit": "100",
+                "memory_limit": "1000",
+                "difficulty": "1",
+                "hint": "hint1",
+                "tags": [1]}
         response = self.client.post(self.url, data=data)
         self.assertEqual(response.data["code"], 0)
 
@@ -47,16 +54,28 @@ class ProblemAdminTest(APITestCase):
         self.client.login(username="test", password="testaa")
         ProblemTag.objects.create(name="tag1", description="destag1")
         tags = ProblemTag.objects.filter(id__in=[1])
-        problem = Problem.objects.create(title="title1", description="des1",
-                                         test_case_id="1", source="source1",
+        problem = Problem.objects.create(title="title1",
+                                         description="des1",
+                                         test_case_id="1",
+                                         source="source1",
                                          sample=[{"input": "1 1", "output": "2"}],
-                                         time_limit=100, memory_limit=1000,
-                                         difficulty=1, hint="hint1",
+                                         time_limit=100,
+                                         memory_limit=1000,
+                                         difficulty=1,
+                                         hint="hint1",
                                          created_by=User.objects.get(username="test"))
         problem.tags.add(*tags)
-        data = {"id": 2, "title": "title1", "description": "des1", "test_case_id": "1", "source": "source1",
-                "sample": [{"input": "1 1", "output": "2"}], "time_limit": "100", "memory_limit": "1000",
-                "difficulty": "1", "hint": "hint1", "tags": [1]}
+        data = {"id": 2,
+                "title": "title1",
+                "description": "des1",
+                "test_case_id": "1",
+                "source": "source1",
+                "sample": [{"input": "1 1", "output": "2"}],
+                "time_limit": "100",
+                "memory_limit": "1000",
+                "difficulty": "1",
+                "hint": "hint1",
+                "tags": [1]}
         response = self.client.put(self.url, data=data)
         self.assertEqual(response.data, {"code": 1, "data": u"该题目不存在！"})
 
@@ -66,16 +85,29 @@ class ProblemAdminTest(APITestCase):
         ProblemTag.objects.create(name="tag1", description="destag1")
         ProblemTag.objects.create(name="tag2", description="destag2")
         tags = ProblemTag.objects.filter(id__in=[1])
-        problem0 = Problem.objects.create(title="title1", description="des1",
-                                          test_case_id="1", source="source1",
+        problem0 = Problem.objects.create(title="title1",
+                                          description="des1",
+                                          test_case_id="1",
+                                          source="source1",
                                           sample=[{"input": "1 1", "output": "2"}],
-                                          time_limit=100, memory_limit=1000,
-                                          difficulty=1, hint="hint1",
+                                          time_limit=100,
+                                          memory_limit=1000,
+                                          difficulty=1,
+                                          hint="hint1",
                                           created_by=User.objects.get(username="test"))
         problem0.tags.add(*tags)
-        data = {"id": 1, "title": "title1", "description": "des1", "test_case_id": "1", "source": "source1",
-                "sample": [{"input": "1 1", "output": "2"}], "time_limit": "100", "memory_limit": "1000",
-                "difficulty": "1", "hint": "hint1", "visible": True, "tags": [1, 2]}
+        data = {"id": 1,
+                "title": "title1",
+                "description": "des1",
+                "test_case_id": "1",
+                "source": "source1",
+                "sample": [{"input": "1 1", "output": "2"}],
+                "time_limit": "100",
+                "memory_limit": "1000",
+                "difficulty": "1",
+                "hint": "hint1",
+                "visible": True,
+                "tags": [1, 2]}
         problem = Problem.objects.get(id=data["id"])
         problem.tags.remove(*problem.tags.all())
         problem.tags.add(*ProblemTag.objects.filter(id__in=data["tags"]))

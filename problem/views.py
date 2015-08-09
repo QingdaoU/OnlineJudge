@@ -86,7 +86,7 @@ class ProblemAPIView(APIView):
         """
         题目分页json api接口
         ---
-            response_serializer: ProblemSerializer
+        response_serializer: ProblemSerializer
         """
         problem = Problem.objects.all().order_by("-last_update_time")
         visible = request.GET.get("visible", None)
