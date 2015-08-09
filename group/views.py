@@ -5,8 +5,9 @@ from rest_framework.views import APIView
 
 from utils.shortcuts import error_response, serializer_invalid_response, success_response, paginate
 from account.models import REGULAR_USER, ADMIN, SUPER_ADMIN
+from account.decorators import login_required
 
-from .models import Group, JoinGroupRequest
+from .models import Group, JoinGroupRequest, UserGroupRelation
 from .serializers import (CreateGroupSerializer, EditGroupSerializer,
                           JoinGroupRequestSerializer, GroupSerializer)
 
@@ -53,6 +54,8 @@ class GroupAdminAPIView(APIView):
     def get(self, request):
         """
         查询小组列表或者单个小组的信息
+        ---
+        response_serializer: GroupSerializer
         """
         group_id = request.GET.get("group_id", None)
         if group_id:
@@ -70,3 +73,31 @@ class GroupAdminAPIView(APIView):
             else:
                 groups = Group.objects.filter(admin=request.user, visible=True)
             return paginate(request, groups, GroupSerializer)
+            
+            
+def join_group(user, group):
+    return UserGroupRelation.objects.create(user=user, group=group)
+            
+
+class JoinGroupAPIView(APIView):
+    @login_required
+    def post(self, request):
+        serializer = JoinGroupRequestSerializer(data=request.data)
+        if serializer.is_valid():
+            data = serializer.data
+            try:
+                group = Grouo.objects.get(id=data["group"])
+            except Group.DesoNotExist:
+                return error_response(u"小组不存在")
+            if group.join_group_setting == 0:
+                join_group(request.user, group)
+                return success_response(u"你已经成功的加入该小组")
+            elif group.join_group_setting == 1:
+                return success_response(u"申请提交成功，请等待审核")
+            elif group.join_group_setting == 2:
+                return error_response(u"该小组不允许任何人加入")
+        else:
+            return serializer_invalid_response(serializer)
+    
+    def get(self, request):
+        pass
