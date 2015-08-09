@@ -2,11 +2,11 @@
     <form id="add-contest-form">
         <div class="col-md-9">
             <div class="col-md-12">
-                <label>比赛题目</label>
+                <label>比赛名称</label>
             </div>
             <div class="col-md-12">
                 <div class="form-group">
-                    <input type="text" name="name" class="form-control">
+                    <input type="text" name="name" class="form-control" ms-duplex="title">
                 </div>
             </div>
             <div class="col-md-12">
@@ -14,7 +14,8 @@
             </div>
             <div class="col-md-12">
                 <div class="form-group">
-                    <textarea id="editor" placeholder="这里输入内容" autofocus></textarea>
+                    <textarea id="editor" placeholder="这里输入内容" autofocus ms-duplex="description"></textarea>
+                    <small ms-visible="description==''" style="color:red">请填写比赛描述</small>
                 </div>
             </div>
             <div class="col-md-6">
@@ -25,12 +26,13 @@
             </div>
             <div class="col-md-6">
                 <div class="form-group">
-                    <input type="text" class="form-control" name="start_time" id="contest_start_time">
+                    <input type="text" class="form-control" name="start_time" id="contest_start_time"
+                           ms-duplex="startTime">
                 </div>
             </div>
             <div class="col-md-6">
                 <div class="form-group">
-                    <input type="text" class="form-control" name="end_time" id="contest_end_time">
+                    <input type="text" class="form-control" name="end_time" id="contest_end_time" ms-duplex="endTime">
                 </div>
             </div>
 
@@ -51,18 +53,24 @@
             </div>
             <div class="col-md-6">
                 <div class="form-group">
-                    <input type="text" class="form-control" name="password" placeholder="留空就是公开赛">
+                    <input type="text" class="form-control" name="password" placeholder="留空就是公开赛" ms-duplex="password">
                 </div>
             </div>
             <div class="col-md-3">
                 <div class="form-group">
-                    <input type="radio" name="mode">OI
-                    <input type="radio" name="mode">ACM
+                    <label><input type="radio" name="mode" ms-duplex-checked="model">
+                        <small>OI</small>
+                    </label>
+                    <label><input type="radio" name="mode">
+                        <small>ACM</small>
+                    </label>
                 </div>
             </div>
             <div class="col-md-3">
                 <div class="form-group">
-                    <input type="checkbox" value="open_rank">开放排名
+                    <label class="text"><input type="checkbox" ms-duplex-checked="openRank">
+                        <small>开放排名</small>
+                    </label>
                 </div>
             </div>
 
@@ -75,23 +83,22 @@
                     <div class="panel panel-default problem-panel" ms-attr-id="problem-{{ problem.id }}">
                         <div class="panel-heading">
                             <span class="panel-title">题目{{$index + 1}} </span>
-                            <a href="javascript:void(0)" class="btn btn-primary btn-sm"
-                               ms-click="toggle_problem(problem)">
-                                {{ problem.toggle_string }}
+                            <a href="javascript:void(0)" class="btn btn-primary btn-sm" ms-click="toggle(problem)">
+                                {{getBtnContent(problem)}}
                             </a>
-                            <a href="javascript:void(0)" class="btn btn-danger btn-sm"
-                               ms-click="del_problem(problem)">
+                            <a href="javascript:void(0)" class="btn btn-danger btn-sm" ms-click="del_problem(problem)">
                                 删除
                             </a>
                         </div>
-                        <div class="panel-body" ms-attr-id="problem-{{ problem.id }}-body">
+                        <div class="panel-body" ms-visible="problem.visible">
                             <div class="col-md-12">
                                 <label>题目</label>
                             </div>
 
                             <div class="col-md-12">
                                 <div class="form-group">
-                                    <input type="text" name="problem_name[]" class="form-control">
+                                    <input type="text" name="problem_name[]" class="form-control"
+                                           ms-duplex="problem.title">
                                 </div>
                             </div>
                             <div class="col-md-6">
@@ -102,14 +109,18 @@
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <input type="text" name="cpu[]" class="form-control">
+                                    <input type="text" name="cpu[]" class="form-control" ms-duplex="problem.cpu">
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <input type="text" name="memory[]" class="form-control">
+                                    <input type="text" name="memory[]" class="form-control" ms-duplex="problem.memory">
                                 </div>
                             </div>
+                            <label>题目描述</label>
+                            <textarea ms-attr-id="problem-{{ problem.id }}-description" placeholder="这里输入内容"
+                                      ms-duplex="problem.description"></textarea>
+                            <small ms-visible="problem.description==''" style="color:red">请填写题目描述</small>
                             <div class="col-md-12">
 
                                 <label>样例</label>
@@ -125,8 +136,8 @@
                                             <span class="panel-title">样例{{$index + 1}}</span>
 
                                             <a href="javascript:void(0)" class="btn btn-primary btn-sm"
-                                               ms-click="toggle_sample(problem, sample)">
-                                                {{ sample.toggle_string }}
+                                               ms-click="toggle(sample)">
+                                                {{getBtnContent(sample)}}
                                             </a>
                                             <a href="javascript:void(0)" class="btn btn-danger btn-sm"
                                                ms-click="del_sample(problem, sample)">
@@ -134,23 +145,18 @@
                                             </a>
 
                                         </div>
-                                        <div class="panel-body"
-                                             ms-attr-id="problem-{{ problem.id }}-sampleio-{{ sample.id }}-body">
-                                            <div class="col-md-12">
-                                                <label>样例输入</label>
-
-                                            </div>
-                                            <div class="col-md-12">
+                                        <div class="panel-body row" ms-visible="sample.visible">
+                                            <div class="col-md-6">
                                                 <div class="form-group">
-                                                    <textarea class="form-control" rows="5"></textarea>
+                                                    <label>样例输入</label>
+                                                    <textarea class="form-control" rows="5"
+                                                              ms-duplex="sample.input"></textarea>
                                                 </div>
                                             </div>
-                                            <div class="col-md-12">
-                                                <label>样例输出</label>
-                                            </div>
-                                            <div class="col-md-12">
+                                            <div class="col-md-6">
                                                 <div class="form-group">
-                                                    <textarea class="form-control" rows="5"></textarea>
+                                                    <label>样例输出</label>
+                                                    <textarea class="form-control" rows="5" ms-duplex="sample.output"></textarea>
                                                 </div>
                                             </div>
                                         </div>
@@ -163,14 +169,18 @@
                             <div class="col-md-12">
                                 <div class="form-group">
                                     <div ms-attr-id="problem-{{ problem.id }}-uploader">选择文件</div>
-
                                 </div>
                             </div>
+
                         </div>
                     </div>
                 </div>
             </div>
+            <div class="col-md-12">
+                <input type="submit" class="btn btn-success btn-lg" value="发布比赛">
+            </div>
         </div>
+
     </form>
 </div>
 
