@@ -1,7 +1,8 @@
 # coding=utf-8
 from rest_framework import serializers
 
-from .models import Group
+from account.serializers import UserSerializer
+from .models import Group, UserGroupRelation
 
 
 class CreateGroupSerializer(serializers.Serializer):
@@ -25,3 +26,16 @@ class GroupSerializer(serializers.ModelSerializer):
     class Meta:
         model = Group
         exclude = ["members"]
+        
+        
+class GroupMemberSerializer(serializers.ModelSerializer):
+    user = UserSerializer()
+    
+    class Meta:
+        model = UserGroupRelation
+        exclude = ["id", "group"]
+        
+        
+class EditGroupMemberSerializer(serializers.Serializer):
+    group_id = serializers.IntegerField()
+    members = serializers.ListField(child=serializers.IntegerField())
