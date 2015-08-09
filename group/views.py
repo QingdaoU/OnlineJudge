@@ -86,7 +86,7 @@ class JoinGroupAPIView(APIView):
         if serializer.is_valid():
             data = serializer.data
             try:
-                group = Grouo.objects.get(id=data["group"])
+                group = Grouo.objects.get(id=data["group_id"])
             except Group.DesoNotExist:
                 return error_response(u"小组不存在")
             if group.join_group_setting == 0:
@@ -100,4 +100,8 @@ class JoinGroupAPIView(APIView):
             return serializer_invalid_response(serializer)
     
     def get(self, request):
-        pass
+        keyword = request.GET.get("keyword", None)
+        if not keyword:
+            return error_response(u"参数错误")
+        groups = Group.objects.filter(name__contains=keyword, visible=True, join_group_setting__lte=2)
+        return paginate(request, groups, GroupSerializer)
