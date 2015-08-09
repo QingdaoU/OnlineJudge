@@ -14,6 +14,11 @@ class UserManager(models.Manager):
         return self.get(**{self.model.USERNAME_FIELD: username})
 
 
+REGULAR_USER = 0
+ADMIN = 1
+SUPER_ADMIN = 2
+
+
 class User(AbstractBaseUser):
     # 用户名
     username = models.CharField(max_length=30, unique=True)
