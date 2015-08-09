@@ -11,6 +11,7 @@ from group.views import GroupAdminAPIView
 from admin.views import AdminTemplateView
 
 urlpatterns = [
+    url(r'^install/$', "install.views.install"),
     url("^$", TemplateView.as_view(template_name="oj/index.html"), name="index_page"),
     url(r'^docs/', include('rest_framework_swagger.urls')),
     url(r'^admin/$', TemplateView.as_view(template_name="admin/admin.html"), name="admin_spa_page"),
