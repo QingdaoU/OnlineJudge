@@ -42,6 +42,7 @@ class GroupAdminAPIView(APIView, GroupAPIViewBase):
         创建小组的api
         ---
         request_serializer: CreateGroupSerializer
+        response_serializer: GroupSerializer
         """
         serializer = CreateGroupSerializer(data=request.data)
         if serializer.is_valid():
@@ -59,6 +60,7 @@ class GroupAdminAPIView(APIView, GroupAPIViewBase):
         修改小组信息的api
         ---
         request_serializer: EditGroupSerializer
+        response_serializer: GroupSerializer
         """
         serializer = EditGroupSerializer(data=request.data)
         if serializer.is_valid():
@@ -77,7 +79,7 @@ class GroupAdminAPIView(APIView, GroupAPIViewBase):
 
     def get(self, request):
         """
-        查询小组列表或者单个小组的信息
+        查询小组列表或者单个小组的信息，查询单个小组需要传递group_id参数，否则返回全部
         ---
         response_serializer: GroupSerializer
         """
@@ -95,6 +97,11 @@ class GroupAdminAPIView(APIView, GroupAPIViewBase):
             
 class GroupMemberAdminAPIView(APIView, GroupAPIViewBase):
     def get(self, request):
+        """
+        查询小组成员的api，需要传递group_id参数
+        ---
+        response_serializer: GroupMemberSerializer
+        """
         group_id = request.GET.get("group_id", None)
         if not group_id:
             return error_response(u"参数错误")
@@ -106,6 +113,11 @@ class GroupMemberAdminAPIView(APIView, GroupAPIViewBase):
         return paginate(request, UserGroupRelation.objects.filter(group=group), GroupMemberSerializer)
     
     def put(self, request):
+        """
+        删除小组成员的api接口
+        ---
+        request_serializer: EditGroupMemberSerializer
+        """
         serializer = EditGroupMemberSerializer(data=request.data)
         if serializer.is_valid():
             try:
@@ -126,6 +138,11 @@ def join_group(user, group):
 class JoinGroupAPIView(APIView):
     @login_required
     def post(self, request):
+        """
+        加入某个小组的api
+        ---
+        request_serializer: JoinGroupRequestSerializer
+        """
         serializer = JoinGroupRequestSerializer(data=request.data)
         if serializer.is_valid():
             data = serializer.data
@@ -144,6 +161,11 @@ class JoinGroupAPIView(APIView):
             return serializer_invalid_response(serializer)
     
     def get(self, request):
+        """
+        搜素小组的api，需要传递keyword参数
+        ---
+        response_serializer: GroupSerializer
+        """
         keyword = request.GET.get("keyword", None)
         if not keyword:
             return error_response(u"参数错误")
