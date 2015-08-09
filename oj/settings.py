@@ -50,6 +50,7 @@ INSTALLED_APPS = (
     'announcement',
     'utils',
     'group',
+    'problem',
 
     'rest_framework',
     'rest_framework_swagger',
