@@ -14,7 +14,7 @@ from .serializers import (CreateGroupSerializer, EditGroupSerializer,
 
 
 class GroupAPIViewBase(object):
-    def get_group(request, group_id):
+    def get_group(self, request, group_id):
         """
         根据group_id查询指定的小组的信息，结合判断用户权限
         管理员可以查询所有的小组，其他用户查询自己创建的自傲组
@@ -25,7 +25,7 @@ class GroupAPIViewBase(object):
             group = Group.object.get(id=group_id, visible=True, admin=request.user)
         return group
         
-    def get_groups(request):
+    def get_groups(self, request):
         """
         如果是超级管理员，就返回全部的小组
         如果是管理员，就返回他创建的全部小组
