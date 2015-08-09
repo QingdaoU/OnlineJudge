@@ -49,6 +49,7 @@ INSTALLED_APPS = (
     'account',
     'announcement',
     'utils',
+    'group',
 
     'rest_framework',
     'rest_framework_swagger',
@@ -63,6 +64,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.security.SecurityMiddleware',
+    'admin.middleware.AdminRequiredMiddleware'
 )
 
 ROOT_URLCONF = 'oj.urls'
