@@ -26,6 +26,7 @@ urlpatterns = [
     url(r'^api/admin/announcement/$', AnnouncementAdminAPIView.as_view(), name="announcement_admin_api"),
     url(r'^api/admin/user/$', UserAdminAPIView.as_view(), name="user_admin_api"),
     url(r'^problem/(?P<problem_id>\d+)/$', "problem.views.problem_page", name="problem_page"),
+    url(r'^announcement/(?P<announcement_id>\d+)/$', "announcement.views.announcement_page", name="announcement_page"),
 
     url(r'^api/announcements/$', AnnouncementAPIView.as_view(), name="announcement_list_api"),
     url(r'^api/users/$', UserAPIView.as_view(), name="user_list_api"),
