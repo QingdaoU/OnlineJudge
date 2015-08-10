@@ -60,7 +60,6 @@ class ProblemAdminAPIView(APIView):
         serializer = EditProblemSerializer(data=request.data)
         if serializer.is_valid():
             data = serializer.data
-            print request.data
             try:
                 problem = Problem.objects.get(id=data["id"])
             except Problem.DoesNotExist:
