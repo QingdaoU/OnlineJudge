@@ -29,7 +29,7 @@ class ProblemAdminTest(APITestCase):
 
     def test_success_problem(self):
         self.client.login(username="test", password="testaa")
-        ProblemTag.objects.create(name="tag1", description="destag1")
+        ProblemTag.objects.create(name="tag1")
         data = {"title": "title1",
                 "description": "des1",
                 "test_case_id": "1",
@@ -52,7 +52,7 @@ class ProblemAdminTest(APITestCase):
 
     def test_problem_does_not_exist(self):
         self.client.login(username="test", password="testaa")
-        ProblemTag.objects.create(name="tag1", description="destag1")
+        ProblemTag.objects.create(name="tag1")
         tags = ProblemTag.objects.filter(id__in=[1])
         problem = Problem.objects.create(title="title1",
                                          description="des1",
@@ -82,8 +82,8 @@ class ProblemAdminTest(APITestCase):
     def test_success_edit_problem(self):
         self.client.login(username="test", password="testaa")
         self.client.login(username="test", password="testaa")
-        ProblemTag.objects.create(name="tag1", description="destag1")
-        ProblemTag.objects.create(name="tag2", description="destag2")
+        ProblemTag.objects.create(name="tag1")
+        ProblemTag.objects.create(name="tag2")
         tags = ProblemTag.objects.filter(id__in=[1])
         problem0 = Problem.objects.create(title="title1",
                                           description="des1",
