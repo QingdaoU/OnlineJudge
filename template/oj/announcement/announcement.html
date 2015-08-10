@@ -10,6 +10,7 @@
         创建时间：{{ announcement.create_time }}
         {% ifequal announcement.create_time announcement.last_update_time %}
         {% else %}
+        &nbsp;&nbsp;&nbsp;
         最后更新：{{ announcement.last_update_time }}
         {% endifequal %}
     </p>
