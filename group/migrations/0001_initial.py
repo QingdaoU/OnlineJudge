@@ -22,7 +22,6 @@ class Migration(migrations.Migration):
                 ('join_group_setting', models.IntegerField()),
                 ('visible', models.BooleanField(default=True)),
                 ('admin', models.ForeignKey(related_name='my_groups', to=settings.AUTH_USER_MODEL)),
-                ('members', models.ManyToManyField(to=settings.AUTH_USER_MODEL)),
             ],
             options={
                 'db_table': 'group',
@@ -41,5 +40,22 @@ class Migration(migrations.Migration):
             options={
                 'db_table': 'join_group_request',
             },
+        ),
+        migrations.CreateModel(
+            name='UserGroupRelation',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('join_time', models.DateTimeField(auto_now_add=True)),
+                ('group', models.ForeignKey(to='group.Group')),
+                ('user', models.ForeignKey(to=settings.AUTH_USER_MODEL)),
+            ],
+            options={
+                'db_table': 'user_group_relation',
+            },
+        ),
+        migrations.AddField(
+            model_name='group',
+            name='members',
+            field=models.ManyToManyField(to=settings.AUTH_USER_MODEL, through='group.UserGroupRelation'),
         ),
     ]
