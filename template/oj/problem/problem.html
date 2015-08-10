@@ -7,16 +7,15 @@
                 <a href="problem.html">题目</a></li>
             <li role="presentation"><a href="/problem/1/my_solutions/">我的提交</a></li>
         </ul>
-        <h2 class="text-center">Battle Over Cities - Hard Version</h2>
+        <h2 class="text-center">{{ problem.title }}</h2>
 
-        <p class="text-muted text-center">发布时间: 2015-07-05 CPU: 1000ms 内存: 256M</p>
+        <p class="text-muted text-center">发布时间: {{ problem.create_time }} CPU: {{ problem.time_limit }}ms 内存: {{ problem.memory_limit }}M</p>
 
         <div>
             <div class="problem-section">
                 <label class="problem-label">描述</label>
 
-                <p class="problem-detail"> n的阶乘定义为n!=1*2*3*……*n 如3!=6
-                    n!通常最后会有很多0，如5!=120 最后有一个0，现在统计n!去除末尾的0后，最后k位是多少</p>
+                <p class="problem-detail">{{ problem.description|safe }}</p>
             </div>
             <div class="problem-section">
                 <label class="problem-label">输入</label>
@@ -28,47 +27,37 @@
 
                 <p class="problem-detail">第一行包括两个数n,k</p>
             </div>
+            {% for item in samples %}
             <div class="problem-section">
                 <label class="problem-label">样例输入1</label>
-        <pre title="双击可以复制哦~">
-1 2 3 4 5 6 7
-1 2 3 4 5 6 7</pre>
+        <pre>
+{{ item.input }}</pre>
 
             </div>
             <div class="problem-section">
 
                 <label class="problem-label">样例输出1</label>
         <pre>
-1 2 3 4 5 6 7</pre>
+{{ item.output }}</pre>
             </div>
-            <div class="problem-section">
-                <label class="problem-label">样例输入2</label>
-        <pre title="双击可以复制哦~">
-1 2 3 4 5 6 7
-1 2 3 4 5 6 7</pre>
-
-            </div>
-            <div class="problem-section">
-
-                <label class="problem-label">样例输出2</label>
-        <pre>
-1 2 3 4 5 6 7</pre>
-            </div>
+            {% endfor %}
             <div>
                 <button type="button" id="show-more-btn" class="btn btn-info btn-sm">查看隐藏信息</button>
             </div>
-
+            {% if problem.hind %}
             <div class="problem-section hide">
                 <label class="problem-label">提示</label>
 
-                <p class="problem-detail">画一下图</p>
+                <p class="problem-detail">{{ problem.hint|safe }}</p>
             </div>
+          {% endif %}
             <div class="problem-section hide">
                 <label class="problem-label">标签</label>
 
                 <p class="problem-detail">
-                    <span class="label label-success">Success</span>
-                    <span class="label label-info">Info</span>
+                    {% for tag in problem.tags.all %}
+                    <span class="label label-success">{{ tag.name }}</span>
+                    {% endfor %}
                 </p>
             </div>
 
