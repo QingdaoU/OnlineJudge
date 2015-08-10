@@ -2,6 +2,8 @@
 import zipfile
 import re
 import os
+import hashlib
+import json
 
 from django.shortcuts import render
 
@@ -69,6 +71,26 @@ class TestCaseUploadAPIView(APIView):
                 f.write(test_case_file.read(name))
                 f.close()
             l.sort()
+
+            file_info = {"test_case_number": len(l) / 2, "test_cases": {}}
+
+            # 计算输出文件的md5
+            for i in range(len(l) / 2):
+                md5 = hashlib.md5()
+                f = open(test_case_dir + str(i + 1) + ".out", "r")
+                while True:
+                    data = f.read(2 ** 8)
+                    if not data:
+                        break
+                    md5.update(data)
+
+                file_info["test_cases"][str(i + 1)] = {"input_name": str(i + 1) + ".in",
+                                                       "output_name": str(i + 1) + ".out",
+                                                       "output_md5": md5.hexdigest(),
+                                                       "output_size": os.path.getsize(test_case_dir + str(i + 1) + ".out")}
+                # 写入配置文件
+                open(test_case_dir + "info", "w").write(json.dumps(file_info))
+
             return success_response({"test_case_id": problem_test_dir,
                                      "file_list": {"input": l[0::2],
                                                    "output": l[1::2]}})
