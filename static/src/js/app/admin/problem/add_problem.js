@@ -1,5 +1,5 @@
-require(["jquery", "avalon", "editor", "uploader", "tagEditor", "validation"],
-    function ($, avalon, editor, uploader) {
+require(["jquery", "avalon", "editor", "uploader", "bs_alert", "tagEditor", "validation"],
+    function ($, avalon, editor, uploader, bs_alert) {
         avalon.vmodels.add_problem = null;
         $("#add-problem-form")
             .formValidation({
@@ -68,18 +68,20 @@ require(["jquery", "avalon", "editor", "uploader", "tagEditor", "validation"],
                 console.log(ajaxData);
             });
         var problemDiscription = editor("#problemDescription");
-        var testCaseUploader = uploader("#testCaseFile", "/admin/api/testCase");//{
+        var testCaseUploader = uploader("#testCaseFile", "/api/admin/test_case_upload/",function(file, respond){
+            if (respond.code)
+                bs_alert(respond.data);
+            else{
+                vm.test_case_id = respond.data.test_case_id;
+                vm.uploadSuccess = true;
+                vm.testCaseList = [];
+                for (var i = 0; i < respond.data.file_list.input.length; i++)
+                {
+                    vm.testCaseList.push({input: respond.data.file_list.input[i], output: respond.data.file_list.output[i]});
+                }
+            }
+        });
         var hinteditor = editor("#hint");
-        /*auto: true,
-         swf: '/static/js/lib/webuploader/Uploader.swf',
-         server: 'http://webuploader.duapp.com/server/fileupload.php',
-         multiple:false,
-         accept: {
-         title: 'Zip',
-         extensions: 'zip',
-         mimeTypes: 'zip/*'
-         }*/
-        // });
         $("#tags").tagEditor();
         var vm = avalon.define({
             $id: "add_problem",
@@ -93,6 +95,9 @@ require(["jquery", "avalon", "editor", "uploader", "tagEditor", "validation"],
             difficulty: 0,
             tags: [],
             tag: "",
+            test_case_id: "",
+            testCaseList: [],
+            uploadSuccess: false,
             checkTag: function () {
                 alert("11");
                 if (event.keyCode == 13)
@@ -118,10 +123,6 @@ require(["jquery", "avalon", "editor", "uploader", "tagEditor", "validation"],
                 return "展开";
             }
         });
-        function checkTags(e)
-        {
-            e.preventDefault();
-        }
-        //$("#tag").bind("keydown", checkTags(evevt));
+
         avalon.scan();
     });
