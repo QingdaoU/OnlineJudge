@@ -1,4 +1,4 @@
-require(["jquery", "avalon", "editor", "uploader", "validation"],
+require(["jquery", "avalon", "editor", "uploader", "tagEditor", "validation"],
     function ($, avalon, editor, uploader) {
         avalon.vmodels.add_problem = null;
         $("#add-problem-form")
@@ -69,7 +69,7 @@ require(["jquery", "avalon", "editor", "uploader", "validation"],
             });
         var problemDiscription = editor("#problemDescription");
         var testCaseUploader = uploader("#testCaseFile", "/admin/api/testCase");//{
-
+        var hinteditor = editor("#hint");
         /*auto: true,
          swf: '/static/js/lib/webuploader/Uploader.swf',
          server: 'http://webuploader.duapp.com/server/fileupload.php',
@@ -80,6 +80,7 @@ require(["jquery", "avalon", "editor", "uploader", "validation"],
          mimeTypes: 'zip/*'
          }*/
         // });
+        $("#tags").tagEditor();
         var vm = avalon.define({
             $id: "add_problem",
             title: "",
@@ -87,6 +88,19 @@ require(["jquery", "avalon", "editor", "uploader", "validation"],
             cpu: 0,
             memory: 0,
             samples: [],
+            hint: "",
+            visible: false,
+            difficulty: 0,
+            tags: [],
+            tag: "",
+            checkTag: function () {
+                alert("11");
+                if (event.keyCode == 13)
+                {
+                    alert("You press the enter key!");
+                    return false;
+                }
+            },
             add_sample: function () {
                 vm.samples.push({input: "", output: "", "visible": true});
             },
@@ -104,5 +118,10 @@ require(["jquery", "avalon", "editor", "uploader", "validation"],
                 return "展开";
             }
         });
+        function checkTags(e)
+        {
+            e.preventDefault();
+        }
+        //$("#tag").bind("keydown", checkTags(evevt));
         avalon.scan();
     });
