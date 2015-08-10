@@ -9,8 +9,15 @@ define("csrf",function(){
         }
         return "";
     }
-    function csrfHeader(xhr){
-         xhr.setRequestHeader("X-CSRFToken", get_cookie("csrftoken"));
+    function csrfHeader(){
+        // jquery的请求
+        if(arguments.length == 1) {
+            arguments[0].setRequestHeader("X-CSRFToken", get_cookie("csrftoken"));
+        }
+        // 百度webuploader 的请求
+        else if(arguments.length == 3){
+            arguments[2]["X-CSRFToken"] = get_cookie("csrftoken");
+        }
     }
     return csrfHeader;
 });
