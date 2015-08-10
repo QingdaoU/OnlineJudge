@@ -44,8 +44,20 @@ class ProblemTagAdminAPIView(APIView):
 
 
 def problem_page(request, problem_id):
-    # todo
-    return render(request, "oj/problem/problem.html")
+    # try:
+    #     problem = Problem.objects.get(id=problem_id)
+    # except Problem.DoesNotExist:
+    #     return render(request, "utils/error.html", {"error": u"题目不存在"})
+    return render(request, "oj/problem/problem.html", {"problem": {}})
+
+
+def problem_my_solutions_list_page(request, problem_id):
+    return render(request, "oj/problem/my_solutions_list.html")
+
+
+def my_solution(request, solution_id):
+    return render(request, "oj/problem/my_solution.html")
+
 
 
 class ProblemAdminAPIView(APIView):
