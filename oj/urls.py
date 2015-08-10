@@ -9,6 +9,8 @@ from account.views import (UserLoginAPIView, UsernameCheckAPIView, UserRegisterA
 from announcement.views import AnnouncementAPIView, AnnouncementAdminAPIView
 from group.views import GroupAdminAPIView
 from admin.views import AdminTemplateView
+from problem.views import TestCaseUploadAPIView
+
 
 urlpatterns = [
     url(r'^install/$', "install.views.install"),
@@ -34,4 +36,6 @@ urlpatterns = [
     url(r'^problems/$', TemplateView.as_view(template_name="oj/problem/problem_list.html"), name="problem_list_page"),
     url(r'^admin/template/(?P<template_dir>\w+)/(?P<template_name>\w+).html', AdminTemplateView.as_view(), name="admin_template"),
     url(r'^api/admin/group/$', GroupAdminAPIView.as_view(), name="group_admin_api"),
+
+    url(r'^api/admin/test_case_upload/$', TestCaseUploadAPIView.as_view(), name="test_case_upload_api"),
 ]
