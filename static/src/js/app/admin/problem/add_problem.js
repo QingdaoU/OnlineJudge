@@ -98,6 +98,7 @@ require(["jquery", "avalon", "editor", "uploader", "bs_alert", "tagEditor", "val
             test_case_id: "",
             testCaseList: [],
             uploadSuccess: false,
+            source: "",
             checkTag: function () {
                 alert("11");
                 if (event.keyCode == 13)
