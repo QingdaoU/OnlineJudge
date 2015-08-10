@@ -1,4 +1,8 @@
 # coding=utf-8
+import hashlib
+import time
+import random
+
 from django.core.paginator import Paginator
 
 from rest_framework.response import Response
@@ -87,3 +91,8 @@ def paginate(request, query_set, object_serializer):
         pass
 
     return success_response(data)
+
+
+def rand_str(length=32):
+    string = hashlib.md5(str(time.time()) + str(random.randrange(1, 9999999900))).hexdigest()
+    return string[0:length]

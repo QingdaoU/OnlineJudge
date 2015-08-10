@@ -19,6 +19,13 @@ require(["jquery", "avalon", "editor", "uploader", "datetimepicker",
                             }
                         }
                     },
+                    description:{
+                        validators: {
+                            notEmpty: {
+                                message: "请输入描述"
+                            }
+                        }
+                    },
                     start_time: {
                         validators: {
                             notEmpty: {
@@ -93,9 +100,18 @@ require(["jquery", "avalon", "editor", "uploader", "datetimepicker",
             })
             .on("success.form.fv", function (e) {
                 e.preventDefault();
-                alert("1111");
+                var data = {title: vm.title, description: vm.description, start_time: vm.startTime, end_time: vm.endTime,
+                                password: vm.password, model: vm.model, open_rank: vm.openRank, problems:[]};
+                for (var i = 0; i < vm.problems.length; i++) {
+                    var problem = {title: vm.problems[i].title, description:vm.problems[i].description,
+                                  cpu:vm.problems[i].cpu, memory:vm.problems[i].memory,samples:[]};
+                    for (var j = 0; j < vm.problems[i].samples.length; j++) {
+                        problem.samples.push({input:vm.problems[i].samples[j].input, output:vm.problems[i].samples[j].output})
+                    }
+                    data.problems.push(problem);
+                }
+                console.log(data);
             });
-
         function make_id() {
             var text = "";
             var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
@@ -107,17 +123,20 @@ require(["jquery", "avalon", "editor", "uploader", "datetimepicker",
 
         var vm = avalon.define({
             $id: "add_contest",
+            title : "",
+            description: "",
+            startTime: "",
+            endTime: "",
+            password: "",
+            model: "",
+            openRank: false,
             problems: [],
             add_problem: function () {
-                var problem = {};
                 var problem_id = make_id();
-                problem["id"] = problem_id;
-                problem["samples"] = [];
-                problem["webuploader"] = {};
-                problem["toggle_string"] = "折叠";
+                var problem={id: problem_id, title: "", cpu: "", memory: "", description: "",samples: [], webuploader: {}, visible: true};
                 vm.problems.push(problem);
-                uploader("#problem-" + problem_id + "-uploader");
-                console.log(vm.problems);
+                uploader("#problem-" + problem_id + "-uploader","");
+                editor("#problem-" + problem_id + "-description")
                 $("#add-contest-form").formValidation('addField', $('[name="problem_name[]"]'));
                 $("#add-contest-form").formValidation('addField', $('[name="cpu[]"]'));
                 $("#add-contest-form").formValidation('addField', $('[name="memory[]"]'));
@@ -127,31 +146,21 @@ require(["jquery", "avalon", "editor", "uploader", "datetimepicker",
                     vm.problems.remove(problem);
                 }
             },
-            toggle_problem: function (problem) {
-                $("#" + "problem-" + problem.id + "-body").toggle();
-                if (problem["toggle_string"] == "展开") {
-                    problem["toggle_string"] = "折叠";
-                }
-                else {
-                    problem["toggle_string"] = "展开";
-                }
+            toggle: function (item) {
+                item.visible = !item.visible;
             },
             add_sample: function (problem) {
-                problem["samples"].push({"id": make_id(), "toggle_string": "折叠"});
+                problem.samples.push({id: make_id(), visible: true, input: "", output: ""});
             },
             del_sample: function (problem, sample) {
                 if (confirm("你确定要删除么?")) {
-                    problem["samples"].remove(sample);
+                    problem.samples.remove(sample);
                 }
             },
-            toggle_sample: function (problem, sample) {
-                $("#" + "problem-" + problem.id + "-sampleio-" + sample.id + "-body").toggle();
-                if (sample["toggle_string"] == "展开") {
-                    sample["toggle_string"] = "折叠";
-                }
-                else {
-                    sample["toggle_string"] = "展开";
-                }
+            getBtnContent: function (item) {
+                if (item.visible)
+                    return "折叠";
+                return "展开";
             }
         });
         avalon.scan();
@@ -168,7 +177,6 @@ require(["jquery", "avalon", "editor", "uploader", "datetimepicker",
             weekStart: 1,
             language: "zh-CN"
         });
-
         $("#contest_start_time").datetimepicker()
             .on("hide", function (ev) {
                 $("#add-contest-form")
