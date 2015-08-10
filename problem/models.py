@@ -6,7 +6,7 @@ from account.models import User
 
 class ProblemTag(models.Model):
     name = models.CharField(max_length=30)
-    description = models.CharField(max_length=50)
+    # description = models.CharField(max_length=50)
 
     class Meta:
         db_table = "problem_tag"

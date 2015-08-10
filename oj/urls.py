@@ -11,7 +11,7 @@ from group.views import GroupAdminAPIView
 from admin.views import AdminTemplateView
 
 from problem.views import ProblemAdminAPIView
-from problem.views import TestCaseUploadAPIView
+from problem.views import TestCaseUploadAPIView, ProblemTagAdminAPIView
 
 
 urlpatterns = [
@@ -41,4 +41,5 @@ urlpatterns = [
     url(r'^api/admin/group/$', GroupAdminAPIView.as_view(), name="group_admin_api"),
     url(r'^api/admin/problem/$', ProblemAdminAPIView.as_view(), name="problem_admin_api"),
     url(r'^api/admin/test_case_upload/$', TestCaseUploadAPIView.as_view(), name="test_case_upload_api"),
+    url(r'^api/admin/tag/$', ProblemTagAdminAPIView.as_view(), name="problem_tag_admin_api"),
 ]
