@@ -12,7 +12,7 @@ var require = {
         validation: "utils/validation",
         code_mirror: "utils/code_mirror",
         bs_alert: "utils/bs_alert",
-        submit_code: "app/oj/problem/submit_code",
+        problem: "app/oj/problem/problem",
         contest: "app/admin/contest/contest",
         csrf: "utils/csrf",
         admin: "app/admin/admin",

@@ -42,4 +42,6 @@ urlpatterns = [
     url(r'^api/admin/problem/$', ProblemAdminAPIView.as_view(), name="problem_admin_api"),
     url(r'^api/admin/test_case_upload/$', TestCaseUploadAPIView.as_view(), name="test_case_upload_api"),
     url(r'^api/admin/tag/$', ProblemTagAdminAPIView.as_view(), name="problem_tag_admin_api"),
+    url(r'^problem/(?P<problem_id>\d+)/my_solutions/', "problem.views.problem_my_solutions_list_page", name="problem_my_solutions_page"),
+    url(r'^my_solution/(?P<solution_id>\d+)/$', "problem.views.my_solution", name="my_solution_page"),
 ]

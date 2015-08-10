@@ -14,7 +14,6 @@ class ProblemSampleSerializer(serializers.ListField):
 
 class JSONField(serializers.Field):
     def to_representation(self, value):
-        print value, type(value)
         return json.loads(value)
 
 
@@ -22,18 +21,18 @@ class CreateProblemSerializer(serializers.Serializer):
     title = serializers.CharField(max_length=50)
     description = serializers.CharField(max_length=10000)
     # [{"input": "1 1", "output": "2"}]
-    sample = ProblemSampleSerializer()
+    samples = ProblemSampleSerializer()
     test_case_id = serializers.CharField(max_length=40)
     source = serializers.CharField(max_length=30, required=False, default=None)
     time_limit = serializers.IntegerField()
     memory_limit = serializers.IntegerField()
     difficulty = serializers.IntegerField()
-    tags = serializers.ListField(child=serializers.IntegerField())
+    tags = serializers.ListField(child=serializers.CharField(max_length=10))
     hint = serializers.CharField(max_length=3000, required=False, default=None)
 
 
 class ProblemSerializer(serializers.ModelSerializer):
-    sample = JSONField()
+    samples = JSONField()
 
     class UserSerializer(serializers.ModelSerializer):
         class Meta:
@@ -56,7 +55,7 @@ class EditProblemSerializer(serializers.Serializer):
     memory_limit = serializers.IntegerField()
     difficulty = serializers.IntegerField()
     tags = serializers.ListField(child=serializers.IntegerField())
-    sample = ProblemSampleSerializer()
+    samples = ProblemSampleSerializer()
     hint = serializers.CharField(max_length=10000)
     visible = serializers.BooleanField()
 
