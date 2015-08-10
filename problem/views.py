@@ -1,8 +1,9 @@
 # coding=utf-8
 import zipfile
 import re
+import os
+
 from django.shortcuts import render
-from django.views.decorators.csrf import csrf_exempt
 
 from rest_framework.views import APIView
 
@@ -15,18 +16,19 @@ def problem_page(request, problem_id):
 
 
 class TestCaseUploadAPIView(APIView):
-
     def _is_legal_test_case_file_name(self, file_name):
         # 正整数开头的 .in 或者.out 结尾的
         regex = r"^[1-9]\d*\.(in|out)$"
         return re.compile(regex).match(file_name) is not None
 
-    @csrf_exempt
     def post(self, request):
+        if "file" not in request.FILES:
+            return error_response(u"文件上传失败")
+
         f = request.FILES["file"]
 
         tmp_zip = "tmp/" + rand_str() + ".zip"
-        with open(tmp_zip) as test_case_zip:
+        with open(tmp_zip, "wb") as test_case_zip:
             for chunk in f:
                 test_case_zip.write(chunk)
 
@@ -43,7 +45,7 @@ class TestCaseUploadAPIView(APIView):
         if "1.in" in name_list and "1.out" in name_list:
             for file_name in name_list:
                 if self._is_legal_test_case_file_name(file_name):
-                    name = file_name.spit(".")
+                    name = file_name.split(".")
                     # 有了.in 判断对应的.out 在不在
                     if name[1] == "in":
                         if (name[0] + ".out") in name_list:
@@ -61,13 +63,14 @@ class TestCaseUploadAPIView(APIView):
             test_case_dir = "test_case/" + problem_test_dir + "/"
 
             # 得到了合法的测试用例文件列表 然后去解压缩
+            os.mkdir(test_case_dir)
             for name in l:
-                f = open(test_case_dir + name, "w+b")
+                f = open(test_case_dir + name, "wb")
                 f.write(test_case_file.read(name))
                 f.close()
-
-            return success_response(problem_test_dir)
-
+            l.sort()
+            return success_response({"test_case_id": problem_test_dir,
+                                     "file_list": {"input": l[0::2],
+                                                   "output": l[1::2]}})
         else:
             return error_response(u"测试用例压缩文件格式错误，请保证测试用例文件在根目录下直接压缩")
-
