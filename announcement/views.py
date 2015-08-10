@@ -1,13 +1,21 @@
 # coding=utf-8
 from rest_framework.views import APIView
 
+from django.shortcuts import render
 from utils.shortcuts import serializer_invalid_response, error_response, success_response
 
-from account.models import User
 from utils.shortcuts import paginate
 from .models import Announcement
 from .serializers import (CreateAnnouncementSerializer, AnnouncementSerializer,
                           EditAnnouncementSerializer)
+
+
+def announcement_page(request, announcement_id):
+    try:
+        announcement = Announcement.objects.get(id=announcement_id, visible=True)
+    except Announcement.DoesNotExist:
+        return render(request, "utils/error.html", {"error": u"模板不存在"})
+    return render(request, "oj/announcement/announcement.html", {"announcement": announcement})
 
 
 class AnnouncementAdminAPIView(APIView):

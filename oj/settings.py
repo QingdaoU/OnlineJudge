@@ -49,6 +49,7 @@ INSTALLED_APPS = (
     'announcement',
     'utils',
     'group',
+    'problem',
     'admin',
 
     'rest_framework',
