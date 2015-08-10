@@ -12,6 +12,7 @@ class CreateGroupSerializer(serializers.Serializer):
 
 
 class EditGroupSerializer(serializers.Serializer):
+    group_id = serializers.IntegerField()
     name = serializers.CharField(max_length=20)
     description = serializers.CharField(max_length=300)
     join_group_setting = serializers.IntegerField()

@@ -20,9 +20,9 @@ class GroupAPIViewBase(object):
         管理员可以查询所有的小组，其他用户查询自己创建的自傲组
         """
         if request.user.admin_type == SUPER_ADMIN:
-            group = Group.object.get(id=group_id, visible=True)
+            group = Group.objects.get(id=group_id, visible=True)
         else:
-            group = Group.object.get(id=group_id, visible=True, admin=request.user)
+            group = Group.objects.get(id=group_id, visible=True, admin=request.user)
         return group
         
     def get_groups(self, request):
@@ -34,6 +34,7 @@ class GroupAPIViewBase(object):
             groups = Group.objects.filter(visible=True)
         else:
             groups = Group.objects.filter(admin=request.user, visible=True)
+        return groups
 
 
 class GroupAdminAPIView(APIView, GroupAPIViewBase):
@@ -121,11 +122,11 @@ class GroupMemberAdminAPIView(APIView, GroupAPIViewBase):
         serializer = EditGroupMemberSerializer(data=request.data)
         if serializer.is_valid():
             try:
-                group = self.get_group(request, group_id)
+                group = self.get_group(request, serializer.data["group_id"])
             except Group.DoesNotExist:
                 return error_response(u"小组不存在")
             user_id_list = serializer.data["members"]
-            UserGroupRelation.objects.delete(group=group, user__id__in=user_id_list)
+            UserGroupRelation.objects.filter(group=group, user__id__in=user_id_list).delete()
             return success_response(u"删除成功")
         else:
             return serializer_invalid_response(serializer)
@@ -147,7 +148,7 @@ class JoinGroupAPIView(APIView):
         if serializer.is_valid():
             data = serializer.data
             try:
-                group = Grouo.objects.get(id=data["group_id"])
+                group = Group.objects.get(id=data["group_id"])
             except Group.DesoNotExist:
                 return error_response(u"小组不存在")
             if group.join_group_setting == 0:
