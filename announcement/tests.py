@@ -1,5 +1,6 @@
 # coding=utf-8
 from django.core.urlresolvers import reverse
+from django.test import TestCase
 
 from rest_framework.test import APITestCase, APIClient
 
@@ -87,3 +88,27 @@ class AnnouncementAPITest(APITestCase):
             self.assertEqual(response.data["code"], 0)
             for item in response.data["data"]:
                 self.assertEqual(item["visible"], True)
+
+
+class AnnouncementPageTest(TestCase):
+    def setUp(self):
+        user = User.objects.create(username="test")
+        user.set_password("testaa")
+        user.save()
+        Announcement.objects.create(title="aa",
+                                    content="AA",
+                                    created_by=User.objects.get(username="test"),
+                                    visible=True)
+
+        Announcement.objects.create(title="bb",
+                                    content="BB",
+                                    created_by=User.objects.get(username="test"),
+                                    visible=False)
+
+    def test_success_announcement(self):
+        response = self.client.get('/announcement/1/')
+        self.assertEqual(response.status_code, 200)
+
+    def test_announcement_does_not_exist(self):
+        response = self.client.get('/announcement/3/')
+        self.assertTemplateUsed(response, "utils/error.html")
