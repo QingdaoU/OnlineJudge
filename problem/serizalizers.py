@@ -4,7 +4,7 @@ import json
 from rest_framework import serializers
 
 from account.models import User
-from .models import Problem
+from .models import Problem, ProblemTag
 
 
 class ProblemSampleSerializer(serializers.ListField):
@@ -60,3 +60,12 @@ class EditProblemSerializer(serializers.Serializer):
     hint = serializers.CharField(max_length=10000)
     visible = serializers.BooleanField()
 
+
+
+class ProblemTagSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ProblemTag
+
+
+class CreateProblemTagSerializer(serializers.Serializer):
+    name = serializers.CharField(max_length=10)

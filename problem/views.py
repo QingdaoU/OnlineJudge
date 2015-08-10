@@ -11,8 +11,34 @@ from django.db.models import Q
 from rest_framework.views import APIView
 
 from utils.shortcuts import serializer_invalid_response, error_response, success_response, paginate, rand_str
-from .serizalizers import CreateProblemSerializer, EditProblemSerializer, ProblemSerializer
+from .serizalizers import (CreateProblemSerializer, EditProblemSerializer, ProblemSerializer,
+                           ProblemTagSerializer, CreateProblemTagSerializer)
 from .models import Problem, ProblemTag
+
+
+class ProblemTagAdminAPIView(APIView):
+    def post(self, request):
+        """
+        创建标签的接口
+        ---
+        request_serializer: CreateProblemTagSerializer
+        """
+        serializer = CreateProblemTagSerializer(data=request.data)
+        if serializer.is_valid():
+            try:
+                tag = ProblemTag.objects.get(name=serializer.data["name"])
+            except ProblemTag.DoesNotExist:
+                tag = ProblemTag.objects.create(name=serializer.data["name"])
+            return success_response(ProblemTagSerializer(tag).data)
+        else:
+            return error_response(serializer)
+
+    def get(self, request):
+        keyword = request.GET.get("keyword", None)
+        if not keyword:
+            return error_response(u"参数错误")
+        tags = ProblemTag.objects.filter(name__contains=keyword)
+        return success_response(ProblemTagSerializer(tags, many=True).data)
 
 
 
