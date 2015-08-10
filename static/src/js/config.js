@@ -18,7 +18,7 @@ var require = {
         admin: "app/admin/admin",
         chart: "lib/chart/Chart",
         tagEditor: "lib/tagEditor/jquery.tag-editor.min",
-
+        jqueryUI: "lib/jqueryUI/jquery-ui",
         //formValidation 不要在代码中单独使用，而是使用和修改utils/validation
         base: "lib/formValidation/base",
         helper: "lib/formValidation/helper",
