@@ -24,9 +24,15 @@ define("admin", ["jquery", "avalon"], function ($, avalon) {
         var vm = avalon.define({
             $id: "admin",
             template_url: "template/" + hash + ".html",
+            group_id: -1,
             hide_loading: function () {
                 $("#loading-gif").hide();
             }
+        });
+
+        vm.$watch("showGroupDetailPage", function(group_id){
+            vm.group_id = group_id;
+            vm.template_url = "template/group/group_detail.html";
         });
 
         avalon.scan();
