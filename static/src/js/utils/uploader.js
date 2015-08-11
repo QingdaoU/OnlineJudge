@@ -1,5 +1,5 @@
 define("uploader", ["webuploader", "csrf"], function(webuploader,csrf){
-    function uploader(selector, server, onSuccess) {
+    function uploader(selector, server, onSuccess, beforeUpload) {
         var Webuploader=  webuploader.create({
             auto: true,
             // swf文件路径
@@ -15,7 +15,7 @@ define("uploader", ["webuploader", "csrf"], function(webuploader,csrf){
         });
         Webuploader.on("uploadBeforeSend",csrf);
         Webuploader.on("uploadSuccess", onSuccess);
-
+		Webuploader.on("beforeFileQueued", beforeUpload);
         return Webuploader;
     }
 
