@@ -11,7 +11,7 @@ define("csrf",function(){
     }
     function csrfHeader(){
         // jquery的请求
-        if(arguments.length == 1) {
+        if(arguments.length == 2) {
             arguments[0].setRequestHeader("X-CSRFToken", get_cookie("csrftoken"));
         }
         // 百度webuploader 的请求

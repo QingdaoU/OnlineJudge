@@ -1,74 +1,109 @@
 <div ms-controller="add_problem" class="col-md-9">
     <form id="add-problem-form">
-        <div class="col-md-12">
-            <div class="form-group">
-                <label>题目标题</label>
-                <input type="text" name="title" class="form-control" ms-duplex="title">
-            </div>
-            <div class="form-group">
-                <label>题目描述</label>
-                <textarea id="problemDescription" placeholder="这里输入内容" autofocus ms-duplex="description"></textarea>
-                <small ms-visible="description==''" style="color:red">请填写题目描述</small>
-            </div>
-            <div class="col-md-6">
-                <label>cpu</label>
-            </div>
-            <div class="col-md-6">
-                <label>内存</label>
-            </div>
-            <div class="col-md-6">
-                <div class="form-group">
-                    <input type="text" name="cpu" class="form-control" ms-duplex="cpu">
-                </div>
-            </div>
-            <div class="col-md-6">
-                <div class="form-group">
-                    <input type="text" name="memory" class="form-control" ms-duplex="memory">
-                </div>
-            </div>
-            <div class="col-md-12">
-                <label>样例</label>
-                <a href="javascript:void(0)" class="btn btn-primary btn-sm" ms-click="add_sample()">添加</a>
 
-                <div class="sample">
-                    <div class="panel panel-default sample-panel" ms-repeat-sample="samples">
-                        <div class="panel-heading">
-                            <span class="panel-title">样例{{$index + 1}}</span>
-                            <a href="javascript:void(0)" class="btn btn-primary btn-sm"
-                               ms-click="toggle_sample(sample)">
-                                {{getBtnContent(sample)}}
-                            </a>
-                            <a href="javascript:void(0)" class="btn btn-danger btn-sm"
-                               ms-click="del_sample(sample)">
-                                删除
-                            </a>
-                        </div>
-                        <div class="panel-body row" ms-visible="sample.visible">
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label>样例输入</label>
-                                    <textarea class="form-control" rows="5" ms-duplex="sample.input"></textarea>
-                                </div>
+        <div class="form-group col-md-12">
+            <label>题目标题</label>
+            <input type="text" name="title" class="form-control" ms-duplex="title">
+        </div>
+
+        <div class="form-group col-md-12">
+            <label>题目描述</label>
+            <textarea id="problemDescription" placeholder="这里输入内容" autofocus ms-duplex="description"></textarea>
+            <small ms-visible="description==''" style="color:red">请填写题目描述</small>
+        </div>
+
+
+        <div class="col-md-3">
+            <div class="form-group"><label>时间限制(ms)</label>
+                <input type="number" name="cpu" class="form-control" ms-duplex="cpu">
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="form-group"><label>内存限制(MB)</label>
+                <input type="number" name="memory" class="form-control" ms-duplex="memory">
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="form-group"><label>难度</label>
+                <input type="number" name="difficulty" class="form-control" ms-duplex="difficulty">
+            </div>
+        </div>
+        <div class="col-md-3 form-group">
+            <label>前台是否可见</label><br>
+            <label><input type="checkbox" ms-duplex-checked="visible">
+                <small> 可见</small>
+            </label>
+        </div>
+        <div id="tag" class="col-md-12">
+            <label>标签</label><br>
+            <input type="text" id="tags">
+        </div>
+        <div class="col-md-12"><br>
+            <label>样例</label>
+            <a href="javascript:void(0)" class="btn btn-primary btn-sm" ms-click="add_sample()">添加</a>
+
+            <div class="sample">
+                <div class="panel panel-default sample-panel" ms-repeat-sample="samples">
+                    <div class="panel-heading">
+                        <span class="panel-title">样例{{$index + 1}}</span>
+                        <a href="javascript:void(0)" class="btn btn-primary btn-sm"
+                           ms-click="toggle_sample(sample)">
+                            {{ getBtnContent(sample)}}
+                        </a>
+                        <a href="javascript:void(0)" class="btn btn-danger btn-sm"
+                           ms-click="del_sample(sample)">
+                            删除
+                        </a>
+                    </div>
+                    <div class="panel-body row" ms-visible="sample.visible">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>样例输入</label>
+                                <textarea class="form-control" rows="5" ms-duplex="sample.input"></textarea>
                             </div>
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label>样例输出</label>
-                                    <textarea class="form-control" rows="5" ms-duplex="sample.output"></textarea>
-                                </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>样例输出</label>
+                                <textarea class="form-control" rows="5" ms-duplex="sample.output"></textarea>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="col-md-12">
-                <label>测试数据</label>
-            </div>
-            <div class="col-md-12">
-                <div class="form-group">
-                    <div id="testCaseFile">选择文件</div>
-                </div>
+        </div>
+        <div class="col-md-12"><br>
+            <label>测试数据</label><br>
+            <small class="text-info">请将所有测试用例打包在一个文件中上传，所有文件要在压缩包的根目录，且输入输出文件名要以从1开始连续数字标识要对应例如：<br>
+                1.in 1.out 2.in 2.out
+            </small>
+            <table class="table table-striped" ms-visible="uploadSuccess">
+                <tr>
+                    <td>编号</td>
+                    <td>输入文件名</td>
+                    <td>输出文件名</td>
+                </tr>
+                <tr ms-repeat="testCaseList">
+                    <td>{{$index + 1}}</td>
+                    <td>{{ el.input }}</td>
+                    <td>{{ el.output }}</td>
+                </tr>
+            </table>
+        </div>
+        <div class="col-md-12">
+            <div class="form-group">
+                <div id="testCaseFile">选择文件</div>
             </div>
         </div>
+        <div class="form-group col-md-12">
+            <label>提示</label>
+            <textarea id="hint" placeholder="这里输入内容" ms-duplex="hint"></textarea>
+        </div>
+        <div class="form-group col-md-12">
+            <label>来源</label>
+            <input type="text" name="source" class="form-control" ms-duplex="source">
+        </div>
+
         <div class="col-md-12">
             <input type="submit" class="btn btn-success btn-lg" value="发布题目" id="submitBtn">
         </div>

@@ -12,12 +12,13 @@ var require = {
         validation: "utils/validation",
         code_mirror: "utils/code_mirror",
         bs_alert: "utils/bs_alert",
-        submit_code: "app/oj/problem/submit_code",
+        problem: "app/oj/problem/problem",
         contest: "app/admin/contest/contest",
         csrf: "utils/csrf",
         admin: "app/admin/admin",
         chart: "lib/chart/Chart",
-
+        tagEditor: "lib/tagEditor/jquery.tag-editor.min",
+        jqueryUI: "lib/jqueryUI/jquery-ui",
         //formValidation 不要在代码中单独使用，而是使用和修改utils/validation
         base: "lib/formValidation/base",
         helper: "lib/formValidation/helper",

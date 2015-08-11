@@ -1,6 +1,5 @@
 require(["jquery", "avalon", "editor", "uploader", "datetimepicker",
-        "validation"
-    ],
+        "validation","tagEditor"],
     function ($, avalon, editor, uploader) {
         avalon.vmodels.add_contest = null;
         $("#add-contest-form")
@@ -19,7 +18,7 @@ require(["jquery", "avalon", "editor", "uploader", "datetimepicker",
                             }
                         }
                     },
-                    description:{
+                    description: {
                         validators: {
                             notEmpty: {
                                 message: "请输入描述"
@@ -100,13 +99,20 @@ require(["jquery", "avalon", "editor", "uploader", "datetimepicker",
             })
             .on("success.form.fv", function (e) {
                 e.preventDefault();
-                var data = {title: vm.title, description: vm.description, start_time: vm.startTime, end_time: vm.endTime,
-                                password: vm.password, model: vm.model, open_rank: vm.openRank, problems:[]};
+                var data = {
+                    title: vm.title, description: vm.description, start_time: vm.startTime, end_time: vm.endTime,
+                    password: vm.password, model: vm.model, open_rank: vm.openRank, problems: []
+                };
                 for (var i = 0; i < vm.problems.length; i++) {
-                    var problem = {title: vm.problems[i].title, description:vm.problems[i].description,
-                                  cpu:vm.problems[i].cpu, memory:vm.problems[i].memory,samples:[]};
+                    var problem = {
+                        title: vm.problems[i].title, description: vm.problems[i].description,
+                        cpu: vm.problems[i].cpu, memory: vm.problems[i].memory, samples: []
+                    };
                     for (var j = 0; j < vm.problems[i].samples.length; j++) {
-                        problem.samples.push({input:vm.problems[i].samples[j].input, output:vm.problems[i].samples[j].output})
+                        problem.samples.push({
+                            input: vm.problems[i].samples[j].input,
+                            output: vm.problems[i].samples[j].output
+                        })
                     }
                     data.problems.push(problem);
                 }
@@ -119,11 +125,13 @@ require(["jquery", "avalon", "editor", "uploader", "datetimepicker",
                 text += possible.charAt(Math.floor(Math.random() * possible.length));
             return text;
         }
+
+
         var editor1 = editor("#editor");
 
         var vm = avalon.define({
             $id: "add_contest",
-            title : "",
+            title: "",
             description: "",
             startTime: "",
             endTime: "",
@@ -133,10 +141,43 @@ require(["jquery", "avalon", "editor", "uploader", "datetimepicker",
             problems: [],
             add_problem: function () {
                 var problem_id = make_id();
-                var problem={id: problem_id, title: "", cpu: "", memory: "", description: "",samples: [], webuploader: {}, visible: true};
+                var problem = {
+                    id: problem_id,
+                    title: "",
+                    cpu: "",
+                    memory: "",
+                    description: "",
+                    samples: [],
+                    visible: true,
+                    test_case_id: "",
+                    testCaseList: [],
+                    hint: "",
+                    isVisible: false,
+                    difficulty: 0,
+                    tags: [],
+                    tag: ""
+                };
                 vm.problems.push(problem);
-                uploader("#problem-" + problem_id + "-uploader","");
-                editor("#problem-" + problem_id + "-description")
+                var id = vm.problems.length - 1;
+                editor("#problem-" + problem_id + "-description");
+                var hinteditor = editor("#problem-" + problem_id +"-hint");
+                $("#problem-" + problem_id +"-tags").tagEditor();
+                uploader("#problem-" + problem_id + "-uploader", "/api/admin/test_case_upload/", function (file, respond) {
+                    console.log(respond);
+                    if (respond.code)
+                        bs_alert(respond.data);
+                    else {
+                        vm.problems[id].test_case_id = respond.data.test_case_id;
+                        vm.problems[id].uploadSuccess = true;
+                        vm.problems[id].testCaseList = [];
+                        for (var i = 0; i < respond.data.file_list.input.length; i++) {
+                            vm.problems[id].push({
+                                input: respond.data.file_list.input[i],
+                                output: respond.data.file_list.output[i]
+                            });
+                        }
+                    }
+                });
                 $("#add-contest-form").formValidation('addField', $('[name="problem_name[]"]'));
                 $("#add-contest-form").formValidation('addField', $('[name="cpu[]"]'));
                 $("#add-contest-form").formValidation('addField', $('[name="memory[]"]'));

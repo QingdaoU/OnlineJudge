@@ -1,5 +1,6 @@
 # coding=utf-8
 from django.shortcuts import render
+from django.db import IntegrityError
 
 from rest_framework.views import APIView
 
@@ -48,10 +49,13 @@ class GroupAdminAPIView(APIView, GroupAPIViewBase):
         serializer = CreateGroupSerializer(data=request.data)
         if serializer.is_valid():
             data = serializer.data
-            group = Group.objects.create(name=data["name"],
-                                         description=data["description"],
-                                         join_group_setting=data["join_group_setting"],
-                                         admin=request.user)
+            try:
+                group = Group.objects.create(name=data["name"],
+                                             description=data["description"],
+                                             join_group_setting=data["join_group_setting"],
+                                             admin=request.user)
+            except IntegrityError:
+                return error_response(u"小组名已经存在")
             return success_response(GroupSerializer(group).data)
         else:
             return serializer_invalid_response(serializer)
@@ -70,10 +74,14 @@ class GroupAdminAPIView(APIView, GroupAPIViewBase):
                 group = self.get_group(request, data["group_id"])
             except Group.DoesNotExist:
                 return error_response(u"小组不存在")
-            group.name = data["name"]
-            group.description = data["description"]
-            group.join_group_setting = data["join_group_setting"]
-            group.save()
+            try:
+                group.name = data["name"]
+                group.description = data["description"]
+                group.join_group_setting = data["join_group_setting"]
+                group.save()
+            except IntegrityError:
+                return error_response(u"小组名已经存在")
+
             return success_response(GroupSerializer(group).data)
         else:
             return serializer_invalid_response(serializer)
@@ -133,8 +141,12 @@ class GroupMemberAdminAPIView(APIView, GroupAPIViewBase):
 
 
 def join_group(user, group):
-    return UserGroupRelation.objects.create(user=user, group=group)
-            
+    try:
+        UserGroupRelation.objects.create(user=user, group=group)
+        return True
+    except IntegrityError:
+        return False
+
 
 class JoinGroupAPIView(APIView):
     @login_required
@@ -149,12 +161,15 @@ class JoinGroupAPIView(APIView):
             data = serializer.data
             try:
                 group = Group.objects.get(id=data["group_id"])
-            except Group.DesoNotExist:
+            except Group.DoesNotExist:
                 return error_response(u"小组不存在")
             if group.join_group_setting == 0:
-                join_group(request.user, group)
-                return success_response(u"你已经成功的加入该小组")
+                if join_group(request.user, group):
+                    return success_response(u"你已经成功的加入该小组")
+                else:
+                    return error_response(u"你已经是小组成员了")
             elif group.join_group_setting == 1:
+                JoinGroupRequest.objects.create(user=request.user, group=group, message=data["message"])
                 return success_response(u"申请提交成功，请等待审核")
             elif group.join_group_setting == 2:
                 return error_response(u"该小组不允许任何人加入")

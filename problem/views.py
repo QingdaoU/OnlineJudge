@@ -11,15 +11,54 @@ from django.db.models import Q
 from rest_framework.views import APIView
 
 from utils.shortcuts import serializer_invalid_response, error_response, success_response, paginate, rand_str
-from .serizalizers import CreateProblemSerializer, EditProblemSerializer, ProblemSerializer
+from .serizalizers import (CreateProblemSerializer, EditProblemSerializer, ProblemSerializer,
+                           ProblemTagSerializer, CreateProblemTagSerializer)
 from .models import Problem, ProblemTag
+
+
+class ProblemTagAdminAPIView(APIView):
+    def post(self, request):
+        """
+        创建标签的接口
+        ---
+        request_serializer: CreateProblemTagSerializer
+        """
+        serializer = CreateProblemTagSerializer(data=request.data)
+        if serializer.is_valid():
+            try:
+                tag = ProblemTag.objects.get(name=serializer.data["name"])
+            except ProblemTag.DoesNotExist:
+                tag = ProblemTag.objects.create(name=serializer.data["name"])
+            return success_response(ProblemTagSerializer(tag).data)
+        else:
+            return error_response(serializer)
+
+    def get(self, request):
+        return success_response(ProblemTagSerializer(ProblemTag.objects.all(), many=True).data)
+        keyword = request.GET.get("keyword", None)
+        if not keyword:
+            return error_response(u"参数错误")
+        tags = ProblemTag.objects.filter(name__contains=keyword)
+        return success_response(ProblemTagSerializer(tags, many=True).data)
 
 
 
 
 def problem_page(request, problem_id):
-    # todo
-    return render(request, "oj/problem/problem.html")
+    try:
+        problem = Problem.objects.get(id=problem_id)
+    except Problem.DoesNotExist:
+        return render(request, "utils/error.html", {"error": u"题目不存在"})
+    return render(request, "oj/problem/problem.html", {"problem": problem, "samples": json.loads(problem.samples)})
+
+
+def problem_my_solutions_list_page(request, problem_id):
+    return render(request, "oj/problem/my_solutions_list.html")
+
+
+def my_solution(request, solution_id):
+    return render(request, "oj/problem/my_solution.html")
+
 
 
 class ProblemAdminAPIView(APIView):
@@ -37,15 +76,19 @@ class ProblemAdminAPIView(APIView):
                                              description=data["description"],
                                              test_case_id=data["test_case_id"],
                                              source=data["source"],
-                                             sample=json.dumps(data["sample"]),
+                                             samples=json.dumps(data["samples"]),
                                              time_limit=data["time_limit"],
                                              memory_limit=data["memory_limit"],
                                              difficulty=data["difficulty"],
                                              created_by=request.user,
                                              hint=data["hint"])
 
-            tags = ProblemTag.objects.filter(id__in=data["tags"])
-            problem.tags.add(*tags)
+            for tag in data["tags"]:
+                try:
+                    tag = ProblemTag.objects.get(name=tag)
+                except ProblemTag.DoesNotExist:
+                    tag = ProblemTag.objects.create(name=tag)
+                problem.tags.add(tag)
             return success_response(ProblemSerializer(problem).data)
         else:
             return serializer_invalid_response(serializer)
@@ -72,7 +115,7 @@ class ProblemAdminAPIView(APIView):
             problem.time_limit = data["time_limit"]
             problem.memory_limit = data["memory_limit"]
             problem.difficulty = data["difficulty"]
-            problem.sample = json.dumps(data["sample"])
+            problem.samples = json.dumps(data["samples"])
             problem.hint = data["hint"]
             problem.visible = data["visible"]
 
