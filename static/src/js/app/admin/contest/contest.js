@@ -126,12 +126,28 @@ require(["jquery", "avalon", "editor", "uploader", "datetimepicker",
             return text;
         }
 
-
-        var editor1 = editor("#editor");
-
+        editor("#editor");
+		uploader("#uploader", "/api/admin/test_case_upload/", function (file, respond) {
+            if (respond.code)
+                bs_alert(respond.data);
+            else {
+                    vm.problems[vm.problemNo].test_case_id = respond.data.test_case_id;
+                    vm.problems[vm.problemNo].uploadSuccess = true;
+                    vm.problems[vm.problemNo].testCaseList = [];
+                    for (var i = 0; i < respond.data.file_list.input.length; i++) {
+                        vm.problems[vm.problemNo].push({
+                            input: respond.data.file_list.input[i],
+                            output: respond.data.file_list.output[i]
+                        });
+                    }
+            }
+        });
+		
+		
         var vm = avalon.define({
             $id: "add_contest",
             title: "",
+			problemCount: 0,
             description: "",
             startTime: "",
             endTime: "",
@@ -139,45 +155,27 @@ require(["jquery", "avalon", "editor", "uploader", "datetimepicker",
             model: "",
             openRank: false,
             problems: [],
+			problemNo: 0,
             add_problem: function () {
                 var problem_id = make_id();
                 var problem = {
                     id: problem_id,
                     title: "",
-                    cpu: "",
-                    memory: "",
+                    cpu: 1000,
+                    memory: 256,
                     description: "",
                     samples: [],
                     visible: true,
                     test_case_id: "",
                     testCaseList: [],
                     hint: "",
-                    isVisible: false,
                     difficulty: 0,
-                    tags: [],
-                    tag: ""
+					uploadSuccess: false
                 };
                 vm.problems.push(problem);
                 var id = vm.problems.length - 1;
                 editor("#problem-" + problem_id + "-description");
                 var hinteditor = editor("#problem-" + problem_id +"-hint");
-                $("#problem-" + problem_id +"-tags").tagEditor();
-                uploader("#problem-" + problem_id + "-uploader", "/api/admin/test_case_upload/", function (file, respond) {
-                    console.log(respond);
-                    if (respond.code)
-                        bs_alert(respond.data);
-                    else {
-                        vm.problems[id].test_case_id = respond.data.test_case_id;
-                        vm.problems[id].uploadSuccess = true;
-                        vm.problems[id].testCaseList = [];
-                        for (var i = 0; i < respond.data.file_list.input.length; i++) {
-                            vm.problems[id].push({
-                                input: respond.data.file_list.input[i],
-                                output: respond.data.file_list.output[i]
-                            });
-                        }
-                    }
-                });
                 $("#add-contest-form").formValidation('addField', $('[name="problem_name[]"]'));
                 $("#add-contest-form").formValidation('addField', $('[name="cpu[]"]'));
                 $("#add-contest-form").formValidation('addField', $('[name="memory[]"]'));
