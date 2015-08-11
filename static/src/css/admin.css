@@ -1,25 +1,34 @@
+@import url("global.css");
 @import url("bootstrap/bootstrap.min.css");
 @import url("bootstrap/todc-bootstrap.min.css");
 @import url("codeMirror/codemirror.css");
 @import url("simditor/simditor.css");
 @import url("webuploader/webuploader.css");
 @import url("datetime_picker/bootstrap-datetimepicker.css");
-html, body {
-    height: 100%;
+
+#loading-gif{
+    width: 40px;
+    height: 40px;
+    margin: auto;
+    position: absolute;
+    top: 0; left: 0; bottom: 0; right: 0;
 }
 
-img {
-    max-width: 100%;
-    height: auto;
+.line-chart{
+    min-width:100%;
+    max-height: 300px;
 }
 
-.footer {
-    padding-top: 30px;
-    padding-bottom: 30px;
-    float: bottom;
-    bottom: 0;
+.pie-chart{
+    min-width:100%;
+    max-height: 300px;
 }
 
-label {
-    font-size: 16px;
+.chart-description{
+    text-align: center;
+}
+
+.pie-chart-container{
+    width: 50%;
+    float: left;
 }

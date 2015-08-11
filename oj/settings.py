@@ -39,7 +39,6 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = (
-    'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
@@ -47,6 +46,11 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
 
     'account',
+    'announcement',
+    'utils',
+    'group',
+    'problem',
+    'admin',
 
     'rest_framework',
     'rest_framework_swagger',
@@ -61,6 +65,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.security.SecurityMiddleware',
+    'admin.middleware.AdminRequiredMiddleware'
 )
 
 ROOT_URLCONF = 'oj.urls'

@@ -1,0 +1,29 @@
+<div class="col-md-9">
+    <h1>服务器监控</h1>
+
+    <div>
+        <div>
+            <h3>等待判题队列长度</h3>
+
+            <div id="waiting-queue">
+                <canvas class="line-chart" id="waiting-queue-chart"></canvas>
+            </div>
+        </div>
+        <div>
+
+            <h3>【10.1.24.23 - judge1 】</h3>
+
+            <div>
+                <canvas class="line-chart" id="judge-instance-chart"></canvas>
+                <div class="chart-description">判题实例数量变化</div>
+            </div>
+
+            <div>
+                <canvas id="c1" class="line-chart"></canvas>
+                <div class="chart-description">cpu 和 内存</div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/js/app/admin/monitor/monitor.js"></script>
+</div>

@@ -1,7 +1,7 @@
 require(["jquery", "avalon", "editor", "uploader", "datetimepicker",
-        "validation"
-    ],
+        "validation","tagEditor"],
     function ($, avalon, editor, uploader) {
+        avalon.vmodels.add_contest = null;
         $("#add-contest-form")
             .formValidation({
                 framework: "bootstrap",
@@ -15,6 +15,13 @@ require(["jquery", "avalon", "editor", "uploader", "datetimepicker",
                                 min: 1,
                                 max: 30,
                                 message: "名称不能超过30个字"
+                            }
+                        }
+                    },
+                    description: {
+                        validators: {
+                            notEmpty: {
+                                message: "请输入描述"
                             }
                         }
                     },
@@ -92,9 +99,25 @@ require(["jquery", "avalon", "editor", "uploader", "datetimepicker",
             })
             .on("success.form.fv", function (e) {
                 e.preventDefault();
-                alert("1111");
+                var data = {
+                    title: vm.title, description: vm.description, start_time: vm.startTime, end_time: vm.endTime,
+                    password: vm.password, model: vm.model, open_rank: vm.openRank, problems: []
+                };
+                for (var i = 0; i < vm.problems.length; i++) {
+                    var problem = {
+                        title: vm.problems[i].title, description: vm.problems[i].description,
+                        cpu: vm.problems[i].cpu, memory: vm.problems[i].memory, samples: []
+                    };
+                    for (var j = 0; j < vm.problems[i].samples.length; j++) {
+                        problem.samples.push({
+                            input: vm.problems[i].samples[j].input,
+                            output: vm.problems[i].samples[j].output
+                        })
+                    }
+                    data.problems.push(problem);
+                }
+                console.log(data);
             });
-
         function make_id() {
             var text = "";
             var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
@@ -102,21 +125,59 @@ require(["jquery", "avalon", "editor", "uploader", "datetimepicker",
                 text += possible.charAt(Math.floor(Math.random() * possible.length));
             return text;
         }
+
+
         var editor1 = editor("#editor");
 
         var vm = avalon.define({
             $id: "add_contest",
+            title: "",
+            description: "",
+            startTime: "",
+            endTime: "",
+            password: "",
+            model: "",
+            openRank: false,
             problems: [],
             add_problem: function () {
-                var problem = {};
                 var problem_id = make_id();
-                problem["id"] = problem_id;
-                problem["samples"] = [];
-                problem["webuploader"] = {};
-                problem["toggle_string"] = "折叠";
+                var problem = {
+                    id: problem_id,
+                    title: "",
+                    cpu: "",
+                    memory: "",
+                    description: "",
+                    samples: [],
+                    visible: true,
+                    test_case_id: "",
+                    testCaseList: [],
+                    hint: "",
+                    isVisible: false,
+                    difficulty: 0,
+                    tags: [],
+                    tag: ""
+                };
                 vm.problems.push(problem);
-                uploader("#problem-" + problem_id + "-uploader");
-                console.log(vm.problems);
+                var id = vm.problems.length - 1;
+                editor("#problem-" + problem_id + "-description");
+                var hinteditor = editor("#problem-" + problem_id +"-hint");
+                $("#problem-" + problem_id +"-tags").tagEditor();
+                uploader("#problem-" + problem_id + "-uploader", "/api/admin/test_case_upload/", function (file, respond) {
+                    console.log(respond);
+                    if (respond.code)
+                        bs_alert(respond.data);
+                    else {
+                        vm.problems[id].test_case_id = respond.data.test_case_id;
+                        vm.problems[id].uploadSuccess = true;
+                        vm.problems[id].testCaseList = [];
+                        for (var i = 0; i < respond.data.file_list.input.length; i++) {
+                            vm.problems[id].push({
+                                input: respond.data.file_list.input[i],
+                                output: respond.data.file_list.output[i]
+                            });
+                        }
+                    }
+                });
                 $("#add-contest-form").formValidation('addField', $('[name="problem_name[]"]'));
                 $("#add-contest-form").formValidation('addField', $('[name="cpu[]"]'));
                 $("#add-contest-form").formValidation('addField', $('[name="memory[]"]'));
@@ -126,31 +187,21 @@ require(["jquery", "avalon", "editor", "uploader", "datetimepicker",
                     vm.problems.remove(problem);
                 }
             },
-            toggle_problem: function (problem) {
-                $("#" + "problem-" + problem.id + "-body").toggle();
-                if (problem["toggle_string"] == "展开") {
-                    problem["toggle_string"] = "折叠";
-                }
-                else {
-                    problem["toggle_string"] = "展开";
-                }
+            toggle: function (item) {
+                item.visible = !item.visible;
             },
             add_sample: function (problem) {
-                problem["samples"].push({"id": make_id(), "toggle_string": "折叠"});
+                problem.samples.push({id: make_id(), visible: true, input: "", output: ""});
             },
             del_sample: function (problem, sample) {
                 if (confirm("你确定要删除么?")) {
-                    problem["samples"].remove(sample);
+                    problem.samples.remove(sample);
                 }
             },
-            toggle_sample: function (problem, sample) {
-                $("#" + "problem-" + problem.id + "-sampleio-" + sample.id + "-body").toggle();
-                if (sample["toggle_string"] == "展开") {
-                    sample["toggle_string"] = "折叠";
-                }
-                else {
-                    sample["toggle_string"] = "展开";
-                }
+            getBtnContent: function (item) {
+                if (item.visible)
+                    return "折叠";
+                return "展开";
             }
         });
         avalon.scan();
@@ -167,7 +218,6 @@ require(["jquery", "avalon", "editor", "uploader", "datetimepicker",
             weekStart: 1,
             language: "zh-CN"
         });
-
         $("#contest_start_time").datetimepicker()
             .on("hide", function (ev) {
                 $("#add-contest-form")

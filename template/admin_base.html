@@ -65,14 +65,14 @@
 <![endif]-->
 <!-- browser happy end -->
 
-<div class="container">
+<div class="container" ms-controller="admin">
     <div class="row">
         <!-- admin left begin-->
         <div class="col-md-2">
             <ul class="list-group">
                 <li class="list-group-header">List header</li>
-                <li class="list-group-item active"><a href="#">Home</a></li>
-                <li class="list-group-item"><a href="#">Library</a></li>
+                <li class="list-group-item" id="li-index"><a href="#index">主页</a></li>
+                <li class="list-group-item" id="li-announcement"><a href="#announcement">公告</a></li>
                 <li class="list-group-item"><a href="#">Applications</a></li>
                 <li class="list-group-header">Another list header</li>
                 <li class="list-group-item"><a href="#">Help</a></li>
@@ -108,7 +108,7 @@
 <script src="/static/js/config.js"></script>
 <script src="/static/js/require.js"></script>
 <script>
-    require(["bootstrap"]);
+    require(["bootstrap", "admin"]);
 </script>
 {% block js_block %}{% endblock %}
 <!-- footer begin -->
