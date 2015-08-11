@@ -7,7 +7,9 @@ from account.views import (UserLoginAPIView, UsernameCheckAPIView, UserRegisterA
                            UserChangePasswordAPIView, EmailCheckAPIView,
                            UserAPIView, UserAdminAPIView)
 from announcement.views import AnnouncementAPIView, AnnouncementAdminAPIView
-from group.views import GroupAdminAPIView, GroupMemberAdminAPIView, JoinGroupAPIView
+
+from group.views import GroupAdminAPIView, GroupMemberAdminAPIView, JoinGroupAPIView, JoinGroupRequestAdminAPIView
+
 from admin.views import AdminTemplateView
 
 from problem.views import ProblemAdminAPIView
@@ -46,4 +48,7 @@ urlpatterns = [
     url(r'^api/admin/tag/$', ProblemTagAdminAPIView.as_view(), name="problem_tag_admin_api"),
     url(r'^problem/(?P<problem_id>\d+)/my_solutions/', "problem.views.problem_my_solutions_list_page", name="problem_my_solutions_page"),
     url(r'^my_solution/(?P<solution_id>\d+)/$', "problem.views.my_solution", name="my_solution_page"),
+
+    url(r'^api/admin/join_group_request/$', JoinGroupRequestAdminAPIView.as_view(), name="join_group_request_admin_api"),
+
 ]
