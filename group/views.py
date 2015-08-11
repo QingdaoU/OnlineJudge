@@ -10,8 +10,9 @@ from account.decorators import login_required
 
 from .models import Group, JoinGroupRequest, UserGroupRelation
 from .serializers import (CreateGroupSerializer, EditGroupSerializer,
-                          JoinGroupRequestSerializer, GroupSerializer, 
-                          GroupMemberSerializer, EditGroupMemberSerializer)
+                          CreateJoinGroupRequestSerializer, GroupSerializer,
+                          GroupMemberSerializer, EditGroupMemberSerializer,
+                          JoinGroupRequestSerializer, PutJoinGroupRequestSerializer)
 
 
 class GroupAPIViewBase(object):
@@ -101,6 +102,8 @@ class GroupAdminAPIView(APIView, GroupAPIViewBase):
                 return error_response(u"小组不存在")
         else:
             groups = self.get_groups(request)
+            if request.GET.get("keyword", None):
+                groups = groups.filter(name__contains=request.GET["keyword"])
             return paginate(request, groups, GroupSerializer)
             
             
@@ -149,14 +152,14 @@ def join_group(user, group):
 
 
 class JoinGroupAPIView(APIView):
-    @login_required
+    # @login_required
     def post(self, request):
         """
         加入某个小组的api
         ---
-        request_serializer: JoinGroupRequestSerializer
+        request_serializer: CreateJoinGroupRequestSerializer
         """
-        serializer = JoinGroupRequestSerializer(data=request.data)
+        serializer = CreateJoinGroupRequestSerializer(data=request.data)
         if serializer.is_valid():
             data = serializer.data
             try:
@@ -169,7 +172,11 @@ class JoinGroupAPIView(APIView):
                 else:
                     return error_response(u"你已经是小组成员了")
             elif group.join_group_setting == 1:
-                JoinGroupRequest.objects.create(user=request.user, group=group, message=data["message"])
+                try:
+                    JoinGroupRequest.objects.get(user=request.user, group=group, status=False)
+                    return error_response(u"你已经提交过申请了，请等待审核")
+                except JoinGroupRequest.DoesNotExist:
+                    JoinGroupRequest.objects.create(user=request.user, group=group, message=data["message"])
                 return success_response(u"申请提交成功，请等待审核")
             elif group.join_group_setting == 2:
                 return error_response(u"该小组不允许任何人加入")
@@ -188,3 +195,43 @@ class JoinGroupAPIView(APIView):
         # 搜索包含这个关键词的 没有解散的 而且允许加入的小组
         groups = Group.objects.filter(name__contains=keyword, visible=True, join_group_setting__lte=2)
         return paginate(request, groups, GroupSerializer)
+
+
+class JoinGroupRequestAdminAPIView(APIView, GroupAPIViewBase):
+    def get(self, request):
+        """
+        返回管理的群的加群请求
+        ---
+        response_serializer: JoinGroupRequestSerializer
+        """
+        requests = JoinGroupRequest.objects.filter(group=Group.objects.filter(admin=request.user, visible=True),
+                                                   status=False)
+        return paginate(request, requests, JoinGroupRequestSerializer)
+
+    def put(self, request):
+        """
+        同意或者拒绝加入小组请求
+        ---
+        request_serializer: PutJoinGroupRequestSerializer
+        """
+        serializer = PutJoinGroupRequestSerializer(data=request.data)
+        if serializer.is_valid():
+            data = serializer.data
+            try:
+                join_request = JoinGroupRequest.objects.get(id=data["request_id"], group__admin=request.user, status=False)
+            except JoinGroupRequest.DoesNotExist:
+                return error_response(u"小组不存在")
+
+            join_request.status = True
+            join_request.save()
+
+            if data["status"]:
+                if join_group(join_request.user, join_request.group):
+                    return success_response(u"加入成功")
+                else:
+                    return error_response(u"加入失败，已经在本小组内")
+            else:
+                return success_response(u"已拒绝")
+
+        else:
+            return serializer_invalid_response(serializer)
