@@ -10,7 +10,7 @@ class Group(models.Model):
     create_time = models.DateTimeField(auto_now_add=True)
     admin = models.ForeignKey(User, related_name="my_groups")
     # 0是公开 1是需要申请后加入 2是不允许任何人加入
-    join_group_setting = models.IntegerField()
+    join_group_setting = models.IntegerField(default=1)
     members = models.ManyToManyField(User, through="UserGroupRelation")
     # 解散小组后，这一项改为False
     visible = models.BooleanField(default=True)
