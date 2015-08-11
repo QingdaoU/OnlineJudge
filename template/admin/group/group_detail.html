@@ -1,0 +1,58 @@
+<div ms-controller="group_detail" class="col-md-9">
+    <h1>小组成员管理</h1>
+    <table class="table table-striped">
+        <tr>
+            <th>ID</th>
+            <th>用户名</th>
+            <th>真实姓名</th>
+            <th>加入时间</th>
+            <th></th>
+        </tr>
+        <tr ms-repeat="member_list">
+            <td>{{ el.user.id }}</td>
+            <td>{{ el.user.username }}</td>
+            <td>{{ el.user.real_name }}</td>
+            <td>{{ el.join_time|date("yyyy-MM-dd HH:mm:ss")}}</td>
+
+            <td>
+                <button class="btn-sm btn-danger" ms-click="removeMember(el)">移除</button>
+            </td>
+        </tr>
+    </table>
+
+    <div class="text-right">
+        页数：{{ page }}/{{ page_count }}&nbsp;&nbsp;
+        <botton ms-attr-class="getBtnClass(0)" ms-click="getPrevious">上一页</botton>
+        <botton ms-attr-class="getBtnClass(1)" ms-click="getNext">下一页</botton>
+    </div>
+
+    <h1>修改小组信息</h1>
+
+    <div>
+
+        <div class="col-md-12">
+            <div class="form-group"><label>小组名</label>
+                <input type="text" name="name" class="form-control" ms-duplex="name">
+            </div>
+        </div>
+        <div class="col-md-12">
+            <div class="form-group"><label>描述</label>
+                <textarea rows="3" class="form-control" ms-duplex="description"></textarea>
+            </div>
+        </div>
+        <div class="col-md-12">
+            <div class="form-group">
+                <label>加入小组设置</label>
+                <input type="radio" name="join_group_setting" value="0" ms-duplex-checked="join_group_setting[0]">允许任何人加入
+                <input type="radio" name="join_group_setting" value="1" ms-duplex-checked="join_group_setting[1]">提交请求后管理员审核
+                <input type="radio" name="join_group_setting" value="2" ms-duplex-checked="join_group_setting[2]">不允许任何人加入
+            </div>
+        </div>
+        <div class="col-md-12">
+            <button class="btn btn-primary" ms-click="updateGroupInfo()">提交</button>
+        </div>
+
+    </div>
+
+</div>
+<script src="/static/js/app/admin/group/group_detail.js"></script>
