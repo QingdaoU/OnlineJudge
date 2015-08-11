@@ -14,7 +14,6 @@ class ProblemSampleSerializer(serializers.ListField):
 
 class JSONField(serializers.Field):
     def to_representation(self, value):
-        print value, type(value)
         return json.loads(value)
 
 
