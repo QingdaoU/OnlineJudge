@@ -5,7 +5,7 @@ from account.models import User
 
 
 class Group(models.Model):
-    name = models.CharField(max_length=30)
+    name = models.CharField(max_length=30, unique=True)
     description = models.TextField()
     create_time = models.DateTimeField(auto_now_add=True)
     admin = models.ForeignKey(User, related_name="my_groups")
@@ -26,10 +26,11 @@ class UserGroupRelation(models.Model):
     
     class Meta:
         db_table = "user_group_relation"
+        unique_together = ("group", "user")
         
 
 class JoinGroupRequest(models.Model):
-    group = models.ForeignKey(User)
+    group = models.ForeignKey(Group)
     user = models.ForeignKey(User, related_name="my_join_group_requests")
     message = models.TextField()
     create_time = models.DateTimeField(auto_now_add=True)

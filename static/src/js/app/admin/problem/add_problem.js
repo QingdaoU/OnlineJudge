@@ -64,18 +64,15 @@ require(["jquery", "avalon", "editor", "uploader", "bs_alert", "csrf", "tagEdito
             })
             .on("success.form.fv", function (e) {
                 e.preventDefault();
-                if (vm.test_case_id == '')
-                {
+                if (vm.test_case_id == '') {
                     bs_alert("你还没有上传测试数据!");
                     return;
                 }
-                if (vm.description == '')
-                {
+                if (vm.description == '') {
                     bs_alert("题目描述不能为空!");
                     return;
                 }
-                if (vm.hint == '')
-                {
+                if (vm.hint == '') {
                     bs_alert("提示不能为空!");
                     return;
                 }
@@ -88,33 +85,30 @@ require(["jquery", "avalon", "editor", "uploader", "bs_alert", "csrf", "tagEdito
                     test_case_id: vm.test_case_id,
                     hint: vm.hint,
                     source: vm.source,
-                    tags: [],
+                    tags: $("#tags").tagEditor("getTags")[0].tags,
                     difficulty: vm.difficulty
                 };
-                if (vm.samples.length == 0)
-                {
+                if (vm.samples.length == 0) {
                     bs_alert("请至少添加一组样例!");
                     return;
                 }
-                var tags = $("#tags").tagEditor("getTags")[0].tags;
-                if (tags.length == 0)
-                {
+
+                if (tags.length == 0) {
                     bs_alert("请至少添加一个标签，这将有利于用户发现你的题目!");
                     return;
                 }
-                for (key in vm.samples.length) {
-                    ajaxData.samples.push({input: vm.samples[key].input, output: vm.samples[key].output});
+
+                for (var i = 0; i < vm.samples.$model.length; i++) {
+                    ajaxData.samples.push({input: vm.samples.$model[i].input, output: vm.samples.$model[i].output});
                 }
-                for (key in tags) {
-                    ajaxData.tags.push(tags[key].tag);
-                }
-                console.log(ajaxData);
+
                 $.ajax({
                     beforeSend: csrfHeader,
                     url: "/api/admin/problem/",
                     dataType: "json",
-                    data:ajaxData,
+                    data: JSON.stringify(ajaxData),
                     method: "post",
+                    contentType: "application/json",
                     success: function (data) {
                         if (!data.code) {
                             bs_alert("successful!");
@@ -188,8 +182,8 @@ require(["jquery", "avalon", "editor", "uploader", "bs_alert", "csrf", "tagEdito
                 if (!data.code) {
                     tagList = data.data;
                     completeList = [];
-                    for (key in tagList) {
-                        completeList.push(tagList[key].name);
+                    for (var i = 0; i < tagList.length; i++) {
+                        completeList.push(tagList[i].name);
                     }
                     $("#tags").tagEditor({
                         autocomplete: {

@@ -6,7 +6,6 @@ from account.models import User
 
 class ProblemTag(models.Model):
     name = models.CharField(max_length=30)
-    # description = models.CharField(max_length=50)
 
     class Meta:
         db_table = "problem_tag"
@@ -18,7 +17,7 @@ class AbstractProblem(models.Model):
     # 问题描述 HTML 格式
     description = models.TextField()
     # 样例输入 可能会存储 json 格式的数据
-    sample = models.TextField(blank=True)
+    samples = models.TextField(blank=True)
     # 测试用例id 这个id 可以用来拼接得到测试用例的文件存储位置
     test_case_id = models.CharField(max_length=40)
     # 提示

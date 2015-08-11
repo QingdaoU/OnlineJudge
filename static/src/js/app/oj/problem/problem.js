@@ -22,10 +22,12 @@ require(["jquery", "code_mirror"], function ($, code_mirror) {
         setTimeout(
             function () {
                 $("#a").animate({opacity: '1'})
-            }
-            ,
-            3);
+            }, 3);
+    });
 
+    $("#show-more-btn").click(function(){
+        $(".hide").attr("class", "problem-section");
+        $("#show-more-btn").hide();
     })
 
 });
