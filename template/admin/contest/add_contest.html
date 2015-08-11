@@ -77,8 +77,8 @@
                 <a href="javascript:void(0)" class="btn btn-primary btn-sm" ms-click="add_problem()">添加</a>
 				<div class="col-md-12">
                                 <label>上传测试用例</label>
-								<label>选择题号</label><select ms-duplex="problemNo"><option value="0">未指定</option><option ms-repeat="problems" value="{{$index+1}}">{{$index+1}}</option></select>
-								<div id="uploader" ms-visible="problemNo">
+								<label>选择题号</label><select ms-duplex="problemNo"><option value="-1">未指定</option><option ms-repeat="problems" ms-attr-value="$index+1">{{$index+1}}</option></select>
+								<div id="uploader">
                                     <div>选择文件</div>
                                 </div>
 			</div>
@@ -165,7 +165,7 @@
                                         <td>输入文件名</td>
                                         <td>输出文件名</td>
                                     </tr>
-                                    <tr ms-repeat="testCaseList">
+                                    <tr ms-repeat="problem.testCaseList">
                                         <td>{{$index}}</td>
                                         <td>{{el.input}}</td>
                                         <td>{{el.output}}</td>

@@ -1,6 +1,6 @@
-require(["jquery", "avalon", "editor", "uploader", "datetimepicker",
-        "validation","tagEditor"],
-    function ($, avalon, editor, uploader) {
+require(["jquery", "avalon", "editor", "uploader", "bs_alert", "datetimepicker",
+        "validation",],
+    function ($, avalon, editor, uploader, bs_alert) {
         avalon.vmodels.add_contest = null;
         $("#add-contest-form")
             .formValidation({
@@ -72,10 +72,10 @@ require(["jquery", "avalon", "editor", "uploader", "datetimepicker",
                     "cpu[]": {
                         validators: {
                             notEmpty: {
-                                message: "请输入cpu时间"
+                                message: "请输入时间限制"
                             },
                             integer: {
-                                message: "请输入一个合法的数字"
+                                message: "时间限制用整数表示"
                             },
                             between: {
                                 inclusive: true,
@@ -125,24 +125,8 @@ require(["jquery", "avalon", "editor", "uploader", "datetimepicker",
                 text += possible.charAt(Math.floor(Math.random() * possible.length));
             return text;
         }
-
+		var upLoaderInited = false;
         editor("#editor");
-		uploader("#uploader", "/api/admin/test_case_upload/", function (file, respond) {
-            if (respond.code)
-                bs_alert(respond.data);
-            else {
-                    vm.problems[vm.problemNo].test_case_id = respond.data.test_case_id;
-                    vm.problems[vm.problemNo].uploadSuccess = true;
-                    vm.problems[vm.problemNo].testCaseList = [];
-                    for (var i = 0; i < respond.data.file_list.input.length; i++) {
-                        vm.problems[vm.problemNo].push({
-                            input: respond.data.file_list.input[i],
-                            output: respond.data.file_list.output[i]
-                        });
-                    }
-            }
-        });
-		
 		
         var vm = avalon.define({
             $id: "add_contest",
@@ -155,7 +139,7 @@ require(["jquery", "avalon", "editor", "uploader", "datetimepicker",
             model: "",
             openRank: false,
             problems: [],
-			problemNo: 0,
+			problemNo: "-1",
             add_problem: function () {
                 var problem_id = make_id();
                 var problem = {
@@ -202,6 +186,35 @@ require(["jquery", "avalon", "editor", "uploader", "datetimepicker",
                 return "展开";
             }
         });
+		
+		uploader("#uploader", "/api/admin/test_case_upload/", function (file, respond) {
+			if (respond.code)
+				bs_alert(respond.data);
+			else {
+					var index = parseInt(vm.problemNo)-1;
+					vm.problems[index].test_case_id = respond.data.test_case_id;
+					vm.problems[index].uploadSuccess = true;
+					vm.problems[index].testCaseList = [];
+					for (var i = 0; i < respond.data.file_list.input.length; i++) {
+						vm.problems[index].testCaseList.push({
+							input: respond.data.file_list.input[i],
+							output: respond.data.file_list.output[i]
+						});
+					}
+					bs_alert("测试数据添加成功！共添加"+vm.problems[index].testCaseList.length +"组测试数据");
+			}
+		},
+		function(){
+			console.log(vm.problemNo);
+			if (vm.problemNo == "-1")
+			{
+				bs_alert("你还未指定一道题目！");
+				return false;
+			}
+		}
+		);
+			isUploaderInited = true;
+	
         avalon.scan();
 
         $("#contest_start_time").datetimepicker({
