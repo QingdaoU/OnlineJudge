@@ -134,7 +134,9 @@ require(["jquery", "avalon", "editor", "uploader", "bs_alert", "csrf", "tagEdito
                         input: respond.data.file_list.input[i],
                         output: respond.data.file_list.output[i]
                     });
+					
                 }
+				bs_alert("测试数据添加成功！共添加"+vm.testCaseList.length +"组测试数据");
             }
         });
         var hinteditor = editor("#hint");
@@ -147,7 +149,7 @@ require(["jquery", "avalon", "editor", "uploader", "bs_alert", "csrf", "tagEdito
             memory: 256,
             samples: [],
             hint: "",
-            visible: false,
+            visible: true,
             difficulty: 0,
             tags: [],
             tag: "",

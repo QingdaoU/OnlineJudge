@@ -14,11 +14,7 @@ require(["jquery", "avalon", "csrf", "bs_alert", "validation"], function ($, ava
             name: "",
             description: "",
             join_group_setting: {0: false, 1: false, 2: false},
-            checked_setting: 0,
-
-            getSettingChecked: function (setting) {
-                return setting == vm.join_group_setting;
-            },
+            checked_setting: "0",
 
             updateGroupInfo: function () {
                 $.ajax({
@@ -26,7 +22,7 @@ require(["jquery", "avalon", "csrf", "bs_alert", "validation"], function ($, ava
                     url: "/api/admin/group/",
                     method: "put",
                     data: {group_id: avalon.vmodels.admin.group_id, name: vm.name,
-                        description: vm.description, join_group_setting: vm.join_group_setting},
+                        description: vm.description, join_group_setting: vm.checked_setting},
                     dataType: "json",
                     success: function (data) {
                         if (!data.code) {
@@ -107,7 +103,7 @@ require(["jquery", "avalon", "csrf", "bs_alert", "validation"], function ($, ava
                 if (!data.code) {
                     vm.name = data.data.name;
                     vm.description = data.data.description;
-                    vm.join_group_setting[data.data.join_group_setting] = true;
+                    vm.checked_setting = data.data.join_group_setting.toString();
                 }
                 else {
                     bs_alert(data.data);
