@@ -6,14 +6,14 @@ languages = {
         "name": "c",
         "src_name": "main.c",
         "code": 1,
-        "compile_command": "gcc -DONLINE_JUDGE  -O2 -Wall -std=c99 -pipe {src_path} -lm -o {exe_path}main",
+        "compile_command": "gcc -DONLINE_JUDGE  -O2 -w -std=c99 -pipe {src_path} -lm -o {exe_path}main",
         "execute_command": "{exe_path}main"
     },
     "2": {
         "name": "cpp",
         "src_name": "main.cpp",
         "code": 2,
-        "compile_command": "g++ -DONLINE_JUDGE -O2 -Wall -std=c++11 -pipe {src_path} -lm -o {exe_path}main",
+        "compile_command": "g++ -DONLINE_JUDGE -O2 -w -std=c++11 -pipe {src_path} -lm -o {exe_path}main",
         "execute_command": "{exe_path}main"
     },
     "3": {
