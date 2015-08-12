@@ -25,11 +25,9 @@
         <button ms-attr-class="getBtnClass(0)" ms-click="getPrevious">上一页</button>
         <button ms-attr-class="getBtnClass(1)" ms-click="getNext">下一页</button>
     </div>
-
     <h1>修改小组信息</h1>
 
-    <div>
-
+    <form id="edit_group_form">
         <div class="col-md-12">
             <div class="form-group"><label>小组名</label>
                 <input type="text" name="name" class="form-control" ms-duplex="name">
@@ -37,22 +35,21 @@
         </div>
         <div class="col-md-12">
             <div class="form-group"><label>描述</label>
-                <textarea rows="3" class="form-control" ms-duplex="description"></textarea>
+                <textarea rows="3" name="description" class="form-control" ms-duplex="description"></textarea>
             </div>
         </div>
         <div class="col-md-12">
             <div class="form-group">
+
                 <label>加入小组设置</label>
                 <input type="radio" name="join_group_setting" value="0" ms-duplex-string="checked_setting">允许任何人加入
                 <input type="radio" name="join_group_setting" value="1" ms-duplex-string="checked_setting">提交请求后管理员审核
                 <input type="radio" name="join_group_setting" value="2" ms-duplex-string="checked_setting">不允许任何人加入
+
             </div>
-        </div>
-        <div class="col-md-12">
-            <button class="btn btn-primary" ms-click="updateGroupInfo()">提交</button>
+            <button class="btn btn-primary" type="submit">提交</button>
         </div>
 
-    </div>
-
+    </form>
 </div>
 <script src="/static/js/app/admin/group/group_detail.js"></script>

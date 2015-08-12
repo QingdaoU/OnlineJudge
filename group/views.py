@@ -185,7 +185,7 @@ class JoinGroupAPIView(APIView):
     
     def get(self, request):
         """
-        搜素小组的api，需要传递keyword参数
+        搜索小组的api，需要传递keyword参数
         ---
         response_serializer: GroupSerializer
         """
@@ -220,7 +220,7 @@ class JoinGroupRequestAdminAPIView(APIView, GroupAPIViewBase):
             try:
                 join_request = JoinGroupRequest.objects.get(id=data["request_id"], group__admin=request.user, status=False)
             except JoinGroupRequest.DoesNotExist:
-                return error_response(u"小组不存在")
+                return error_response(u"请求不存在")
 
             join_request.status = True
             join_request.save()
