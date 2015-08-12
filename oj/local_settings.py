@@ -1,19 +1,28 @@
 # coding=utf-8
 import os
 
-LOG_PATH = "LOG/"
-
-# Database
-# https://docs.djangoproject.com/en/1.8/ref/settings/#databases
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+
+# 下面是需要自己修改的
+LOG_PATH = "LOG/"
 
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-        'CONN_MAX_AGE': 1,
+        'CONN_MAX_AGE': 0.3,
+    },
+    'mongodb': {
+        'HOST': '127.0.0.1',
+        'USERNAME': 'root',
+        'PASSWORD': 'root',
+        'PORT': 27017
     }
 }
 
-# SECURITY WARNING: don't run with debug turned on in production!
+
 DEBUG = True
+
+TEST_CASE_DIR = "/var/test_case/"
+

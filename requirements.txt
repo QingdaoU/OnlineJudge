@@ -8,3 +8,4 @@ celery
 gunicorn
 coverage
 subprocess32
+pymongo

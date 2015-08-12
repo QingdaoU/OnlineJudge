@@ -14,6 +14,7 @@ from admin.views import AdminTemplateView
 
 from problem.views import ProblemAdminAPIView
 from problem.views import TestCaseUploadAPIView, ProblemTagAdminAPIView
+from submission.views import SubmissionnAPIView
 
 
 urlpatterns = [
@@ -50,5 +51,6 @@ urlpatterns = [
     url(r'^my_solution/(?P<solution_id>\d+)/$', "problem.views.my_solution", name="my_solution_page"),
 
     url(r'^api/admin/join_group_request/$', JoinGroupRequestAdminAPIView.as_view(), name="join_group_request_admin_api"),
+    url(r'^api/submission/$', SubmissionnAPIView.as_view(), name="submission_api"),
 
 ]
