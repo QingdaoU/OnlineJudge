@@ -181,10 +181,7 @@ class JoinGroupAPITest(APITestCase):
         data = {"group_id": group.id, "message": "message1"}
         response = self.client.post(self.url, data=data)
         self.assertEqual(response.data, {"code": 0, "data": u"申请提交成功，请等待审核"})
-        try:
-            JoinGroupRequest.objects.get(user=self.user, group=group, status=False)
-        except JoinGroupRequest.DoesNotExist:
-            raise AssertionError()
+        JoinGroupRequest.objects.get(user=self.user, group=group, status=False)
 
         # 再提交一遍 已经提交过申请，请等待审核
         data = {"group_id": group.id, "message": "message1"}
@@ -223,7 +220,6 @@ class JoinGroupRequestAdminAPITest(APITestCase):
         self.request = JoinGroupRequest.objects.create(group=self.group, user=self.user1,
                                                        message="message1")
 
-
     # 以下是管理的群的加群请求测试
     def test_get_all_request_successfully(self):
         self.assertEqual(self.client.get(self.url).data["code"], 0)
@@ -249,7 +245,7 @@ class JoinGroupRequestAdminAPITest(APITestCase):
         data = {"request_id": self.request.id, "status": True}
         response = self.client.put(self.url, data=data)
         self.assertEqual(response.data, {"code": 0, "data": u"加入成功"})
-        self.assertEqual(UserGroupRelation.objects.get(group=self.group).user.username, self.user1.username)
+        UserGroupRelation.objects.get(group=self.group, user=self.user1)
 
         # 再加入一次，此时返回的消息应为 加入失败，已经在本小组内
         request = JoinGroupRequest.objects.create(group=self.group, user=self.user1,
