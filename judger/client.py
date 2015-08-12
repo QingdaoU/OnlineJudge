@@ -30,7 +30,7 @@ class JudgeClient(object):
         :param test_case_dir: 测试用例文件夹路径
         :return:返回结果list
         """
-        self._language = languages[str(language_code)]
+        self._language = languages[language_code]
         self._exe_path = exe_path
         self._max_cpu_time = max_cpu_time
         self._max_real_time = max_real_time

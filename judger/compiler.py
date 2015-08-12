@@ -32,5 +32,4 @@ def compile_(language_item, src_path, exe_path):
 
     if parse_result["exit_code"] or parse_result["term_sig"] or parse_result["siginaled"] or parse_result["exceed"]:
         raise CompileError("Compile error")
-
     return exe_path

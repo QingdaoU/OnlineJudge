@@ -1,4 +1,4 @@
-require(["jquery", "code_mirror"], function ($, code_mirror) {
+require(["jquery", "code_mirror", "csrf"], function ($, code_mirror, csrfHeader) {
     var code_editor = code_mirror($("#code-editor")[0], "text/x-csrc");
     var language = "1";
 
@@ -21,7 +21,11 @@ require(["jquery", "code_mirror"], function ($, code_mirror) {
     $("#submit-code-button").click(function () {
         show_loading();
         $.ajax({
-
+            beforeSend: csrfHeader,
+            url: "/api/submission/",
+            method: "post",
+            data: JSON.stringify({problem_id: 2, language: language, code: code_editor.getValue()}),
+            contentType: "application/json"
         });
         setTimeout(
             function () {

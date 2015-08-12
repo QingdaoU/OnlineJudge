@@ -8,14 +8,8 @@ from client import JudgeClient
 from language import languages
 from compiler import compile_
 from result import result
-from settings import judger_workspace
+from settings import judger_workspace, mongodb_config
 
-import sys
-import os
-sys.path.append(os.path.abspath(os.path.dirname(__file__) + '/' + '..'))
-print sys.path
-
-from oj import settings
 
 # 简单的解析命令行参数
 # 参数有 -solution_id -time_limit -memory_limit -test_case_id
@@ -26,15 +20,12 @@ time_limit = args[4]
 memory_limit = args[6]
 test_case_id = args[8]
 
-
-mongodb_setting = settings.DATABASES["mongodb"]
-connection = pymongo.MongoClient(host=mongodb_setting["HOST"], port=mongodb_setting["PORT"])
+connection = pymongo.MongoClient(host=mongodb_config["host"], port=mongodb_config["port"])
 collection = connection["oj"]["oj_submission"]
 
 submission = collection.find_one({"_id": ObjectId(solution_id)})
 if not submission:
     exit()
-
 
 # 将代码写入文件
 language = languages[submission["language"]]
@@ -47,18 +38,18 @@ f.close()
 try:
     exe_path = compile_(language, src_path, judger_workspace + "run/")
 except Exception as e:
-    print e
-    print [{"result": result["compile_error"]}]
+    print {"result": result["compile_error"]}
     exit()
-
 try:
-    client = JudgeClient(language_code=language,
+    client = JudgeClient(language_code=submission["language"],
                          exe_path=exe_path,
                          max_cpu_time=int(time_limit),
                          max_real_time=int(time_limit) * 2,
                          max_memory=int(memory_limit),
-                         test_case_dir="/var/judger/test_case/" + str(test_case_id) + "/")
+                         test_case_dir= judger_workspace + "test_case/" + test_case_id + "/")
     print client.run()
 except Exception as e:
     print e
+    print {"result": result["system_error"]}
+
 

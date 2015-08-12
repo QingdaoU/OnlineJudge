@@ -7,6 +7,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # 下面是需要自己修改的
 LOG_PATH = "LOG/"
 
+# 注意这是web 服务器访问的地址，判题度武器访问的地址不一定一样，因为可能不在一台机器上
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
@@ -24,5 +25,6 @@ DATABASES = {
 
 DEBUG = True
 
-TEST_CASE_DIR = "/var/test_case/"
+# 同理 这是 web 服务器的上传路径
+TEST_CASE_DIR = "/Users/virusdefender/Desktop/test_case/"
 

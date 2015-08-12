@@ -32,6 +32,7 @@ class SubmissionnAPIView(APIView):
         serializer = CreateSubmissionSerializer(data=request.data)
         if serializer.is_valid():
             data = serializer.data
+            # data["language"] = int(data["language"])
             data["user_id"] = request.user.id
             data["result"] = result["waiting"]
             try:
