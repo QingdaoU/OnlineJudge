@@ -7,9 +7,11 @@ from rest_framework.views import APIView
 
 from utils.shortcuts import serializer_invalid_response, error_response, success_response, paginate
 
+from .decorators import login_required
 from .models import User
-from .serializers import UserLoginSerializer, UsernameCheckSerializer, UserRegisterSerializer, \
-    UserChangePasswordSerializer, EmailCheckSerializer, UserSerializer, EditUserSerializer
+from .serializers import (UserLoginSerializer, UsernameCheckSerializer,
+                          UserRegisterSerializer,  UserChangePasswordSerializer,
+                          EmailCheckSerializer,  UserSerializer, EditUserSerializer)
 
 
 class UserLoginAPIView(APIView):
@@ -118,28 +120,6 @@ class EmailCheckAPIView(APIView):
             return serializer_invalid_response(serializer)
 
 
-class UserAPIView(APIView):
-    def get(self, request):
-        """
-        用户分页json api接口
-        ---
-        response_serializer: UserSerializer
-        """
-        user = User.objects.all().order_by("-create_time")
-        admin_type = request.GET.get("admin_type", None)
-        if admin_type:
-            try:
-                user = user.filter(admin_type__gte=int(admin_type))
-            except ValueError:
-                return error_response(u"参数错误")
-        keyword = request.GET.get("keyword", None)
-        if keyword:
-            user = user.filter(Q(username__contains=keyword) |
-                               Q(real_name__contains=keyword) |
-                               Q(email__contains=keyword))
-        return paginate(request, user, UserSerializer)
-
-
 class UserAdminAPIView(APIView):
     def put(self, request):
         """
@@ -165,3 +145,34 @@ class UserAdminAPIView(APIView):
             return success_response(UserSerializer(user).data)
         else:
             return serializer_invalid_response(serializer)
+
+    def get(self, request):
+        """
+        用户分页json api接口
+        ---
+        response_serializer: UserSerializer
+        """
+        user = User.objects.all().order_by("-create_time")
+        admin_type = request.GET.get("admin_type", None)
+        if admin_type:
+            try:
+                user = user.filter(admin_type__gte=int(admin_type))
+            except ValueError:
+                return error_response(u"参数错误")
+        keyword = request.GET.get("keyword", None)
+        if keyword:
+            user = user.filter(Q(username__contains=keyword) |
+                               Q(real_name__contains=keyword) |
+                               Q(email__contains=keyword))
+        return paginate(request, user, UserSerializer)
+
+
+class UserInfoAPIView(APIView):
+    @login_required
+    def get(self, request):
+        """
+        返回这个用户的个人信息
+        ---
+        response_serializer: UserSerializer
+        """
+        return success_response(UserSerializer(request.user).data)
