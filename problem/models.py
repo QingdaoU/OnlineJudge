@@ -49,4 +49,4 @@ class Problem(AbstractProblem):
     # 难度 0 - n
     difficulty = models.IntegerField()
     # 标签
-    tags = models.ManyToManyField(ProblemTag, null=True)
+    tags = models.ManyToManyField(ProblemTag)
