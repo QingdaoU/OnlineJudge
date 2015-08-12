@@ -83,7 +83,7 @@ class GroupAdminAPITest(APITestCase):
         response = self.client.get(self.url, data=data)
         self.assertEqual(response.data["code"], 0)
 
-    def test_success_get_all_groups(self):
+    def tests_get_all_groups_successfully(self):
         self.assertEqual(self.client.get(self.url).data["code"], 0)
 
 
@@ -128,7 +128,7 @@ class GroupMemberAdminAPITest(APITestCase):
         response = self.client.put(self.url, data=json.dumps(data), content_type="application/json")
         self.assertEqual(response.data, {"code": 1, "data": u"小组不存在"})
 
-    def test_success_del_members(self):
+    def test_del_members_successfully(self):
         data = {"group_id": self.group.id, "members": [self.user1.id]}
         response = self.client.put(self.url, data=json.dumps(data), content_type="application/json")
         self.assertEqual(response.data, {"code": 0, "data": u"删除成功"})
@@ -166,7 +166,7 @@ class JoinGroupAPITest(APITestCase):
         response = self.client.post(self.url, data=data)
         self.assertEqual(response.data, {"code": 1, "data": u"小组不存在"})
 
-    def test_join0(self):
+    def test_join0_successfully(self):
         data = {"group_id": self.group.id, "message": "message0"}
         response = self.client.post(self.url, data=data)
         self.assertEqual(response.data, {"code": 0, "data": u"你已经成功的加入该小组"})
@@ -176,7 +176,7 @@ class JoinGroupAPITest(APITestCase):
         response = self.client.post(self.url, data=data)
         self.assertEqual(response.data, {"code": 1, "data": u"你已经是小组成员了"})
 
-    def test_success_join1(self):
+    def test_join1_successfully(self):
         group = self._create_group("group1", 1)
         data = {"group_id": group.id, "message": "message1"}
         response = self.client.post(self.url, data=data)
@@ -186,7 +186,12 @@ class JoinGroupAPITest(APITestCase):
         except JoinGroupRequest.DoesNotExist:
             raise AssertionError()
 
-    def test_success_join2(self):
+        # 再提交一遍 已经提交过申请，请等待审核
+        data = {"group_id": group.id, "message": "message1"}
+        response = self.client.post(self.url, data=data)
+        self.assertEqual(response.data, {"code": 1, "data": u"你已经提交过申请了，请等待审核"})
+
+    def test_join2_successfully(self):
         group = self._create_group("group2", 2)
         data = {"group_id": group.id, "message": "message2"}
         response = self.client.post(self.url, data=data)
@@ -199,3 +204,57 @@ class JoinGroupAPITest(APITestCase):
     def test_query_by_keyword(self):
         response = self.client.get(self.url + "?keyword=group0")
         self.assertEqual(response.data["code"], 0)
+
+
+class JoinGroupRequestAdminAPITest(APITestCase):
+    def setUp(self):
+        self.client = APIClient()
+        self.url = reverse('join_group_request_admin_api')
+        self.user = User.objects.create(username="test1", admin_type=SUPER_ADMIN)
+        self.user.set_password("testaa")
+        self.user.save()
+        self.user1 = User.objects.create(username="test2")
+        self.user1.set_password("testbb")
+        self.user1.save()
+        self.client.login(username="test1", password="testaa")
+        self.group = Group.objects.create(name="group1", description="des0",
+                                          join_group_setting=1, visible="True",
+                                          admin=self.user)
+        self.request = JoinGroupRequest.objects.create(group=self.group, user=self.user1,
+                                                       message="message1")
+
+
+    # 以下是管理的群的加群请求测试
+    def test_get_all_request_successfully(self):
+        self.assertEqual(self.client.get(self.url).data["code"], 0)
+
+    # 以下是同意或者拒绝加入小组请求的测试
+    def test_invalid_format(self):
+        data = {"requested_id": self.request.id}
+        response = self.client.put(self.url, data=data)
+        self.assertEqual(response.data["code"], 1)
+
+    def test_request_does_not_exist(self):
+        data = {"request_id": self.request.id + 1, "status": False}
+        response = self.client.put(self.url, data=data)
+        self.assertEqual(response.data, {"code": 1, "data": u"请求不存在"})
+
+    def test_request_refuse_successfully(self):
+        data = {"request_id": self.request.id, "status": False}
+        response = self.client.put(self.url, data=data)
+        self.assertEqual(response.data, {"code": 0, "data": u"已拒绝"})
+        self.assertEqual(JoinGroupRequest.objects.get(id=self.request.id).status, True)
+
+    def test_join_group_successfully(self):
+        data = {"request_id": self.request.id, "status": True}
+        response = self.client.put(self.url, data=data)
+        self.assertEqual(response.data, {"code": 0, "data": u"加入成功"})
+        self.assertEqual(UserGroupRelation.objects.get(group=self.group).user.username, self.user1.username)
+
+        # 再加入一次，此时返回的消息应为 加入失败，已经在本小组内
+        request = JoinGroupRequest.objects.create(group=self.group, user=self.user1,
+                                                  message="message2")
+        data = {"request_id": request.id, "status": True}
+        response = self.client.put(self.url, data=data)
+        self.assertEqual(response.data, {"code": 1, "data": u"加入失败，已经在本小组内"})
+
