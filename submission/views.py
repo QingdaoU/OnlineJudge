@@ -42,7 +42,7 @@ class SubmissionnAPIView(APIView):
             connection = pymongo.MongoClient(host=mongodb_setting["HOST"], port=mongodb_setting["PORT"])
             collection = connection["oj"]["oj_submission"]
             submission_id = str(collection.insert_one(data).inserted_id)
-            judge.deply(submission_id, problem.max_cpu_time, problem_)
+            judge.delay(submission_id, problem.max_cpu_time, problem.max_memory, problem.test_case_id)
             return success_response({"submission_id": submission_id})
         else:
             return serializer_invalid_response(serializer)
