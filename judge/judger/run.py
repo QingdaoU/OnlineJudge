@@ -13,12 +13,12 @@ from settings import judger_workspace
 from oj import settings
 
 # 简单的解析命令行参数
-# 参数有 -solution_id -max_cpu_time -max_memory -test_case_id
-# 获取到的值是['xxx.py', '-solution_id', '1111', '-max_cpu_time', '1000', '-max_memory', '100', '-test_case_id', 'aaaa']
+# 参数有 -solution_id -time_limit -memory_limit -test_case_id
+# 获取到的值是['xxx.py', '-solution_id', '1111', '-time_limit', '1000', '-memory_limit', '100', '-test_case_id', 'aaaa']
 args = sys.argv
 solution_id = args[2]
-max_cpu_time = args[4]
-max_memory = args[6]
+time_limit = args[4]
+memory_limit = args[6]
 test_case_id = args[8]
 
 
@@ -48,9 +48,9 @@ except Exception as e:
 
 client = JudgeClient(language_code=language,
                      exe_path=exe_path,
-                     max_cpu_time=1000000,
-                     max_real_time=200000,
-                     max_memory=1000,
+                     max_cpu_time=int(time_limit),
+                     max_real_time=int(time_limit) * 2,
+                     max_memory=int(memory_limit),
                      test_case_dir="/var/judger/test_case/" + str(test_case_id) + "/")
 print client.run()
 

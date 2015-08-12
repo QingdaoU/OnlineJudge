@@ -187,7 +187,7 @@ class TestCaseUploadAPIView(APIView):
                             return error_response(u"测试用例文件不完整，缺少" + name[0] + ".in")
 
             problem_test_dir = rand_str()
-            test_case_dir = settings.TEST_CASE_DIR + "test_case/" + problem_test_dir + "/"
+            test_case_dir = settings.TEST_CASE_DIR + problem_test_dir + "/"
 
             # 得到了合法的测试用例文件列表 然后去解压缩
             os.mkdir(test_case_dir)
