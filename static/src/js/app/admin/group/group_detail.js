@@ -13,27 +13,7 @@ require(["jquery", "avalon", "csrf", "bs_alert", "validation"], function ($, ava
             page_count: 1,
             name: "",
             description: "",
-            join_group_setting: {0: false, 1: false, 2: false},
             checked_setting: "0",
-
-            updateGroupInfo: function () {
-                $.ajax({
-                    beforeSend: csrfHeader,
-                    url: "/api/admin/group/",
-                    method: "put",
-                    data: {group_id: avalon.vmodels.admin.group_id, name: vm.name,
-                        description: vm.description, join_group_setting: vm.checked_setting},
-                    dataType: "json",
-                    success: function (data) {
-                        if (!data.code) {
-                            bs_alert("修改成功");
-                        }
-                        else {
-                            bs_alert(data.data);
-                        }
-                    }
-                })
-            },
 
             getNext: function () {
                 if (!vm.next_page)
@@ -110,6 +90,59 @@ require(["jquery", "avalon", "csrf", "bs_alert", "validation"], function ($, ava
                 }
             }
         })
+
+        $("#edit_group_form")
+                .formValidation({
+                    framework: "bootstrap",
+                    fields: {
+                        name: {
+                            validators: {
+                                notEmpty: {
+                                    message: "请填写小组名"
+                                },
+                                stringLength: {
+                                    max: 20,
+                                    message: '小组名长度必须在20位之内'
+                                }
+                            }
+                        },
+                        description: {
+                            validators: {
+                                notEmpty: {
+                                    message: "请填写描述"
+                                },
+                                stringLength: {
+                                    max: 300,
+                                    message: '描述长度必须在300位之内'
+                                }
+                            }
+                        }
+                    }
+                }
+            ).on('success.form.fv', function (e) {
+                e.preventDefault();
+                var data = {
+                    group_id: avalon.vmodels.admin.group_id,
+                    name: vm.name,
+                    description: vm.description,
+                    join_group_setting: vm.checked_setting
+                };
+                $.ajax({
+                    beforeSend: csrfHeader,
+                    url: "/api/admin/group/",
+                    method: "put",
+                    data: data,
+                    dataType: "json",
+                    success: function (data) {
+                        if (!data.code) {
+                            bs_alert("修改成功");
+                        }
+                        else {
+                            bs_alert(data.data);
+                        }
+                    }
+                })
+            });
     });
 
 });
