@@ -8,8 +8,8 @@ from rest_framework.views import APIView
 
 from django.conf import settings
 
-from judge.judger.result import result
-from judge.controller.tasks import judge
+from judger.result import result
+from judger_controller.tasks import judge
 from account.decorators import login_required
 from problem.models import Problem
 from utils.shortcuts import serializer_invalid_response, error_response, success_response
@@ -42,7 +42,7 @@ class SubmissionnAPIView(APIView):
             connection = pymongo.MongoClient(host=mongodb_setting["HOST"], port=mongodb_setting["PORT"])
             collection = connection["oj"]["oj_submission"]
             submission_id = str(collection.insert_one(data).inserted_id)
-            judge.delay(submission_id, problem.max_cpu_time, problem.max_memory, problem.test_case_id)
+            judge.delay(submission_id, problem.time_limit, problem.memory_limit, problem.test_case_id)
             return success_response({"submission_id": submission_id})
         else:
             return serializer_invalid_response(serializer)

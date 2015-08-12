@@ -10,6 +10,11 @@ from compiler import compile_
 from result import result
 from settings import judger_workspace
 
+import sys
+import os
+sys.path.append(os.path.abspath(os.path.dirname(__file__) + '/' + '..'))
+print sys.path
+
 from oj import settings
 
 # 简单的解析命令行参数
@@ -46,12 +51,14 @@ except Exception as e:
     print [{"result": result["compile_error"]}]
     exit()
 
-client = JudgeClient(language_code=language,
-                     exe_path=exe_path,
-                     max_cpu_time=int(time_limit),
-                     max_real_time=int(time_limit) * 2,
-                     max_memory=int(memory_limit),
-                     test_case_dir="/var/judger/test_case/" + str(test_case_id) + "/")
-print client.run()
-
+try:
+    client = JudgeClient(language_code=language,
+                         exe_path=exe_path,
+                         max_cpu_time=int(time_limit),
+                         max_real_time=int(time_limit) * 2,
+                         max_memory=int(memory_limit),
+                         test_case_dir="/var/judger/test_case/" + str(test_case_id) + "/")
+    print client.run()
+except Exception as e:
+    print e
 
