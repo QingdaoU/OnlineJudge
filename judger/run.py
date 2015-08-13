@@ -62,6 +62,9 @@ try:
         if item["result"]:
             judge_result["result"] = item["result"]
             break
+    else:
+        l = sorted(judge_result["info"], key=lambda k: k["cpu_time"])
+        judge_result["accepted_answer_info"] = {"time": l[-1]["cpu_time"]}
 
 except Exception as e:
     print e
