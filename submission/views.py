@@ -22,7 +22,7 @@ class SubmissionnAPIView(APIView):
         connection = pymongo.MongoClient(host=mongodb_setting["HOST"], port=mongodb_setting["PORT"])
         return connection["oj"]["oj_submission"]
 
-    # @login_required
+    @login_required
     def post(self, request):
         """
         提交代码
@@ -48,12 +48,12 @@ class SubmissionnAPIView(APIView):
         else:
             return serializer_invalid_response(serializer)
 
-    # @login_required
+    @login_required
     def get(self, request):
         submission_id = request.GET.get("submission_id", None)
         if not submission_id:
             return error_response(u"参数错误")
-        submission = self._create_mondodb_connection().find_one({"_id": ObjectId(submission_id), "user_id": result.user.id})
+        submission = self._create_mondodb_connection().find_one({"_id": ObjectId(submission_id), "user_id": request.user.id})
         if submission:
             return success_response({"result": submission["result"]})
         else:
