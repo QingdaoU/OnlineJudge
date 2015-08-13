@@ -3,12 +3,12 @@
 
         <div class="form-group col-md-12">
             <label>题目标题</label>
-            <input type="text" name="title" class="form-control" ms-duplex="title">
+            <input type="text" name="title" autofocus class="form-control" ms-duplex="title">
         </div>
 
         <div class="form-group col-md-12">
             <label>题目描述</label>
-            <textarea id="problemDescription" placeholder="这里输入内容" autofocus ms-duplex="description"></textarea>
+            <textarea id="problemDescription" placeholder="这里输入内容(此内容不能为空)" ms-duplex="description"></textarea>
             <small ms-visible="description==''" style="color:red">请填写题目描述</small>
         </div>
 
@@ -37,6 +37,16 @@
         <div id="tag" class="col-md-12">
             <label>标签</label><br>
             <input type="text" id="tags">
+        </div>
+        <div class="col-md-12 form-group">
+            <label>输入描述</label><br>
+            <textarea class="form-control" rows="5" name="input_description"
+                      ms-duplex="input_description"></textarea>
+        </div>
+        <div class="col-md-12 form-group">
+            <label>输出描述</label><br>
+            <textarea class="form-control" rows="5" name="output_description"
+                    ms-duplex="output_description"></textarea>
         </div>
         <div class="col-md-12"><br>
             <label>样例</label>

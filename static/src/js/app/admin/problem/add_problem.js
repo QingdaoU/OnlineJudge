@@ -53,10 +53,17 @@ require(["jquery", "avalon", "editor", "uploader", "bs_alert", "csrf", "tagEdito
                             }
                         }
                     },
-                    source: {
+                    input_description: {
                         validators: {
                             notEmpty: {
-                                message: "请输入题目来源"
+                                message: "请填写输入描述"
+                            }
+                        }
+                    },
+                    output_description: {
+                        validators: {
+                            notEmpty: {
+                                message: "请填写输出描述"
                             }
                         }
                     }
@@ -72,10 +79,6 @@ require(["jquery", "avalon", "editor", "uploader", "bs_alert", "csrf", "tagEdito
                     bs_alert("题目描述不能为空!");
                     return;
                 }
-                if (vm.hint == '') {
-                    bs_alert("提示不能为空!");
-                    return;
-                }
                 var ajaxData = {
                     title: vm.title,
                     description: vm.description,
@@ -86,11 +89,20 @@ require(["jquery", "avalon", "editor", "uploader", "bs_alert", "csrf", "tagEdito
                     hint: vm.hint,
                     source: vm.source,
                     tags: $("#tags").tagEditor("getTags")[0].tags,
+                    input_description: vm.input_description,
+                    output_description: vm.output_description,
                     difficulty: vm.difficulty
                 };
                 if (vm.samples.length == 0) {
                     bs_alert("请至少添加一组样例!");
                     return;
+                }
+
+                for(var i = 0; i < vm.samples.length; i++){
+                    if (vm.samples[i].input == "" || vm.samples[i].output == ""){
+                            bs_alert("样例输入与样例输出不能为空！");
+                            return;
+                    }
                 }
 
                 if (tags.length == 0) {
@@ -147,12 +159,14 @@ require(["jquery", "avalon", "editor", "uploader", "bs_alert", "csrf", "tagEdito
             description: "",
             cpu: 1000,
             memory: 256,
-            samples: [],
+            samples: [{input: "", output: "", "visible": true}],
             hint: "",
             visible: true,
             difficulty: 0,
             tags: [],
             tag: "",
+            input_description: "",
+            output_description: "",
             test_case_id: "",
             testCaseList: [],
             uploadSuccess: false,
