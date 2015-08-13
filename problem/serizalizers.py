@@ -20,6 +20,8 @@ class JSONField(serializers.Field):
 class CreateProblemSerializer(serializers.Serializer):
     title = serializers.CharField(max_length=50)
     description = serializers.CharField(max_length=10000)
+    description_input = serializers.CharField(max_length=10000)
+    description_output = serializers.CharField(max_length=10000)
     # [{"input": "1 1", "output": "2"}]
     samples = ProblemSampleSerializer()
     test_case_id = serializers.CharField(max_length=40)
@@ -49,6 +51,8 @@ class EditProblemSerializer(serializers.Serializer):
     id = serializers.IntegerField()
     title = serializers.CharField(max_length=50)
     description = serializers.CharField(max_length=10000)
+    description_input = serializers.CharField(max_length=10000)
+    description_output = serializers.CharField(max_length=10000)
     test_case_id = serializers.CharField(max_length=40)
     source = serializers.CharField(max_length=30)
     time_limit = serializers.IntegerField()

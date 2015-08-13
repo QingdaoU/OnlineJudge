@@ -74,6 +74,8 @@ class ProblemAdminAPIView(APIView):
             data = serializer.data
             problem = Problem.objects.create(title=data["title"],
                                              description=data["description"],
+                                             description_input=data["description_input"],
+                                             description_output=data["description_output"],
                                              test_case_id=data["test_case_id"],
                                              source=data["source"],
                                              samples=json.dumps(data["samples"]),
@@ -110,6 +112,8 @@ class ProblemAdminAPIView(APIView):
 
             problem.title = data["title"]
             problem.description = data["description"]
+            problem.description_input = data["description_input"]
+            problem.description_output = data["description_output"]
             problem.test_case_id = data["test_case_id"]
             problem.source = data["source"]
             problem.time_limit = data["time_limit"]

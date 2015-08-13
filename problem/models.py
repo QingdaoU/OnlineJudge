@@ -16,6 +16,10 @@ class AbstractProblem(models.Model):
     title = models.CharField(max_length=50)
     # 问题描述 HTML 格式
     description = models.TextField()
+    # 输入描述
+    description_input = models.CharField(max_length=10000)
+    # 输出描述
+    description_output = models.CharField(max_length=10000)
     # 样例输入 可能会存储 json 格式的数据
     samples = models.TextField(blank=True)
     # 测试用例id 这个id 可以用来拼接得到测试用例的文件存储位置
