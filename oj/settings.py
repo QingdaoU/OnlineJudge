@@ -51,6 +51,7 @@ INSTALLED_APPS = (
     'group',
     'problem',
     'admin',
+    'submission',
 
     'rest_framework',
     'rest_framework_swagger',

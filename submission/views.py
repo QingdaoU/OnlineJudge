@@ -69,9 +69,9 @@ class SubmissionnAPIView(APIView):
 def problem_my_submissions_list_page(request, problem_id):
     collection = _create_mondodb_connection()
     submissions = collection.find({"problem_id": int(problem_id), "user_id": request.user.id},
-                                  projection=["result", "accepted_answer_info", "create_time"],
+                                  projection=["result", "accepted_answer_info", "create_time", "language"],
                                   sort=[["create_time", -pymongo.ASCENDING]])
-    return render(request, "oj/problem/my_solutions_list.html", {"submissions": submissions})
+    return render(request, "oj/problem/my_submissions_list.html", {"submissions": submissions})
 
 
 def my_submission(request, solution_id):
