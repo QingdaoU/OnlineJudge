@@ -25,8 +25,7 @@ require(["jquery", "code_mirror", "csrf", "bs_alert"], function ($, code_mirror,
     }
 
 
-    function get_result_html(result) {
-        console.log(result);
+    function get_result_html(data) {
         // 0 结果正确 1 运行错误 2 超时 3 超内存 4 编译错误
         // 5 格式错误 6 结果错误 7 系统错误 8 等待判题
         var results = {
@@ -42,14 +41,16 @@ require(["jquery", "code_mirror", "csrf", "bs_alert"], function ($, code_mirror,
         };
 
         var html = '<div class="alert alert-' +
-            results[result].alert_class + ' result"' +
+            results[data.result].alert_class + ' result"' +
             ' role="alert">' +
             '<div class="alert-link">' +
-            results[result].message +
-            '!&nbsp;&nbsp;&nbsp;&nbsp; ' +
-            '<a href="#">查看详情</a> ' +
-            '</div> </div>';
-        console.log(html);
+            results[data.result].message +
+            '!&nbsp;&nbsp; ';
+        if (!data.result) {
+            html += "CPU time: " + data.accepted_answer_info.time + "ms &nbsp;&nbsp;";
+        }
+        html += ('<a href="/submission/' + submission_id + '/" target="_blank">查看详情</a></div> </div>');
+
         return html;
     }
 
@@ -67,7 +68,7 @@ require(["jquery", "code_mirror", "csrf", "bs_alert"], function ($, code_mirror,
                     }
                     else {
                         hide_loading();
-                        $("#result").html(get_result_html(data.data.result));
+                        $("#result").html(get_result_html(data.data));
                     }
                 }
                 else {
@@ -84,7 +85,7 @@ require(["jquery", "code_mirror", "csrf", "bs_alert"], function ($, code_mirror,
 
         show_loading();
 
-        if(!code){
+        if(!code.trim()){
             bs_alert("请填写代码！");
             hide_loading();
             return false;

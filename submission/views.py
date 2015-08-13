@@ -1,4 +1,5 @@
 # coding=utf-8
+import datetime
 import pymongo
 from bson.objectid import ObjectId
 
@@ -16,12 +17,13 @@ from utils.shortcuts import serializer_invalid_response, error_response, success
 from .serializers import  CreateSubmissionSerializer
 
 
-class SubmissionnAPIView(APIView):
-    def _create_mondodb_connection(self):
+def _create_mondodb_connection():
         mongodb_setting = settings.DATABASES["mongodb"]
         connection = pymongo.MongoClient(host=mongodb_setting["HOST"], port=mongodb_setting["PORT"])
         return connection["oj"]["oj_submission"]
 
+
+class SubmissionnAPIView(APIView):
     @login_required
     def post(self, request):
         """
@@ -35,6 +37,7 @@ class SubmissionnAPIView(APIView):
             # data["language"] = int(data["language"])
             data["user_id"] = request.user.id
             data["result"] = result["waiting"]
+            data["create_time"] = datetime.datetime.now()
             try:
                 problem = Problem.objects.get(id=data["problem_id"])
             except Problem.DoesNotExist:
@@ -53,8 +56,23 @@ class SubmissionnAPIView(APIView):
         submission_id = request.GET.get("submission_id", None)
         if not submission_id:
             return error_response(u"参数错误")
-        submission = self._create_mondodb_connection().find_one({"_id": ObjectId(submission_id), "user_id": request.user.id})
+        submission = _create_mondodb_connection().find_one({"_id": ObjectId(submission_id), "user_id": request.user.id})
         if submission:
-            return success_response({"result": submission["result"]})
+            response_data = {"result": submission["result"]}
+            if submission["result"] == 0:
+                response_data["accepted_answer_info"] = submission["accepted_answer_info"]
+            return success_response(response_data)
         else:
             return error_response(u"提交不存在")
+
+
+def problem_my_submissions_list_page(request, problem_id):
+    collection = _create_mondodb_connection()
+    submissions = collection.find({"problem_id": int(problem_id), "user_id": request.user.id},
+                                  projection=["result", "accepted_answer_info", "create_time"],
+                                  sort=[["create_time", -pymongo.ASCENDING]])
+    return render(request, "oj/problem/my_solutions_list.html", {"submissions": submissions})
+
+
+def my_submission(request, solution_id):
+    return render(request, "oj/problem/my_solution.html")

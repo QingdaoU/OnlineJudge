@@ -47,15 +47,6 @@ def problem_page(request, problem_id):
     return render(request, "oj/problem/problem.html", {"problem": problem, "samples": json.loads(problem.samples)})
 
 
-def problem_my_solutions_list_page(request, problem_id):
-    return render(request, "oj/problem/my_solutions_list.html")
-
-
-def my_solution(request, solution_id):
-    return render(request, "oj/problem/my_solution.html")
-
-
-
 class ProblemAdminAPIView(APIView):
     def post(self, request):
         """
@@ -197,7 +188,7 @@ class TestCaseUploadAPIView(APIView):
             os.mkdir(test_case_dir)
             for name in l:
                 f = open(test_case_dir + name, "wb")
-                f.write(test_case_file.read(name))
+                f.write(test_case_file.read(name).replace("\r\n", "\n"))
                 f.close()
             l.sort()
 

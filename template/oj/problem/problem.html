@@ -21,12 +21,12 @@
             <div class="problem-section">
                 <label class="problem-label">输入</label>
 
-                <p class="problem-detail">第一行包括两个数n,k</p>
+                <p class="problem-detail">{{ problem.input_description }}</p>
             </div>
             <div class="problem-section">
                 <label class="problem-label">输出</label>
 
-                <p class="problem-detail">第一行包括两个数n,k</p>
+                <p class="problem-detail">{{ problem.output_description }}k</p>
             </div>
             {% for item in samples %}
                 <div class="problem-section">
@@ -45,7 +45,7 @@
             <div>
                 <button type="button" id="show-more-btn" class="btn btn-info btn-sm">查看隐藏信息</button>
             </div>
-            {% if problem.hind %}
+            {% if problem.hint %}
                 <div class="problem-section hide">
                     <label class="problem-label">提示</label>
 
