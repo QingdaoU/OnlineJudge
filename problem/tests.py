@@ -17,8 +17,10 @@ class ProblemPageTest(TestCase):
 class ProblemAdminTest(APITestCase):
     def _create_data(self, problem_id, visible, tags):
         data = {"id": problem_id,
-                "title": "title1",
-                "description": "des1",
+                "title": "title0",
+                "description": "description0",
+                "input_description": "input_description0",
+                "output_description": "output_description0",
                 "test_case_id": "1",
                 "source": "source1",
                 "samples": [{"input": "1 1", "output": "2"}],
@@ -40,7 +42,9 @@ class ProblemAdminTest(APITestCase):
         ProblemTag.objects.create(name="tag1")
         ProblemTag.objects.create(name="tag2")
         self.problem = Problem.objects.create(title="title1",
-                                              description="des1",
+                                              description="description1",
+                                              input_description="input1_description",
+                                              output_description="output1_description",
                                               test_case_id="1",
                                               source="source1",
                                               samples=[{"input": "1 1", "output": "2"}],
@@ -57,8 +61,10 @@ class ProblemAdminTest(APITestCase):
         self.assertEqual(response.data["code"], 1)
 
     def test_release_problem_successfully(self):
-        data = {"title": "title1",
-                "description": "des1",
+        data = {"title": "title2",
+                "description": "description2",
+                "input_description": "input_description2",
+                "output_description": "output_description2",
                 "test_case_id": "1",
                 "source": "source1",
                 "samples": [{"input": "1 1", "output": "2"}],
