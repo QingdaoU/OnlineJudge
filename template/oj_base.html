@@ -8,13 +8,13 @@
 
     <title>在线评测系统</title>
 
-    <!-- custom css begin -->
-    {% block css_block %}{% endblock %}
-    <!-- custom css end -->
-
     <!-- global css begin -->
     <link href="/static/css/oj.css" rel="stylesheet">
     <!-- global css end -->
+
+    <!-- custom css begin -->
+    {% block css_block %}{% endblock %}
+    <!-- custom css end -->
 </head>
 
 
@@ -47,7 +47,7 @@
                 <li><a href="/contests/">比赛</a></li>
                 <li><a href="/about/">关于</a></li>
             </ul>
-            {% if not request.user.is_authenticated %}
+            {% if request.user.is_authenticated %}
             <ul class="nav navbar-nav navbar-right">
                 <li class="dropdown">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
@@ -79,24 +79,6 @@
 <!-- custom body begin -->
 {% block body %}{% endblock %}
 <!-- custom body end -->
-
-<div class="modal fade" id="modal" tabindex="-1" role="dialog">
-    <div class="modal-dialog modal-sm">
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
-                        aria-hidden="true">&times;</span></button>
-                <h4 class="modal-title">提示</h4>
-            </div>
-            <div class="modal-body">
-                <p id="modal-text"></p>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
-            </div>
-        </div>
-    </div>
-</div>
 
 <script src="/static/js/config.js"></script>
 <script src="/static/js/require.js"></script>

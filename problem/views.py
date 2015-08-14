@@ -10,7 +10,10 @@ from django.db.models import Q
 
 from rest_framework.views import APIView
 
-from utils.shortcuts import serializer_invalid_response, error_response, success_response, paginate, rand_str
+from django.conf import settings
+
+from utils.shortcuts import (serializer_invalid_response, error_response,
+                             success_response, paginate, rand_str, error_page)
 from .serizalizers import (CreateProblemSerializer, EditProblemSerializer, ProblemSerializer,
                            ProblemTagSerializer, CreateProblemTagSerializer)
 from .models import Problem, ProblemTag
@@ -35,30 +38,14 @@ class ProblemTagAdminAPIView(APIView):
 
     def get(self, request):
         return success_response(ProblemTagSerializer(ProblemTag.objects.all(), many=True).data)
-        keyword = request.GET.get("keyword", None)
-        if not keyword:
-            return error_response(u"参数错误")
-        tags = ProblemTag.objects.filter(name__contains=keyword)
-        return success_response(ProblemTagSerializer(tags, many=True).data)
-
-
 
 
 def problem_page(request, problem_id):
     try:
         problem = Problem.objects.get(id=problem_id)
     except Problem.DoesNotExist:
-        return render(request, "utils/error.html", {"error": u"题目不存在"})
+        return error_page(request, u"题目不存在")
     return render(request, "oj/problem/problem.html", {"problem": problem, "samples": json.loads(problem.samples)})
-
-
-def problem_my_solutions_list_page(request, problem_id):
-    return render(request, "oj/problem/my_solutions_list.html")
-
-
-def my_solution(request, solution_id):
-    return render(request, "oj/problem/my_solution.html")
-
 
 
 class ProblemAdminAPIView(APIView):
@@ -163,7 +150,7 @@ class TestCaseUploadAPIView(APIView):
 
         f = request.FILES["file"]
 
-        tmp_zip = "tmp/" + rand_str() + ".zip"
+        tmp_zip = "/tmp/" + rand_str() + ".zip"
         with open(tmp_zip, "wb") as test_case_zip:
             for chunk in f:
                 test_case_zip.write(chunk)
@@ -196,13 +183,13 @@ class TestCaseUploadAPIView(APIView):
                             return error_response(u"测试用例文件不完整，缺少" + name[0] + ".in")
 
             problem_test_dir = rand_str()
-            test_case_dir = "test_case/" + problem_test_dir + "/"
+            test_case_dir = settings.TEST_CASE_DIR + problem_test_dir + "/"
 
             # 得到了合法的测试用例文件列表 然后去解压缩
             os.mkdir(test_case_dir)
             for name in l:
                 f = open(test_case_dir + name, "wb")
-                f.write(test_case_file.read(name))
+                f.write(test_case_file.read(name).replace("\r\n", "\n"))
                 f.close()
             l.sort()
 

@@ -7,9 +7,11 @@ from rest_framework.views import APIView
 
 from utils.shortcuts import serializer_invalid_response, error_response, success_response, paginate
 
+from .decorators import login_required
 from .models import User
-from .serializers import UserLoginSerializer, UsernameCheckSerializer, UserRegisterSerializer, \
-    UserChangePasswordSerializer, EmailCheckSerializer, UserSerializer, EditUserSerializer
+from .serializers import (UserLoginSerializer, UsernameCheckSerializer,
+                          UserRegisterSerializer,  UserChangePasswordSerializer,
+                          EmailCheckSerializer,  UserSerializer, EditUserSerializer)
 
 
 class UserLoginAPIView(APIView):
@@ -118,7 +120,38 @@ class EmailCheckAPIView(APIView):
             return serializer_invalid_response(serializer)
 
 
-class UserAPIView(APIView):
+class UserAdminAPIView(APIView):
+    def put(self, request):
+        """
+        用户编辑json api接口
+        ---
+        request_serializer: EditUserSerializer
+        response_serializer: UserSerializer
+        """
+        serializer = EditUserSerializer(data=request.data)
+        if serializer.is_valid():
+            data = serializer.data
+            try:
+                user = User.objects.get(id=data["id"])
+            except User.DoesNotExist:
+                return error_response(u"该用户不存在！")
+            try:
+                user = User.objects.get(username=data["username"])
+                if user.id != data["id"]:
+                    return error_response(u"昵称已经存在")
+            except User.DoesNotExist:
+                pass
+            user.username = data["username"]
+            user.real_name = data["real_name"]
+            user.email = data["email"]
+            user.admin_type = data["admin_type"]
+            if data["password"]:
+                user.set_password(data["password"])
+            user.save()
+            return success_response(UserSerializer(user).data)
+        else:
+            return serializer_invalid_response(serializer)
+
     def get(self, request):
         """
         用户分页json api接口
@@ -140,28 +173,12 @@ class UserAPIView(APIView):
         return paginate(request, user, UserSerializer)
 
 
-class UserAdminAPIView(APIView):
-    def put(self, request):
+class UserInfoAPIView(APIView):
+    @login_required
+    def get(self, request):
         """
-        用户编辑json api接口
+        返回这个用户的个人信息
         ---
-        request_serializer: EditUserSerializer
         response_serializer: UserSerializer
         """
-        serializer = EditUserSerializer(data=request.data)
-        if serializer.is_valid():
-            data = serializer.data
-            try:
-                user = User.objects.get(id=data["id"])
-            except User.DoesNotExist:
-                return error_response(u"该用户不存在！")
-            user.username = data["username"]
-            user.real_name = data["real_name"]
-            user.email = data["email"]
-            user.admin_type = data["admin_type"]
-            if data["password"]:
-                user.set_password(data["password"])
-            user.save()
-            return success_response(UserSerializer(user).data)
-        else:
-            return serializer_invalid_response(serializer)
+        return success_response(UserSerializer(request.user).data)

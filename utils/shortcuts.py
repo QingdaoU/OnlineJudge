@@ -3,9 +3,14 @@ import hashlib
 import time
 import random
 
+from django.shortcuts import render
 from django.core.paginator import Paginator
 
 from rest_framework.response import Response
+
+
+def error_page(request, error_reason):
+    return render(request, "utils/error.html", {"error": error_reason})
 
 
 def error_response(error_reason):
@@ -13,7 +18,8 @@ def error_response(error_reason):
 
 
 def serializer_invalid_response(serializer):
-    return error_response(serializer.errors)
+    for k, v in serializer.errors.iteritems():
+        return error_response(k + " : " + v[0])
 
 
 def success_response(data):

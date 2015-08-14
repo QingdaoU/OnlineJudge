@@ -63,7 +63,7 @@ require(["jquery", "avalon", "csrf", "bs_alert", "validation"], function ($, ava
         getPageData(1);   //用户列表初始化
         //Ajax get数据
         function getPageData(page) {
-            var url = "/api/admin/users/?paging=true&page=" + page + "&page_size=10";
+            var url = "/api/admin/user/?paging=true&page=" + page + "&page_size=10";
             if (vm.showAdminOnly == true)
                 url += "&admin_type=1";
             if (vm.key_word != "")

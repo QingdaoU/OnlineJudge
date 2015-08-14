@@ -94,6 +94,7 @@ class GroupAdminAPIView(APIView, GroupAPIViewBase):
         response_serializer: GroupSerializer
         """
         group_id = request.GET.get("group_id", None)
+        # 根据 id 查询小组信息
         if group_id:
             try:
                 group = self.get_group(request, group_id)
@@ -102,8 +103,15 @@ class GroupAdminAPIView(APIView, GroupAPIViewBase):
                 return error_response(u"小组不存在")
         else:
             groups = self.get_groups(request)
+            # 搜索小组
             if request.GET.get("keyword", None):
                 groups = groups.filter(name__contains=request.GET["keyword"])
+            # 只返回我创建的小组 适用于超级管理员
+            if request.GET.get("my_group", None):
+                groups = groups.filter(admin=request.user)
+            # 只返回指定用户的小组 适用于管理员
+            elif request.GET.get("admin_id", None):
+                groups = groups.filter(admin__id=request.GET["admin_id"])
             return paginate(request, groups, GroupSerializer)
             
             
