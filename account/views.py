@@ -135,6 +135,12 @@ class UserAdminAPIView(APIView):
                 user = User.objects.get(id=data["id"])
             except User.DoesNotExist:
                 return error_response(u"该用户不存在！")
+            try:
+                user = User.objects.get(username=data["username"])
+                if user.id != data["id"]:
+                    return error_response(u"昵称已经存在")
+            except User.DoesNotExist:
+                pass
             user.username = data["username"]
             user.real_name = data["real_name"]
             user.email = data["email"]

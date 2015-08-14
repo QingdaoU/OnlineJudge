@@ -145,10 +145,10 @@ class UserChangePasswordAPITest(APITestCase):
         self.assertEqual(response.data, {"code": 0, "data": u"用户密码修改成功！"})
 
 
-class UserAPITest(APITestCase):
+class UserAdminAPITest(APITestCase):
     def setUp(self):
         self.client = APIClient()
-        self.url = reverse("user_list_api")
+        self.url = reverse("user_admin_api")
         user = User.objects.create(username="testx", real_name="xx", admin_type=SUPER_ADMIN)
         user.set_password("testxx")
         user.save()
