@@ -12,7 +12,8 @@ from rest_framework.views import APIView
 
 from django.conf import settings
 
-from utils.shortcuts import serializer_invalid_response, error_response, success_response, paginate, rand_str
+from utils.shortcuts import (serializer_invalid_response, error_response,
+                             success_response, paginate, rand_str, error_page)
 from .serizalizers import (CreateProblemSerializer, EditProblemSerializer, ProblemSerializer,
                            ProblemTagSerializer, CreateProblemTagSerializer)
 from .models import Problem, ProblemTag
@@ -43,7 +44,7 @@ def problem_page(request, problem_id):
     try:
         problem = Problem.objects.get(id=problem_id)
     except Problem.DoesNotExist:
-        return render(request, "utils/error.html", {"error": u"题目不存在"})
+        return error_page(request, u"题目不存在")
     return render(request, "oj/problem/problem.html", {"problem": problem, "samples": json.loads(problem.samples)})
 
 

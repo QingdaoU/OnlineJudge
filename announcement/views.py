@@ -4,7 +4,7 @@ from rest_framework.views import APIView
 from django.shortcuts import render
 from utils.shortcuts import serializer_invalid_response, error_response, success_response
 
-from utils.shortcuts import paginate
+from utils.shortcuts import paginate, error_page
 from .models import Announcement
 from .serializers import (CreateAnnouncementSerializer, AnnouncementSerializer,
                           EditAnnouncementSerializer)
@@ -14,7 +14,7 @@ def announcement_page(request, announcement_id):
     try:
         announcement = Announcement.objects.get(id=announcement_id, visible=True)
     except Announcement.DoesNotExist:
-        return render(request, "utils/error.html", {"error": u"模板不存在"})
+        return error_page(request, u"模板不存在")
     return render(request, "oj/announcement/announcement.html", {"announcement": announcement})
 
 
