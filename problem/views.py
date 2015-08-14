@@ -7,6 +7,7 @@ import json
 
 from django.shortcuts import render
 from django.db.models import Q
+from django.core.paginator import Paginator
 
 from rest_framework.views import APIView
 
@@ -208,7 +209,8 @@ class TestCaseUploadAPIView(APIView):
                 file_info["test_cases"][str(i + 1)] = {"input_name": str(i + 1) + ".in",
                                                        "output_name": str(i + 1) + ".out",
                                                        "output_md5": md5.hexdigest(),
-                                                       "output_size": os.path.getsize(test_case_dir + str(i + 1) + ".out")}
+                                                       "output_size": os.path.getsize(
+                                                           test_case_dir + str(i + 1) + ".out")}
                 # 写入配置文件
                 open(test_case_dir + "info", "w").write(json.dumps(file_info))
 
@@ -217,3 +219,27 @@ class TestCaseUploadAPIView(APIView):
                                                    "output": l[1::2]}})
         else:
             return error_response(u"测试用例压缩文件格式错误，请保证测试用例文件在根目录下直接压缩")
+
+
+def problem_list_page(request, page=1):
+    problems = Problem.objects.all()
+    paginator = Paginator(problems, 20)
+    try:
+        current_page = paginator.page(int(page))
+    except Exception:
+        return error_response(u"不存在的页码")
+
+    previous_page = next_page = None
+
+    try:
+        previous_page = current_page.previous_page_number()
+    except Exception:
+        pass
+
+    try:
+        next_page = current_page.next_page_number()
+    except Exception:
+        pass
+
+    return render(request, "oj/problem/problem_list.html", {"problems": current_page, "page": int(page),
+                                                            "previous_page": previous_page, "next_page": next_page})

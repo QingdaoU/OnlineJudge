@@ -1,11 +1,17 @@
 {% extends "oj_base.html" %}
 {% block body %}
+    {% load problem %}
     <div class="container main" ms-controller="problem_list">
         <div class="row">
             <div class="col-lg-9">
                 <div class="row">
-                    <div class="col-lg-3 col-lg-offset-9">
-                        <input type="text" class="form-control" placeholder="搜索题号，标题">
+                    <div style="float: right;">
+                        <form class="form-inline" onsubmit="return false;">
+                            <div class="form-group-sm">
+                                <input name="keyWord" class="form-control" placeholder="请输入关键词" ms-duplex="key_word">
+                                <input type="submit" value="搜索" class="btn btn-primary" ms-click="getPage(1)">
+                            </div>
+                        </form>
                     </div>
                 </div>
                 <div>
@@ -19,28 +25,31 @@
                         </tr>
                         </thead>
                         <tbody>
-                        <tr>
-                            <th scope="row"><a href="/problem/1/">1</a></th>
-                            <td><a href="/problem/1/">Mark</a></td>
-                            <td>Otto</td>
-                            <td>@mdo</td>
-                        </tr>
-                        <tr>
-                            <th scope="row">2</th>
-                            <td>Jacob</td>
-                            <td>Thornton</td>
-                            <td>@fat</td>
-                        </tr>
-                        <tr>
-                            <th scope="row">3</th>
-                            <td>Larry</td>
-                            <td>the Bird</td>
-                            <td>@twitter</td>
-                        </tr>
+                        {% for item in problems %}
+                            <tr>
+                                <th scope="row"><a href="/problem/{{ item.id }}/">{{ item.id }}</a></th>
+                                <td><a href="/problem/1/">{{ item.title }}</a></td>
+                                <td>{{ item.difficulty }}</td>
+                                <td>{{ item|accepted_radio }}</td>
+                            </tr>
+                        {% endfor %}
                         </tbody>
                     </table>
+                    <nav>
+                        <ul class="pager">
+                            {% if previous_page %}
+                                <li class="previous"><a href="/problems/{{ previous_page }}/"><span
+                                        aria-hidden="true">&larr;</span> 上一页</a></li>
+                            {% endif %}
+                            {% if next_page %}
+                                <li class="next"><a href="/problems/{{ next_page }}/">下一页 <span
+                                        aria-hidden="true">&rarr;</span></a></li>
+                            {% endif %}
+                        </ul>
+                    </nav>
                 </div>
             </div>
+
             <div class="col-lg-3">
                 <div class="panel panel-info">
                     <div class="panel-heading">
@@ -87,5 +96,5 @@
 {% endblock %}
 
 {% block js_block %}
-<script src="/static/js/app/oj/problem/problem_list.js"></script>
+    <script src="/static/js/app/oj/problem/problem_list.js"></script>
 {% endblock %}
