@@ -16,7 +16,7 @@ DATABASES = {
     }
 }
 
-mongodb_setting = {
+MONGODB = {
     'HOST': '127.0.0.1',
     'USERNAME': 'root',
     'PASSWORD': 'root',

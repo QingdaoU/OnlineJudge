@@ -18,12 +18,12 @@ from .serializers import  CreateSubmissionSerializer
 
 
 def _create_mondodb_connection():
-        mongodb_setting = settings["mongodb_setting"]
-        connection = pymongo.MongoClient(host=mongodb_setting["HOST"], port=mongodb_setting["PORT"])
-        return connection["oj"]["oj_submission"]
+    mongodb_setting = settings.MONGODB
+    connection = pymongo.MongoClient(host=mongodb_setting["HOST"], port=mongodb_setting["PORT"])
+    return connection["oj"]["oj_submission"]
 
 
-class SubmissionnAPIView(APIView):
+class SubmissionAPIView(APIView):
     @login_required
     def post(self, request):
         """
