@@ -14,7 +14,7 @@ from group.views import (GroupAdminAPIView, GroupMemberAdminAPIView,
 from admin.views import AdminTemplateView
 
 from problem.views import TestCaseUploadAPIView, ProblemTagAdminAPIView, ProblemAdminAPIView
-from submission.views import SubmissionnAPIView
+from submission.views import SubmissionAPIView
 
 urlpatterns = [
     url(r'^install/$', "install.views.install"),
@@ -56,6 +56,6 @@ urlpatterns = [
 
     url(r'^api/admin/join_group_request/$', JoinGroupRequestAdminAPIView.as_view(),
         name="join_group_request_admin_api"),
-    url(r'^api/submission/$', SubmissionnAPIView.as_view(), name="submission_api"),
+    url(r'^api/submission/$', SubmissionAPIView.as_view(), name="submission_api"),
 
 ]
