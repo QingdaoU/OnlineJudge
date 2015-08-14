@@ -3,7 +3,7 @@ from functools import wraps
 from django.http import HttpResponse
 from django.shortcuts import render
 
-from utils.shortcuts import error_response
+from utils.shortcuts import error_response, error_page
 from .models import User
 
 
@@ -18,7 +18,7 @@ def login_required(func):
         if request.is_ajax():
             return error_response(u"请先登录")
         else:
-            return render(request, "utils/error.html", {"error": u"请先登录"})
+            return error_page(request, u"请先登录")
     return check
 
 
@@ -31,5 +31,5 @@ def admin_required(func):
         if request.is_ajax():
             return error_response(u"需要管理员权限")
         else:
-            return render(request, "utils/error.html", {"error": "需要管理员权限"})
+            return error_page(request, u"需要管理员权限")
     return check
