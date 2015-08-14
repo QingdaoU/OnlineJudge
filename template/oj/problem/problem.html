@@ -5,12 +5,9 @@
         <ul class="nav nav-tabs nav-tabs-google">
             <li role="presentation" class="active">
                 <a href="problem.html">题目</a></li>
-            <li role="presentation"><a href="/problem/1/my_solutions/">我的提交</a></li>
+            <li role="presentation"><a href="/problem/{{ problem.id }}/my_submissions/">我的提交</a></li>
         </ul>
-        <h2 class="text-center">{{ problem.title }}</h2>
-
-        <p class="text-muted text-center">发布时间: {{ problem.create_time }} CPU: {{ problem.time_limit }}ms
-            内存: {{ problem.memory_limit }}M</p>
+        {% include "oj/problem/_problem_header.html" %}
 
         <div>
             <div class="problem-section">
@@ -93,7 +90,7 @@
 
             <div id="result">
             </div>
-        <hr>
+            <hr>
         </div>
     </div>
 {% endblock %}

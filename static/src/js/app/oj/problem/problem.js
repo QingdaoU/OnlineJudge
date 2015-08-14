@@ -49,7 +49,7 @@ require(["jquery", "code_mirror", "csrf", "bs_alert"], function ($, code_mirror,
         if (!data.result) {
             html += "CPU time: " + data.accepted_answer_info.time + "ms &nbsp;&nbsp;";
         }
-        html += ('<a href="/submission/' + submission_id + '/" target="_blank">查看详情</a></div> </div>');
+        html += ('<a href="/my_submission/' + submission_id + '/" target="_blank">查看详情</a></div> </div>');
 
         return html;
     }

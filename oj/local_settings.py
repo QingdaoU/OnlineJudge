@@ -13,18 +13,17 @@ DATABASES = {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
         'CONN_MAX_AGE': 0.3,
-    },
-    'mongodb': {
-        'HOST': '127.0.0.1',
-        'USERNAME': 'root',
-        'PASSWORD': 'root',
-        'PORT': 27017
     }
 }
 
+mongodb_setting = {
+    'HOST': '127.0.0.1',
+    'USERNAME': 'root',
+    'PASSWORD': 'root',
+    'PORT': 27017
+}
 
 DEBUG = True
 
 # 同理 这是 web 服务器的上传路径
 TEST_CASE_DIR = "/Users/virusdefender/Desktop/test_case/"
-

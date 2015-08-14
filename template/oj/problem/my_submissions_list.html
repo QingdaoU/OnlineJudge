@@ -3,62 +3,48 @@
 {% block body %}
 
     {% load submission %}
-<div class="container main">
-    <ul class="nav nav-tabs nav-tabs-google">
-        <li role="presentation">
-            <a href="/problem/1/">题目</a></li>
-        <li role="presentation" class="active"><a href="my_solutions_list.html">我的提交</a></li>
-    </ul>
-    <h2 class="text-center">Battle Over Cities - Hard Version</h2>
+    <div class="container main">
+        <ul class="nav nav-tabs nav-tabs-google">
+            <li role="presentation">
+                <a href="/problem/{{ problem.id }}/">题目</a></li>
+            <li role="presentation" class="active">
+                <a href="/problem/{{ problem.id }}/my_submissions/">我的提交</a></li>
+        </ul>
+        <h2 class="text-center">{{ problem.title }}</h2>
 
-    <p class="text-muted text-center">cpu: 1000ms 内存: 256M</p>
-    <table class="table table-bordered">
-        <thead>
-        <tr class="" success>
-            <th>#</th>
-            <th>提交时间</th>
-            <th>结果</th>
-            <th>运行时间</th>
-            <th>语言</th>
-        </tr>
-        </thead>
-        <tbody>
-        {% for item in submissions %}
-        {% ifequal item.result 0 %}
-            <tr class="success">
-                {% else %}
-                {% ifequal item.result 8 %}
-                    <tr class="info">
+        <p class="text-muted text-center">发布时间: {{ problem.create_time }}&nbsp;&nbsp;
+            时间限制: {{ problem.time_limit }}ms&nbsp;&nbsp;
+            内存限制: {{ problem.memory_limit }}M</p>
+        <table class="table table-bordered">
+            <thead>
+            <tr class="" success>
+                <th>#</th>
+                <th>提交时间</th>
+                <th>结果</th>
+                <th>运行时间</th>
+                <th>语言</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for item in submissions %}
+                <tr class="{{ item.result|translate_result_class }}">
+                    <th scope="row"><a href="/my_submission/{{ item|translate_id }}/">{{ forloop.counter }}</a></th>
+                    <td>{{ item.create_time }}</td>
+                    <td>{{ item.result|translate_result }}</td>
+                    <td>
+                        {% if item.accepted_answer_info.time %}
+                            {{ item.accepted_answer_info.time }}ms
                         {% else %}
-                    <tr class="danger">
-                {% endifequal %}
+                            --
+                        {% endif %}
+                    </td>
+                    <td>
+                        {{ item.language|translate_language }}
+                    </td>
+                </tr>
+            {% endfor %}
 
-        {% endifequal %}
-        <th scope="row"><a href="/my_solution/{{ item|translate_id }}/">{{ forloop.counter }}</a></th>
-        <td>{{ item.create_time }}</td>
-        <td>{{ item.result|translate_result }}</td>
-        <td>
-            {% if item.accepted_answer_info.time %}
-                {{ item.accepted_answer_info.time }}ms
-            {% else %}
-                --
-            {% endif %}
-        </td>
-        <td>
-            {% ifequal item.language 1 %}
-                C
-            {% else %}
-                {% ifequal item.language 2 %}
-                    C++
-                {% else %}
-                    Java
-                {% endifequal %}
-            {% endifequal %}
-        </td>
-        </tr>
-        {% endfor %}
-
-        </tbody>
-    </table>
-</div>
+            </tbody>
+        </table>
+    </div>
 {% endblock %}
