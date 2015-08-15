@@ -9,8 +9,8 @@ from rest_framework.views import APIView
 
 from django.conf import settings
 
-from judger.result import result
-from judger_controller.tasks import judge
+from judge.judger.result import result
+from judge.judger_controller.tasks import judge
 from account.decorators import login_required
 from problem.models import Problem
 from utils.shortcuts import serializer_invalid_response, error_response, success_response, error_page

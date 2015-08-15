@@ -7,4 +7,4 @@ app = Celery("judge", broker="redis://" +
                              redis_config["host"] + ":" +
                              str(redis_config["port"]) +
                              "/" + str(redis_config["db"]),
-             include=["judger_controller.tasks"])
+             include=["judge.judger_controller.tasks"])

@@ -1,5 +1,6 @@
 # coding=utf-8
 import sys
+import os
 import pymongo
 
 from bson.objectid import ObjectId
@@ -8,7 +9,11 @@ from client import JudgeClient
 from language import languages
 from compiler import compile_
 from result import result
-from settings import judger_workspace, mongodb_config
+from settings import judger_workspace
+
+sys.path.append(os.path.abspath(os.path.dirname(__file__) + '/' + '..'))
+
+from judger_controller.settings import mongodb_config
 
 
 # 简单的解析命令行参数
@@ -76,6 +81,3 @@ connection = pymongo.MongoClient(host=mongodb_config["host"], port=mongodb_confi
 collection = connection["oj"]["oj_submission"]
 collection.find_one_and_update({"_id": ObjectId(submission_id)}, {"$set": judge_result})
 connection.close()
-
-
-
