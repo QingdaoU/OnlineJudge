@@ -27,20 +27,20 @@
             </div>
             {% for item in samples %}
                 <div class="problem-section">
-                    <label class="problem-label">样例输入1</label>
+                    <label class="problem-label">样例输入{{ forloop.counter }}</label>
         <pre>
 {{ item.input }}</pre>
 
                 </div>
                 <div class="problem-section">
 
-                    <label class="problem-label">样例输出1</label>
+                    <label class="problem-label">样例输出{{ forloop.counter }}</label>
         <pre>
 {{ item.output }}</pre>
                 </div>
             {% endfor %}
             <div>
-                <button type="button" id="show-more-btn" class="btn btn-info btn-sm">查看隐藏信息</button>
+                <button type="button" id="show-more-btn" class="btn btn-default btn-sm">查看隐藏信息</button>
             </div>
             {% if problem.hint %}
                 <div class="problem-section hide">
