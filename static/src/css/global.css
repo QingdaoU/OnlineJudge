@@ -33,3 +33,7 @@ label {
 .right{
     float: right;
 }
+
+.CodeMirror pre {
+    font-family: "Consolas","Bitstream Vera Sans Mono","Courier New", Courier, monospace !important;
+}
