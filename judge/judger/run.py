@@ -13,7 +13,7 @@ from settings import judger_workspace
 
 sys.path.append(os.path.abspath(os.path.dirname(__file__) + '/' + '..'))
 
-from judger_controller.settings import mongodb_config
+from judger_controller.settings import celery_mongodb_config, docker_mongodb_config
 
 
 # 简单的解析命令行参数
@@ -25,7 +25,7 @@ time_limit = args[4]
 memory_limit = args[6]
 test_case_id = args[8]
 
-connection = pymongo.MongoClient(host=mongodb_config["host"], port=mongodb_config["port"])
+connection = pymongo.MongoClient(host=docker_mongodb_config["host"], port=docker_mongodb_config["port"])
 collection = connection["oj"]["oj_submission"]
 
 submission = collection.find_one({"_id": ObjectId(submission_id)})
@@ -45,7 +45,7 @@ try:
     exe_path = compile_(language, src_path, judger_workspace + "run/")
 except Exception as e:
     print e
-    connection = pymongo.MongoClient(host=mongodb_config["host"], port=mongodb_config["port"])
+    connection = pymongo.MongoClient(host=docker_mongodb_config["host"], port=docker_mongodb_config["port"])
     collection = connection["oj"]["oj_submission"]
     data = {"result": result["compile_error"], "info": str(e)}
     collection.find_one_and_update({"_id": ObjectId(submission_id)}, {"$set": data})
@@ -77,7 +77,7 @@ except Exception as e:
 
 print "Run successfully"
 print judge_result
-connection = pymongo.MongoClient(host=mongodb_config["host"], port=mongodb_config["port"])
+connection = pymongo.MongoClient(host=docker_mongodb_config["host"], port=docker_mongodb_config["port"])
 collection = connection["oj"]["oj_submission"]
 collection.find_one_and_update({"_id": ObjectId(submission_id)}, {"$set": judge_result})
 connection.close()

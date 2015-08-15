@@ -14,7 +14,7 @@ from judge.judger_controller.tasks import judge
 from account.decorators import login_required
 from problem.models import Problem
 from utils.shortcuts import serializer_invalid_response, error_response, success_response, error_page
-from .serializers import  CreateSubmissionSerializer
+from .serializers import CreateSubmissionSerializer
 
 
 def _create_mongodb_connection():
