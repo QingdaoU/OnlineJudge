@@ -5,7 +5,7 @@ from bson import ObjectId
 import subprocess32 as subprocess
 from ..judger.result import result
 from ..judger_controller.celery import app
-from settings import docker_config, source_code_dir, test_case_dir, mongodb_config
+from settings import docker_config, source_code_dir, test_case_dir, celery_mongodb_config
 
 
 @app.task
@@ -24,7 +24,7 @@ def judge(submission_id, time_limit, memory_limit, test_case_id):
                    submission_id, str(time_limit), str(memory_limit), test_case_id)
         subprocess.call(command, timeout=(time_limit / 1000.0 * 10), shell=docker_config["shell"])
     except Exception as e:
-        connection = pymongo.MongoClient(host=mongodb_config["host"], port=mongodb_config["port"])
+        connection = pymongo.MongoClient(host=celery_mongodb_config["host"], port=celery_mongodb_config["port"])
         collection = connection["oj"]["oj_submission"]
         data = {"result": result["system_error"], "info": str(e)}
         collection.find_one_and_update({"_id": ObjectId(submission_id)}, {"$set": data})
