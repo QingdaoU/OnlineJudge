@@ -29,3 +29,7 @@ label {
 [ms-controller] {
     display: none
 }
+
+.right{
+    float: right;
+}

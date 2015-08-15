@@ -5,7 +5,7 @@
         <div class="row">
             <div class="col-lg-9">
                 <div class="row">
-                    <div style="float: right;">
+                    <div class="search-box">
                         <form class="form-inline" onsubmit="return false;">
                             <div class="form-group-sm">
                                 <input name="keyWord" class="form-control" placeholder="请输入关键词" ms-duplex="key_word">
@@ -28,7 +28,7 @@
                         {% for item in problems %}
                             <tr>
                                 <th scope="row"><a href="/problem/{{ item.id }}/">{{ item.id }}</a></th>
-                                <td><a href="/problem/1/">{{ item.title }}</a></td>
+                                <td><a href="/problem/{{ item.id }}/">{{ item.title }}</a></td>
                                 <td>{{ item.difficulty }}</td>
                                 <td>{{ item|accepted_radio }}</td>
                             </tr>
@@ -38,11 +38,13 @@
                     <nav>
                         <ul class="pager">
                             {% if previous_page %}
-                                <li class="previous"><a href="/problems/{{ previous_page }}/"><span
-                                        aria-hidden="true">&larr;</span> 上一页</a></li>
+                                <li class="previous"><a
+                                        href="/problems/{{ previous_page }}/{% if keyword %}?keyword={{ keyword }}{% endif %}{% if tag %}?tag={{ tag }}{% endif %}">
+                                    <span aria-hidden="true">&larr;</span> 上一页</a></li>
                             {% endif %}
                             {% if next_page %}
-                                <li class="next"><a href="/problems/{{ next_page }}/">下一页 <span
+                                <li class="next"><a
+                                        href="/problems/{{ next_page }}/{% if keyword %}?keyword={{ keyword }}{% endif %}{% if tag %}?tag={{ tag }}{% endif %}">下一页 <span
                                         aria-hidden="true">&rarr;</span></a></li>
                             {% endif %}
                         </ul>

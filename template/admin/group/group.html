@@ -1,14 +1,14 @@
 <div ms-controller="group" class="col-md-9">
     <h1>小组管理</h1>
-    <div class="text-right">
+
+    <div class="right">
         <form class="form-inline" onsubmit="return false;">
             <div class="form-group-sm">
                 <label>搜索</label>
                 <input class="form-control" placeholder="请输入关键词" ms-duplex="keyword">
-                <input type="submit" value="搜索" class="btn btn-primary" ms-click="getPage(1)">
+                <input type="submit" value="搜索" class="btn btn-primary" ms-click="search()">
             </div>
         </form>
-        <br>
     </div>
     <table class="table table-striped">
         <tr>
@@ -20,10 +20,10 @@
             <th>设置</th>
             <th></th>
         </tr>
-        <tr ms-repeat="group_list">
-            <td>{{el.id}}</td>
-            <td>{{el.name}}</td>
-            <td>{{el.create_time|date("yyyy-MM-dd HH:mm:ss")}}</td>
+        <tr ms-repeat="groupList">
+            <td>{{ el.id }}</td>
+            <td>{{ el.name }}</td>
+            <td>{{ el.create_time|date("yyyy-MM-dd HH:mm:ss")}}</td>
             <td>{{ el.members_number }}</td>
             <td>{{ getGroupSettingString(el.join_group_setting) }}</td>
 
@@ -33,10 +33,10 @@
         </tr>
     </table>
 
-    <div class="text-right">
-        页数：{{page}}/{{page_count}}&nbsp;&nbsp;
-        <button ms-attr-class="getBtnClass(0)" ms-click="getPrevious">上一页</button>
-        <button ms-attr-class="getBtnClass(1)" ms-click="getNext">下一页</button>
+    <div class="right">
+        页数：{{ page }}/{{ totalPage }}&nbsp;&nbsp;
+        <button ms-attr-class="getBtnClass('pre')" ms-click="getPrevious">上一页</button>
+        <button ms-attr-class="getBtnClass('next')" ms-click="getNext">下一页</button>
     </div>
 
 </div>

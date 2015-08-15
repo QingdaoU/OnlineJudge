@@ -1,4 +1,4 @@
-require(["jquery", "bs_alert", "csrf", "validation"], function ($, bs_alert, csrfHeader) {
+require(["jquery", "bsAlert", "csrfToken", "validation"], function ($, bsAlert, csrfTokenHeader) {
     $("#register-form")
         .formValidation({
             framework: "bootstrap",
@@ -73,13 +73,13 @@ require(["jquery", "bs_alert", "csrf", "validation"], function ($, bs_alert, csr
     ).on('success.form.fv', function (e) {
             e.preventDefault();
             var username = $("#username").val();
-            var real_name = $("#real_name").val();
+            var realName = $("#real_name").val();
             var password = $("#password").val();
             var email = $("#email").val();
             $.ajax({
                 beforeSend: csrfHeader,
                 url: "/api/register/",
-                data: {username: username, real_name: real_name, password: password, email: email},
+                data: {username: username, real_name: realName, password: password, email: email},
                 dataType: "json",
                 method: "post",
                 success: function (data) {
@@ -87,7 +87,7 @@ require(["jquery", "bs_alert", "csrf", "validation"], function ($, bs_alert, csr
                         window.location.href = "/login/";
                     }
                     else {
-                        bs_alert(data.data);
+                        bsAlert(data.data);
                     }
                 }
             })

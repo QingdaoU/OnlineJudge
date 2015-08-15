@@ -1,4 +1,4 @@
-define("validation",
+define("formValidation",
     [    'base',
         'helper',
         'framework/bootstrap',

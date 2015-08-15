@@ -1,9 +1,9 @@
 {% extends 'oj_base.html' %}
 {% block css_block %}
     <style>
-    .CodeMirror{
-        height: auto;
-    }
+        .CodeMirror {
+            height: auto;
+        }
     </style>
 {% endblock %}
 {% block body %}
@@ -29,7 +29,7 @@
                 {% ifequal submission.result 4 %}
                     <p>{{ submission.info }}</p>
                 {% endifequal %}
-            <p>提交时间 : {{ submission.create_time }}</p>
+                <p>提交时间 : {{ submission.create_time }}</p>
             </div>
         </div>
         <div id="code-field">
@@ -40,7 +40,7 @@
 {% endblock %}
 {% block js_block %}
     <script>
-        require(["jquery", "code_mirror"], function ($, code_mirror) {
+        require(["jquery", "codeMirror"], function ($, codeMirror) {
             {% ifequal submission.language 1 %}
                 var language = "text/x-csrc";
             {% else %}
@@ -50,8 +50,8 @@
                     var language = "text/x-java";
                 {% endifequal %}
             {% endifequal %}
-            var code_editor = code_mirror($("#code-editor")[0], language);
-            code_editor.setOption("readOnly", true);
+            var codeEditor = codeMirror($("#code-editor")[0], language);
+            codeEditor.setOption("readOnly", true);
         });
     </script>
 {% endblock %}

@@ -1,26 +1,26 @@
 {% extends "oj_base.html" %}
 {% block body %}
-<div class="container main">
-    <div class="col-md-6 col-md-offset-3">
-        <h2 class="text-center">用户登录</h2>
+    <div class="container main">
+        <div class="col-md-6 col-md-offset-3">
+            <h2 class="text-center">用户登录</h2>
 
-        <form id="login-form">
-            <div class="form-group">
-                <label for="username">用户名</label>
-                <input type="text" class="form-control input-lg" id="username" name="username" placeholder="用户名"
-                       autofocus>
-            </div>
-            <div class="form-group">
-                <label for="password">密码</label>
-                <input type="password" class="form-control input-lg" id="password" name="password" placeholder="密码">
-            </div>
-            <div class="form-group">
-                <button type="submit" class="btn btn-primary">提交</button>
-            </div>
-        </form>
+            <form id="login-form">
+                <div class="form-group">
+                    <label for="username">用户名</label>
+                    <input type="text" class="form-control input-lg" id="username" name="username" placeholder="用户名"
+                           autofocus>
+                </div>
+                <div class="form-group">
+                    <label for="password">密码</label>
+                    <input type="password" class="form-control input-lg" id="password" name="password" placeholder="密码">
+                </div>
+                <div class="form-group">
+                    <button type="submit" class="btn btn-primary">提交</button>
+                </div>
+            </form>
+        </div>
     </div>
-</div>
 {% endblock %}
 {% block js_block %}
-<script src="/static/js/app/oj/account/login.js"></script>
+    <script src="/static/js/app/oj/account/login.js"></script>
 {% endblock %}

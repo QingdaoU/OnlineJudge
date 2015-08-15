@@ -1,5 +1,5 @@
-define("bs_alert", ["jquery", "bootstrap"], function($){
-     function bs_alert(content){
+define("bsAlert", ["jquery", "bootstrap"], function($){
+     function bsAlert(content){
          if(!$("#alert-modal").length) {
              var html = '<div class="modal fade" id="alert-modal" tabindex="-1" role="dialog"> ' +
                  '<div class="modal-dialog modal-sm"> <div class="modal-content"> <div class="modal-header"> ' +
@@ -13,5 +13,5 @@ define("bs_alert", ["jquery", "bootstrap"], function($){
          $("#modal-text").html(content);
          $("#alert-modal").modal();
      }
-    return bs_alert;
+    return bsAlert;
 });

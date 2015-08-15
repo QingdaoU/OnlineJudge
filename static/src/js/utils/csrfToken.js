@@ -1,5 +1,5 @@
-define("csrf",function(){
-    function get_cookie(cookie_name) {
+define("csrfToken",function(){
+    function getCookie(cookie_name) {
         var name = cookie_name + "=";
         var ca = document.cookie.split(';');
         for (var i = 0; i < ca.length; i++) {
@@ -9,15 +9,15 @@ define("csrf",function(){
         }
         return "";
     }
-    function csrfHeader(){
+    function csrfTokenHeader(){
         // jquery的请求
         if(arguments.length == 2) {
-            arguments[0].setRequestHeader("X-CSRFToken", get_cookie("csrftoken"));
+            arguments[0].setRequestHeader("X-CSRFToken", getCookie("csrftoken"));
         }
         // 百度webuploader 的请求
         else if(arguments.length == 3){
-            arguments[2]["X-CSRFToken"] = get_cookie("csrftoken");
+            arguments[2]["X-CSRFToken"] = getCookie("csrftoken");
         }
     }
-    return csrfHeader;
+    return csrfTokenHeader;
 });
