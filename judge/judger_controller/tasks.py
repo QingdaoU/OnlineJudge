@@ -1,8 +1,8 @@
 # coding=utf-8
 # from __future__ import absolute_import
+import subprocess
 import pymongo
 from bson import ObjectId
-import subprocess32 as subprocess
 from ..judger.result import result
 from ..judger_controller.celery import app
 from settings import docker_config, source_code_dir, test_case_dir, celery_mongodb_config

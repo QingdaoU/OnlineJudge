@@ -7,5 +7,4 @@ django-rest-swagger
 celery
 gunicorn
 coverage
-subprocess32
 pymongo
