@@ -1,8 +1,8 @@
 # coding=utf-8
 # from __future__ import absolute_import
+import subprocess
 import pymongo
 from bson import ObjectId
-import subprocess32 as subprocess
 from ..judger.result import result
 from ..judger_controller.celery import app
 from settings import docker_config, source_code_dir, test_case_dir, celery_mongodb_config
@@ -22,7 +22,7 @@ def judge(submission_id, time_limit, memory_limit, test_case_id):
                    source_code_dir,
                    docker_config["image_name"],
                    submission_id, str(time_limit), str(memory_limit), test_case_id)
-        subprocess.call(command, timeout=(time_limit / 1000.0 * 10), shell=docker_config["shell"])
+        subprocess.call(command, shell=docker_config["shell"])
     except Exception as e:
         connection = pymongo.MongoClient(host=celery_mongodb_config["host"], port=celery_mongodb_config["port"])
         collection = connection["oj"]["oj_submission"]
