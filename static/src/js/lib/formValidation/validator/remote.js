@@ -7,12 +7,12 @@
 
     // AMD module is defined
     if (typeof define === "function" && define.amd) {
-        define("validator/remote", ["jquery", "base", "csrf"], factory);
+        define("validator/remote", ["jquery", "base", "csrfToken"], factory);
     } else {
         // planted over the root!
         factory(root.jQuery, root.FormValidation);
     }
-}(this, function ($, FormValidation, csrfHeader) {
+}(this, function ($, FormValidation, csrfTokenHeader) {
     FormValidation.I18n = $.extend(true, FormValidation.I18n || {}, {
         'en_US': {
             remote: {
@@ -28,7 +28,7 @@
                 return true;
             var url     = options.url;
             var xhr = $.ajax({
-                beforeSend: csrfHeader,
+                beforeSend: csrfTokenHeader,
                 url: url,
                 dataType: 'json',
                 data: ajaxData,

@@ -1,4 +1,4 @@
-define("uploader", ["webuploader", "csrf"], function(webuploader,csrf){
+define("uploader", ["webUploader", "csrfToken"], function(webuploader,csrfTokenHeader){
     function uploader(selector, server, onSuccess, beforeUpload) {
         var Webuploader=  webuploader.create({
             auto: true,
@@ -11,9 +11,9 @@ define("uploader", ["webuploader", "csrf"], function(webuploader,csrf){
             pick: selector,
             // 不压缩image, 默认如果是jpeg，文件上传前会压缩一把再上传！
             resize: false,
-            uploadBeforeSend : csrf
+            uploadBeforeSend : csrfTokenHeader
         });
-        Webuploader.on("uploadBeforeSend",csrf);
+        Webuploader.on("uploadBeforeSend",csrfTokenHeader);
         Webuploader.on("uploadSuccess", onSuccess);
 		Webuploader.on("beforeFileQueued", beforeUpload);
         return Webuploader;

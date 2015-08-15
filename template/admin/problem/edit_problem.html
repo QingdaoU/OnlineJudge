@@ -1,5 +1,5 @@
-<div ms-controller="addProblem" class="col-md-9">
-    <form id="add-problem-form">
+<div ms-controller="editProblem" class="col-md-9">
+    <form id="edit-problem-form">
 
         <div class="form-group col-md-12">
             <label>题目标题</label>
@@ -15,12 +15,12 @@
 
         <div class="col-md-3">
             <div class="form-group"><label>时间限制(ms)</label>
-                <input type="number" name="cpu" class="form-control" ms-duplex="cpu">
+                <input type="number" name="cpu" class="form-control" ms-duplex="timeLimit">
             </div>
         </div>
         <div class="col-md-3">
             <div class="form-group"><label>内存限制(MB)</label>
-                <input type="number" name="memory" class="form-control" ms-duplex="memory">
+                <input type="number" name="memory" class="form-control" ms-duplex="memoryLimit">
             </div>
         </div>
         <div class="col-md-3">
@@ -45,7 +45,7 @@
         </div>
         <div class="col-md-12 form-group">
             <label>输出描述</label><br>
-            <textarea class="form-control" rows="5" name="output_description"
+            <textarea class="form-control" rows="5" name="output_escription"
                       ms-duplex="outputDescription"></textarea>
         </div>
         <div class="col-md-12"><br>
@@ -83,7 +83,7 @@
             </div>
         </div>
         <div class="col-md-12"><br>
-            <label>测试数据</label><br>
+            <label>测试数据(当前已上传，继续上传将覆盖原有测试用例)</label><br>
             <small class="text-info">请将所有测试用例打包在一个文件中上传，所有文件要在压缩包的根目录，且输入输出文件名要以从1开始连续数字标识要对应例如：<br>
                 1.in 1.out 2.in 2.out
             </small>
@@ -94,7 +94,7 @@
                     <td>输出文件名</td>
                 </tr>
                 <tr ms-repeat="testCaseList">
-                    <td>{{$index + 1}}</td>
+                    <td>{{ $index + 1 }}</td>
                     <td>{{ el.input }}</td>
                     <td>{{ el.output }}</td>
                 </tr>
@@ -120,4 +120,4 @@
     </form>
 </div>
 
-<script src="/static/js/app/admin/problem/add_problem.js"></script>
+<script src="/static/js/app/admin/problem/edit_problem.js"></script>

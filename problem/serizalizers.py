@@ -33,8 +33,14 @@ class CreateProblemSerializer(serializers.Serializer):
     hint = serializers.CharField(max_length=3000, required=False, default=None)
 
 
+class ProblemTagSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ProblemTag
+
+
 class ProblemSerializer(serializers.ModelSerializer):
     samples = JSONField()
+    tags = ProblemTagSerializer(many=True)
 
     class UserSerializer(serializers.ModelSerializer):
         class Meta:
@@ -58,16 +64,10 @@ class EditProblemSerializer(serializers.Serializer):
     time_limit = serializers.IntegerField()
     memory_limit = serializers.IntegerField()
     difficulty = serializers.IntegerField()
-    tags = serializers.ListField(child=serializers.IntegerField())
+    tags = serializers.ListField(child=serializers.CharField(max_length=20))
     samples = ProblemSampleSerializer()
     hint = serializers.CharField(max_length=10000)
     visible = serializers.BooleanField()
-
-
-
-class ProblemTagSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = ProblemTag
 
 
 class CreateProblemTagSerializer(serializers.Serializer):

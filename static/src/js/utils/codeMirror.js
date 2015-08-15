@@ -1,5 +1,5 @@
-define("code_mirror", ["_code_mirror", "code_mirror_clang"], function(CodeMirror){
-    function code_mirror(selector, language){
+define("codeMirror", ["_codeMirror", "codeMirrorClang"], function(CodeMirror){
+    function codeMirror(selector, language){
         return CodeMirror.fromTextArea(selector,
             {
                 indentUnit: 4,
@@ -8,5 +8,5 @@ define("code_mirror", ["_code_mirror", "code_mirror_clang"], function(CodeMirror
                 mode: language
             });
     }
-    return code_mirror;
+    return codeMirror;
 });

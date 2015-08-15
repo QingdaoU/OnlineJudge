@@ -33,3 +33,8 @@
     width: 50%;
     float: left;
 }
+
+.tag-editor{
+    border: 1px solid #d9d9d9;
+    border-top-color: silver;
+}

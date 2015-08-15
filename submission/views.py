@@ -9,15 +9,15 @@ from rest_framework.views import APIView
 
 from django.conf import settings
 
-from judger.result import result
-from judger_controller.tasks import judge
+from judge.judger.result import result
+from judge.judger_controller.tasks import judge
 from account.decorators import login_required
 from problem.models import Problem
 from utils.shortcuts import serializer_invalid_response, error_response, success_response, error_page
-from .serializers import  CreateSubmissionSerializer
+from .serializers import CreateSubmissionSerializer
 
 
-def _create_mondodb_connection():
+def _create_mongodb_connection():
     mongodb_setting = settings.MONGODB
     connection = pymongo.MongoClient(host=mongodb_setting["HOST"], port=mongodb_setting["PORT"])
     return connection["oj"]["oj_submission"]
@@ -42,9 +42,7 @@ class SubmissionAPIView(APIView):
                 problem = Problem.objects.get(id=data["problem_id"])
             except Problem.DoesNotExist:
                 return error_response(u"题目不存在")
-            mongodb_setting = settings.DATABASES["mongodb"]
-            connection = pymongo.MongoClient(host=mongodb_setting["HOST"], port=mongodb_setting["PORT"])
-            collection = connection["oj"]["oj_submission"]
+            collection = _create_mongodb_connection()
             submission_id = str(collection.insert_one(data).inserted_id)
             judge.delay(submission_id, problem.time_limit, problem.memory_limit, problem.test_case_id)
             return success_response({"submission_id": submission_id})
@@ -56,7 +54,7 @@ class SubmissionAPIView(APIView):
         submission_id = request.GET.get("submission_id", None)
         if not submission_id:
             return error_response(u"参数错误")
-        submission = _create_mondodb_connection().find_one({"_id": ObjectId(submission_id), "user_id": request.user.id})
+        submission = _create_mongodb_connection().find_one({"_id": ObjectId(submission_id), "user_id": request.user.id})
         if submission:
             response_data = {"result": submission["result"]}
             if submission["result"] == 0:
@@ -68,7 +66,7 @@ class SubmissionAPIView(APIView):
 
 @login_required
 def problem_my_submissions_list_page(request, problem_id):
-    collection = _create_mondodb_connection()
+    collection = _create_mongodb_connection()
     submissions = collection.find({"problem_id": int(problem_id), "user_id": request.user.id},
                                   projection=["result", "accepted_answer_info", "create_time", "language"],
                                   sort=[["create_time", -pymongo.ASCENDING]])
@@ -82,7 +80,7 @@ def problem_my_submissions_list_page(request, problem_id):
 
 @login_required
 def my_submission(request, submission_id):
-    collection = _create_mondodb_connection()
+    collection = _create_mongodb_connection()
     submission = collection.find_one({"user_id": request.user.id, "_id": ObjectId(submission_id)},
                                      projection=["result", "accepted_answer_info", "create_time",
                                                  "language", "code", "problem_id", "info"])

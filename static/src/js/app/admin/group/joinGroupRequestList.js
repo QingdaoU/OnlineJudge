@@ -1,46 +1,47 @@
-require(["jquery", "avalon", "csrf", "bs_alert", "validation"], function ($, avalon, csrfHeader, bs_alert) {
-    avalon.vmodels.request_list = null;
+require(["jquery", "avalon", "csrfToken", "bsAlert", "formValidation"], function ($, avalon, csrfTokenHeader, bsAlert) {
 
     // avalon:定义模式 group_list
     avalon.ready(function () {
+        avalon.vmodels.requestList = null;
         var vm = avalon.define({
-            $id: "request_list",
+            $id: "requestList",
             //通用变量
-            request_list: [],                 //  列表数据项
-            previous_page: 0,                 //  之前的页数
-            next_page: 0,                     //   之后的页数
+            requestList: [],                 //  列表数据项
+            previousPage: 0,                 //  之前的页数
+            nextPage: 0,                     //   之后的页数
             page: 1,                           //    当前页数
-            page_count: 1,                   //    总页数
+            totalPage: 1,                   //    总页数
 
             getNext: function () {
-                if (!vm.next_page)
+                if (!vm.nextPage)
                     return;
                 getPageData(vm.page + 1);
             },
             getPrevious: function () {
-                if (!vm.previous_page)
+                if (!vm.previousPage)
                     return;
                 getPageData(vm.page - 1);
             },
             getBtnClass: function (btn) {                                                         //上一页/下一页按钮启用禁用逻辑
-                if (btn) {
-                    return vm.next_page ? "btn btn-primary" : "btn btn-primary disabled";
+                if (btn == "next") {
+                    return vm.nextPage ? "btn btn-primary" : "btn btn-primary disabled";
                 }
                 else {
-                    return vm.previous_page ? "btn btn-primary" : "btn btn-primary disabled";
+                    return vm.previousPage ? "btn btn-primary" : "btn btn-primary disabled";
                 }
             },
             getPage: function (page_index) {
                 getPageData(page_index);
             },
-            processRequest: function(request_id, status){
+            processRequest: function(request, status){
                 $.ajax({
-                    beforeSend: csrfHeader,
+                    beforeSend: csrfTokenHeader,
                     url: "/api/admin/join_group_request/",
                     method: "put",
-                    data: {request_id: request_id, status: status},
+                    data: {request_id: request.id, status: status},
                     success: function(data){
-                        bs_alert(data.data);
+                        vm.requestList.remove(request);
+                        bsAlert(data.data);
                     }
                 })
             }
@@ -52,20 +53,20 @@ require(["jquery", "avalon", "csrf", "bs_alert", "validation"], function ($, ava
         function getPageData(page) {
             var url = "/api/admin/join_group_request/?paging=true&page=" + page + "&page_size=10";
             $.ajax({
-                beforeSend: csrfHeader,
+                beforeSend: csrfTokenHeader,
                 url: url,
                 dataType: "json",
                 method: "get",
                 success: function (data) {
                     if (!data.code) {
-                        vm.request_list = data.data.results;
-                        vm.page_count = data.data.total_page;
-                        vm.previous_page = data.data.previous_page;
-                        vm.next_page = data.data.next_page;
+                        vm.requestList = data.data.results;
+                        vm.totalPage = data.data.total_page;
+                        vm.previousPage = data.data.previous_page;
+                        vm.nextPage = data.data.next_page;
                         vm.page = page;
                     }
                     else {
-                        bs_alert(data.data);
+                        bsAlert(data.data);
                     }
                 }
             });
@@ -134,11 +135,11 @@ require(["jquery", "avalon", "csrf", "bs_alert", "validation"], function ($, ava
                     method: "put",
                     success: function (data) {
                         if (!data.code) {
-                            bs_alert("提交成功！");
+                            bsAlert("提交成功！");
                             getPageData(1);
                             $("#password").val("");
                         } else {
-                            bs_alert(data.data);
+                            bsAlert(data.data);
                         }
                     }
                 })

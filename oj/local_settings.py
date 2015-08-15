@@ -16,8 +16,9 @@ DATABASES = {
     }
 }
 
+# 这是web 服务器连接到mongodb 的地址
 MONGODB = {
-    'HOST': '127.0.0.1',
+    'HOST': '121.42.196.141',
     'USERNAME': 'root',
     'PASSWORD': 'root',
     'PORT': 27017
@@ -26,4 +27,4 @@ MONGODB = {
 DEBUG = True
 
 # 同理 这是 web 服务器的上传路径
-TEST_CASE_DIR = "/Users/virusdefender/Desktop/test_case/"
+TEST_CASE_DIR = os.path.join(BASE_DIR, 'test_case')

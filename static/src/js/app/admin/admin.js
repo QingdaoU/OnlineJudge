@@ -24,15 +24,21 @@ define("admin", ["jquery", "avalon"], function ($, avalon) {
         var vm = avalon.define({
             $id: "admin",
             template_url: "template/" + hash + ".html",
-            group_id: -1,
+            groupId: -1,
+            problemId: -1,
             hide_loading: function () {
                 $("#loading-gif").hide();
             }
         });
 
-        vm.$watch("showGroupDetailPage", function(group_id){
-            vm.group_id = group_id;
+        vm.$watch("showGroupDetailPage", function(groupId){
+            vm.groupId = groupId;
             vm.template_url = "template/group/group_detail.html";
+        });
+
+        vm.$watch("showEditProblemPage", function(problemId){
+            vm.problemId = problemId;
+            vm.template_url = "template/problem/edit_problem.html";
         });
 
         avalon.scan();

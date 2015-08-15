@@ -1,59 +1,58 @@
-require(["jquery", "avalon", "csrf", "bs_alert", "validation"], function ($, avalon, csrfHeader, bs_alert) {
-    avalon.vmodels.user_list = null;
+require(["jquery", "avalon", "csrfToken", "bsAlert", "formValidation"], function ($, avalon, csrfTokenHeader, bsAlert) {
 
-    // avalon:定义模式 user_list
+
+    // avalon:定义模式 userList
     avalon.ready(function () {
+        avalon.vmodels.userList = null;
         var vm = avalon.define({
-            $id: "user_list",
+            $id: "userList",
             //通用变量
-            user_list: [],                 //  用户列表数据项
-            previous_page: 0,                 //  之前的页数
-            next_page: 0,                     //   之后的页数
-            page: 1,                           //    当前页数
-            isEditing: 0,                     //    正在编辑的公告的ID， 为零说明未在编辑
-            page_count: 1,                   //    总页数
-            user_type: ["一般用户", "管理员", "超级管理员"],
-            key_word: "",
+            userList: [],
+            previousPage: 0,
+            nextPage: 0,
+            page: 1,
+            editingUserId: 0,
+            totalPage: 1,
+            userType: ["一般用户", "管理员", "超级管理员"],
+            keyword: "",
             showAdminOnly: false,
             //编辑区域同步变量
             username: "",
-            real_name: "",
+            realName: "",
             email: "",
-            admin_type: 0,
+            adminType: 0,
             id: 0,
-            last_login: "",
-            create_time: "",
             getNext: function () {
-                if (!vm.next_page)
+                if (!vm.nextPage)
                     return;
                 getPageData(vm.page + 1);
             },
             getPrevious: function () {
-                if (!vm.previous_page)
+                if (!vm.previousPage)
                     return;
                 getPageData(vm.page - 1);
             },
             getBtnClass: function (btn) {                                                         //上一页/下一页按钮启用禁用逻辑
                 if (btn) {
-                    return vm.next_page ? "btn btn-primary" : "btn btn-primary disabled";
+                    return vm.nextPage ? "btn btn-primary" : "btn btn-primary disabled";
                 }
                 else {
-                    return vm.previous_page ? "btn btn-primary" : "btn btn-primary disabled";
+                    return vm.previousPage ? "btn btn-primary" : "btn btn-primary disabled";
                 }
             },
-            enEdit: function (el) {                                                               //点击编辑按钮的事件,显示/隐藏编辑区
-                vm.username = el.username;
-                vm.real_name = el.real_name;
-                vm.admin_type = el.admin_type;
-                vm.email = el.email;
-                vm.id = el.id;
-                if (vm.isEditing == el.id)
-                    vm.isEditing = 0;
+            editUser: function (user) {                                                               //点击编辑按钮的事件,显示/隐藏编辑区
+                vm.username = user.username;
+                vm.realName = user.real_name;
+                vm.adminType = user.admin_type;
+                vm.email = user.email;
+                vm.id = user.id;
+                if (vm.editingUserId == user.id)
+                    vm.editingUserId = 0;
                 else
-                    vm.isEditing = el.id;
+                    vm.editingUserId = user.id;
             },
-            getPage: function (page_index) {
-                getPageData(page_index);
+            search: function () {
+                getPageData(1);
             }
         });
         vm.$watch("showAdminOnly", function () {
@@ -66,23 +65,23 @@ require(["jquery", "avalon", "csrf", "bs_alert", "validation"], function ($, ava
             var url = "/api/admin/user/?paging=true&page=" + page + "&page_size=10";
             if (vm.showAdminOnly == true)
                 url += "&admin_type=1";
-            if (vm.key_word != "")
-                url += "&keyword=" + vm.key_word;
+            if (vm.keyword != "")
+                url += "&keyword=" + vm.keyword;
             $.ajax({
-                beforeSend: csrfHeader,
+                beforeSend: csrfTokenHeader,
                 url: url,
                 dataType: "json",
                 method: "get",
                 success: function (data) {
                     if (!data.code) {
-                        vm.user_list = data.data.results;
-                        vm.page_count = data.data.total_page;
-                        vm.previous_page = data.data.previous_page;
-                        vm.next_page = data.data.next_page;
+                        vm.userList = data.data.results;
+                        vm.totalPage = data.data.total_page;
+                        vm.previousPage = data.data.previous_page;
+                        vm.nextPage = data.data.next_page;
                         vm.page = page;
                     }
                     else {
-                        bs_alert(data.data);
+                        bsAlert(data.data);
                     }
                 }
             });
@@ -136,26 +135,26 @@ require(["jquery", "avalon", "csrf", "bs_alert", "validation"], function ($, ava
                 e.preventDefault();
                 var data = {
                     username: vm.username,
-                    real_name: vm.real_name,
+                    real_name: vm.realName,
                     email: vm.email,
                     id: vm.id,
-                    admin_type: vm.admin_type
+                    admin_type: vm.adminType
                 };
                 if ($("#password").val() !== "")
                     data.password = $("#password").val();
                 $.ajax({
-                    beforeSend: csrfHeader,
+                    beforeSend: csrfTokenHeader,
                     url: "/api/admin/user/",
                     data: data,
                     dataType: "json",
                     method: "put",
                     success: function (data) {
                         if (!data.code) {
-                            bs_alert("提交成功！");
+                            bsAlert("提交成功！");
                             getPageData(1);
                             $("#password").val("");
                         } else {
-                            bs_alert(data.data);
+                            bsAlert(data.data);
                         }
                     }
                 })

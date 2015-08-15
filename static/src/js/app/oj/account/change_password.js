@@ -1,4 +1,4 @@
-require(["jquery", "bs_alert", "csrf", "validation"], function ($, bs_alert, csrfHeader) {
+require(["jquery", "bsAlert", "csrfToken", "formValidation"], function ($, bsAlert, csrfTokenHeader) {
     $("#change_password-form").formValidation({
             framework: "bootstrap",
             fields: {
@@ -47,21 +47,20 @@ require(["jquery", "bs_alert", "csrf", "validation"], function ($, bs_alert, csr
     ).on('success.form.fv', function (e) {
             e.preventDefault();
             var username = $("#username").val();
-            var new_password = $("#new_password ").val();
+            var newPassword = $("#new_password ").val();
             var password = $("#password").val();
             $.ajax({
-                beforeSend: csrfHeader,
+                beforeSend: csrfTokenHeader,
                 url: "/api/change_password/",
-                data: {username: username, new_password: new_password, old_password: password},
+                data: {username: username, new_password: newPassword, old_password: password},
                 dataType: "json",
                 method: "post",
                 success: function (data) {
-
                     if (!data.code) {
                         window.location.href = "/login/";
                     }
                     else {
-                        bs_alert(data.data);
+                        bsAlert(data.data);
                     }
                 }
             })

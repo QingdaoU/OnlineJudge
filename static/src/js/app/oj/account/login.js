@@ -1,4 +1,4 @@
-require(["jquery", "bs_alert", "csrf", "validation"], function ($, bs_alert, csrfHeader) {
+require(["jquery", "bsAlert", "csrfToken", "formValidation"], function ($, bsAlert, csrfTokenHeader) {
     $("#login-form")
         .formValidation({
             framework: "bootstrap",
@@ -24,7 +24,7 @@ require(["jquery", "bs_alert", "csrf", "validation"], function ($, bs_alert, csr
             var username = $("#username").val();
             var password = $("#password").val();
             $.ajax({
-                beforeSend: csrfHeader,
+                beforeSend: csrfTokenHeader,
                 url: "/api/login/",
                 data: {username: username, password: password},
                 dataType: "json",
@@ -34,7 +34,7 @@ require(["jquery", "bs_alert", "csrf", "validation"], function ($, bs_alert, csr
                         window.location.href = "/";
                     }
                     else {
-                        bs_alert(data.data);
+                        bsAlert(data.data);
                     }
                 }
 

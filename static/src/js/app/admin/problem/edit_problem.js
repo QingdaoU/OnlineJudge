@@ -1,8 +1,10 @@
 require(["jquery", "avalon", "editor", "uploader", "bsAlert", "csrfToken", "tagEditor", "formValidation", "jqueryUI"],
     function ($, avalon, editor, uploader, bsAlert, csrfTokenHeader) {
+
         avalon.ready(function () {
-            avalon.vmodels.addProblem = null;
-            $("#add-problem-form")
+            avalon.vmodels.editProblem = null;
+
+            $("#edit-problem-form")
                 .formValidation({
                     framework: "bootstrap",
                     fields: {
@@ -95,6 +97,7 @@ require(["jquery", "avalon", "editor", "uploader", "bsAlert", "csrfToken", "tagE
                         return;
                     }
                     var ajaxData = {
+                        id: avalon.vmodels.admin.problemId,
                         title: vm.title,
                         description: vm.description,
                         time_limit: vm.timeLimit,
@@ -103,6 +106,7 @@ require(["jquery", "avalon", "editor", "uploader", "bsAlert", "csrfToken", "tagE
                         test_case_id: vm.testCaseId,
                         hint: vm.hint,
                         source: vm.source,
+                        visible: vm.visible,
                         tags: $("#tags").tagEditor("getTags")[0].tags,
                         input_description: vm.inputDescription,
                         output_description: vm.outputDescription,
@@ -118,11 +122,11 @@ require(["jquery", "avalon", "editor", "uploader", "bsAlert", "csrfToken", "tagE
                         url: "/api/admin/problem/",
                         dataType: "json",
                         data: JSON.stringify(ajaxData),
-                        method: "post",
+                        method: "put",
                         contentType: "application/json",
                         success: function (data) {
                             if (!data.code) {
-                                bsAlert("题目添加成功！");
+                                bsAlert("题目编辑成功！");
                             }
                             else {
                                 bsAlert(data.data);
@@ -132,43 +136,22 @@ require(["jquery", "avalon", "editor", "uploader", "bsAlert", "csrfToken", "tagE
                     })
                 });
 
-            var testCaseUploader = uploader("#testCaseFile", "/api/admin/test_case_upload/", function (file, response) {
-                if (response.code)
-                    bsAlert(response.data);
-                else {
-                    vm.testCaseId = response.data.test_case_id;
-                    vm.uploadSuccess = true;
-                    vm.testCaseList = [];
-                    for (var i = 0; i < response.data.file_list.input.length; i++) {
-                        vm.testCaseList.push({
-                            input: response.data.file_list.input[i],
-                            output: response.data.file_list.output[i]
-                        });
-                    }
-                    bsAlert("测试数据添加成功！共添加" + vm.testCaseList.length + "组测试数据");
-                }
-            });
-
-            var hintEditor = editor("#hint");
-            var problemDescription = editor("#problemDescription");
-
             var vm = avalon.define({
-                $id: "addProblem",
+                $id: "editProblem",
                 title: "",
                 description: "",
-                cpu: 1000,
-                memory: 256,
-                samples: [{input: "", output: "", "visible": true}],
+                timeLimit: -1,
+                memoryLimit: -1,
+                samples: [],
                 hint: "",
                 visible: true,
                 difficulty: 0,
-                tags: [],
                 inputDescription: "",
                 outputDescription: "",
-                testCaseId: "",
-                testCaseList: [],
+                testCaseIdd: "",
                 uploadSuccess: false,
                 source: "",
+                testCaseList: [],
                 addSample: function () {
                     vm.samples.push({input: "", output: "", "visible": true});
                 },
@@ -186,33 +169,89 @@ require(["jquery", "avalon", "editor", "uploader", "bsAlert", "csrfToken", "tagE
                     return "展开";
                 }
             });
-
-            var tagAutoCompleteList = [];
-
-            $.ajax({
-                beforeSend: csrfTokenHeader,
-                url: "/api/admin/tag/",
-                dataType: "json",
-                method: "get",
-                success: function (data) {
-                    if (!data.code) {
-                        for (var i = 0; i < data.data.length; i++) {
-                            tagAutoCompleteList.push(data.data[i].name);
-                        }
-                        $("#tags").tagEditor({
-                            autocomplete: {
-                                delay: 0, // show suggestions immediately
-                                position: {collision: 'flip'}, // automatic menu position up/down
-                                source: tagAutoCompleteList
-                            }
+            var hintEditor = editor("#hint");
+            var descriptionEditor = editor("#problemDescription");
+            var testCaseUploader = uploader("#testCaseFile", "/api/admin/test_case_upload/", function (file, response) {
+                if (response.code)
+                    bsAlert(response.data);
+                else {
+                    vm.testCaseId = response.data.test_case_id;
+                    vm.uploadSuccess = true;
+                    vm.testCaseList = [];
+                    for (var i = 0; i < response.data.file_list.input.length; i++) {
+                        vm.testCaseList.push({
+                            input: response.data.file_list.input[i],
+                            output: response.data.file_list.output[i]
                         });
                     }
-                    else {
+                    bsAlert("测试数据添加成功！共添加" + vm.testCaseList.length + "组测试数据");
+                }
+            });
+
+            $.ajax({
+                url: "/api/admin/problem/?problem_id=" + avalon.vmodels.admin.problemId,
+                method: "get",
+                dataType: "json",
+                success: function (data) {
+                    if (data.code) {
                         bsAlert(data.data);
                     }
-                }
+                    else {
+                        var problem = data.data;
+                        console.log(problem);
+                        vm.title = problem.title;
+                        vm.description = problem.description;
+                        vm.timeLimit = problem.time_limit;
+                        vm.memoryLimit = problem.memory_limit;
+                        for (var i = 0; i < problem.samples.length; i++) {
+                            vm.samples.push({
+                                input: problem.samples[i].input,
+                                output: problem.samples[i].output,
+                                visible: false
+                            })
+                        }
+                        vm.hint = problem.hint;
+                        vm.visible = problem.visible;
+                        vm.difficulty = problem.difficulty;
+                        vm.inputDescription = problem.input_description;
+                        vm.outputDescription = problem.output_description;
+                        vm.testCaseId = problem.test_case_id;
+                        vm.source = problem.source;
+                        var problemTags = problem.tags;
+                        hintEditor.setValue(vm.hint);
+                        descriptionEditor.setValue(vm.description);
+                        $.ajax({
+                            url: "/api/admin/tag/",
+                            dataType: "json",
+                            method: "get",
+                            success: function (data) {
+                                if (!data.code) {
+                                    var tagAutoCompleteList = [], tags = [];
+                                    for (var i = 0; i < data.data.length; i++) {
+                                        tagAutoCompleteList.push(data.data[i].name);
+                                    }
+                                    for (var j = 0; j < problem.tags.length; j++) {
+                                        tags.push(problemTags[j].name);
+                                    }
+                                    $("#tags").tagEditor({
+                                        initialTags: tags,
+                                        autocomplete: {
+                                            delay: 0,
+                                            position: {collision: 'flip'},
+                                            source: tagAutoCompleteList
+                                        }
+                                    });
+                                }
+                                else {
+                                    bsAlert(data.data);
+                                }
+                            }
 
+                        });
+                    }
+                }
             });
         });
         avalon.scan();
+
     });

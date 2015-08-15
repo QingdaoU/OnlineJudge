@@ -1,4 +1,4 @@
-<div ms-controller="group_detail" class="col-md-9">
+<div ms-controller="groupDetail" class="col-md-9">
     <h1>小组成员管理</h1>
     <table class="table table-striped">
         <tr>
@@ -8,7 +8,7 @@
             <th>加入时间</th>
             <th></th>
         </tr>
-        <tr ms-repeat="member_list">
+        <tr ms-repeat="memberList">
             <td>{{ el.user.id }}</td>
             <td>{{ el.user.username }}</td>
             <td>{{ el.user.real_name }}</td>
@@ -21,9 +21,9 @@
     </table>
 
     <div class="text-right">
-        页数：{{ page }}/{{ page_count }}&nbsp;&nbsp;
-        <button ms-attr-class="getBtnClass(0)" ms-click="getPrevious">上一页</button>
-        <button ms-attr-class="getBtnClass(1)" ms-click="getNext">下一页</button>
+        页数：{{ page }}/{{ totalPage }}&nbsp;&nbsp;
+        <button ms-attr-class="getBtnClass('pre')" ms-click="getPrevious">上一页</button>
+        <button ms-attr-class="getBtnClass('next')" ms-click="getNext">下一页</button>
     </div>
     <h1>修改小组信息</h1>
 
@@ -42,9 +42,9 @@
             <div class="form-group">
 
                 <label>加入小组设置</label>
-                <input type="radio" name="join_group_setting" value="0" ms-duplex-string="checked_setting">允许任何人加入
-                <input type="radio" name="join_group_setting" value="1" ms-duplex-string="checked_setting">提交请求后管理员审核
-                <input type="radio" name="join_group_setting" value="2" ms-duplex-string="checked_setting">不允许任何人加入
+                <input type="radio" name="join_group_setting" value="0" ms-duplex-string="checkedSetting">允许任何人加入
+                <input type="radio" name="join_group_setting" value="1" ms-duplex-string="checkedSetting">提交请求后管理员审核
+                <input type="radio" name="join_group_setting" value="2" ms-duplex-string="checkedSetting">不允许任何人加入
 
             </div>
             <button class="btn btn-primary" type="submit">提交</button>
@@ -52,4 +52,4 @@
 
     </form>
 </div>
-<script src="/static/js/app/admin/group/group_detail.js"></script>
+<script src="/static/js/app/admin/group/groupDetail.js"></script>

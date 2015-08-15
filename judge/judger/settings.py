@@ -14,9 +14,4 @@ lrun_gid = 1002
 # judger工作目录
 judger_workspace = "/var/judger/"
 
-mongodb_config = {
-    "host": "192.168.59.3",
-    "username": "root",
-    "password": "root",
-    "port": 27017
-}
+

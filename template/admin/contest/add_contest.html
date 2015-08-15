@@ -75,13 +75,18 @@
             <div class="col-md-12">
                 <label>添加题目</label>
                 <a href="javascript:void(0)" class="btn btn-primary btn-sm" ms-click="add_problem()">添加</a>
-				<div class="col-md-12">
-                                <label>上传测试用例</label>
-								<label>选择题号</label><select ms-duplex="problemNo"><option value="-1">未指定</option><option ms-repeat="problems" ms-attr-value="$index+1">{{$index+1}}</option></select>
-								<div id="uploader">
-                                    <div>选择文件</div>
-                                </div>
-			</div>
+
+                <div class="col-md-12">
+                    <label>上传测试用例</label>
+                    <label>选择题号</label><select ms-duplex="problemNo">
+                    <option value="-1">未指定</option>
+                    <option ms-repeat="problems" ms-attr-value="$index+1">{{$index+1}}</option>
+                </select>
+
+                    <div id="uploader">
+                        <div>选择文件</div>
+                    </div>
+                </div>
             </div>
             <div class="col-md-12">
                 <div class="problem" ms-repeat-problem="problems">
@@ -89,7 +94,7 @@
                         <div class="panel-heading">
                             <span class="panel-title">题目{{$index + 1}} </span>
                             <a href="javascript:void(0)" class="btn btn-primary btn-sm" ms-click="toggle(problem)">
-                                {{getBtnContent(problem)}}
+                                {{ getBtnContent(problem)}}
                             </a>
                             <a href="javascript:void(0)" class="btn btn-danger btn-sm" ms-click="del_problem(problem)">
                                 删除
@@ -97,17 +102,19 @@
                         </div>
                         <div class="panel-body" ms-visible="problem.visible">
                             <div class="form-group col-md-12">
-									<label>题目标题</label>
-                                    <input type="text" name="problem_name[]" class="form-control" ms-duplex="problem.title">
+                                <label>题目标题</label>
+                                <input type="text" name="problem_name[]" class="form-control" ms-duplex="problem.title">
                             </div>
-							<div class="form-group col-md-12">
-								<label>题目描述</label>
-								<textarea ms-attr-id="problem-{{ problem.id }}-description" placeholder="这里输入内容" ms-duplex="problem.description"></textarea>
-								<small ms-visible="problem.description==''" style="color:red">请填写题目描述</small>
-							</div>
+                            <div class="form-group col-md-12">
+                                <label>题目描述</label>
+                                <textarea ms-attr-id="problem-{{ problem.id }}-description" placeholder="这里输入内容"
+                                          ms-duplex="problem.description"></textarea>
+                                <small ms-visible="problem.description==''" style="color:red">请填写题目描述</small>
+                            </div>
                             <div class="form-group col-md-12">
                                 <label>提示</label>
-                                <textarea ms-attr-id="problem-{{ problem.id }}-hint" placeholder="这里输入内容" ms-duplex="problem.hint"></textarea>
+                                <textarea ms-attr-id="problem-{{ problem.id }}-hint" placeholder="这里输入内容"
+                                          ms-duplex="problem.hint"></textarea>
                             </div>
                             <div class="col-md-3 form-group">
                                 <label>cpu</label>
@@ -119,19 +126,24 @@
                             </div>
                             <div class="col-md-3 form-group">
                                 <label>难度</label>
-                                <input type="number" name="difficulty[]" class="form-control" ms-duplex="problem.difficulty">
+                                <input type="number" name="difficulty[]" class="form-control"
+                                       ms-duplex="problem.difficulty">
                             </div>
                             <div class="col-md-12">
                                 <label>样例</label>
-                                <a href="javascript:void(0)" class="btn btn-primary btn-sm" ms-click="add_sample(problem)">添加</a>
+                                <a href="javascript:void(0)" class="btn btn-primary btn-sm"
+                                   ms-click="add_sample(problem)">添加</a>
+
                                 <div class="sample">
                                     <div class="panel panel-default sample-panel" ms-repeat-sample="problem.samples">
                                         <div class="panel-heading">
                                             <span class="panel-title">样例{{$index + 1}}</span>
-                                            <a href="javascript:void(0)" class="btn btn-primary btn-sm" ms-click="toggle(sample)">
-                                                {{getBtnContent(sample)}}
+                                            <a href="javascript:void(0)" class="btn btn-primary btn-sm"
+                                               ms-click="toggle(sample)">
+                                                {{ getBtnContent(sample)}}
                                             </a>
-                                            <a href="javascript:void(0)" class="btn btn-danger btn-sm" ms-click="del_sample(problem, sample)">
+                                            <a href="javascript:void(0)" class="btn btn-danger btn-sm"
+                                               ms-click="del_sample(problem, sample)">
                                                 删除
                                             </a>
                                         </div>
@@ -167,8 +179,8 @@
                                     </tr>
                                     <tr ms-repeat="problem.testCaseList">
                                         <td>{{$index}}</td>
-                                        <td>{{el.input}}</td>
-                                        <td>{{el.output}}</td>
+                                        <td>{{ el.input }}</td>
+                                        <td>{{ el.output }}</td>
                                     </tr>
                                 </table>
                             </div>

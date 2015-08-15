@@ -7,6 +7,7 @@ import json
 
 from django.shortcuts import render
 from django.db.models import Q
+from django.core.paginator import Paginator
 
 from rest_framework.views import APIView
 
@@ -59,6 +60,7 @@ class ProblemAdminAPIView(APIView):
         serializer = CreateProblemSerializer(data=request.data)
         if serializer.is_valid():
             data = serializer.data
+            print data
             problem = Problem.objects.create(title=data["title"],
                                              description=data["description"],
                                              input_description=data["input_description"],
@@ -113,20 +115,30 @@ class ProblemAdminAPIView(APIView):
             # 删除原有的标签的对应关系
             problem.tags.remove(*problem.tags.all())
             # 重新添加所有的标签
-            problem.tags.add(*ProblemTag.objects.filter(id__in=data["tags"]))
+            for tag in data["tags"]:
+                try:
+                    tag = ProblemTag.objects.get(name=tag)
+                except ProblemTag.DoesNotExist:
+                    tag = ProblemTag.objects.create(name=tag)
+                problem.tags.add(tag)
             problem.save()
             return success_response(ProblemSerializer(problem).data)
         else:
             return serializer_invalid_response(serializer)
 
-
-class ProblemAPIView(APIView):
     def get(self, request):
         """
         题目分页json api接口
         ---
         response_serializer: ProblemSerializer
         """
+        problem_id = request.GET.get("problem_id", None)
+        if problem_id:
+            try:
+                problem = Problem.objects.get(id=problem_id)
+                return success_response(ProblemSerializer(problem).data)
+            except Problem.DoesNotExist:
+                return error_response(u"题目不存在")
         problem = Problem.objects.all().order_by("-last_update_time")
         visible = request.GET.get("visible", None)
         if visible:
@@ -217,3 +229,45 @@ class TestCaseUploadAPIView(APIView):
                                                    "output": l[1::2]}})
         else:
             return error_response(u"测试用例压缩文件格式错误，请保证测试用例文件在根目录下直接压缩")
+
+
+def problem_list_page(request, page=1):
+    # 正常情况
+    problems = Problem.objects.all()
+
+    # 搜索的情况
+    keyword = request.GET.get("keyword", None)
+    if keyword:
+        problems = problems.filter(title__contains=keyword)
+
+    # 按照标签筛选
+    tag_text = request.GET.get("tag", None)
+    if tag_text:
+        try:
+            tag = ProblemTag.objects.get(name=tag_text)
+        except ProblemTag.DoesNotExist:
+            return error_page(request, u"标签不存在")
+        problems = tag.problem_set.all()
+
+    paginator = Paginator(problems, 20)
+    try:
+        current_page = paginator.page(int(page))
+    except Exception:
+        return error_page(request, u"不存在的页码")
+
+    previous_page = next_page = None
+
+    try:
+        previous_page = current_page.previous_page_number()
+    except Exception:
+        pass
+
+    try:
+        next_page = current_page.next_page_number()
+    except Exception:
+        pass
+
+    return render(request, "oj/problem/problem_list.html",
+                  {"problems": current_page, "page": int(page),
+                   "previous_page": previous_page, "next_page": next_page,
+                   "keyword": keyword, "tag": tag_text})
