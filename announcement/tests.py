@@ -105,7 +105,7 @@ class AnnouncementPageTest(TestCase):
                                     created_by=User.objects.get(username="test"),
                                     visible=False)
 
-    def test_success_announcement(self):
+    def test_visit_announcement_successfully(self):
         response = self.client.get('/announcement/1/')
         self.assertEqual(response.status_code, 200)
 
