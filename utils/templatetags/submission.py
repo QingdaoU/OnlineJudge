@@ -27,7 +27,7 @@ def translate_language(value):
 def translate_result_class(value):
     if value == 0:
         return "success"
-    elif value == "8":
+    elif value == 8:
         return "info"
     return "danger"
 
