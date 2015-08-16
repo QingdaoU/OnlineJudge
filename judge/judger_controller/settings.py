@@ -1,6 +1,6 @@
 # coding=utf-8
 redis_config = {
-    "host": "121.42.196.141",
+    "host": "121.42.32.129",
     "port": 6379,
     "db": 0
 }
