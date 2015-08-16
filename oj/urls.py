@@ -13,7 +13,7 @@ from group.views import (GroupAdminAPIView, GroupMemberAdminAPIView,
 
 from admin.views import AdminTemplateView
 
-from problem.views import TestCaseUploadAPIView, ProblemTagAdminAPIView, ProblemAdminAPIView
+from problem.views import TestCaseUploadAPIView, ProblemAdminAPIView
 from submission.views import SubmissionAPIView
 
 urlpatterns = [
@@ -49,7 +49,6 @@ urlpatterns = [
     url(r'^api/admin/group_join/$', JoinGroupAPIView.as_view(), name="group_join_admin_api"),
     url(r'^api/admin/problem/$', ProblemAdminAPIView.as_view(), name="problem_admin_api"),
     url(r'^api/admin/test_case_upload/$', TestCaseUploadAPIView.as_view(), name="test_case_upload_api"),
-    url(r'^api/admin/tag/$', ProblemTagAdminAPIView.as_view(), name="problem_tag_admin_api"),
     url(r'^problem/(?P<problem_id>\d+)/my_submissions/$', "submission.views.problem_my_submissions_list_page",
         name="problem_my_submissions_page"),
     url(r'^my_submission/(?P<submission_id>\w+)/$', "submission.views.my_submission", name="my_submission_page"),

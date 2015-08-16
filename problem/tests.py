@@ -11,7 +11,32 @@ from problem.models import Problem, ProblemTag
 
 
 class ProblemPageTest(TestCase):
-    pass
+    def setUp(self):
+        self.client = APIClient()
+        self.user = User.objects.create(username="test", admin_type=SUPER_ADMIN)
+        self.user.set_password("testaa")
+        self.user.save()
+        self.client.login(username="test", password="testaa")
+        self.problem = Problem.objects.create(title="title1",
+                                              description="description1",
+                                              input_description="input1_description",
+                                              output_description="output1_description",
+                                              test_case_id="1",
+                                              source="source1",
+                                              samples=json.dumps([{"input": "1 1", "output": "2"}]),
+                                              time_limit=100,
+                                              memory_limit=1000,
+                                              difficulty=1,
+                                              hint="hint1",
+                                              created_by=User.objects.get(username="test"))
+
+    def test_visit_problem_successfully(self):
+        response = self.client.get('/problem/1/')
+        self.assertEqual(response.status_code, 200)
+
+    def test_problem_does_not_exist(self):
+        response = self.client.get('/problem/3/')
+        self.assertTemplateUsed(response, "utils/error.html")
 
 
 class ProblemAdminTest(APITestCase):
@@ -47,7 +72,7 @@ class ProblemAdminTest(APITestCase):
                                               output_description="output1_description",
                                               test_case_id="1",
                                               source="source1",
-                                              samples=[{"input": "1 1", "output": "2"}],
+                                              samples=json.dumps([{"input": "1 1", "output": "2"}]),
                                               time_limit=100,
                                               memory_limit=1000,
                                               difficulty=1,
@@ -97,4 +122,28 @@ class ProblemAdminTest(APITestCase):
         problem.tags.remove(*problem.tags.all())
         problem.tags.add(*ProblemTag.objects.filter(id__in=data["tags"]))
         response = self.client.put(self.url, data=json.dumps(data), content_type="application/json")
+        self.assertEqual(response.data["code"], 0)
+
+    # 以下是题目分页的测试
+    def test_success_get_data(self):
+        self.assertEqual(self.client.get(self.url).data["code"], 0)
+
+    def test_query_by_keyword(self):
+        response = self.client.get(self.url + "?keyword=title1")
+        self.assertEqual(response.data["code"], 0)
+
+    def test_query_by_visible(self):
+        response = self.client.get(self.url + "?visible=true")
+        self.assertEqual(response.data["code"], 0)
+        for item in response.data["data"]:
+            self.assertEqual(item["visible"], True)
+
+    def test_query_problem_does_not_exist(self):
+        data = {"problem_id": 2}
+        response = self.client.get(self.url, data=data)
+        self.assertEqual(response.data, {"code": 1, "data": u"题目不存在"})
+
+    def test_query_problem_exists(self):
+        data = {"problem_id": 1}
+        response = self.client.get(self.url, data=data)
         self.assertEqual(response.data["code"], 0)

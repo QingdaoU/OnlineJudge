@@ -20,27 +20,6 @@ from .serizalizers import (CreateProblemSerializer, EditProblemSerializer, Probl
 from .models import Problem, ProblemTag
 
 
-class ProblemTagAdminAPIView(APIView):
-    def post(self, request):
-        """
-        创建标签的接口
-        ---
-        request_serializer: CreateProblemTagSerializer
-        """
-        serializer = CreateProblemTagSerializer(data=request.data)
-        if serializer.is_valid():
-            try:
-                tag = ProblemTag.objects.get(name=serializer.data["name"])
-            except ProblemTag.DoesNotExist:
-                tag = ProblemTag.objects.create(name=serializer.data["name"])
-            return success_response(ProblemTagSerializer(tag).data)
-        else:
-            return error_response(serializer)
-
-    def get(self, request):
-        return success_response(ProblemTagSerializer(ProblemTag.objects.all(), many=True).data)
-
-
 def problem_page(request, problem_id):
     try:
         problem = Problem.objects.get(id=problem_id)
@@ -60,7 +39,6 @@ class ProblemAdminAPIView(APIView):
         serializer = CreateProblemSerializer(data=request.data)
         if serializer.is_valid():
             data = serializer.data
-            print data
             problem = Problem.objects.create(title=data["title"],
                                              description=data["description"],
                                              input_description=data["input_description"],
@@ -145,7 +123,8 @@ class ProblemAdminAPIView(APIView):
             problem = problem.filter(visible=(visible == "true"))
         keyword = request.GET.get("keyword", None)
         if keyword:
-            problem = problem.filter(Q(difficulty__contains=keyword))
+            problem = problem.filter(Q(title__contains=keyword) |
+                                     Q(description__contains=keyword))
 
         return paginate(request, problem, ProblemSerializer)
 
