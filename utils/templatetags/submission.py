@@ -1,4 +1,5 @@
 # coding=utf-8
+from django import template
 
 
 def translate_result(value):
@@ -27,12 +28,9 @@ def translate_language(value):
 def translate_result_class(value):
     if value == 0:
         return "success"
-    elif value == "8":
+    elif value == 8:
         return "info"
     return "danger"
-
-
-from django import template
 
 
 register = template.Library()
