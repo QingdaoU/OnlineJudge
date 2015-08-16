@@ -18,7 +18,7 @@ DATABASES = {
 
 # 这是web 服务器连接到mongodb 的地址
 MONGODB = {
-    'HOST': '121.42.196.141',
+    'HOST': '121.42.32.129',
     'USERNAME': 'root',
     'PASSWORD': 'root',
     'PORT': 27017

@@ -53,7 +53,14 @@ require(["jquery", "codeMirror", "csrfToken", "bsAlert"], function ($, codeMirro
         return html;
     }
 
+    var counter = 0;
+
     function getResult() {
+        if(counter++ > 10){
+            hideLoading();
+            bsAlert("抱歉，服务器可能出现了故障，请稍后到我的提交列表中查看");
+            return;
+        }
         $.ajax({
             url: "/api/submission/?submission_id=" + submissionId,
             method: "get",
@@ -85,7 +92,7 @@ require(["jquery", "codeMirror", "csrfToken", "bsAlert"], function ($, codeMirro
         showLoading();
 
         if(!code.trim()){
-            bs_alert("请填写代码！");
+            bsAlert("请填写代码！");
             hideLoading();
             return false;
         }
