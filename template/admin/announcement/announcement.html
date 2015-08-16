@@ -53,11 +53,17 @@
     <h3>添加公告</h3>
 
     <form id="announcement-form">
-        <div class="form-group"><label>标题</label>
-            <input name="title" type="text" class="form-control" id="title" placeholder="公告标题"></div>
+        <div class="form-group">
+            <label>标题</label>
+            <input name="title" type="text" class="form-control" id="title" placeholder="公告标题"
+                   data-error="请填写公告标题" maxlength="50" required>
+            <div class="help-block with-errors"></div>
+        </div>
         <div class="form-group">
             <label>内容</label>
-            <textarea id="create-announcement-editor" placeholder="公告内容"></textarea>
+            <textarea id="create-announcement-editor" placeholder="公告内容" maxlength="10000" required>
+            </textarea>
+            <div class="help-block with-errors"></div>
         </div>
         <div class="form-group">
             <button type="submit" class="btn btn-primary">提交</button>
