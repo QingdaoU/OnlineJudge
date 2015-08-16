@@ -7,12 +7,13 @@
             <form id="login-form">
                 <div class="form-group">
                     <label for="username">用户名</label>
-                    <input type="text" class="form-control input-lg" id="username" name="username" placeholder="用户名"
-                           autofocus>
+                    <input type="text" class="form-control input-lg" id="username" name="username" maxlength="30" data-error="请填写用户名" placeholder="用户名" autofocus required>
+                    <div class="help-block with-errors"></div>
                 </div>
                 <div class="form-group">
                     <label for="password">密码</label>
-                    <input type="password" class="form-control input-lg" id="password" name="password" placeholder="密码">
+                    <input type="password" class="form-control input-lg" id="password" name="password" maxlength="30" data-error="请填写密码" placeholder="密码" required>
+                    <div class="help-block with-errors"></div>
                 </div>
                 <div class="form-group">
                     <button type="submit" class="btn btn-primary">提交</button>

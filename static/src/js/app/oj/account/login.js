@@ -1,26 +1,6 @@
-require(["jquery", "bsAlert", "csrfToken", "formValidation"], function ($, bsAlert, csrfTokenHeader) {
-    $("#login-form")
-        .formValidation({
-            framework: "bootstrap",
-            fields: {
-                username: {
-                    validators: {
-                        notEmpty: {
-                            message: "请填写用户名"
-                        }
-                    }
-                },
-                password: {
-                    validators: {
-                        notEmpty: {
-                            message: "请填写密码"
-                        }
-                    }
-                }
-            }
-        }
-    ).on('success.form.fv', function (e) {
-            e.preventDefault();
+require(["jquery", "bsAlert", "csrfToken", "validator"], function ($, bsAlert, csrfTokenHeader) {
+    $('form').validator().on('submit', function (e) {
+        if (!e.isDefaultPrevented()) {
             var username = $("#username").val();
             var password = $("#password").val();
             $.ajax({
@@ -38,6 +18,8 @@ require(["jquery", "bsAlert", "csrfToken", "formValidation"], function ($, bsAle
                     }
                 }
 
-            })
-        });
+            });
+            return false;
+        }
+    })
 });
