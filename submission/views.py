@@ -44,7 +44,12 @@ class SubmissionAPIView(APIView):
                 return error_response(u"题目不存在")
             collection = _create_mongodb_connection()
             submission_id = str(collection.insert_one(data).inserted_id)
-            judge.delay(submission_id, problem.time_limit, problem.memory_limit, problem.test_case_id)
+
+            try:
+                judge.delay(submission_id, problem.time_limit, problem.memory_limit, problem.test_case_id)
+            except Exception:
+                return error_response(u"提交判题任务失败")
+
             return success_response({"submission_id": submission_id})
         else:
             return serializer_invalid_response(serializer)
