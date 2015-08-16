@@ -19,6 +19,7 @@ var require = {
         jqueryUI: "lib/jqueryUI/jquery-ui",
         bootstrap: "lib/bootstrap/bootstrap",
         datetimePicker: "lib/datetime_picker/bootstrap-datetimepicker.zh-CN",
+        validator: "lib/validator/validator",
 
 
         // ------ 下面写的都不要直接用，而是使用上面的封装版本 ------
@@ -55,6 +56,7 @@ var require = {
     shim: {
         bootstrap: {deps: ["jquery"]},
         _datetimePicker: {dep: ["jquery"]},
-        datetimePicker: {deps: ["_datetimePicker"]}
+        datetimePicker: {deps: ["_datetimePicker"]},
+        validator: ["jquery"]
     }
 };
