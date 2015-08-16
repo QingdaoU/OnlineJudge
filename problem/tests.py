@@ -39,6 +39,7 @@ class ProblemPageTest(TestCase):
         self.assertTemplateUsed(response, "utils/error.html")
 
 
+
 class ProblemAdminTest(APITestCase):
     def _create_data(self, problem_id, visible, tags):
         data = {"id": problem_id,
@@ -147,3 +148,19 @@ class ProblemAdminTest(APITestCase):
         data = {"problem_id": 1}
         response = self.client.get(self.url, data=data)
         self.assertEqual(response.data["code"], 0)
+
+
+class ProblemTagAdminAPITest(APITestCase):
+    def setUp(self):
+        self.client = APIClient()
+        self.url = reverse('problem_tag_admin_api')
+        self.user = User.objects.create(username="testx", admin_type=SUPER_ADMIN)
+        self.user.set_password("testxx")
+        self.user.save()
+        self.client.login(username="testx", password="testxx")
+        ProblemTag.objects.create(name="tag1")
+
+    # 以下是返回所有的问题的标签
+    def test_get_all_problem_tag_successfully(self):
+        self.assertEqual(self.client.get(self.url).data["code"], 0)
+

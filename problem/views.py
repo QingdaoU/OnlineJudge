@@ -28,6 +28,11 @@ def problem_page(request, problem_id):
     return render(request, "oj/problem/problem.html", {"problem": problem, "samples": json.loads(problem.samples)})
 
 
+class ProblemTagAdminAPIView(APIView):
+    def get(self, request):
+        return success_response(ProblemTagSerializer(ProblemTag.objects.all(), many=True).data)
+
+
 class ProblemAdminAPIView(APIView):
     def post(self, request):
         """
