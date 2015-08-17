@@ -7,7 +7,7 @@ redis_config = {
 
 
 docker_config = {
-    "image_name": "d622347336b8",
+    "image_name": " a7673b55d263",
     "docker_path": "docker",
     "shell": True
 }
@@ -17,16 +17,10 @@ test_case_dir = "/root/test_case/"
 source_code_dir = "/root/"
 
 
-celery_mongodb_config = {
+submission_db = {
     "host": "127.0.0.1",
-    "username": "root",
-    "password": "root",
-    "port": 27017
-}
-
-docker_mongodb_config = {
-    "host": "192.168.42.1",
-    "username": "root",
-    "password": "root",
-    "port": 27017
+    "port": 3306,
+    "db": "oj_submission",
+    "user": "root",
+    "password": "root"
 }

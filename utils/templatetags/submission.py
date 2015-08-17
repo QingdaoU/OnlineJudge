@@ -17,10 +17,6 @@ def translate_result(value):
     return results[value]
 
 
-def translate_id(submission_item):
-    return submission_item["_id"]
-
-
 def translate_language(value):
     return {1: "C", 2: "C++", 3: "Java"}[value]
 
@@ -35,6 +31,5 @@ def translate_result_class(value):
 
 register = template.Library()
 register.filter("translate_result", translate_result)
-register.filter("translate_id", translate_id)
 register.filter("translate_language", translate_language)
 register.filter("translate_result_class", translate_result_class)

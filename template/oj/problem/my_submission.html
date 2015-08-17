@@ -22,7 +22,7 @@
                 </span>
                 </h4>
                 {% ifequal submission.result 0 %}
-                    <p>时间 : {{ submission.accepted_answer_info.time }}ms 语言 :
+                    <p>时间 : {{ submission.accepted_answer_time }}ms 语言 :
                         {{ submission.language|translate_language }}
                     </p>
                 {% endifequal %}

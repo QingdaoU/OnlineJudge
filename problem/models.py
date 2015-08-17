@@ -29,7 +29,7 @@ class AbstractProblem(models.Model):
     # 创建时间
     create_time = models.DateTimeField(auto_now_add=True)
     # 最后更新时间
-    last_update_time = models.DateTimeField(auto_now=True)
+    # last_update_time = models.DateTimeField(auto_now=True)
     # 这个题是谁创建的
     created_by = models.ForeignKey(User)
     # 来源
