@@ -1,1 +1,23 @@
 # coding=utf-8
+from django.db import models
+from utils.shortcuts import rand_str
+from judge.judger.result import result
+
+
+class Submission(models.Model):
+    id = models.CharField(max_length=32, default=rand_str, primary_key=True, db_index=True)
+    user_id = models.IntegerField()
+    create_time = models.DateTimeField(auto_now_add=True)
+    result = models.IntegerField(default=result["waiting"])
+    language = models.IntegerField()
+    code = models.TextField()
+    problem_id = models.IntegerField()
+    # 这个字段可能存储很多数据 比如编译错误、系统错误的时候，存储错误原因字符串
+    # 正常运行的时候存储 lrun 的判题结果，比如cpu时间内存之类的
+    info = models.TextField(blank=True, null=True)
+    accepted_answer_time = models.IntegerField(blank=True, null=True)
+    # 这个字段只有在题目是accepted 的时候才会用到，比赛题目的提交可能还会有得分等信息，存储在这里面
+    accepted_answer_info = models.TextField(blank=True, null=True)
+
+    class Meta:
+        db_table = "submission"

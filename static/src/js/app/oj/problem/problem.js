@@ -46,7 +46,7 @@ require(["jquery", "codeMirror", "csrfToken", "bsAlert"], function ($, codeMirro
             results[data.result].message +
             '!&nbsp;&nbsp; ';
         if (!data.result) {
-            html += "CPU time: " + data.accepted_answer_info.time + "ms &nbsp;&nbsp;";
+            html += "CPU time: " + data.accepted_answer_time + "ms &nbsp;&nbsp;";
         }
         html += ('<a href="/my_submission/' + submissionId + '/" target="_blank">查看详情</a></div> </div>');
 

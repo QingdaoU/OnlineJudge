@@ -15,3 +15,11 @@ lrun_gid = 1002
 judger_workspace = "/var/judger/"
 
 
+# 这个是在docker 中访问数据库 ip 不一定和web服务器还有celery的一样
+submission_db = {
+    "host": "192.168.59.3",
+    "port": 3306,
+    "db": "oj_submission",
+    "user": "root",
+    "password": "root"
+}
