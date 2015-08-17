@@ -18,13 +18,6 @@ class DBRouter(object):
     def allow_migrate(self, db, app_label, model=None, **hints):
         if app_label == "submission":
             if db == "submission":
-                r = True
-            else:
-                r = False
+                return db == app_label
         else:
-            if db == "default":
-                r = True
-            else:
-                r = False
-        print db, app_label, r
-        return r
+            return db == "default"
