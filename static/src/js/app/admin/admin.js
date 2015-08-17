@@ -41,6 +41,19 @@ define("admin", ["jquery", "avalon"], function ($, avalon) {
             vm.template_url = "template/problem/edit_problem.html";
         });
 
+        vm.$watch("showProblemListPage", function(){
+           vm.template_url = "template/problem/problem_list.html";
+        });
+
+        vm.$watch("showGroupListPage", function(){
+           vm.template_url = "template/group/group.html";
+        });
+
+        vm.$watch("showProblemSubmissionPage", function(problemId){
+            vm.problemId = problemId;
+            vm.template_url = "template/problem/submission_list.html";
+        });
+
         avalon.scan();
 
         li_active("#li-" + hash.replace("/", "-"));

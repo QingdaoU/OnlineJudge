@@ -3,7 +3,7 @@ require(["jquery", "avalon", "csrfToken", "bsAlert", "formValidation"], function
 
     // avalon:定义模式 group_list
     avalon.ready(function () {
-         avalon.vmodels.groupDetail = null;
+        avalon.vmodels.groupDetail = null;
         var vm = avalon.define({
             $id: "groupDetail",
             //通用变量
@@ -47,6 +47,9 @@ require(["jquery", "avalon", "csrfToken", "bsAlert", "formValidation"], function
                         bsAlert(data.data);
                     }
                 })
+            },
+            showGroupListPage: function () {
+                vm.$fire("up!showGroupListPage");
             }
         });
 
