@@ -1,4 +1,4 @@
-require(["jquery", "avalon", "csrfToken", "bsAlert", "editor", "formValidation"],
+require(["jquery", "avalon", "csrfToken", "bsAlert", "editor", "validator"],
     function ($, avalon, csrfTokenHeader, bsAlert, editor) {
 
 
@@ -122,26 +122,15 @@ require(["jquery", "avalon", "csrfToken", "bsAlert", "editor", "formValidation"]
             }
 
             //新建公告表单验证与数据提交
-            $("#announcement-form")
-                .formValidation({
-                    framework: "bootstrap",
-                    fields: {
-                        title: {
-                            validators: {
-                                notEmpty: {
-                                    message: "请填写公告标题"
-                                }
-                            }
-                        }
-                    }
-                }
-            ).on('success.form.fv', function (e) {
-                    e.preventDefault();
+
+
+            $('form').validator().on('submit', function (e) {
+                if (!e.isDefaultPrevented()) {
                     var title = $("#title").val();
                     var content = createAnnouncementEditor.getValue();
                     if (content == "") {
                         bsAlert("请填写公告内容");
-                        return;
+                        return false;
                     }
                     $.ajax({
                         beforeSend: csrfTokenHeader,
@@ -156,11 +145,13 @@ require(["jquery", "avalon", "csrfToken", "bsAlert", "editor", "formValidation"]
                                 createAnnouncementEditor.setValue("");
                                 getPageData(1);
                             } else {
-                                bs_alert(data.data);
+                                bsAlert(data.data);
                             }
                         }
                     })
-                });
+                    return false;
+                }
+            })
         });
         avalon.scan();
     });

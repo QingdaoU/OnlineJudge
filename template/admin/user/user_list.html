@@ -52,19 +52,26 @@
                     <input name="id" type="number" class="form-control" readonly ms-duplex="id">
                 </div>
                 <div class="form-group col-md-4"><label>用户名</label>
-                    <input name="username" type="text" class="form-control" ms-duplex="username">
+                    <input name="username" type="text" class="form-control" ms-duplex="username"
+                           data-minlength="3" data-minlength-error="用户名不得少于3位" required>
+                    <div class="help-block with-errors"></div>
                 </div>
                 <div class="form-group col-md-4"><label>真实姓名</label>
-                    <input name="real_name" type="text" class="form-control" ms-duplex="realName">
+                    <input name="real_name" type="text" class="form-control" ms-duplex="realName"
+                           data-error="请填写真实姓名" maxlength="30" required>
+                    <div class="help-block with-errors"></div>
                 </div>
             </div>
             <div class="row">
                 <div class="form-group col-md-4"><label>新密码（留空则保留原密码）</label>
                     <input name="password" type="password" class="form-control" id="password" ms-duplex="password"
-                           placeholder="此项留空则保留原密码">
+                           placeholder="此项留空则保留原密码" data-minlength="6" data-minlength-error="密码不得少于6位">
+                    <div class="help-block with-errors"></div>
                 </div>
                 <div class="form-group col-md-4"><label>电子邮箱</label>
-                    <input name="email" type="email" class="form-control" ms-duplex="email">
+                    <input name="email" type="email" class="form-control" ms-duplex="email"
+                           data-error="请填写邮箱地址(并保证是正确的邮箱格式)" required>
+                    <div class="help-block with-errors"></div>
                 </div>
                 <div class="form-group col-md-4"><label>用户类型</label>
                     <select name="admin_type" class="form-control" ms-duplex="adminType">
