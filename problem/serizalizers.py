@@ -30,7 +30,7 @@ class CreateProblemSerializer(serializers.Serializer):
     memory_limit = serializers.IntegerField()
     difficulty = serializers.IntegerField()
     tags = serializers.ListField(child=serializers.CharField(max_length=10))
-    hint = serializers.CharField(max_length=3000, required=False, default=None)
+    hint = serializers.CharField(max_length=3000, allow_blank=True)
 
 
 class ProblemTagSerializer(serializers.ModelSerializer):
@@ -66,7 +66,7 @@ class EditProblemSerializer(serializers.Serializer):
     difficulty = serializers.IntegerField()
     tags = serializers.ListField(child=serializers.CharField(max_length=20))
     samples = ProblemSampleSerializer()
-    hint = serializers.CharField(max_length=10000)
+    hint = serializers.CharField(max_length=3000, allow_blank=True)
     visible = serializers.BooleanField()
 
 

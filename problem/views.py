@@ -22,7 +22,7 @@ from .models import Problem, ProblemTag
 
 def problem_page(request, problem_id):
     try:
-        problem = Problem.objects.get(id=problem_id)
+        problem = Problem.objects.get(id=problem_id, visible=True)
     except Problem.DoesNotExist:
         return error_page(request, u"题目不存在")
     return render(request, "oj/problem/problem.html", {"problem": problem, "samples": json.loads(problem.samples)})
@@ -122,7 +122,7 @@ class ProblemAdminAPIView(APIView):
                 return success_response(ProblemSerializer(problem).data)
             except Problem.DoesNotExist:
                 return error_response(u"题目不存在")
-        problem = Problem.objects.all().order_by("-last_update_time")
+        problem = Problem.objects.all().order_by("-create_time")
         visible = request.GET.get("visible", None)
         if visible:
             problem = problem.filter(visible=(visible == "true"))
@@ -217,7 +217,7 @@ class TestCaseUploadAPIView(APIView):
 
 def problem_list_page(request, page=1):
     # 正常情况
-    problems = Problem.objects.all()
+    problems = Problem.objects.filter(visible=True)
 
     # 搜索的情况
     keyword = request.GET.get("keyword", None)
