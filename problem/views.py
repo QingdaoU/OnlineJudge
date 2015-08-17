@@ -122,7 +122,7 @@ class ProblemAdminAPIView(APIView):
                 return success_response(ProblemSerializer(problem).data)
             except Problem.DoesNotExist:
                 return error_response(u"题目不存在")
-        problem = Problem.objects.all().order_by("-last_update_time")
+        problem = Problem.objects.all().order_by("-create_time")
         visible = request.GET.get("visible", None)
         if visible:
             problem = problem.filter(visible=(visible == "true"))

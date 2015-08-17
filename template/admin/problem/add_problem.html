@@ -4,7 +4,7 @@
         <div class="form-group col-md-12">
             <label>题目标题</label>
             <input type="text" name="title" autofocus class="form-control" ms-duplex="title"
-                   data-error="请填写题目名称(名称不能超过30个字)" maxlength="30" required>
+                   data-error="请填写题目名称(名称不能超过50个字)" maxlength="50" required>
             <div class="help-block with-errors"></div>
         </div>
 
@@ -18,7 +18,7 @@
         <div class="col-md-3">
             <div class="form-group"><label>时间限制(ms)</label>
                 <input type="number" name="timeLimit" class="form-control" ms-duplex="timeLimit"
-                       data-error="请输入时间限制(保证是一个1-5000的合法整数)" maxlength="5000" required>
+                       data-error="请输入时间限制(保证是一个1000-5000的合法整数)" required>
                 <div class="help-block with-errors"></div>
             </div>
         </div>
