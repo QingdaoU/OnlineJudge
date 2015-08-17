@@ -18,7 +18,7 @@ require(["jquery", "avalon", "editor", "uploader", "bsAlert", "csrfToken", "tagE
                                 }
                             }
                         },
-                        cpu: {
+                        timeLimit: {
                             validators: {
                                 notEmpty: {
                                     message: "请输入时间限制"
@@ -34,7 +34,7 @@ require(["jquery", "avalon", "editor", "uploader", "bsAlert", "csrfToken", "tagE
                                 }
                             }
                         },
-                        memory: {
+                        memoryLimit: {
                             validators: {
                                 notEmpty: {
                                     message: "请输入内存限制"

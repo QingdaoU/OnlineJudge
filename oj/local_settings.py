@@ -30,3 +30,4 @@ DEBUG = True
 TEST_CASE_DIR = os.path.join(BASE_DIR, 'test_case/')
 
 DATABASE_ROUTERS = ['oj.db_router.DBRouter']
+
