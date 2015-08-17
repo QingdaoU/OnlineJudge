@@ -32,6 +32,17 @@
                 <p>提交时间 : {{ submission.create_time }}</p>
             </div>
         </div>
+        {% ifequal request.user.admin_type 2 %}
+            <p>本调试信息仅超级管理员可见</p>
+            {% ifequal submission.result 7 %}
+                <pre>System Error: {{ submission.info }}</pre>
+            {% else %}
+                <pre>{{ info }}</pre>
+            {% endifequal %}
+
+        {% endifequal %}
+
+
         <div id="code-field">
             <textarea id="code-editor">{{ submission.code }}</textarea>
         </div>

@@ -8,10 +8,11 @@ from rest_framework.views import APIView
 from judge.judger.result import result
 from judge.judger_controller.tasks import judge
 from account.decorators import login_required
+from account.models import SUPER_ADMIN
 from problem.models import Problem
-from utils.shortcuts import serializer_invalid_response, error_response, success_response, error_page
+from utils.shortcuts import serializer_invalid_response, error_response, success_response, error_page, paginate
 from .models import Submission
-from .serializers import CreateSubmissionSerializer
+from .serializers import CreateSubmissionSerializer, SubmissionSerializer
 
 
 class SubmissionAPIView(APIView):
@@ -70,12 +71,34 @@ def problem_my_submissions_list_page(request, problem_id):
 @login_required
 def my_submission(request, submission_id):
     try:
-        submission = Submission.objects.get(id=submission_id)
+        # 超级管理员可以查看所有的提交
+        if request.user.admin_type != SUPER_ADMIN:
+            submission = Submission.objects.get(id=submission_id, user_id=request.user.id)
+        else:
+            submission = Submission.objects.get(id=submission_id)
     except Submission.DoesNotExist:
         return error_page(request, u"提交不存在")
+
     try:
         problem = Problem.objects.get(id=submission.problem_id, visible=True)
     except Problem.DoesNotExist:
         return error_page(request, u"提交不存在")
+    if submission.info:
+        try:
+            info = json.loads(submission.info)
+        except Exception:
+            info = submission.info
+    else:
+        info = None
     return render(request, "oj/problem/my_submission.html",
-                  {"submission": submission, "problem": problem})
+                  {"submission": submission, "problem": problem, "info": info})
+
+
+
+class SubmissionAdminAPIView(APIView):
+    def get(self, request):
+        problem_id = request.GET.get("problem_id", None)
+        if not problem_id:
+            return error_response(u"参数错误")
+        submissions = Submission.objects.filter(problem_id=problem_id).order_by("-create_time")
+        return paginate(request, submissions, SubmissionSerializer)

@@ -1,18 +1,25 @@
 require(["jquery", "avalon", "csrfToken", "bsAlert", "formValidation"], function ($, avalon, csrfTokenHeader, bsAlert) {
 
-
     avalon.ready(function () {
-        avalon.vmodels.group = null;
+        avalon.vmodels.submissionList = null;
         var vm = avalon.define({
-            $id: "group",
-            //通用变量
-            groupList: [],                 //  用户列表数据项
-            previousPage: 0,                 //  之前的页数
-            nextPage: 0,                     //   之后的页数
-            page: 1,                           //    当前页数
-            totalPage: 1,                   //    总页数
-            keyword: "",
-
+            $id: "submissionList",
+            submissionList: [],
+            previousPage: 0,
+            nextPage: 0,
+            page: 1,
+            totalPage: 1,
+            results : {
+                    0: "Accepted",
+                    1: "Runtime Error",
+                    2: "Time Limit Exceeded",
+                    3: "Memory Limit Exceeded",
+                    4: "Compile Error",
+                    5: "Format Error",
+                    6: "Wrong Answer",
+                    7: "System Error",
+                    8: "Waiting"
+                },
             getNext: function () {
                 if (!vm.nextPage)
                     return;
@@ -23,38 +30,34 @@ require(["jquery", "avalon", "csrfToken", "bsAlert", "formValidation"], function
                     return;
                 getPageData(vm.page - 1);
             },
-            getBtnClass: function (btnType) {
-                if (btnType == "next") {
+            getBtnClass: function (btn) {
+                if (btn == "next") {
                     return vm.nextPage ? "btn btn-primary" : "btn btn-primary disabled";
                 }
                 else {
                     return vm.previousPage ? "btn btn-primary" : "btn btn-primary disabled";
                 }
+            },
+            getPage: function (page_index) {
+                getPageData(page_index);
+            },
 
-            },
-            search: function(){
-                getPageData(1);
-            },
-            getGroupSettingString: function (setting) {
-                return {0: "允许任何人加入", 1: "提交请求后管理员审核", 2: "不允许任何人加入"}[setting]
-            },
-            showGroupDetailPage: function (groupId) {
-                vm.$fire("up!showGroupDetailPage", groupId);
+            showSubmissionDetailPage: function (submissionId) {
+
             }
         });
+
         getPageData(1);
 
         function getPageData(page) {
-            var url = "/api/admin/group/?paging=true&page=" + page + "&page_size=2";
-            if (vm.keyword)
-                url += "&keyword=" + vm.keyword;
+            var url = "/api/admin/submission/?paging=true&page=" + page + "&page_size=10&problem_id=" + avalon.vmodels.admin.problemId;
             $.ajax({
                 url: url,
                 dataType: "json",
                 method: "get",
                 success: function (data) {
                     if (!data.code) {
-                        vm.groupList = data.data.results;
+                        vm.submissionList = data.data.results;
                         vm.totalPage = data.data.total_page;
                         vm.previousPage = data.data.previous_page;
                         vm.nextPage = data.data.next_page;
@@ -67,8 +70,7 @@ require(["jquery", "avalon", "csrfToken", "bsAlert", "formValidation"], function
             });
         }
 
+
     });
-
     avalon.scan();
-
 });

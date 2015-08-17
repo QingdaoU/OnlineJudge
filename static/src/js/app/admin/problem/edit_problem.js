@@ -167,6 +167,9 @@ require(["jquery", "avalon", "editor", "uploader", "bsAlert", "csrfToken", "tagE
                     if (item.visible)
                         return "折叠";
                     return "展开";
+                },
+                showProblemListPage: function(){
+                    vm.$fire("up!showProblemListPage");
                 }
             });
             var hintEditor = editor("#hint");
