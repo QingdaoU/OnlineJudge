@@ -1,11 +1,10 @@
 # coding=utf-8
 # from __future__ import absolute_import
+import MySQLdb
 import subprocess
-import pymongo
-from bson import ObjectId
 from ..judger.result import result
 from ..judger_controller.celery import app
-from settings import docker_config, source_code_dir, test_case_dir, celery_mongodb_config
+from settings import docker_config, source_code_dir, test_case_dir, submission_db
 
 
 @app.task
@@ -24,8 +23,16 @@ def judge(submission_id, time_limit, memory_limit, test_case_id):
                    submission_id, str(time_limit), str(memory_limit), test_case_id)
         subprocess.call(command, shell=docker_config["shell"])
     except Exception as e:
-        connection = pymongo.MongoClient(host=celery_mongodb_config["host"], port=celery_mongodb_config["port"])
-        collection = connection["oj"]["oj_submission"]
-        data = {"result": result["system_error"], "info": str(e)}
-        collection.find_one_and_update({"_id": ObjectId(submission_id)}, {"$set": data})
-        connection.close()
+        print e
+        conn = MySQLdb.connect(db=submission_db["db"],
+                               user=submission_db["user"],
+                               passwd=submission_db["password"],
+                               host=submission_db["host"],
+                               port=submission_db["port"],
+                               character="utf8")
+
+        cur = conn.cursor()
+        cur.execute("update submission set result=%s, info=%s where id=%s",
+                    (result["system_error"], str(e), submission_id))
+        conn.commit()
+        conn.close()
