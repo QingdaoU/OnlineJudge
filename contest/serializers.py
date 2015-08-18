@@ -10,10 +10,13 @@ class CreateContestSerializer(serializers.Serializer):
     title = serializers.CharField(max_length=40)
     description = serializers.CharField(max_length=5000)
     mode = serializers.IntegerField()
+    contest_type = serializers.IntegerField()
     show_rank = serializers.BooleanField()
+    show_user_submission = serializers.BooleanField()
     password = serializers.CharField(max_length=30, required=False)
     start_time = serializers.DateTimeField()
     end_time = serializers.DateTimeField()
+    groups = serializers.ListField(child=serializers.IntegerField())
 
 
 class ContestSerializer(serializers.ModelSerializer):
@@ -32,10 +35,13 @@ class EditContestSerializer(serializers.Serializer):
     title = serializers.CharField(max_length=40)
     description = serializers.CharField(max_length=10000)
     mode = serializers.IntegerField()
+    contest_type = serializers.IntegerField()
     show_rank = serializers.BooleanField()
+    show_user_submission = serializers.BooleanField()
     password = serializers.CharField(max_length=30, required=False)
     start_time = serializers.DateTimeField()
     end_time = serializers.DateTimeField()
+    groups = serializers.ListField(child=serializers.IntegerField())
 
 
 class ContestProblemSampleSerializer(serializers.ListField):
