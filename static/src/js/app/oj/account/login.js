@@ -11,7 +11,14 @@ require(["jquery", "bsAlert", "csrfToken", "validator"], function ($, bsAlert, c
                 method: "post",
                 success: function (data) {
                     if (!data.code) {
-                        window.location.href = "/";
+                        //成功登陆
+                        var ref = document.referrer;
+                        if(ref){
+                            if(ref.split("/")[2] == location.hostname){
+                                location.href = ref;
+                            }
+                        }
+                        location.href = "/";
                     }
                     else {
                         bsAlert(data.data);
