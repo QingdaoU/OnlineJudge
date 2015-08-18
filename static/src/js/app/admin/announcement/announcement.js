@@ -1,8 +1,5 @@
 require(["jquery", "avalon", "csrfToken", "bsAlert", "editor", "validator"],
     function ($, avalon, csrfTokenHeader, bsAlert, editor) {
-
-
-
         avalon.ready(function () {
             avalon.vmodels.announcement = null;
 
@@ -20,7 +17,11 @@ require(["jquery", "avalon", "csrfToken", "bsAlert", "editor", "validator"],
                 totalPage: 1,                   //    总页数
                 showVisibleOnly: false,            //仅显示可见公告
                 // 编辑
+                newTitle: "",
                 announcementVisible: 0,
+                showGlobalViewRadio: true,
+                isGlobal: true,
+                allGroups: [],
                 getState: function (el) {   //获取公告当前状态，显示
                     if (el.visible)
                         return "可见";
@@ -47,49 +48,75 @@ require(["jquery", "avalon", "csrfToken", "bsAlert", "editor", "validator"],
 
                 },
                 editAnnouncement: function (announcement) {
-                    $("#newTitle").val(announcement.title);
+                    vm.newTitle = announcement.title;
                     editAnnouncementEditor.setValue(announcement.content);
                     vm.announcementVisible = announcement.visible;
                     if (vm.editingAnnouncementId == announcement.id)
                         vm.editingAnnouncementId = 0;
                     else
                         vm.editingAnnouncementId = announcement.id;
+                    vm.isGlobal = announcement.is_global;
+                    for (var i = 0; i < announcement.groups.length; i++) {
+                        for (var j = 0; j < vm.allGroups.length; j++) {
+                            if (announcement.groups[i] == vm.allGroups[j].id) {
+                                vm.allGroups[j].isSelected = true;
+                            }
+                        }
+                    }
                     editAnnouncementEditor.focus();
                 },
                 cancelEdit: function () {
                     vm.editingAnnouncementId = 0;
                 },
                 submitChange: function () {
-                    var title = $("#newTitle").val();
+                    var title = vm.newTitle;
                     var content = editAnnouncementEditor.getValue();
 
-                    if (content && title) {
-                        $.ajax({
-                            beforeSend: csrfTokenHeader,
-                            url: "/api/admin/announcement/",
-                            dataType: "json",
-                            method: "put",
-                            data: {
-                                id: vm.editingAnnouncementId,
-                                title: title,
-                                content: content,
-                                visible: vm.announcementVisible
-                            },
-                            success: function (data) {
-                                if (!data.code) {
-                                    bsAlert("修改成功");
-                                    vm.editingAnnouncementId = 0;
-                                    getPageData(1);
-                                }
-                                else {
-                                    bsAlert(data.data);
-                                }
+                    if (content == "" || title == "") {
+                        bsAlert("标题和内容都不能为空");
+                        return false;
+                    }
+
+                    var selectedGroups = [];
+                    if (!vm.isGlobal) {
+                        for (var i = 0; i < vm.allGroups.length; i++) {
+                            if (vm.allGroups[i].isSelected) {
+                                selectedGroups.push(vm.allGroups[i].id);
                             }
-                        });
+                        }
                     }
-                    else {
-                        bsAlert("标题和公告内容不得为空");
+
+                    if (!vm.isGlobal && !selectedGroups.length) {
+                        bsAlert("请至少选择一个小组");
+                        return false;
                     }
+
+                    $.ajax({
+                        beforeSend: csrfTokenHeader,
+                        url: "/api/admin/announcement/",
+                        contentType: "application/json",
+                        dataType: "json",
+                        method: "put",
+                        data: JSON.stringify({
+                            id: vm.editingAnnouncementId,
+                            title: title,
+                            content: content,
+                            visible: vm.announcementVisible,
+                            is_global: vm.isGlobal,
+                            groups: selectedGroups
+                        }),
+                        success: function (data) {
+                            if (!data.code) {
+                                bsAlert("修改成功");
+                                vm.editingAnnouncementId = 0;
+                                getPageData(1);
+                            }
+                            else {
+                                bsAlert(data.data);
+                            }
+                        }
+                    });
+
                 }
             });
             vm.$watch("showVisibleOnly", function () {
@@ -98,8 +125,44 @@ require(["jquery", "avalon", "csrfToken", "bsAlert", "editor", "validator"],
 
             getPageData(1);
 
+            $.ajax({
+                url: "/api/admin/group/",
+                method: "get",
+                dataType: "json",
+                success: function (data) {
+                    if (!data.code) {
+                        if (!data.data.length) {
+                            bsAlert("您的用户权限只能创建组内公告，但是您还没有创建过小组");
+                            return;
+                        }
+                        for (var i = 0; i < data.data.length; i++) {
+                            var item = data.data[i];
+                            item["isSelected"] = false;
+                            vm.allGroups.push(item);
+                        }
+                    }
+                    else {
+                        bsAlert(data.data);
+                    }
+                }
+            });
+
+            $.ajax({
+                url: "/api/user/",
+                method: "get",
+                dataType: "json",
+                success: function (data) {
+                    if (!data.code) {
+                        if (data.data.admin_type == 1) {
+                            vm.isGlobal = false;
+                            vm.showGlobalViewRadio = false;
+                        }
+                    }
+                }
+            });
+
             function getPageData(page) {
-                var url = "/api/announcements/?paging=true&page=" + page + "&page_size=10";
+                var url = "/api/admin/announcement/?paging=true&page=" + page + "&page_size=10";
                 if (vm.showVisibleOnly)
                     url += "&visible=true";
                 $.ajax({
@@ -122,9 +185,7 @@ require(["jquery", "avalon", "csrfToken", "bsAlert", "editor", "validator"],
             }
 
             //新建公告表单验证与数据提交
-
-
-            $('form').validator().on('submit', function (e) {
+            $("#announcement-form").validator().on('submit', function (e) {
                 if (!e.isDefaultPrevented()) {
                     var title = $("#title").val();
                     var content = createAnnouncementEditor.getValue();
@@ -132,10 +193,29 @@ require(["jquery", "avalon", "csrfToken", "bsAlert", "editor", "validator"],
                         bsAlert("请填写公告内容");
                         return false;
                     }
+                    var selectedGroups = [];
+                    if (!vm.isGlobal) {
+                        for (var i = 0; i < vm.allGroups.length; i++) {
+                            if (vm.allGroups[i].isSelected) {
+                                selectedGroups.push(vm.allGroups[i].id);
+                            }
+                        }
+                    }
+
+                    if (!vm.isGlobal && !selectedGroups.length) {
+                        bsAlert("请至少选择一个小组");
+                        return false;
+                    }
                     $.ajax({
                         beforeSend: csrfTokenHeader,
                         url: "/api/admin/announcement/",
-                        data: {title: title, content: content},
+                        contentType: "application/json",
+                        data: JSON.stringify({
+                            title: title,
+                            content: content,
+                            is_global: vm.isGlobal,
+                            groups: selectedGroups
+                        }),
                         dataType: "json",
                         method: "post",
                         success: function (data) {
@@ -148,7 +228,7 @@ require(["jquery", "avalon", "csrfToken", "bsAlert", "editor", "validator"],
                                 bsAlert(data.data);
                             }
                         }
-                    })
+                    });
                     return false;
                 }
             })
