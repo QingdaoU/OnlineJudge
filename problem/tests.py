@@ -164,3 +164,8 @@ class ProblemTagAdminAPITest(APITestCase):
     def test_get_all_problem_tag_successfully(self):
         self.assertEqual(self.client.get(self.url).data["code"], 0)
 
+
+class ProblemListPageTest(TestCase):
+    def setUp(self):
+        pass
+
