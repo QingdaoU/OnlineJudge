@@ -1,0 +1,96 @@
+<div ms-controller="contestList" class="col-md-9">
+    <h1>比赛列表</h1>
+
+    <div class="right">
+        <form class="form-inline" onsubmit="return false;">
+            <div class="form-group-sm">
+                <label>搜索</label>
+                <input name="keyWord" class="form-control" placeholder="请输入关键词" ms-duplex="keyword">
+                <input type="submit" value="搜索" class="btn btn-primary" ms-click="getPage(1)">
+            </div>
+        </form>
+        <br>
+    </div>
+    <table class="table table-striped">
+        <tr>
+            <th>ID</th>
+            <th>比赛</th>
+            <th>比赛类型</th>
+            <th>比赛模式</th>
+            <th>公开排名</th>
+            <th>开始时间</th>
+            <th>结束时间</th>
+            <th>创建时间</th>
+            <th>创建者</th>
+            <td></td>
+        </tr>
+        <tr ms-repeat="contestList">
+            <td>{{ el.id }}</td>
+            <td>{{ el.title }}</td>
+            <td>{{ el.type }}</td>
+            <td>{{ el.mode }}</td>
+            <td>{{ el.show_rank }}</td>
+            <td>{{ el.start_time|date("yyyy-MM-dd HH:mm:ss")}}</td>
+            <td>{{ el.end_time|date("yyyy-MM-dd HH:mm:ss")}}</td>
+            <td>{{ el.create_time|date("yyyy-MM-dd HH:mm:ss")}}</td>
+            <td>{{ el.created_by.username }}</td>
+            <td>
+                <button class="btn-sm btn-info" ms-click="showEditContestArea($index+1)">详情</button>
+            </td>
+        </tr>
+    </table>
+    <div class="text-right">
+        页数：{{ page }}/{{ totalPage }}&nbsp;&nbsp;
+        <button ms-attr-class="getBtnClass('pre')" ms-click="getPrevious">上一页</button>
+        <button ms-attr-class="getBtnClass('next')" ms-click="getNext">下一页</button>
+    </div>
+    <div ms-visible="editingContestId">
+            <div class="col-md-12">
+                <label>比赛名称</label>
+                <input type="text" name="name" class="form-control" ms-duplex="editTitle">
+                <label>说明</label>
+                <textarea id="editor" placeholder="这里输入内容" autofocus ms-duplex="editDescription"></textarea>
+                <small ms-visible="description==''" style="color:red">请填写比赛描述</small>
+            </div>
+            <div class="col-md-6">
+                <label>开始时间</label>
+            </div>
+            <div class="col-md-6">
+                <label>结束时间</label>
+            </div>
+            <div class="col-md-6">
+                <input type="text" class="form-control" name="start_time" id="contest_start_time"
+                           ms-duplex="editStartTime">
+            </div>
+            <div class="col-md-6">
+                <input type="text" class="form-control" name="editEnd_time" id="contest_end_time" ms-duplex="endTime">
+            </div>
+            <div class="col-md-6">
+                <label>密码保护</label>
+            </div>
+            <div class="col-md-3">
+                <label>模式</label>
+            </div>
+            <div class="col-md-3">
+                <label>结束前是否开放排名</label>
+            </div>
+            <div class="col-md-6">
+                <input type="text" class="form-control" name="password" placeholder="留空就是公开赛" ms-duplex="editPassword">
+            </div>
+            <div class="col-md-3">
+                    <label><input type="radio" name="mode" ms-duplex-checked="editMode">
+                        <small>OI</small>
+                    </label>
+                    <label><input type="radio" name="mode">
+                        <small>ACM</small>
+                    </label>
+            </div>
+            <div class="col-md-3">             
+                    <label class="text"><input type="checkbox" ms-duplex-checked="editShowRank">
+                        <small>开放排名</small>
+                    </label>
+            </div>
+    </div>
+
+</div>
+<script src="/static/js/app/admin/contest/contest_list.js"></script>
