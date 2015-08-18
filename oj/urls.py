@@ -6,7 +6,7 @@ from django.views.generic import TemplateView
 from account.views import (UserLoginAPIView, UsernameCheckAPIView, UserRegisterAPIView,
                            UserChangePasswordAPIView, EmailCheckAPIView,
                            UserAdminAPIView, UserInfoAPIView)
-from announcement.views import AnnouncementAPIView, AnnouncementAdminAPIView
+from announcement.views import AnnouncementAdminAPIView
 
 from group.views import (GroupAdminAPIView, GroupMemberAdminAPIView,
                          JoinGroupAPIView, JoinGroupRequestAdminAPIView)
@@ -38,7 +38,6 @@ urlpatterns = [
     url(r'^problem/(?P<problem_id>\d+)/$', "problem.views.problem_page", name="problem_page"),
     url(r'^announcement/(?P<announcement_id>\d+)/$', "announcement.views.announcement_page",
         name="announcement_page"),
-    url(r'^api/announcements/$', AnnouncementAPIView.as_view(), name="announcement_list_api"),
     url(r'^admin/contest/$', TemplateView.as_view(template_name="admin/contest/add_contest.html"),
         name="add_contest_page"),
     url(r'^problems/$', "problem.views.problem_list_page", name="problem_list_page"),
