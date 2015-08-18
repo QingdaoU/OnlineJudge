@@ -1,4 +1,4 @@
-require(["jquery", "avalon", "csrfToken", "bsAlert", "formValidation"], function ($, avalon, csrfTokenHeader, bsAlert) {
+require(["jquery", "avalon", "csrfToken", "bsAlert", "validator"], function ($, avalon, csrfTokenHeader, bsAlert) {
 
 
     // avalon:定义模式 userList
@@ -87,77 +87,36 @@ require(["jquery", "avalon", "csrfToken", "bsAlert", "formValidation"], function
             });
         }
 
-        $("#edit_user-form")
-            .formValidation({
-                framework: "bootstrap",
-                fields: {
-                    username: {
-                        validators: {
-                            notEmpty: {
-                                message: "请填写用户名"
-                            },
-                            stringLength: {
-                                min: 3,
-                                max: 30,
-                                message: '用户名长度必须在3到30位之间'
+        $("#edit_user-form").validator()
+            .on('submit', function (e) {
+                if (!e.isDefaultPrevented()) {
+                    var data = {
+                        username: vm.username,
+                        real_name: vm.realName,
+                        email: vm.email,
+                        id: vm.id,
+                        admin_type: vm.adminType
+                    };
+                    if ($("#password").val() !== "")
+                        data.password = $("#password").val();
+                    $.ajax({
+                        beforeSend: csrfTokenHeader,
+                        url: "/api/admin/user/",
+                        data: data,
+                        dataType: "json",
+                        method: "put",
+                        success: function (data) {
+                            if (!data.code) {
+                                bsAlert("编辑成功！");
+                                getPageData(1);
+                                $("#password").val("");
+                            } else {
+                                bsAlert(data.data);
                             }
                         }
-                    },
-                    real_name: {
-                        validators: {
-                            notEmpty: {
-                                message: "请填写真实姓名"
-                            }
-                        }
-                    },
-                    email: {
-                        validators: {
-                            notEmpty: {
-                                message: "请填写电子邮箱邮箱地址"
-                            },
-                            emailAddress: {
-                                message: "请填写有效的邮箱地址"
-                            }
-                        }
-                    },
-                    password: {
-                        validators: {
-                            stringLength: {
-                                min: 6,
-                                max: 30,
-                                message: '密码长度必须在6到30位之间'
-                            }
-                        }
-                    }
+                    });
+                    return false;
                 }
-            }
-        ).on('success.form.fv', function (e) {
-                e.preventDefault();
-                var data = {
-                    username: vm.username,
-                    real_name: vm.realName,
-                    email: vm.email,
-                    id: vm.id,
-                    admin_type: vm.adminType
-                };
-                if ($("#password").val() !== "")
-                    data.password = $("#password").val();
-                $.ajax({
-                    beforeSend: csrfTokenHeader,
-                    url: "/api/admin/user/",
-                    data: data,
-                    dataType: "json",
-                    method: "put",
-                    success: function (data) {
-                        if (!data.code) {
-                            bsAlert("提交成功！");
-                            getPageData(1);
-                            $("#password").val("");
-                        } else {
-                            bsAlert(data.data);
-                        }
-                    }
-                })
             });
     });
 

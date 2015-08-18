@@ -9,7 +9,9 @@
 
         <div class="form-group col-md-12">
             <label>题目标题</label>
-            <input type="text" name="title" autofocus class="form-control" ms-duplex="title">
+            <input type="text" name="title" autofocus class="form-control" ms-duplex="title"
+                   data-error="请填写题目名称(名称不能超过30个字)" maxlength="30" required>
+            <div class="help-block with-errors"></div>
         </div>
 
         <div class="form-group col-md-12">
@@ -21,17 +23,23 @@
 
         <div class="col-md-3">
             <div class="form-group"><label>时间限制(ms)</label>
-                <input type="number" name="cpu" class="form-control" ms-duplex="timeLimit">
+                <input type="number" name="timeLimit" class="form-control" ms-duplex="timeLimit"
+                       data-error="请输入时间限制(保证是一个1000-5000的合法整数)" required>
+                <div class="help-block with-errors"></div>
             </div>
         </div>
         <div class="col-md-3">
             <div class="form-group"><label>内存限制(MB)</label>
-                <input type="number" name="memory" class="form-control" ms-duplex="memoryLimit">
+                <input type="number" name="memory" class="form-control" ms-duplex="memoryLimit"
+                       data-error="请输入内存限制(保证是一个合法整数)" required>
+                <div class="help-block with-errors"></div>
             </div>
         </div>
         <div class="col-md-3">
             <div class="form-group"><label>难度</label>
-                <input type="number" name="difficulty" class="form-control" ms-duplex="difficulty">
+                <input type="number" name="difficulty" class="form-control" ms-duplex="difficulty"
+                       data-error="请输入难度(保证是一个合法整数)" required>
+                <div class="help-block with-errors"></div>
             </div>
         </div>
         <div class="col-md-3 form-group">
@@ -47,12 +55,18 @@
         <div class="col-md-12 form-group">
             <label>输入描述</label><br>
             <textarea class="form-control" rows="5" name="input_description"
-                      ms-duplex="inputDescription"></textarea>
+                      ms-duplex="inputDescription" data-error="请填写输入描述"
+                      maxlength="10000" required>
+            </textarea>
+            <div class="help-block with-errors"></div>
         </div>
         <div class="col-md-12 form-group">
             <label>输出描述</label><br>
             <textarea class="form-control" rows="5" name="output_escription"
-                      ms-duplex="outputDescription"></textarea>
+                      ms-duplex="outputDescription" data-error="请填写输出描述"
+                      maxlength="10000" required>
+            </textarea>
+            <div class="help-block with-errors"></div>
         </div>
         <div class="col-md-12"><br>
             <label>样例</label>

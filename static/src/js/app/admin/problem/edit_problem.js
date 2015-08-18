@@ -1,139 +1,79 @@
-require(["jquery", "avalon", "editor", "uploader", "bsAlert", "csrfToken", "tagEditor", "formValidation", "jqueryUI"],
+require(["jquery", "avalon", "editor", "uploader", "bsAlert", "csrfToken", "tagEditor", "validator", "jqueryUI"],
     function ($, avalon, editor, uploader, bsAlert, csrfTokenHeader) {
 
         avalon.ready(function () {
             avalon.vmodels.editProblem = null;
 
-            $("#edit-problem-form")
-                .formValidation({
-                    framework: "bootstrap",
-                    fields: {
-                        title: {
-                            validators: {
-                                notEmpty: {
-                                    message: "请填写题目名称"
-                                },
-                                stringLength: {
-                                    min: 1,
-                                    max: 30,
-                                    message: "名称不能超过30个字"
-                                }
-                            }
-                        },
-                        cpu: {
-                            validators: {
-                                notEmpty: {
-                                    message: "请输入时间限制"
-                                },
-                                integer: {
-                                    message: "请输入一个合法的数字"
-                                },
-                                between: {
-                                    inclusive: true,
-                                    min: 1,
-                                    max: 5000,
-                                    message: "只能在1-5000之间"
-                                }
-                            }
-                        },
-                        memory: {
-                            validators: {
-                                notEmpty: {
-                                    message: "请输入内存限制"
-                                },
-                                integer: {
-                                    message: "请输入一个合法的数字"
-                                }
-                            }
-                        },
-                        difficulty: {
-                            validators: {
-                                notEmpty: {
-                                    message: "请输入难度"
-                                },
-                                integer: {
-                                    message: "难度用一个整数表示"
-                                }
-                            }
-                        },
-                        input_description: {
-                            validators: {
-                                notEmpty: {
-                                    message: "请填写输入描述"
-                                }
-                            }
-                        },
-                        output_description: {
-                            validators: {
-                                notEmpty: {
-                                    message: "请填写输出描述"
-                                }
+            $("#edit-problem-form").validator()
+                .on('submit', function (e) {
+                    if (!e.isDefaultPrevented()){
+                        if (vm.testCaseId == "") {
+                            bsAlert("你还没有上传测试数据!");
+                            return false;
+                        }
+                        if (vm.description == "") {
+                            bsAlert("题目描述不能为空!");
+                            return false;
+                        }
+                        if (vm.timeLimit < 1000 || vm.timeLimit > 5000) {
+                            bsAlert("保证时间限制是一个1000-5000的合法整数");
+                            return false;
+                        }
+                        if (vm.samples.length == 0) {
+                            bsAlert("请至少添加一组样例!");
+                            return false;
+                        }
+                        for (var i = 0; i < vm.samples.length; i++) {
+                            if (vm.samples[i].input == "" || vm.samples[i].output == "") {
+                                bsAlert("样例输入与样例输出不能为空！");
+                                return false;
                             }
                         }
-                    }
-                })
-                .on("success.form.fv", function (e) {
-                    e.preventDefault();
-                    if (vm.testCaseId == "") {
-                        bsAlert("你还没有上传测试数据!");
-                        return;
-                    }
-                    if (vm.description == "") {
-                        bsAlert("题目描述不能为空!");
-                        return;
-                    }
-                    if (vm.samples.length == 0) {
-                        bsAlert("请至少添加一组样例!");
-                        return;
-                    }
-                    for (var i = 0; i < vm.samples.length; i++) {
-                        if (vm.samples[i].input == "" || vm.samples[i].output == "") {
-                            bsAlert("样例输入与样例输出不能为空！");
-                            return;
+                        var tags = $("#tags").tagEditor("getTags")[0].tags;
+                        if (tags.length == 0) {
+                            bsAlert("请至少添加一个标签，这将有利于用户发现你的题目!");
+                            return false;
                         }
-                    }
-                    if (tags.length == 0) {
-                        bsAlert("请至少添加一个标签，这将有利于用户发现你的题目!");
-                        return;
-                    }
-                    var ajaxData = {
-                        id: avalon.vmodels.admin.problemId,
-                        title: vm.title,
-                        description: vm.description,
-                        time_limit: vm.timeLimit,
-                        memory_limit: vm.memoryLimit,
-                        samples: [],
-                        test_case_id: vm.testCaseId,
-                        hint: vm.hint,
-                        source: vm.source,
-                        visible: vm.visible,
-                        tags: $("#tags").tagEditor("getTags")[0].tags,
-                        input_description: vm.inputDescription,
-                        output_description: vm.outputDescription,
-                        difficulty: vm.difficulty
-                    };
+                        var ajaxData = {
+                            id: avalon.vmodels.admin.problemId,
+                            title: vm.title,
+                            description: vm.description,
+                            time_limit: vm.timeLimit,
+                            memory_limit: vm.memoryLimit,
+                            samples: [],
+                            test_case_id: vm.testCaseId,
+                            hint: vm.hint,
+                            source: vm.source,
+                            visible: vm.visible,
+                            tags: tags,
+                            input_description: vm.inputDescription,
+                            output_description: vm.outputDescription,
+                            difficulty: vm.difficulty
+                        };
 
-                    for (var i = 0; i < vm.samples.$model.length; i++) {
-                        ajaxData.samples.push({input: vm.samples.$model[i].input, output: vm.samples.$model[i].output});
-                    }
-
-                    $.ajax({
-                        beforeSend: csrfTokenHeader,
-                        url: "/api/admin/problem/",
-                        dataType: "json",
-                        data: JSON.stringify(ajaxData),
-                        method: "put",
-                        contentType: "application/json",
-                        success: function (data) {
-                            if (!data.code) {
-                                bsAlert("题目编辑成功！");
-                            }
-                            else {
-                                bsAlert(data.data);
-                            }
+                        for (var i = 0; i < vm.samples.$model.length; i++) {
+                            ajaxData.samples.push({input: vm.samples.$model[i].input, output: vm.samples.$model[i].output});
                         }
 
-                    })
+                        $.ajax({
+                            beforeSend: csrfTokenHeader,
+                            url: "/api/admin/problem/",
+                            dataType: "json",
+                            data: JSON.stringify(ajaxData),
+                            method: "put",
+                            contentType: "application/json",
+                            success: function (data) {
+                                if (!data.code) {
+                                    bsAlert("题目编辑成功！");
+                                }
+                                else {
+                                    bsAlert(data.data);
+                                }
+                            }
+
+                        });
+                        return false;
+                    }
                 });
 
             var vm = avalon.define({
