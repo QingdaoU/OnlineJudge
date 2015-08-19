@@ -3,44 +3,44 @@ require(["jquery", "avalon", "editor", "uploader", "bsAlert", "csrfToken", "date
     function ($, avalon, editor, uploader, bsAlert, csrfTokenHeader) {
         avalon.vmodels.add_contest = null;
         $("#add-contest-form").validator().on('submit', function (e) {
-                e.preventDefault();
-                var data = {
-                    title: vm.title, 
-						 description: vm.description, 
-				    	 start_time: vm.startTime, 
-                    end_time: vm.endTime,
-                    password: vm.password, 
-                    mode: vm.model, 
-                    show_rank: vm.openRank
-                };
-                $.ajax({
-                            beforeSend: csrfTokenHeader,
-                            url: "/api/admin/contest/",
-                            dataType: "json",
-                            data: data,
-                            method: "post",
-                            contentType: "application/json",
-                            success: function (data) {
-                                if (!data.code) {
-                                    bsAlert("添加成功！");
-											console.log(data);
-                                }
-                                else {
-                                    bsAlert(data.data);
-                                    console.log(data);
-                                }
-                            }
-                        });
-                console.log(data);
+                if (!e.isDefaultPrevented()){
+					alert("smoething went wrong!");
+				}
+				else{	
+					var data = {
+						title: vm.title, 
+							 description: vm.description, 
+							 start_time: vm.startTime, 
+						end_time: vm.endTime,
+						password: vm.password, 
+						mode: vm.model, 
+						show_rank: vm.openRank
+					};
+					$.ajax({
+								beforeSend: csrfTokenHeader,
+								url: "/api/admin/contest/",
+								dataType: "json",
+								data: data,
+								method: "post",
+								contentType: "application/json",
+								success: function (data) {
+									if (!data.code) {
+										bsAlert("添加成功！");
+												console.log(data);
+									}
+									else {
+										bsAlert(data.data);
+										console.log(data);
+									}
+								}
+							});
+					console.log(data);
+				}
+                return false;
         })
-        function make_id() {
-            var text = "";
-            var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-            for (var i = 0; i < 5; i++)
-                text += possible.charAt(Math.floor(Math.random() * possible.length));
-            return text;
-        }
         editor("#editor");
+        editor("#problemDescriptionEditor");
+        editor("#problemHintEditor");
 		
         var vm = avalon.define({
             $id: "add_contest",
@@ -49,27 +49,36 @@ require(["jquery", "avalon", "editor", "uploader", "bsAlert", "csrfToken", "date
             startTime: "",
             endTime: "",
             password: "",
-            model: "",
-            openRank: false,
+            mode: "",
+            showRank: false,
+            showSubmission: false,
             problems: [],
             editingProblemId: 0,
             editSamples: [],
             editTestCaseList: [],
+            group: "-1",
+            groupList: [{name:"Every one", id:1, choosed: false},{name:"Group one", id :3, choosed: false},{name:"Group two", id:5,  choosed: false}],
+            choosedGroupList: [],
             showProblemEditArea: function (problemIndex) {
                 if (vm.editingProblemId == problemIndex){
                     vm.problems[vm.editingProblemId-1].samples = vm.editSamples;
                     vm.editingProblemId = 0;
                 }
                 else {
-                    vm.problems[problemIndex-1].samples = vm.editSamples;
-                    vm.problems[problemIndex-1].testCaseList = vm.editTestCaseList;
-                    vm.editingProblemId = problemIndex;
-                    editSamples = vm.problems[vm.editingProblemId-1].samples;
-                    editTestCaseList = vm.problems[vm.editingProblemId-1].testCaseList;
+					if (vm.editingProblemId)
+					{
+						vm.problems[vm.editingProblemId-1].samples = vm.editSamples;
+						vm.problems[vm.editingProblemId-1].testCaseList = vm.editTestCaseList;
+					}
+					vm.editingProblemId = problemIndex;
+                    vm.editSamples = [];
+                    vm.editSamples = vm.problems[vm.editingProblemId-1].samples;
+                    vm.editTestCaseList = [];
+                    vm.editTestCaseList = vm.problems[vm.editingProblemId-1].testCaseList;
                 }
             },
+            passwordUsable: false,
             add_problem: function () {
-                var problem_id = make_id();
                 var problem = {
                     title: "",
                     timeLimit: 1000,
@@ -101,7 +110,6 @@ require(["jquery", "avalon", "editor", "uploader", "bsAlert", "csrfToken", "date
                 item.visible = !item.visible;
             },
             add_sample: function () {
-                //vm.problems[vm.editingProblemId-1].samples.push({visible: true, input: "", output: ""});
                 vm.editSamples.push({visible: true, input: "", output: ""});
             },
             del_sample: function (sample) {
@@ -113,7 +121,29 @@ require(["jquery", "avalon", "editor", "uploader", "bsAlert", "csrfToken", "date
                 if (item.visible)
                     return "折叠";
                 return "展开";
-            }
+            },
+            addGroup: function() {
+				if (vm.group == -1) return;
+				if (vm.groupList[vm.group].id == 1){
+					vm.passwordUsable = true;
+					vm.choosedGroupList = [];
+					for (var key in vm.groupList){
+						vm.groupList[key].choosed = true;
+					}
+				}
+				vm.groupList[vm.group]. choosed = true;
+				vm.choosedGroupList .push({name:vm.groupList[vm.group].name, index:vm.group, id:vm.groupList[vm.group].id});
+			},
+			unchoosed: function(groupIndex){
+				if (vm.groupList[vm.choosedGroupList[groupIndex].index].id == 1){
+					vm.passwordUsable = false;
+					for (key in vm.groupList){
+						vm.groupList[key].choosed = false;
+					}
+				}
+				vm.groupList[vm.choosedGroupList[groupIndex].index].choosed = false;
+				vm.choosedGroupList.remove(vm.choosedGroupList[groupIndex]);
+			}
         });
 		
 		uploader("#uploader", "/api/admin/test_case_upload/", function (file, respond) {
@@ -130,11 +160,10 @@ require(["jquery", "avalon", "editor", "uploader", "bsAlert", "csrfToken", "date
 						});
 					}
                     vm.problems[vm.editingProblemId-1].testCaseList = vm.editTestCaseList;
-					bsAlert("测试数据添加成功！共添加"+editTestCaseList.length +"组测试数据");
+					bsAlert("测试数据添加成功！共添加"+vm.editTestCaseList.length +"组测试数据");
 			}
 		},
 		function(){
-			console.log(vm.problemNo);
 			if (vm.editingProblemId == 0)
 			{
 				bsAlert("你还未指定一道题目！");
@@ -157,14 +186,4 @@ require(["jquery", "avalon", "editor", "uploader", "bsAlert", "csrfToken", "date
             weekStart: 1,
             language: "zh-CN"
         });
-        $("#contest_start_time").datetimepicker()
-            .on("hide", function (ev) {
-                $("#add-contest-form")
-                    .formValidation("revalidateField", "start_time");
-            });
-        $("#contest_end_time").datetimepicker()
-            .on("hide", function (ev) {
-                $("#add-contest-form")
-                    .formValidation("revalidateField", "end_time");
-            });
     });
