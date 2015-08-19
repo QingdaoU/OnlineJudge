@@ -68,7 +68,7 @@ class AnnouncementAdminAPIView(APIView):
                 if request.user.admin_type == SUPER_ADMIN:
                     announcement = Announcement.objects.get(id=data["id"])
                 else:
-                    announcement = Announcement.objects.get(id=data["id"], admin=request.user)
+                    announcement = Announcement.objects.get(id=data["id"], created_by=request.user)
             except Announcement.DoesNotExist:
                 return error_response(u"公告不存在")
             groups = []
@@ -101,7 +101,7 @@ class AnnouncementAdminAPIView(APIView):
         if request.user.admin_type == SUPER_ADMIN:
             announcement = Announcement.objects.all().order_by("-last_update_time")
         else:
-            announcement = Announcement.objects.filter(admin=request.user)
+            announcement = Announcement.objects.filter(created_by=request.user)
         visible = request.GET.get("visible", None)
         if visible:
             announcement = announcement.filter(visible=(visible == "true"))

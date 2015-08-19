@@ -7,7 +7,7 @@ from group.models import Group
 
 
 class Contest(models.Model):
-    title = models.CharField(max_length=40)
+    title = models.CharField(max_length=40, unique=True)
     description = models.TextField()
     # 比赛模式：0 即为是acm模式，1 即为是按照总的 ac 题目数量排名模式，2 即为按照 ac 的题目的总分排名模式
     mode = models.IntegerField()
@@ -33,7 +33,6 @@ class Contest(models.Model):
     # 这个比赛是谁创建的
     created_by = models.ForeignKey(User)
     groups = models.ManyToManyField(Group)
-
 
     class Meta:
         db_table = "contest"

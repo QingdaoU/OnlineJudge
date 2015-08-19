@@ -9,7 +9,7 @@ class CreateAnnouncementSerializer(serializers.Serializer):
     title = serializers.CharField(max_length=50)
     content = serializers.CharField(max_length=10000)
     is_global = serializers.BooleanField()
-    groups = serializers.ListField(child=serializers.IntegerField(), allow_empty=True)
+    groups = serializers.ListField(child=serializers.IntegerField())
 
 
 class AnnouncementSerializer(serializers.ModelSerializer):

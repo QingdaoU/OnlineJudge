@@ -33,48 +33,34 @@ class ContestAdminAPIView(APIView):
             data = serializer.data
             groups = []
             # 首先判断比赛的类型： 0 即为是小组赛，1 即为是无密码的公开赛，2 即为是有密码的公开赛
-                # 密码字段不为空的情况，此时为有密码的公开赛，
             # 此时为有密码的公开赛，并且此时只能超级管理员才有权限此创建比赛
+            if data["contest_type"] in [1, 2]:
+                if request.user.admin_type != SUPER_ADMIN:
+                    return error_response(u"只有超级管理员才可创建公开赛")
             if data["contest_type"] == 2:
-                if data["password"]:
-                    if request.user.admin_type == SUPER_ADMIN:
-                        pass
-                    else:
-                        return error_response(u"只有超级管理员才可创建公开赛（有密码）")
-                else:
-                    return error_response(u"此比赛为有密码的公开赛，密码不可为空")
-            # 此时为没有密码的公开赛，并且此时只能是超级管理员才有权限创建此比赛
-            elif data["contest_type"]:
                 if not data["password"]:
-                    if request.user.admin_type == SUPER_ADMIN:
-                        pass
-                    else:
-                        return error_response(u"只有超级管理员才可创建公开赛（没有密码）")
+                    return error_response(u"此比赛为有密码的公开赛，密码不可为空")
+
+            # 没有密码的公开赛 没有密码的小组赛
+            elif data["contest_type"] == 0:
+                if request.user.admin_type == SUPER_ADMIN:
+                    groups = Group.objects.filter(id__in=data["groups"])
                 else:
-                    return error_response(u"此比赛为没有密码的公开赛，密码无需填写")
-            # 此时为没有密码的小组赛，并且此时只能是超级管理员和管理员才有权限创建此比赛
-            else:
-                if request.user.admin_type == REGULAR_USER:
-                    return error_response(u"只有超级管理员和管理员才有权限创建比赛")
-                else:
-                    if not data["password"]:
-                        groups = Group.objects.filter(id__in=data["groups"], admin=request.user)
-                    else:
-                        return error_response(u"此比赛为没有密码的小组赛，密码无需填写")
+                    groups = Group.objects.filter(id__in=data["groups"], admin=request.user)
+                if not groups.count():
+                    return error_response(u"请至少选择一个小组")
             try:
                 contest = Contest.objects.create(title=data["title"], description=data["description"],
                                                  mode=data["mode"], show_rank=data["show_rank"],
                                                  show_user_submission=data["show_user_submission"],
-                                                 start_time=["start_time"], end_time=data["end_time"])
-                if data["password"]:
-                    contest.setpassword(data["password"])
-                contest.save()
+                                                 start_time=["start_time"], end_time=data["end_time"],
+                                                 password=data["password"])
             except IntegrityError:
                 return error_response(u"比赛名已经存在")
             contest.groups.add(*groups)
             return success_response(ContestSerializer(contest).data)
         else:
-            serializer_invalid_response(serializer)
+            return serializer_invalid_response(serializer)
 
     def put(self, request):
         """
@@ -86,24 +72,45 @@ class ContestAdminAPIView(APIView):
         serializer = EditContestSerializer(data=request.data)
         if serializer.is_valid():
             data = serializer.data
+            groups = []
             try:
                 contest = Contest.objects.get(id=data["id"])
             except Contest.DoesNotExist:
-                error_response(u"该比赛不存在！")
+                return error_response(u"该比赛不存在！")
             try:
-                contest.title = data["contest"]
-                contest.description = data["description"]
-                contest.mode = data["mode"]
-                contest.show_rank = data["show_"]
-                if data["password"]:
-                    contest.set_password(data["password"])
-                contest.save()
-            except IntegrityError:
-                return error_response(u"比赛名已经存在")
+                contest = Contest.objects.get(title=data["title"])
+                if contest.id != data["id"]:
+                    return error_response(u"该比赛名称已经存在")
+            except Contest.DoesNotExist:
+                pass
+            if data["contest_type"] in [1, 2]:
+                if request.user.admin_type != SUPER_ADMIN:
+                    return error_response(u"只有超级管理员才可创建公开赛")
+            if data["contest_type"] == 2:
+                if not data["password"]:
+                    return error_response(u"此比赛为有密码的公开赛，密码不可为空")
+            elif data["contest_type"] == 0:
+                if request.user.admin_type == SUPER_ADMIN:
+                    groups = Group.objects.filter(id__in=data["groups"])
+                else:
+                    groups = Group.objects.filter(id__in=data["groups"], admin=request.user)
+                if not groups.count():
+                    return error_response(u"请至少选择一个小组")
+            contest.title = data["title"]
+            contest.description = data["description"]
+            contest.mode = data["mode"]
+            contest.show_rank = data["show_rank"]
+            contest.show_user_submission = data["show_user_submission"]
+            contest.start_time = ["start_time"]
+            contest.end_time = data["end_time"]
+            contest.password = data["password"]
+            contest.save()
 
+            contest.groups.clear()
+            contest.groups.add(*groups)
             return success_response(ContestSerializer(contest).data)
         else:
-            serializer_invalid_response(serializer)
+            return serializer_invalid_response(serializer)
 
     def get(self, request):
         """
@@ -148,7 +155,7 @@ class ContestProblemAdminAPIView(APIView):
                                                             sort_index=data["sort_index"])
             return success_response(ContestProblemSerializer(contest_problem).data)
         else:
-            serializer_invalid_response(serializer)
+            return serializer_invalid_response(serializer)
 
     def put(self, request):
         """
@@ -190,9 +197,9 @@ class ContestProblemAdminAPIView(APIView):
         contest_problem_id = request.GET.get("contest_problem_id", None)
         if contest_problem_id:
             try:
-                contest_problem = ContestProblemSerializer.objects.get(id=contest_problem_id)
+                contest_problem = ContestProblem.objects.get(id=contest_problem_id)
                 return success_response(ContestProblemSerializer(contest_problem).data)
-            except contest_problem.DoesNotExist:
+            except ContestProblem.DoesNotExist:
                 return error_response(u"比赛题目不存在")
         contest_problem = ContestProblem.objects.all().order_by("sort_index")
         visible = request.GET.get("visible", None)
