@@ -3,7 +3,7 @@ require(["jquery", "chart"], function ($, Chart) {
         labels: ["初始化"],
         datasets: [
             {
-                label: "2222222",
+                label: "队列长度",
                 fillColor: "rgba(255,255,255,0.2)",
                 strokeColor: "rgba(151,187,205,1)",
                 pointColor: "rgba(151,187,205,1)",
@@ -17,6 +17,10 @@ require(["jquery", "chart"], function ($, Chart) {
     var chart = new Chart($("#waiting-queue-chart").get(0).getContext("2d")).Line(data);
 
     function getMonitorData(){
+        var hash = location.hash;
+        if (hash != "#monitor/monitor"){
+            clearInterval(intervalId);
+        }
         $.ajax({
             url: "/api/admin/monitor/",
             method: "get",
@@ -33,6 +37,6 @@ require(["jquery", "chart"], function ($, Chart) {
         chart.removeData();
     });
 
-    setInterval(getMonitorData, 3000);
+    var intervalId = setInterval(getMonitorData, 3000);
 
 });
