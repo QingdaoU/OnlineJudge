@@ -59,5 +59,7 @@ urlpatterns = [
         name="join_group_request_admin_api"),
     url(r'^api/submission/$', SubmissionAPIView.as_view(), name="submission_api"),
     url(r'^api/admin/submission/$', SubmissionAdminAPIView.as_view(), name="submission_admin_api_view"),
+    url(r'^my_submissions/$', "submission.views.my_submission_list_page", name="my_submission_list_page"),
+    url(r'^my_submissions/(?P<page>\d+)/$', "submission.views.my_submission_list_page", name="my_submission_list_page"),
 
 ]

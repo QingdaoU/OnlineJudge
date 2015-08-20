@@ -13,6 +13,7 @@ from problem.models import Problem
 from utils.shortcuts import serializer_invalid_response, error_response, success_response, error_page, paginate
 from .models import Submission
 from .serializers import CreateSubmissionSerializer, SubmissionSerializer
+from django.core.paginator import Paginator
 
 
 class SubmissionAPIView(APIView):
@@ -102,3 +103,32 @@ class SubmissionAdminAPIView(APIView):
             return error_response(u"参数错误")
         submissions = Submission.objects.filter(problem_id=problem_id).order_by("-create_time")
         return paginate(request, submissions, SubmissionSerializer)
+
+@login_required
+def my_submission_list_page(request, page = 1):
+    try:
+        submissions = Submission.objects.filter(user_id=request.user.id)
+    except Submission.DoesNotExist:
+        return error_page(request, u"你还没有提交过任何问题")
+    paginator = Paginator(submissions, 20)
+    try:
+        current_page = paginator.page(int(page))
+    except Exception:
+        return error_page(request, u"不存在的页码")
+    previous_page = next_page = None
+    try:
+        previous_page = current_page.previous_page_number()
+    except Exception:
+        pass
+
+    try:
+        next_page = current_page.next_page_number()
+    except Exception:
+        pass
+
+    return render(request, "oj/submission/my_submissions_list.html",
+                  {"submissions": current_page, "page": int(page),
+                   "previous_page": previous_page, "next_page": next_page})
+
+        
+    return render(request, "oj/submission/my_submissions_list.html", {"submissions": submission})
