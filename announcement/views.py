@@ -49,7 +49,6 @@ class AnnouncementAdminAPIView(APIView):
                                                        is_global=data["is_global"])
 
             announcement.groups.add(*groups)
-
             return success_response(u"公告发布成功！")
         else:
             return serializer_invalid_response(serializer)
