@@ -57,7 +57,7 @@ require(["jquery", "avalon", "editor", "uploader", "bsAlert", "csrfToken", "date
             editSamples: [],
             editTestCaseList: [],
             group: "-1",
-            groupList: [{name:"Every one", id:1, choosed: false},{name:"Group one", id :3, choosed: false},{name:"Group two", id:5,  choosed: false}],
+            groupList: [{name:"Group one", id :3, choosed: false},{name:"Group two", id:5,  choosed: false}],
             choosedGroupList: [],
             showProblemEditArea: function (problemIndex) {
                 if (vm.editingProblemId == problemIndex){
@@ -124,7 +124,7 @@ require(["jquery", "avalon", "editor", "uploader", "bsAlert", "csrfToken", "date
             },
             addGroup: function() {
 				if (vm.group == -1) return;
-				if (vm.groupList[vm.group].id == 1){
+				if (vm.groupList[vm.group].id == 0){
 					vm.passwordUsable = true;
 					vm.choosedGroupList = [];
 					for (var key in vm.groupList){
@@ -135,7 +135,7 @@ require(["jquery", "avalon", "editor", "uploader", "bsAlert", "csrfToken", "date
 				vm.choosedGroupList .push({name:vm.groupList[vm.group].name, index:vm.group, id:vm.groupList[vm.group].id});
 			},
 			unchoosed: function(groupIndex){
-				if (vm.groupList[vm.choosedGroupList[groupIndex].index].id == 1){
+				if (vm.groupList[vm.choosedGroupList[groupIndex].index].id == 0){
 					vm.passwordUsable = false;
 					for (key in vm.groupList){
 						vm.groupList[key].choosed = false;
@@ -145,6 +145,33 @@ require(["jquery", "avalon", "editor", "uploader", "bsAlert", "csrfToken", "date
 				vm.choosedGroupList.remove(vm.choosedGroupList[groupIndex]);
 			}
         });
+
+		var isSuperAdmin = true;
+		$.ajax({      //用于获取该用户创建的所有小组的ajax请求
+								beforeSend: csrfTokenHeader,
+								url: "/api/admin/group/?my_group=true",
+								dataType: "json",
+								method: "get",
+								contentType: "application/json",
+								success: function (data) {
+									if (!data.code) {
+												for (var key in data.data)
+												{
+													data.data[key].choosed = false;
+													vm.groupList.push(data.data[key]);
+												}
+												if (isSuperAdmin)
+													vm.groupList.push({id:0, name:"everyone", choosed: false});
+												console.log(data);
+									}
+									else {
+										bsAlert(data.data);
+										console.log(data);
+									}
+								}
+							});
+
+
 		
 		uploader("#uploader", "/api/admin/test_case_upload/", function (file, respond) {
 			if (respond.code)
