@@ -84,7 +84,7 @@ def problem_my_submissions_list_page(request, problem_id):
         problem = Problem.objects.get(id=problem_id, visible=True)
     except Problem.DoesNotExist:
         return error_page(request, u"问题不存在")
-    submissions = Submission.objects.filter(user_id=request.user.id, problem_id=problem.id).order_by("-create_time")
+    submissions = Submission.objects.filter(user_id=request.user.id, problem_id=problem.id).values("id", "result", "create_time", "accepted_answer_time", "language")
     return render(request, "oj/problem/my_submissions_list.html",
                   {"submissions": submissions, "problem": problem})
 
