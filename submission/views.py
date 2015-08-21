@@ -1,5 +1,6 @@
 # coding=utf-8
 import json
+import redis
 
 from django.shortcuts import render
 
@@ -7,6 +8,7 @@ from rest_framework.views import APIView
 
 from judge.judger.result import result
 from judge.judger_controller.tasks import judge
+from judge.judger_controller.settings import redis_config
 from account.decorators import login_required
 from account.models import SUPER_ADMIN
 from problem.models import Problem
@@ -40,6 +42,10 @@ class SubmissionAPIView(APIView):
                 judge.delay(submission.id, problem.time_limit, problem.memory_limit, problem.test_case_id)
             except Exception:
                 return error_response(u"提交判题任务失败")
+
+            # 增加redis 中判题队列长度的计数器
+            r = redis.Redis(host=redis_config["host"], port=redis_config["port"], db=redis_config["db"])
+            r.incr("judge_queue_length")
 
             return success_response({"submission_id": submission.id})
         else:
