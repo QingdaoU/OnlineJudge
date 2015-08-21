@@ -2,6 +2,7 @@
 import json
 from django.shortcuts import render
 from django.db import IntegrityError
+from django.utils import dateparse
 from django.db.models import Q
 from rest_framework.views import APIView
 from utils.shortcuts import (serializer_invalid_response, error_response,
@@ -13,7 +14,6 @@ from group.models import Group
 from .models import Contest, ContestProblem
 from .serializers import (CreateContestSerializer, ContestSerializer, EditContestSerializer,
                           CreateContestProblemSerializer, ContestProblemSerializer, EditContestProblemSerializer)
-
 
 
 def contest_page(request, contest_id):
@@ -49,12 +49,16 @@ class ContestAdminAPIView(APIView):
                     groups = Group.objects.filter(id__in=data["groups"], admin=request.user)
                 if not groups.count():
                     return error_response(u"请至少选择一个小组")
+            if data["start_time"] >= data["end_time"]:
+                return error_response(u"比赛的开始时间不能晚于或等于比赛结束的时间")
             try:
                 contest = Contest.objects.create(title=data["title"], description=data["description"],
-                                                 mode=data["mode"], show_rank=data["show_rank"],
+                                                 mode=data["mode"], contest_type=data["contest_type"],
+                                                 show_rank=data["show_rank"], password=data["password"],
                                                  show_user_submission=data["show_user_submission"],
-                                                 start_time=["start_time"], end_time=data["end_time"],
-                                                 password=data["password"])
+                                                 start_time=dateparse.parse_datetime(data["start_time"]),
+                                                 end_time=dateparse.parse_datetime(data["end_time"]),
+                                                 created_by=request.user, visible=data["visible"])
             except IntegrityError:
                 return error_response(u"比赛名已经存在")
             contest.groups.add(*groups)
@@ -96,13 +100,17 @@ class ContestAdminAPIView(APIView):
                     groups = Group.objects.filter(id__in=data["groups"], admin=request.user)
                 if not groups.count():
                     return error_response(u"请至少选择一个小组")
+            if data["start_time"] >= data["end_time"]:
+                return error_response(u"比赛的开始时间不能晚于或等于比赛结束的时间")
             contest.title = data["title"]
             contest.description = data["description"]
             contest.mode = data["mode"]
+            contest.contest_type = data["contest_type"]
             contest.show_rank = data["show_rank"]
             contest.show_user_submission = data["show_user_submission"]
-            contest.start_time = ["start_time"]
-            contest.end_time = data["end_time"]
+            contest.start_time = dateparse.parse_datetime(data["start_time"])
+            contest.end_time = dateparse.parse_datetime(data["end_time"])
+            contest.visible = data["visible"]
             contest.password = data["password"]
             contest.save()
 

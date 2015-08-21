@@ -52,6 +52,7 @@ INSTALLED_APPS = (
     'problem',
     'admin',
     'submission',
+    'contest',
 
     'rest_framework',
     'rest_framework_swagger',

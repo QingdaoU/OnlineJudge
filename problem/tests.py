@@ -1,7 +1,7 @@
 # coding=utf-8
 import json
 
-from django.test import TestCase
+from django.test import TestCase, Client
 
 from django.core.urlresolvers import reverse
 from rest_framework.test import APITestCase, APIClient
@@ -37,7 +37,6 @@ class ProblemPageTest(TestCase):
     def test_problem_does_not_exist(self):
         response = self.client.get('/problem/3/')
         self.assertTemplateUsed(response, "utils/error.html")
-
 
 
 class ProblemAdminTest(APITestCase):
@@ -167,5 +166,26 @@ class ProblemTagAdminAPITest(APITestCase):
 
 class ProblemListPageTest(TestCase):
     def setUp(self):
-        pass
+        self.client = Client()
+        self.url = reverse('problem_list_page', kwargs={"page": 1})
+        self.user = User.objects.create(username="test", admin_type=SUPER_ADMIN)
+        self.user.set_password("testaa")
+        self.user.save()
+        self.client.login(username="test", password="testaa")
+        ProblemTag.objects.create(name="tag1")
+        ProblemTag.objects.create(name="tag2")
+        self.problem = Problem.objects.create(title="title1",
+                                              description="description1",
+                                              input_description="input1_description",
+                                              output_description="output1_description",
+                                              test_case_id="1",
+                                              source="source1",
+                                              samples=json.dumps([{"input": "1 1", "output": "2"}]),
+                                              time_limit=100,
+                                              memory_limit=1000,
+                                              difficulty=1,
+                                              hint="hint1",
+                                              created_by=User.objects.get(username="test"))
+
+
 

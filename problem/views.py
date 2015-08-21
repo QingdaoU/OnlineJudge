@@ -56,7 +56,6 @@ class ProblemAdminAPIView(APIView):
                                              difficulty=data["difficulty"],
                                              created_by=request.user,
                                              hint=data["hint"])
-
             for tag in data["tags"]:
                 try:
                     tag = ProblemTag.objects.get(name=tag)

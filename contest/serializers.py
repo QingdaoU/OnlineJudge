@@ -13,10 +13,11 @@ class CreateContestSerializer(serializers.Serializer):
     contest_type = serializers.IntegerField()
     show_rank = serializers.BooleanField()
     show_user_submission = serializers.BooleanField()
-    password = serializers.CharField(max_length=30, required=False)
+    password = serializers.CharField(max_length=30, required=False, default=None)
     start_time = serializers.DateTimeField()
     end_time = serializers.DateTimeField()
-    groups = serializers.ListField(child=serializers.IntegerField())
+    groups = serializers.ListField(child=serializers.IntegerField(), required=False, default=[])
+    visible = serializers.BooleanField()
 
 
 class ContestSerializer(serializers.ModelSerializer):
@@ -32,16 +33,18 @@ class ContestSerializer(serializers.ModelSerializer):
 
 
 class EditContestSerializer(serializers.Serializer):
+    id = serializers.IntegerField()
     title = serializers.CharField(max_length=40)
     description = serializers.CharField(max_length=10000)
     mode = serializers.IntegerField()
     contest_type = serializers.IntegerField()
     show_rank = serializers.BooleanField()
     show_user_submission = serializers.BooleanField()
-    password = serializers.CharField(max_length=30, required=False)
+    password = serializers.CharField(max_length=30, required=False, default=None)
     start_time = serializers.DateTimeField()
     end_time = serializers.DateTimeField()
-    groups = serializers.ListField(child=serializers.IntegerField())
+    groups = serializers.ListField(child=serializers.IntegerField(), required=False, default=[])
+    visible = serializers.BooleanField()
 
 
 class ContestProblemSampleSerializer(serializers.ListField):

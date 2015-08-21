@@ -90,6 +90,8 @@ class AnnouncementAdminAPITest(APITestCase):
                     "visible": True, "is_global": False, "groups": [self.group.id]}
             response = self.client.put(self.url, data=data)
             self.assertEqual(response.data["code"], 0)
+            self.assertEqual(response.data["data"]["title"], "11")
+            self.assertEqual(response.data["data"]["content"], "22")
 
         def test_edit_group_at_least_one(self):
             self.client.login(username="test1", password="testaa")

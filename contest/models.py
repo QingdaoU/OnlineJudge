@@ -33,6 +33,8 @@ class Contest(models.Model):
     # 这个比赛是谁创建的
     created_by = models.ForeignKey(User)
     groups = models.ManyToManyField(Group)
+    # 是否可见 false的话相当于删除
+    visible = models.BooleanField(default=True)
 
     class Meta:
         db_table = "contest"
