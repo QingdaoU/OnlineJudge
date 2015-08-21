@@ -6,12 +6,12 @@ from judge.judger.result import result
 
 class Submission(models.Model):
     id = models.CharField(max_length=32, default=rand_str, primary_key=True, db_index=True)
-    user_id = models.IntegerField()
+    user_id = models.IntegerField(db_index=True)
     create_time = models.DateTimeField(auto_now_add=True)
     result = models.IntegerField(default=result["waiting"])
     language = models.IntegerField()
     code = models.TextField()
-    problem_id = models.IntegerField()
+    problem_id = models.IntegerField(db_index=True)
     # 这个字段可能存储很多数据 比如编译错误、系统错误的时候，存储错误原因字符串
     # 正常运行的时候存储 lrun 的判题结果，比如cpu时间内存之类的
     info = models.TextField(blank=True, null=True)

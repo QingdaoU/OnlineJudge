@@ -68,3 +68,7 @@ li.list-group-item {
 .panel>.list-group{
     padding: 0 0;
 }
+
+.ac-flag{
+    color: green;
+}
