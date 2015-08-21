@@ -1,10 +1,11 @@
 # coding=utf-8
-# from __future__ import absolute_import
+import datetime
+import redis
 import MySQLdb
 import subprocess
 from ..judger.result import result
 from ..judger_controller.celery import app
-from settings import docker_config, source_code_dir, test_case_dir, submission_db
+from settings import docker_config, source_code_dir, test_case_dir, submission_db, redis_config
 
 
 @app.task
@@ -36,3 +37,5 @@ def judge(submission_id, time_limit, memory_limit, test_case_id):
                     (result["system_error"], str(e), submission_id))
         conn.commit()
         conn.close()
+    r = redis.Redis(host=redis_config["host"], port=redis_config["port"], db=redis_config["db"])
+    r.decr("judge_queue_length")
