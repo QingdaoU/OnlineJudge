@@ -16,6 +16,8 @@ require(["jquery", "chart"], function ($, Chart) {
     };
     var chart = new Chart($("#waiting-queue-chart").get(0).getContext("2d")).Line(data);
 
+    var dataCounter = 0;
+
     function getMonitorData(){
         var hash = location.hash;
         if (hash != "#monitor/monitor"){
@@ -28,13 +30,17 @@ require(["jquery", "chart"], function ($, Chart) {
             success: function(data){
                 if(!data.code){
                     chart.addData([data.data["count"]], data.data["time"])
+                    dataCounter ++;
                 }
             }
         })
     }
 
     $("#clear-chart-data").click(function(){
-        chart.removeData();
+        for(var i = 0;i < dataCounter;i++) {
+            chart.removeData();
+            dataCounter = 0;
+        }
     });
 
     var intervalId = setInterval(getMonitorData, 3000);
