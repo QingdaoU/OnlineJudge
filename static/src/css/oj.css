@@ -68,3 +68,18 @@ li.list-group-item {
 .panel>.list-group{
     padding: 0 0;
 }
+
+.CodeMirror{
+    min-height: 250px;
+    _height:250px;
+    height: auto;
+}
+
+.CodeMirror-scroll {
+  overflow: auto;
+  min-height: 250px;
+  _height:250px;
+  height: auto;
+  position: relative;
+  outline: none;
+}
