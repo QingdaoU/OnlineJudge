@@ -106,10 +106,9 @@ class SubmissionAdminAPIView(APIView):
 
 @login_required
 def my_submission_list_page(request, page = 1):
-    try:
-        submissions = Submission.objects.filter(user_id=request.user.id)
-    except Submission.DoesNotExist:
-        return error_page(request, u"你还没有提交过任何问题")
+    if not page:
+	    page = 1
+    submissions = Submission.objects.filter(user_id=request.user.id)
     paginator = Paginator(submissions, 20)
     try:
         current_page = paginator.page(int(page))
@@ -120,7 +119,6 @@ def my_submission_list_page(request, page = 1):
         previous_page = current_page.previous_page_number()
     except Exception:
         pass
-
     try:
         next_page = current_page.next_page_number()
     except Exception:
@@ -129,6 +127,3 @@ def my_submission_list_page(request, page = 1):
     return render(request, "oj/submission/my_submissions_list.html",
                   {"submissions": current_page, "page": int(page),
                    "previous_page": previous_page, "next_page": next_page})
-
-        
-    return render(request, "oj/submission/my_submissions_list.html", {"submissions": submission})
