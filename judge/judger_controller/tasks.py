@@ -10,6 +10,8 @@ from settings import docker_config, source_code_dir, test_case_dir, submission_d
 
 @app.task
 def judge(submission_id, time_limit, memory_limit, test_case_id):
+    r = redis.Redis(host=redis_config["host"], port=redis_config["port"], db=redis_config["db"])
+    r.incr("judge_queue_length")
     try:
         command = "%s run -t -i --privileged --rm=true " \
                   "-v %s:/var/judger/test_case/ " \
@@ -37,3 +39,4 @@ def judge(submission_id, time_limit, memory_limit, test_case_id):
                     (result["system_error"], str(e), submission_id))
         conn.commit()
         conn.close()
+    r.decr("judge_queue_length")
