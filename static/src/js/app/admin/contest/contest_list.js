@@ -14,8 +14,9 @@ require(["jquery", "avalon", "csrfToken", "bsAlert", "editor", "datetimePicker"]
                 page: 1,
                 totalPage: 1,
                 keyword: "",
-		editingContestId: 0,
-		editTitle: "",
+				editingContestId: 0,
+				editTitle: "",
+				editingProblemList: [],
                 getNext: function () {
                     if (!vm.nextPage)
                         return;
@@ -38,13 +39,14 @@ require(["jquery", "avalon", "csrfToken", "bsAlert", "editor", "datetimePicker"]
                     getPageData(page_index);
                 },
                 showEditContestArea: function (contestId) {
-			if (contestId == vm.editingContestId)
-				vm.editingContestId = 0;
-			else {
-				vm.editingContestId = contestId;
-				vm.editTitle = vm.contestList[contestId-1].title;
-				editor("#editor").setValue(vm.contestList[contestId-1].description);
-			}
+					if (contestId == vm.editingContestId)
+						vm.editingContestId = 0;
+					else {
+						vm.editingContestId = contestId;
+						vm.editTitle = vm.contestList[contestId-1].title;
+						editor("#editor").setValue(vm.contestList[contestId-1].description);
+						vm.editingProblemList = vm.contestList[contestId-1].problemList;
+					}
                 }
             });
 
@@ -74,7 +76,12 @@ require(["jquery", "avalon", "csrfToken", "bsAlert", "editor", "datetimePicker"]
                 }
             });
 */
-                        vm.contestList =[{id: 1, title:"The first contest", created_by: {username:"owen"}, description:"<p>this contest is just for<h1>fun</h1></p>"}]; 
+                        vm.contestList =[{
+							id: 1, title:"The first contest",
+							created_by: {username:"owen"},
+							description:"<p>this contest is just for<h1>fun</h1></p>",
+							problemList:[{title:"A+B problem", id:1, testCaseList:[1,2], samples:[1,2]}]
+							}]; 
                         vm.totalPage = 1;
                         vm.previousPage = false;
                         vm.nextPage = false;

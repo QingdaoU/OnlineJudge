@@ -52,32 +52,32 @@
                 <textarea id="editor" placeholder="这里输入内容" autofocus ms-duplex="editDescription"></textarea>
                 <small ms-visible="description==''" style="color:red">请填写比赛描述</small>
             </div>
-            <div class="col-md-6">
+            <div class="col-md-6 form-group">
                 <label>开始时间</label>
             </div>
-            <div class="col-md-6">
+            <div class="col-md-6 form-group">
                 <label>结束时间</label>
             </div>
-            <div class="col-md-6">
+            <div class="col-md-6 form-group">
                 <input type="text" class="form-control" name="start_time" id="contest_start_time"
                            ms-duplex="editStartTime">
             </div>
-            <div class="col-md-6">
+            <div class="col-md-6 form-group">
                 <input type="text" class="form-control" name="editEnd_time" id="contest_end_time" ms-duplex="endTime">
             </div>
-            <div class="col-md-6">
+            <div class="col-md-6 form-group">
                 <label>密码保护</label>
             </div>
-            <div class="col-md-3">
+            <div class="col-md-3 form-group">
                 <label>模式</label>
             </div>
-            <div class="col-md-3">
+            <div class="col-md-3 form-group">
                 <label>结束前是否开放排名</label>
             </div>
-            <div class="col-md-6">
+            <div class="col-md-6 form-group">
                 <input type="text" class="form-control" name="password" placeholder="留空就是公开赛" ms-duplex="editPassword">
             </div>
-            <div class="col-md-3">
+            <div class="col-md-3 form-group">
                     <label><input type="radio" name="mode" ms-duplex-checked="editMode">
                         <small>OI</small>
                     </label>
@@ -86,10 +86,31 @@
                     </label>
             </div>
             <div class="col-md-3">             
-                    <label class="text"><input type="checkbox" ms-duplex-checked="editShowRank">
-                        <small>开放排名</small>
-                    </label>
+					<div class="form-group">
+						<label class="text"><input type="checkbox" ms-duplex-checked="editShowRank">
+							<small>开放排名</small>
+						</label>
+                    </div>
             </div>
+            <div class="col-md-12">         
+				<table class="table table-striped">
+						<tr>
+							<th>编号</th>
+							<th>题目</th>
+							<th>测试数据</th>
+							<td></td>
+						</tr>
+						<tr ms-repeat="editingProblemList">
+							<td>题目{{ $index+1 }}</td>
+							<td>{{ el.title }}</td>
+							<td>{{ el.testCaseList.length }}组</td>
+							<td>
+								<a href="javascript:void(0)"class="btn-sm btn-info" ms-click="showProblemEditArea($index+1)">编辑</a>
+								<a href="javascript:void(0)"class="btn-sm btn-danger" ms-click="del_problem($index+1)">删除</a>
+							</td>
+						</tr>
+					</table>
+                </div>
     </div>
 
 </div>
