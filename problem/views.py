@@ -6,13 +6,14 @@ import hashlib
 import json
 
 from django.shortcuts import render
-from django.db.models import Q
+from django.db.models import Q, Count
 from django.core.paginator import Paginator
 
 from rest_framework.views import APIView
 
 from django.conf import settings
 
+from announcement.models import Announcement
 from utils.shortcuts import (serializer_invalid_response, error_response,
                              success_response, paginate, rand_str, error_page)
 from .serizalizers import (CreateProblemSerializer, EditProblemSerializer, ProblemSerializer,
@@ -251,7 +252,13 @@ def problem_list_page(request, page=1):
     except Exception:
         pass
 
+    # 右侧的公告列表
+    announcements = Announcement.objects.filter(is_global=True, visible=True).order_by("-create_time")
+    # 右侧标签列表 按照关联的题目的数量排序 排除题目数量为0的
+    tags = ProblemTag.objects.annotate(problem_number=Count("problem")).filter(problem_number__gt=0).order_by("-problem_number")
+
     return render(request, "oj/problem/problem_list.html",
                   {"problems": current_page, "page": int(page),
                    "previous_page": previous_page, "next_page": next_page,
-                   "keyword": keyword, "tag": tag_text})
+                   "keyword": keyword, "tag": tag_text,
+                   "announcements": announcements, "tags": tags})

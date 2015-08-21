@@ -1,5 +1,6 @@
 # coding=utf-8
 import json
+import redis
 
 from django.shortcuts import render
 
@@ -7,6 +8,7 @@ from rest_framework.views import APIView
 
 from judge.judger.result import result
 from judge.judger_controller.tasks import judge
+from judge.judger_controller.settings import redis_config
 from account.decorators import login_required
 from account.models import SUPER_ADMIN
 from problem.models import Problem
@@ -29,6 +31,9 @@ class SubmissionAPIView(APIView):
             data = serializer.data
             try:
                 problem = Problem.objects.get(id=data["problem_id"])
+                # 更新问题的总提交计数
+                problem.total_submit_number += 1
+                problem.save()
             except Problem.DoesNotExist:
                 return error_response(u"题目不存在")
             submission = Submission.objects.create(user_id=request.user.id, language=int(data["language"]),
@@ -38,6 +43,10 @@ class SubmissionAPIView(APIView):
                 judge.delay(submission.id, problem.time_limit, problem.memory_limit, problem.test_case_id)
             except Exception:
                 return error_response(u"提交判题任务失败")
+
+            # 增加redis 中判题队列长度的计数器
+            r = redis.Redis(host=redis_config["host"], port=redis_config["port"], db=redis_config["db"])
+            r.incr("judge_queue_length")
 
             return success_response({"submission_id": submission.id})
         else:
@@ -52,6 +61,18 @@ class SubmissionAPIView(APIView):
             submission = Submission.objects.get(id=submission_id, user_id=request.user.id)
         except Submission.DoesNotExist:
             return error_response(u"提交不存在")
+        # 标记这个submission 已经被统计
+        if not submission.is_counted:
+            submission.is_counted = True
+            submission.save()
+        if submission.result == result["accepted"]:
+            # 更新题目的 ac 计数器
+            try:
+                problem = Problem.objects.get(id=submission.problem_id)
+                problem.total_accepted_number += 1
+                problem.save()
+            except Problem.DoesNotExist:
+                pass
         response_data = {"result": submission.result}
         if submission.result == 0:
             response_data["accepted_answer_time"] = submission.accepted_answer_time
@@ -64,7 +85,8 @@ def problem_my_submissions_list_page(request, problem_id):
         problem = Problem.objects.get(id=problem_id, visible=True)
     except Problem.DoesNotExist:
         return error_page(request, u"问题不存在")
-    submissions = Submission.objects.filter(user_id=request.user.id, problem_id=problem.id).order_by("-create_time")
+    submissions = Submission.objects.filter(user_id=request.user.id, problem_id=problem.id).order_by("-create_time").\
+        values("id", "result", "create_time", "accepted_answer_time", "language")
     return render(request, "oj/problem/my_submissions_list.html",
                   {"submissions": submissions, "problem": problem})
 

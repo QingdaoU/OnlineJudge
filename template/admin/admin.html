@@ -1,3 +1,4 @@
+{% verbatim %}
 <!DOCTYPE html>
 <html>
 <head>
@@ -7,10 +8,6 @@
     <meta name="renderer" content="webkit">
 
     <title>在线评测系统 - 后台管理</title>
-
-    <!-- custom css begin -->
-    {% block css_block %}{% endblock %}
-    <!-- custom css end -->
 
     <!-- global css begin -->
     <link href="/static/css/admin.css" rel="stylesheet">
@@ -70,7 +67,13 @@
         <!-- admin left begin-->
         <div class="col-md-2">
             <ul class="list-group">
-                <li class="list-group-header">首页</li>
+                <div ms-repeat="adminNavList">
+                    <li class="list-group-header">{{ el.name }}</li>
+                    <li class="list-group-item" ms-attr-id="getLiId(item.hash)" ms-repeat-item="el.children">
+                    <a ms-attr-href="el.hash">{{ item.name }}</a>
+                    </li>
+                </div>
+                <!--<li class="list-group-header">首页</li>
                 <li class="list-group-item" id="li-index-index">
                     <a href="#index/index">主页</a>
                 </li>
@@ -80,8 +83,12 @@
                 <li class="list-group-item" id="li-statistics-statistics">
                     <a href="#statistics/statistics">统计</a>
                 </li>
+                <li class="list-group-header">通用</li>
                 <li class="list-group-item" id="li-announcement-announcement">
-                    <a href="#announcement/announcement">公告</a>
+                    <a href="#announcement/announcement">公告管理</a>
+                </li>
+                <li class="list-group-item" id="li-user-user_list">
+                    <a href="#user/user_list">用户管理</a>
                 </li>
                 <li class="list-group-header">题目管理</li>
                 <li class="list-group-item" id="li-problem-problem_list">
@@ -97,17 +104,14 @@
                 <li class="list-group-item" id="li-contest-add_contest">
                     <a href="#contest/add_contest">创建比赛</a>
                 </li>
-                <li class="list-group-header">用户管理</li>
-                <li class="list-group-item" id="li-user-user_list">
-                    <a href="#user/user_list">用户列表</a>
-                </li>
+
                 <li class="list-group-header">小组管理</li>
                 <li class="list-group-item" id="li-group-group">
                     <a href="#group/group">小组列表</a>
                 </li>
                 <li class="list-group-item" id="li-group-join_group_request_list">
                     <a href="#group/join_group_request_list">加入小组请求</a>
-                </li>
+                </li>-->
             </ul>
         </div>
         <!-- admin left end -->
@@ -134,3 +138,4 @@
 <!-- footer end -->
 </body>
 </html>
+{% endverbatim %}

@@ -6,7 +6,7 @@ from django.views.generic import TemplateView
 from account.views import (UserLoginAPIView, UsernameCheckAPIView, UserRegisterAPIView,
                            UserChangePasswordAPIView, EmailCheckAPIView,
                            UserAdminAPIView, UserInfoAPIView)
-from announcement.views import AnnouncementAPIView, AnnouncementAdminAPIView
+from announcement.views import AnnouncementAdminAPIView
 
 from group.views import (GroupAdminAPIView, GroupMemberAdminAPIView,
                          JoinGroupAPIView, JoinGroupRequestAdminAPIView)
@@ -15,6 +15,7 @@ from admin.views import AdminTemplateView
 
 from problem.views import TestCaseUploadAPIView, ProblemTagAdminAPIView, ProblemAdminAPIView
 from submission.views import SubmissionAPIView, SubmissionAdminAPIView
+from monitor.views import QueueLengthMonitorAPIView
 
 
 urlpatterns = [
@@ -38,7 +39,6 @@ urlpatterns = [
     url(r'^problem/(?P<problem_id>\d+)/$', "problem.views.problem_page", name="problem_page"),
     url(r'^announcement/(?P<announcement_id>\d+)/$', "announcement.views.announcement_page",
         name="announcement_page"),
-    url(r'^api/announcements/$', AnnouncementAPIView.as_view(), name="announcement_list_api"),
     url(r'^admin/contest/$', TemplateView.as_view(template_name="admin/contest/add_contest.html"),
         name="add_contest_page"),
     url(r'^problems/$', "problem.views.problem_list_page", name="problem_list_page"),
@@ -61,5 +61,6 @@ urlpatterns = [
     url(r'^api/admin/submission/$', SubmissionAdminAPIView.as_view(), name="submission_admin_api_view"),
     url(r'^my_submissions/$', "submission.views.my_submission_list_page", name="my_submission_list_page"),
     url(r'^my_submissions/(?P<page>\d+)/$', "submission.views.my_submission_list_page", name="my_submission_list_page"),
+    url(r'^api/admin/monitor/$', QueueLengthMonitorAPIView.as_view(), name="queue_length_monitor_api"),
 
 ]
