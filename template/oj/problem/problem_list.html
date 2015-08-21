@@ -6,10 +6,10 @@
             <div class="col-lg-9">
                 <div class="row">
                     <div class="right">
-                        <form class="form-inline" onsubmit="return false;">
+                        <form class="form-inline" method="get">
                             <div class="form-group-sm">
-                                <input name="keyWord" class="form-control" placeholder="请输入关键词" ms-duplex="key_word">
-                                <input type="submit" value="搜索" class="btn btn-primary" ms-click="getPage(1)">
+                                <input name="keyword" class="form-control" placeholder="请输入关键词">
+                                <input type="submit" value="搜索" class="btn btn-primary">
                             </div>
                         </form>
                     </div>
@@ -18,15 +18,17 @@
                     <table class="table table-striped">
                         <thead>
                         <tr>
+                            <th></th>
                             <th>#</th>
                             <th>题目</th>
-                            <th>难度</th>
-                            <th>通过率</th>
+                            <th><a href="/problems/?order_by=difficulty">难度</a></th>
+                            <th><a href="/problems/?order_by=aceptance">通过率</a></th>
                         </tr>
                         </thead>
                         <tbody>
                         {% for item in problems %}
                             <tr>
+                                <th><span class="glyphicon glyphicon-ok ac-flag"></span></th>
                                 <th scope="row"><a href="/problem/{{ item.id }}/">{{ item.id }}</a></th>
                                 <td><a href="/problem/{{ item.id }}/">{{ item.title }}</a></td>
                                 <td>{{ item.difficulty }}</td>
@@ -59,7 +61,11 @@
                             <span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span>
                             公告
                         </h3></div>
-                    <div class="panel-body"> Panel content</div>
+                    <div class="panel-body">
+                        {% for item in announcements %}
+                            {{ forloop.counter }}.&nbsp;&nbsp;<a href="/announcement/{{ item.id }}/" target="_blank">{{ item.title }}</a>
+                        {% endfor %}
+                    </div>
                 </div>
                 <div class="panel panel-info">
                     <div class="panel-heading">
@@ -69,26 +75,12 @@
                         </h3>
                     </div>
                     <ul class="list-group">
-                        <li class="list-group-item problem-tag">
-                            <span class="badge">14</span>
-                            Cras justo odio
+                        {% for item in tags %}
+                        <li class="list-group-item problem-tag" onclick="location.href='/problems/?tag={{ item.name }}'">
+                            <span class="badge">{{ item.problem_number }}</span>
+                            {{ item.name }}
                         </li>
-                        <li class="list-group-item problem-tag">
-                            <span class="badge">14</span>
-                            Cras justo odio
-                        </li>
-                        <li class="list-group-item problem-tag">
-                            <span class="badge">14</span>
-                            Cras justo odio
-                        </li>
-                        <li class="list-group-item problem-tag">
-                            <span class="badge">14</span>
-                            Cras justo odio
-                        </li>
-                        <li class="list-group-item problem-tag">
-                            <span class="badge">14</span>
-                            Cras justo odio
-                        </li>
+                        {% endfor %}
                     </ul>
                 </div>
 
