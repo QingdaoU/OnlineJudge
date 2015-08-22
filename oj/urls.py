@@ -8,6 +8,8 @@ from account.views import (UserLoginAPIView, UsernameCheckAPIView, UserRegisterA
                            UserAdminAPIView, UserInfoAPIView)
 from announcement.views import AnnouncementAdminAPIView
 
+from contest.views import ContestAdminAPIView, ContestProblemAdminAPIView
+
 from group.views import (GroupAdminAPIView, GroupMemberAdminAPIView,
                          JoinGroupAPIView, JoinGroupRequestAdminAPIView)
 
@@ -35,6 +37,7 @@ urlpatterns = [
     url(r'^api/username_check/$', UsernameCheckAPIView.as_view(), name="username_check_api"),
     url(r'^api/email_check/$', EmailCheckAPIView.as_view(), name="email_check_api"),
     url(r'^api/admin/announcement/$', AnnouncementAdminAPIView.as_view(), name="announcement_admin_api"),
+    url(r'^api/admin/contest/$', ContestAdminAPIView.as_view(), name="contest_admin_api"),
     url(r'^api/admin/user/$', UserAdminAPIView.as_view(), name="user_admin_api"),
     url(r'^problem/(?P<problem_id>\d+)/$', "problem.views.problem_page", name="problem_page"),
     url(r'^announcement/(?P<announcement_id>\d+)/$', "announcement.views.announcement_page",
@@ -49,6 +52,7 @@ urlpatterns = [
     url(r'^api/admin/group_member/$', GroupMemberAdminAPIView.as_view(), name="group_member_admin_api"),
     url(r'^api/admin/group_join/$', JoinGroupAPIView.as_view(), name="group_join_admin_api"),
     url(r'^api/admin/problem/$', ProblemAdminAPIView.as_view(), name="problem_admin_api"),
+    url(r'^api/admin/contest_problem/$', ContestProblemAdminAPIView.as_view(), name="contest_problem_admin_api"),
     url(r'^api/admin/test_case_upload/$', TestCaseUploadAPIView.as_view(), name="test_case_upload_api"),
     url(r'^api/admin/tag/$', ProblemTagAdminAPIView.as_view(), name="problem_tag_admin_api"),
     url(r'^problem/(?P<problem_id>\d+)/my_submissions/$', "submission.views.problem_my_submissions_list_page",

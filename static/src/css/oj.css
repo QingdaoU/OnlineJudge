@@ -69,6 +69,22 @@ li.list-group-item {
     padding: 0 0;
 }
 
-.ac-flag{
+.ac-flag {
     color: green;
+}
+
+.CodeMirror{
+    min-height: 250px;
+    _height:250px;
+    height: auto;
+}
+
+.CodeMirror-scroll {
+  overflow: auto;
+  min-height: 250px;
+  _height:250px;
+  height: auto;
+  position: relative;
+  outline: none;
+
 }
