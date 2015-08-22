@@ -226,7 +226,8 @@ class JoinGroupRequestAdminAPIView(APIView, GroupAPIViewBase):
         if serializer.is_valid():
             data = serializer.data
             try:
-                join_request = JoinGroupRequest.objects.get(id=data["request_id"], group__admin=request.user, status=False)
+                join_request = JoinGroupRequest.objects.get(id=data["request_id"], group__admin=request.user,
+                                                            status=False)
             except JoinGroupRequest.DoesNotExist:
                 return error_response(u"请求不存在")
 

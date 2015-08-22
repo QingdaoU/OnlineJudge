@@ -53,7 +53,7 @@ INSTALLED_APPS = (
     'admin',
     'submission',
     'mq',
-
+    'contest',
 
     'django_extensions',
     'rest_framework',
@@ -164,4 +164,9 @@ LOGGING = {
             'propagate': True,
         }
     },
+}
+
+
+REST_FRAMEWORK = {
+    'TEST_REQUEST_DEFAULT_FORMAT': 'json'
 }
