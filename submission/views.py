@@ -117,7 +117,7 @@ class SubmissionAdminAPIView(APIView):
 @login_required
 def my_submission_list_page(request, page=1):
     submissions = Submission.objects.filter(user_id=request.user.id). \
-        values("id", "result", "create_time", "accepted_answer_time", "language")
+        values("id", "result", "create_time", "accepted_answer_time", "language").order_by("-create_time")
     paginator = Paginator(submissions, 20)
     try:
         current_page = paginator.page(int(page))
@@ -135,4 +135,4 @@ def my_submission_list_page(request, page=1):
 
     return render(request, "oj/submission/my_submissions_list.html",
                   {"submissions": current_page, "page": int(page),
-                   "previous_page": previous_page, "next_page": next_page, "startId":int(page)*20-20})
+                   "previous_page": previous_page, "next_page": next_page, "start_id": int(page) * 20 - 20})
