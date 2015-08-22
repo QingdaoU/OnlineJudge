@@ -1,9 +1,9 @@
 require(["jquery", "avalon", "csrfToken", "bsAlert", "editor", "datetimePicker"], function ($, avalon, csrfTokenHeader, bsAlert, editor) {
 
     avalon.ready(function () {
-        if(avalon.vmodels.contestList){
+        if (avalon.vmodels.contestList) {
             vm = avalon.vmodels.contestList;
-	    vm.editingContest = 0;
+            vm.editingContest = 0;
         }
         else {
             var vm = avalon.define({
@@ -16,11 +16,11 @@ require(["jquery", "avalon", "csrfToken", "bsAlert", "editor", "datetimePicker"]
                 group: "-1",
                 groupList: [],
                 keyword: "",
-				editingContestId: 0,
-				editTitle: "",
-				editProblemList: [],
-				editPassword: "",
-				editStartTime: "",
+                editingContestId: 0,
+                editTitle: "",
+                editProblemList: [],
+                editPassword: "",
+                editStartTime: "",
                 editEndTime: "",
                 editMode: "",
                 editShowRank: false,
@@ -30,8 +30,8 @@ require(["jquery", "avalon", "csrfToken", "bsAlert", "editor", "datetimePicker"]
                 editSamples: [],
                 editTestCaseList: [],
                 editChoseGroupList: [],
-				modelNameList: ["ACM", "AC总数", "分数"],
-				contestTypeNameList: ["小组赛", "公开赛", "有密码保护的公开赛"],
+                modelNameList: ["ACM", "AC总数", "分数"],
+                contestTypeNameList: ["小组赛", "公开赛", "有密码保护的公开赛"],
                 getNext: function () {
                     if (!vm.nextPage)
                         return;
@@ -54,32 +54,32 @@ require(["jquery", "avalon", "csrfToken", "bsAlert", "editor", "datetimePicker"]
                     getPageData(page_index);
                 },
                 showEditContestArea: function (contestId) {
-					if (contestId == vm.editingContestId)
-						vm.editingContestId = 0;
-					else {
-						vm.editingContestId = contestId;
-						vm.editTitle = vm.contestList[contestId-1].title;
-						vm.editEndTime = vm.contestList[contestId-1].end_time;
-						vm.editPassword = vm.contestList[contestId-1].password;
-						vm.editStartTime = vm.contestList[contestId-1].start_time;
-						vm.editMode     = vm.contestList[contestId-1].mode;
-						vm.editChoseGroupList = [];
-						//= vm.contestList[contestId-1].group;//
-						/*for (var key in vm.contestList[contestId-1].groups){
-						    var id = parseInt(vm.contestList[contestId-1].groups);
-						    for ()
-						    vm.editChoseGroupList.push({
-						        name:vm.groupList[vm.group].name,
-						        index:index,
-						        id:parseInt(vm.contestList[contestId-1].groups)
-						    });
-						}*/
-						vm.editShowRank = vm.contestList[contestId-1].show_rank;
-						vm.editShowSubmission = vm.contestList[contestId-1].show_user_submission;
-						//vm.editProblemList    = vm.contestList[contestId-1].problems
-						editor("#editor").setValue(vm.contestList[contestId-1].description);
-						vm.editingProblemList = vm.contestList[contestId-1].problemList;
-					}
+                    if (contestId == vm.editingContestId)
+                        vm.editingContestId = 0;
+                    else {
+                        vm.editingContestId = contestId;
+                        vm.editTitle = vm.contestList[contestId - 1].title;
+                        vm.editEndTime = vm.contestList[contestId - 1].end_time;
+                        vm.editPassword = vm.contestList[contestId - 1].password;
+                        vm.editStartTime = vm.contestList[contestId - 1].start_time;
+                        vm.editMode = vm.contestList[contestId - 1].mode;
+                        vm.editChoseGroupList = [];
+                        //= vm.contestList[contestId-1].group;//
+                        /*for (var key in vm.contestList[contestId-1].groups){
+                         var id = parseInt(vm.contestList[contestId-1].groups);
+                         for ()
+                         vm.editChoseGroupList.push({
+                         name:vm.groupList[vm.group].name,
+                         index:index,
+                         id:parseInt(vm.contestList[contestId-1].groups)
+                         });
+                         }*/
+                        vm.editShowRank = vm.contestList[contestId - 1].show_rank;
+                        vm.editShowSubmission = vm.contestList[contestId - 1].show_user_submission;
+                        //vm.editProblemList    = vm.contestList[contestId-1].problems
+                        editor("#editor").setValue(vm.contestList[contestId - 1].description);
+                        vm.editingProblemList = vm.contestList[contestId - 1].problemList;
+                    }
                 }
             });
 
@@ -112,7 +112,7 @@ require(["jquery", "avalon", "csrfToken", "bsAlert", "editor", "datetimePicker"]
 
         var isSuperAdmin = true;
 
-		$.ajax({      //用于获取该用户创建的所有小组的ajax请求
+        $.ajax({      //用于获取该用户创建的所有小组的ajax请求
 
             url: "/api/admin/group/",
             method: "get",
@@ -120,41 +120,20 @@ require(["jquery", "avalon", "csrfToken", "bsAlert", "editor", "datetimePicker"]
             success: function (data) {
                 if (!data.code) {
                     if (!data.data.length) {
-                            bsAlert("您的用户权限只能创建组内比赛，但是您还没有创建过小组");
-                            return;
+                        bsAlert("您的用户权限只能创建组内比赛，但是您还没有创建过小组");
+                        return;
                     }
                     for (var i = 0; i < data.data.length; i++) {
-                            var item = data.data[i];
-                            item["chose"] = false;
-                            vm.groupList.push(item);
-                        }
-                    }
-                    else {
-                        bsAlert(data.data);
+                        var item = data.data[i];
+                        item["chose"] = false;
+                        vm.groupList.push(item);
                     }
                 }
-
-
-			beforeSend: csrfTokenHeader,
-			url: url,
-			dataType: "json",
-			method: "get",
-			contentType: "application/json",
-			success: function (data) {
-				if (!data.code) {
-				    if (isSuperAdmin)
-						vm.groupList.push({id:0, name:"所有人", chose: false});
-					for (var key in data.data) {
-						data.data[key].chose = false;
-						vm.groupList.push(data.data[key]);
-					}
-				}
-				else {
-					bsAlert(data.data);
-					console.log(data);
-		    	}
-			}
-		});
+                else {
+                    bsAlert(data.data);
+                }
+            }
+        });
     });
     avalon.scan();
 });
