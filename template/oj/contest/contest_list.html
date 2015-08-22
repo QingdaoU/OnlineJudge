@@ -1,0 +1,106 @@
+{% extends "oj_base.html" %}
+{% block body %}
+    {% load problem %}
+    <div class="container main">
+        <div class="row">
+            <div class="col-lg-9">
+                <div class="row">
+                    <div class="right">
+                        <form class="form-inline" method="get">
+                            <div class="form-group-sm">
+                                <input name="keyword" class="form-control" placeholder="请输入关键词">
+                                <input type="submit" value="搜索" class="btn btn-primary">
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                <div>
+                    <table class="table table-striped">
+                        <thead>
+                        <tr>
+                            <th></th>
+                            <th>#</th>
+                            <th>比赛名称</th>
+                            <th>开始时间</th>
+                            <th>比赛模式</th>
+                            <th>比赛类型</th>
+                            <th>状态</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for item in contests %}
+                            <tr>
+                                <th><span class="glyphicon glyphicon-ok ac-flag"></span></th>
+                                <th scope="row"><a href="/contest/{{ item.id }}/">{{ item.id }}</a></th>
+                                <td><a href="/contest/{{ item.id }}/">{{ item.title }}</a></td>
+                                <td>{{ item.start_time }}</td>
+                                {% ifequal item.mode 0 %}
+                                    <td>acm模式</td>
+                                {% endifequal %}
+                                {% ifequal item.mode 1 %}
+                                    <td>AC数量模式</td>
+                                {% endifequal %}
+                                {% ifequal item.mode 2 %}
+                                    <td>AC总分排名模式</td>
+                                {% endifequal %}
+
+                                {% ifequal item.contest_type 0 %}
+                                    <td>小组赛</td>
+                                {% endifequal %}
+                                {% ifequal item.contest_type 1 %}
+                                    <td>公开赛</td>
+                                {% endifequal %}
+                                {% ifequal item.contest_type 2 %}
+                                    <td>公开赛(密码保护)</td>
+                                {% endifequal %}
+
+                                {% if now < item_start_time %}
+                                    <td>比赛还未开始</td>
+                                {% elif item.start_time <= now and now <= item_end_time %}
+                                    <td>比赛正在进行</td>
+                                {% else %}
+                                    <td>比赛已结束</td>
+                                {% endif %}
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                    <nav>
+                        <ul class="pager">
+                            {% if previous_page %}
+                                <li class="previous"><a
+                                        href="/problems/{{ previous_page }}/{% if keyword %}?keyword={{ keyword }}{% endif %}{% if tag %}?tag={{ tag }}{% endif %}">
+                                    <span aria-hidden="true">&larr;</span> 上一页</a></li>
+                            {% endif %}
+                            {% if next_page %}
+                                <li class="next"><a
+                                        href="/problems/{{ next_page }}/{% if keyword %}?keyword={{ keyword }}{% endif %}{% if tag %}?tag={{ tag }}{% endif %}">下一页 <span
+                                        aria-hidden="true">&rarr;</span></a></li>
+                            {% endif %}
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+
+            <div class="col-lg-3">
+                <div class="panel panel-info">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">
+                            <span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span>
+                            公告
+                        </h3></div>
+                    <div class="panel-body">
+                        {% for item in announcements %}
+                            {{ forloop.counter }}.&nbsp;&nbsp;<a href="/announcement/{{ item.id }}/" target="_blank">{{ item.title }}</a>
+                            <br>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block js_block %}
+    <script src="/static/js/app/oj/problem/problem_list.js"></script>
+{% endblock %}
