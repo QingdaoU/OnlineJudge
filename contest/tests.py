@@ -196,24 +196,141 @@ class ContestAdminAPITest(APITestCase):
         for item in response.data["data"]:
             self.assertEqual(item["visible"], True)
 
+    def test_query_by_keyword(self):
+        self.client.login(username="test1", password="testaa")
+        response = self.client.get(self.url + "?keyword=title1")
+        self.assertEqual(response.data["code"], 0)
+
 
 class ContestProblemAdminAPItEST(APITestCase):
     def setUp(self):
         self.client = APIClient()
         self.url = reverse('contest_problem_admin_api')
-        self.user = User.objects.create(username="test", admin_type=SUPER_ADMIN)
+        self.user = User.objects.create(username="test1", admin_type=SUPER_ADMIN)
         self.user.set_password("testaa")
         self.user.save()
-        self.client.login(username="test", password="testaa")
-        self. contest_problem = ContestProblem.objects.create(title="title1",
-                                                              description="description1",
+        self.client.login(username="test1", password="testaa")
+        self.global_contest = Contest.objects.create(title="titlex", description="descriptionx", mode=1,
+                                                     contest_type=2, show_rank=True, show_user_submission=True,
+                                                     start_time="2015-08-15T10:00:00.000Z",
+                                                     end_time="2015-08-15T12:00:00.000Z",
+                                                     password="aacc", created_by=User.objects.get(username="test1"))
+        self. contest_problem = ContestProblem.objects.create(title="titlex",
+                                                              description="descriptionx",
                                                               input_description="input1_description",
                                                               output_description="output1_description",
                                                               test_case_id="1",
                                                               samples=json.dumps([{"input": "1 1", "output": "2"}]),
                                                               time_limit=100,
                                                               memory_limit=1000,
-                                                              difficulty=1,
                                                               hint="hint1",
-                                                              created_by=User.objects.get(username="test"),
+                                                              created_by=User.objects.get(username="test1"),
+                                                              contest=Contest.objects.get(title="titlex"),
                                                               sort_index="a")
+
+    # 以下是发布比赛题目的测试
+    def test_invalid_format(self):
+        data = {"title": "test1"}
+        response = self.client.post(self.url, data=data)
+        self.assertEqual(response.data["code"], 1)
+
+    def test_release_contest_problem_successfully(self):
+        data = {"title": "title2",
+                "description": "description2",
+                "input_description": "input_description2",
+                "output_description": "output_description2",
+                "test_case_id": "1",
+                "source": "source1",
+                "samples": [{"input": "1 1", "output": "2"}],
+                "time_limit": "100",
+                "memory_limit": "1000",
+                "hint": "hint1",
+                "sort_index": "b",
+                "contest_id": self.global_contest.id}
+        response = self.client.post(self.url, data=data)
+        self.assertEqual(response.data["code"], 0)
+
+    def test_contest_does_not_exists(self):
+        data = {"title": "titlezzzzzzzz",
+                "description": "descriptionzzzzzzzzzzz",
+                "input_description": "input_description2",
+                "output_description": "output_description2",
+                "test_case_id": "1",
+                "source": "source1",
+                "samples": [{"input": "1 1", "output": "2"}],
+                "time_limit": "100",
+                "memory_limit": "1000",
+                "hint": "hint1",
+                "sort_index": "b",
+                "contest_id": self.global_contest.id + 10}
+        response = self.client.post(self.url, data=data)
+        self.assertEqual(response.data, {"code": 1, "data": u"比赛不存在"})
+
+    # 以下是编辑比赛题目的测试
+    def test_invalid_data(self):
+        data = {"title": "test1"}
+        response = self.client.put(self.url, data=data)
+        self.assertEqual(response.data["code"], 1)
+
+    def test_edit_problem_does_not_exist(self):
+        data = {"id": self.contest_problem.id + 1,
+                "title": "title2",
+                "description": "description2",
+                "input_description": "input_description2",
+                "output_description": "output_description2",
+                "test_case_id": "1",
+                "source": "source1",
+                "samples": [{"input": "1 1", "output": "2"}],
+                "time_limit": "100",
+                "memory_limit": "1000",
+                "hint": "hint1",
+                "sort_index": "b",
+                "visible": True}
+        response = self.client.put(self.url, data=data)
+        self.assertEqual(response.data, {"code": 1, "data": u"该比赛题目不存在！"})
+
+    def test_edit_problem_successfully(self):
+        data = {"id": self.contest_problem.id,
+                "title": "title2222222",
+                "description": "description22222222",
+                "input_description": "input_description2",
+                "output_description": "output_description2",
+                "test_case_id": "1",
+                "source": "source1",
+                "samples": [{"input": "1 1", "output": "2"}],
+                "time_limit": "100",
+                "memory_limit": "1000",
+                "hint": "hint1",
+                "sort_index": "b",
+                "visible": True}
+        response = self.client.put(self.url, data=data)
+        self.assertEqual(response.data["code"], 0)
+
+    # 以下是比赛题目分页的测试
+    def test_get_data_successfully(self):
+        self.client.login(username="test1", password="testaa")
+        self.assertEqual(self.client.get(self.url).data["code"], 0)
+
+    def test_keyword_contest(self):
+        self.client.login(username="test1", password="testaa")
+        response = self.client.get(self.url + "?visible=true")
+        self.assertEqual(response.data["code"], 0)
+        for item in response.data["data"]:
+            self.assertEqual(item["visible"], True)
+
+    def test_query_by_keyword(self):
+        self.client.login(username="test1", password="testaa")
+        response = self.client.get(self.url + "?keyword=title1")
+        self.assertEqual(response.data["code"], 0)
+
+    def test_query_contest_problem_does_not_exist(self):
+        data = {"contest_problem_id": 1000000}
+        response = self.client.get(self.url, data=data)
+        self.assertEqual(response.data, {"code": 1, "data": u"比赛题目不存在"})
+
+    def test_query_contest_problem_exists(self):
+        data = {"contest_problem_id": self.contest_problem.id}
+        response = self.client.get(self.url, data=data)
+        self.assertEqual(response.data["code"], 0)
+
+

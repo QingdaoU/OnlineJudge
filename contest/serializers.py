@@ -3,6 +3,7 @@ import json
 from rest_framework import serializers
 
 from account.models import User
+from account.serializers import UserSerializer
 from .models import Contest, ContestProblem
 
 
@@ -58,6 +59,7 @@ class JSONField(serializers.Field):
 
 
 class CreateContestProblemSerializer(serializers.Serializer):
+    contest_id = serializers.IntegerField()
     title = serializers.CharField(max_length=50)
     description = serializers.CharField(max_length=10000)
     input_description = serializers.CharField(max_length=10000)
@@ -67,20 +69,20 @@ class CreateContestProblemSerializer(serializers.Serializer):
     test_case_id = serializers.CharField(max_length=40)
     time_limit = serializers.IntegerField()
     memory_limit = serializers.IntegerField()
-    difficulty = serializers.IntegerField()
     hint = serializers.CharField(max_length=3000, allow_blank=True)
     sort_index = serializers.CharField(max_length=30)
 
 
 class ContestProblemSerializer(serializers.ModelSerializer):
-    samples = JSONField()
 
     class ContestSerializer(serializers.ModelSerializer):
         class Meta:
             model = Contest
-            fields = ["title"]
+            fields = ["title", "id"]
 
-    created_by = ContestSerializer()
+    samples = JSONField()
+    contest = ContestSerializer()
+    created_by = UserSerializer()
 
     class Meta:
         model = ContestProblem
@@ -95,7 +97,6 @@ class EditContestProblemSerializer(serializers.Serializer):
     test_case_id = serializers.CharField(max_length=40)
     time_limit = serializers.IntegerField()
     memory_limit = serializers.IntegerField()
-    difficulty = serializers.IntegerField()
     samples = ContestProblemSampleSerializer()
     hint = serializers.CharField(max_length=3000, allow_blank=True)
     visible = serializers.BooleanField()

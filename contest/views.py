@@ -148,6 +148,10 @@ class ContestProblemAdminAPIView(APIView):
         serializer = CreateContestProblemSerializer(data=request.data)
         if serializer.is_valid():
             data = serializer.data
+            try:
+                contest = Contest.objects.get(id=data["contest_id"])
+            except Contest.DoesNotExist:
+                return error_response(u"比赛不存在")
             contest_problem = ContestProblem.objects.create(title=data["title"],
                                                             description=data["description"],
                                                             input_description=data["input_description"],
@@ -156,10 +160,9 @@ class ContestProblemAdminAPIView(APIView):
                                                             samples=json.dumps(data["samples"]),
                                                             time_limit=data["time_limit"],
                                                             memory_limit=data["memory_limit"],
-                                                            difficulty=data["difficulty"],
                                                             created_by=request.user,
                                                             hint=data["hint"],
-                                                            contest=request.contest,
+                                                            contest=contest,
                                                             sort_index=data["sort_index"])
             return success_response(ContestProblemSerializer(contest_problem).data)
         else:
@@ -169,10 +172,10 @@ class ContestProblemAdminAPIView(APIView):
         """
         比赛题目编辑json api接口
         ---
-        request_serializer: EditContestSerializer
+        request_serializer: EditContestProblemSerializer
         response_serializer: ContestProblemSerializer
         """
-        serializer = EditContestSerializer(data=request.data)
+        serializer = EditContestProblemSerializer(data=request.data)
         if serializer.is_valid():
             data = serializer.data
             try:
@@ -186,13 +189,12 @@ class ContestProblemAdminAPIView(APIView):
             contest_problem.test_case_id = data["test_case_id"]
             contest_problem.time_limit = data["time_limit"]
             contest_problem.memory_limit = data["memory_limit"]
-            contest_problem.difficulty = data["difficulty"]
             contest_problem.samples = json.dumps(data["samples"])
             contest_problem.hint = data["hint"]
             contest_problem.visible = data["visible"]
             contest_problem.sort_index = data["sort_index"]
             contest_problem.save()
-            return success_response(ContestProblem(contest_problem).data)
+            return success_response(ContestProblemSerializer(contest_problem).data)
         else:
             return serializer_invalid_response(serializer)
 
