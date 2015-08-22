@@ -267,7 +267,6 @@ def check_user_contest_permission(request, contest):
 
 @login_required
 def contest_page(request, contest_id):
-    print request.session.get("contests", None)
     try:
         contest = Contest.objects.get(id=contest_id)
     except Contest.DoesNotExist:
@@ -277,7 +276,7 @@ def contest_page(request, contest_id):
 
     result = check_user_contest_permission(request, contest)
     if not result["result"]:
-        return render(request, "oj/contest/contest_no_privilege.html", {"contenst": contest, "reason": result["reason"]})
+        return render(request, "oj/contest/contest_no_privilege.html", {"contest": contest, "reason": result["reason"]})
 
     return render(request, "oj/contest/contest_index.html", {"contest": contest})
 
