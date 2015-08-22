@@ -111,9 +111,32 @@ require(["jquery", "avalon", "csrfToken", "bsAlert", "editor", "datetimePicker"]
         }
 
         var isSuperAdmin = true;
+
 		$.ajax({      //用于获取该用户创建的所有小组的ajax请求
+
+            url: "/api/admin/group/",
+            method: "get",
+            dataType: "json",
+            success: function (data) {
+                if (!data.code) {
+                    if (!data.data.length) {
+                            bsAlert("您的用户权限只能创建组内比赛，但是您还没有创建过小组");
+                            return;
+                    }
+                    for (var i = 0; i < data.data.length; i++) {
+                            var item = data.data[i];
+                            item["chose"] = false;
+                            vm.groupList.push(item);
+                        }
+                    }
+                    else {
+                        bsAlert(data.data);
+                    }
+                }
+
+
 			beforeSend: csrfTokenHeader,
-			url: "/api/admin/group/?my_group=true",
+			url: url,
 			dataType: "json",
 			method: "get",
 			contentType: "application/json",
