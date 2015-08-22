@@ -240,11 +240,11 @@ class ContestPasswordVerifyAPIView(APIView):
             if data["password"] != contest.password:
                 return error_response(u" 密码错误")
             else:
-                print request.session.get("contests", None)
                 if "contests" not in request.session:
                     request.session["contests"] = []
                 request.session["contests"].append(int(data["contest_id"]))
-                print request.session["contests"]
+                # https://docs.djangoproject.com/en/dev/topics/http/sessions/#when-sessions-are-saved
+                request.session.modified = True
 
                 return success_response(True)
         else:
