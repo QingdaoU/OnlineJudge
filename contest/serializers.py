@@ -103,3 +103,8 @@ class EditContestProblemSerializer(serializers.Serializer):
     sort_index = serializers.CharField(max_length=30)
 
 
+class ContestPasswordVerifySerializer(serializers.Serializer):
+    contest_id = serializers.IntegerField()
+    password = serializers.CharField(max_length=30)
+
+

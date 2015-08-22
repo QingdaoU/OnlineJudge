@@ -9,15 +9,13 @@ from utils.shortcuts import (serializer_invalid_response, error_response,
                              success_response, paginate, rand_str, error_page)
 
 from account.models import REGULAR_USER, ADMIN, SUPER_ADMIN
+from account.decorators import login_required
 from group.models import Group
 
 from .models import Contest, ContestProblem
 from .serializers import (CreateContestSerializer, ContestSerializer, EditContestSerializer,
-                          CreateContestProblemSerializer, ContestProblemSerializer, EditContestProblemSerializer)
-
-
-def contest_page(request, contest_id):
-    pass
+                          CreateContestProblemSerializer, ContestProblemSerializer,
+                          EditContestProblemSerializer, ContestPasswordVerifySerializer)
 
 
 class ContestAdminAPIView(APIView):
@@ -221,3 +219,59 @@ class ContestProblemAdminAPIView(APIView):
                                                      Q(description__contains=keyword))
 
         return paginate(request, contest_problem, ContestProblemSerializer)
+
+
+class ContestPasswordVerifyAPIView(APIView):
+    @login_required
+    def post(self, request):
+        serializer = ContestPasswordVerifySerializer(data=request.data)
+        if serializer.is_valid():
+            data = request.data
+            try:
+                contest = Contest.objects.get(id=data["contest_id"], contest_type=2)
+            except Contest.DoesNotExist:
+                return error_response(u"密码错误")
+
+            if data["password"] != contest.password:
+                return error_response(u" 密码错误")
+            else:
+                print request.session.get("contests", None)
+                if "contests" not in request.session:
+                    request.session["contests"] = []
+                request.session["contests"].append(int(data["contest_id"]))
+                print request.session["contests"]
+
+                return success_response(True)
+        else:
+            return serializer_invalid_response(serializer)
+
+
+def check_user_contest_permission(request, contest):
+    # 有密码的公开赛
+    if contest.contest_type == 2:
+        # 没有输入过密码
+        if contest.id not in request.session.get("contests", []):
+            return {"result": False, "reason": "password_protect"}
+
+    # 指定小组参加的
+    if contest.contest_type == 0:
+        if not contest.groups.filter(id__in=request.user.group_set.all()).exists():
+            return {"result": False, "reason": "limited_group"}
+    return {"result": True}
+
+
+@login_required
+def contest_page(request, contest_id):
+    print request.session.get("contests", None)
+    try:
+        contest = Contest.objects.get(id=contest_id)
+    except Contest.DoesNotExist:
+        return error_page(request, u"比赛不存在")
+
+    Contest.objects.filter(Q(contest_type__in=[1, 2]) | Q(groups__in=request.user.group_set.all()))
+
+    result = check_user_contest_permission(request, contest)
+    if not result["result"]:
+        return render(request, "oj/contest/contest_no_privilege.html", {"contenst": contest, "reason": result["reason"]})
+
+    return render(request, "oj/contest/contest_index.html", {"contest": contest})

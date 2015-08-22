@@ -8,7 +8,7 @@ from account.views import (UserLoginAPIView, UsernameCheckAPIView, UserRegisterA
                            UserAdminAPIView, UserInfoAPIView)
 from announcement.views import AnnouncementAdminAPIView
 
-from contest.views import ContestAdminAPIView, ContestProblemAdminAPIView
+from contest.views import ContestAdminAPIView, ContestProblemAdminAPIView, ContestPasswordVerifyAPIView
 
 from group.views import (GroupAdminAPIView, GroupMemberAdminAPIView,
                          JoinGroupAPIView, JoinGroupRequestAdminAPIView)
@@ -64,5 +64,7 @@ urlpatterns = [
     url(r'^api/submission/$', SubmissionAPIView.as_view(), name="submission_api"),
     url(r'^api/admin/submission/$', SubmissionAdminAPIView.as_view(), name="submission_admin_api_view"),
     url(r'^api/admin/monitor/$', QueueLengthMonitorAPIView.as_view(), name="queue_length_monitor_api"),
+    url(r'^contest/(?P<contest_id>\d+)/$', "contest.views.contest_page", name="contest_page"),
+    url(r'^api/contest/password/$', ContestPasswordVerifyAPIView.as_view(), name="contest_password_verify_api"),
 
 ]

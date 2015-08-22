@@ -1,0 +1,21 @@
+{% extends 'oj_base.html' %}
+
+{% block body %}
+    <div class="container main">
+        <ul class="nav nav-tabs nav-tabs-google">
+            <li role="presentation" class="active">
+                <a href="/contest/{{ contest.id }}/">比赛详情</a>
+            </li>
+            <li role="presentation">
+                <a href="/contest/{{ contest.id }}/problems/">题目</a>
+            </li>
+            <li role="presentation">
+                <a href="/contest/{{ contest.id }}/submissions/">提交</a>
+            </li>
+            <li role="presentation">
+                <a href="/contest/{{ contest.id }}/rank/">排名</a>
+            </li>
+        </ul>
+        {% include "oj/contest/_contest_header.html" %}
+    </div>
+{% endblock %}
