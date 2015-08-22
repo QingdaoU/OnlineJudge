@@ -6,36 +6,52 @@
 @import url("webuploader/webuploader.css");
 @import url("datetime_picker/bootstrap-datetimepicker.css");
 @import url("tagEditor/jquery.tag-editor.css");
-@import url("contest/add_contest.css");
 
-#loading-gif{
+#loading-gif {
     width: 40px;
     height: 40px;
     margin: auto;
     position: absolute;
-    top: 0; left: 0; bottom: 0; right: 0;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
 }
 
-.line-chart{
-    min-width:100%;
+.line-chart {
+    min-width: 100%;
     max-height: 300px;
 }
 
-.pie-chart{
-    min-width:100%;
+.pie-chart {
+    min-width: 100%;
     max-height: 300px;
 }
 
-.chart-description{
+.chart-description {
     text-align: center;
 }
 
-.pie-chart-container{
+.pie-chart-container {
     width: 50%;
     float: left;
 }
 
-.tag-editor{
+.tag-editor {
     border: 1px solid #d9d9d9;
     border-top-color: silver;
+}
+
+.group-tag {
+    color: #46799b;
+    background: #e0eaf1;
+    white-space: nowrap;
+    overflow: hidden;
+    cursor: pointer;
+    border-radius: 2px 0 0 2px;
+    float: left;
+    padding: 0 4px;
+    box-sizing: border-box;
+    list-style-type: none;
+    margin: 5px;
 }
