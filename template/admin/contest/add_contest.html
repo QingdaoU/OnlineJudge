@@ -6,7 +6,9 @@
             </div>
             <div class="col-md-12">
                 <div class="form-group">
-                    <input type="text" name="name" class="form-control" ms-duplex="title">
+                    <input type="text" name="name" class="form-control" ms-duplex="title" 
+                    data-error="请填写比赛名称(名称不能超过50个字)" required>
+                    <div class="help-block with-errors"></div>
                 </div>
             </div>
             <div class="col-md-12">
@@ -15,6 +17,7 @@
             <div class="col-md-12">
                 <div class="form-group">
                     <textarea id="editor" placeholder="这里输入内容" autofocus ms-duplex="description"></textarea>
+                    <div class="help-block with-errors"></div>
                     <small ms-visible="description==''" style="color:red">请填写比赛描述</small>
                 </div>
             </div>
@@ -27,125 +30,150 @@
             <div class="col-md-6">
                 <div class="form-group">
                     <input type="text" class="form-control" name="start_time" id="contest_start_time"
-                           ms-duplex="startTime">
+                           ms-duplex="startTime" data-error="请填写比赛开始时间"  required>
+                    <div class="help-block with-errors"></div>
                 </div>
             </div>
             <div class="col-md-6">
                 <div class="form-group">
-                    <input type="text" class="form-control" name="end_time" id="contest_end_time" ms-duplex="endTime">
+                    <input type="text" class="form-control" name="end_time" id="contest_end_time"
+							ms-duplex="endTime" data-error="请填写比赛结束时间"  required>
+					<div class="help-block with-errors"></div>
                 </div>
             </div>
-
-            <div class="col-md-6">
+			<div class="col-md-6">
+                <label>允许参加的用户</label>
+            </div>
+            <div class="col-md-6" >
                 <label>密码保护</label>
             </div>
-            <div class="col-md-3">
-                <label>
-                    模式
-                </label>
-            </div>
-            <div class="col-md-3">
-                <label>
-                    结束前是否开放排名
-                </label>
+			<div class="col-md-6">
+                <div class="form-group">
+                    <select class="form-control" name="password" ms-duplex="group" ms-change="addGroup" value="-1">
+						<option value="-1">请选择</option>
+						<option ms-repeat="groupList" ms-attr-value="$index" ms-visible="!el.chose">{{el.name}}</option>
+                    </select>
+                </div>
             </div>
             <div class="col-md-6">
                 <div class="form-group">
-                    <input type="text" class="form-control" name="password" placeholder="留空就是公开赛" ms-duplex="password">
+                    <input type="text" class="form-control" name="password" placeholder="留空就是公开赛" ms-duplex="password" ms-attr-readonly="!passwordUsable">
                 </div>
             </div>
+            <div class="col-md-12">
+				<div ms-repeat="choseGroupList" class="group-tag" ms-click="unchose($index)">{{el.name}}</div>
+            </div>
+            <div class="col-md-6">
+                <label>排名方式</label>
+            </div>
             <div class="col-md-3">
+                <label>结束前是否开放排名</label>
+            </div>
+            <div class="col-md-3">
+                <label>是否公开提交记录</label>
+            </div>
+            <div class="col-md-6">
                 <div class="form-group">
-                    <label><input type="radio" name="mode" ms-duplex-checked="model">
-                        <small>OI</small>
-                    </label>
-                    <label><input type="radio" name="mode">
+                    <label><input type="radio" name="mode" ms-duplex-string="mode" value="0">
                         <small>ACM</small>
                     </label>
+                    <label><input type="radio" name="mode" ms-duplex-string="mode" value="1">
+                        <small>AC数量</small>
+                    </label>
+                    <label><input type="radio" name="mode" ms-duplex-string="mode" value="2">
+                        <small>分数</small>
+                    </label>
                 </div>
             </div>
             <div class="col-md-3">
                 <div class="form-group">
-                    <label class="text"><input type="checkbox" ms-duplex-checked="openRank">
+                    <label class="text"><input type="checkbox" ms-duplex-checked="showRank">
                         <small>开放排名</small>
                     </label>
                 </div>
             </div>
-
-            <div class="col-md-12">
-                <label>添加题目</label>
-                <a href="javascript:void(0)" class="btn btn-primary btn-sm" ms-click="add_problem()">添加</a>
-
-                <div class="col-md-12">
-                    <label>上传测试用例</label>
-                    <label>选择题号</label><select ms-duplex="problemNo">
-                    <option value="-1">未指定</option>
-                    <option ms-repeat="problems" ms-attr-value="$index+1">{{$index+1}}</option>
-                </select>
-
-                    <div id="uploader">
-                        <div>选择文件</div>
-                    </div>
+            <div class="col-md-3">
+                <div class="form-group">
+                    <label class="text"><input type="checkbox" ms-duplex-checked="showSbumission">
+                        <small>允许查看提交记录</small>
+                    </label>
                 </div>
             </div>
             <div class="col-md-12">
-                <div class="problem" ms-repeat-problem="problems">
+                <label>添加题目</label>
+                <a href="javascript:void(0)" class="btn btn-primary btn-sm" ms-click="add_problem()">添加</a>
+                <table class="table table-striped">
+                    <tr>
+                        <th>编号</th>
+                        <th>题目</th>
+                        <th>测试数据</th>
+                        <td></td>
+                    </tr>
+                    <tr ms-repeat="problems">
+                        <td>题目{{ $index+1 }}</td>
+                        <td>{{ el.title }}</td>
+                        <td>{{ el.testCaseList.length }}组</td>
+                        <td>
+                            <a href="javascript:void(0)"class="btn-sm btn-info" ms-click="showProblemEditArea($index+1)">编辑</a>
+                            <a href="javascript:void(0)"class="btn-sm btn-danger" ms-click="del_problem($index+1)">删除</a>
+                        </td>
+                    </tr>
+                </table>
+               
+            </div>
+            <div class="col-md-12">
+                
+                <div class="problem" ms-visible="editingProblemId">
                     <div class="panel panel-default problem-panel">
                         <div class="panel-heading">
-                            <span class="panel-title">题目{{$index + 1}} </span>
-                            <a href="javascript:void(0)" class="btn btn-primary btn-sm" ms-click="toggle(problem)">
-                                {{ getBtnContent(problem)}}
-                            </a>
-                            <a href="javascript:void(0)" class="btn btn-danger btn-sm" ms-click="del_problem(problem)">
-                                删除
-                            </a>
+                            <span class="panel-title">题目{{editingProblemId}} </span>
+                            <a href="javascript:void(0)" class="btn btn-primary btn-sm" ms-click="hidden()">隐藏</a>
+                            <a href="javascript:void(0)" class="btn btn-danger btn-sm" ms-click="del_problem(editingProblemId)">删除</a>
                         </div>
-                        <div class="panel-body" ms-visible="problem.visible">
+                        <div class="panel-body" >
                             <div class="form-group col-md-12">
                                 <label>题目标题</label>
-                                <input type="text" name="problem_name[]" class="form-control" ms-duplex="problem.title">
+                                <input type="text" name="problemName" class="form-control" ms-duplex="problems[editingProblemId-1].title"data-error="请填写题目标题"  required>
+								<div class="help-block with-errors"></div>
                             </div>
                             <div class="form-group col-md-12">
                                 <label>题目描述</label>
-                                <textarea ms-attr-id="problem-{{ problem.id }}-description" placeholder="这里输入内容"
-                                          ms-duplex="problem.description"></textarea>
-                                <small ms-visible="problem.description==''" style="color:red">请填写题目描述</small>
+                                <textarea id="problemDescriptionEditor" placeholder="这里输入内容"
+                                          ms-duplex="problems[editingProblemId-1].description"></textarea>
+                                <small ms-visible="editDescription==''" style="color:red">请填写题目描述</small>
                             </div>
                             <div class="form-group col-md-12">
                                 <label>提示</label>
-                                <textarea ms-attr-id="problem-{{ problem.id }}-hint" placeholder="这里输入内容"
-                                          ms-duplex="problem.hint"></textarea>
+                                <textarea id="problemHintEditor" placeholder="这里输入内容"
+                                          ms-duplex="problems[editingProblemId-1].hint"></textarea>
                             </div>
                             <div class="col-md-3 form-group">
                                 <label>cpu</label>
-                                <input type="number" name="cpu[]" class="form-control" ms-duplex="problem.cpu">
+                                <input type="number" class="form-control" ms-duplex="problems[editingProblemId-1].timeLimit" data-error="请填写时间限制"  required>
+								<div class="help-block with-errors"></div>
                             </div>
                             <div class="col-md-3 form-group">
                                 <label>内存</label>
-                                <input type="number" name="memory[]" class="form-control" ms-duplex="problem.memory">
+                                <input type="number" class="form-control" ms-duplex="problems[editingProblemId-1].memoryLimit" data-error="请填写内存限制"  required>
+								<div class="help-block with-errors"></div>
                             </div>
-                            <div class="col-md-3 form-group">
-                                <label>难度</label>
-                                <input type="number" name="difficulty[]" class="form-control"
-                                       ms-duplex="problem.difficulty">
+                            <div class="col-md-3 form-group" ms-visible="mode==2">
+                                <label>分值</label>
+                                <input type="number" class="form-control" ms-duplex="problems[editingProblemId-1].score"  data-error="请填写题目分值"  required>
+								<div class="help-block with-errors"></div>
                             </div>
                             <div class="col-md-12">
                                 <label>样例</label>
                                 <a href="javascript:void(0)" class="btn btn-primary btn-sm"
-                                   ms-click="add_sample(problem)">添加</a>
-
-                                <div class="sample">
-                                    <div class="panel panel-default sample-panel" ms-repeat-sample="problem.samples">
-                                        <div class="panel-heading">
+                                   ms-click="add_sample()">添加</a>
+                                <div>                                                
+                                    <div class="panel panel-default sample-panel" ms-repeat-sample="editSamples">
+                                        <div class="panel-heading">                                 
                                             <span class="panel-title">样例{{$index + 1}}</span>
                                             <a href="javascript:void(0)" class="btn btn-primary btn-sm"
-                                               ms-click="toggle(sample)">
-                                                {{ getBtnContent(sample)}}
-                                            </a>
+                                               ms-click="toggle(sample)">{{ getBtnContent(sample)}}</a>
                                             <a href="javascript:void(0)" class="btn btn-danger btn-sm"
-                                               ms-click="del_sample(problem, sample)">
-                                                删除
-                                            </a>
+                                               ms-click="del_sample(sample)">删除</a>
                                         </div>
                                         <div class="panel-body row" ms-visible="sample.visible">
                                             <div class="col-md-6">
@@ -167,17 +195,15 @@
                                 </div>
                             </div>
                             <div class="col-md-12">
-                                <label>测试数据</label><br>
-                                <small class="text-info">请将所有测试用例打包在一个文件中上传，所有文件要在压缩包的根目录，且输入输出文件名要以从1开始连续数字标识要对应例如：<br>
-                                    1.in 1.out 2.in 2.out
-                                </small>
-                                <table class="table table-striped" ms-visible="problem.uploadSuccess">
+                                
+                                <label>测试数据</label>
+                                <table class="table table-striped">
                                     <tr>
                                         <td>编号</td>
                                         <td>输入文件名</td>
                                         <td>输出文件名</td>
                                     </tr>
-                                    <tr ms-repeat="problem.testCaseList">
+                                    <tr ms-repeat="editTestCaseList">
                                         <td>{{$index}}</td>
                                         <td>{{ el.input }}</td>
                                         <td>{{ el.output }}</td>
@@ -189,6 +215,14 @@
                 </div>
             </div>
             <div class="col-md-12">
+                <label>上传测试测试数据</label>
+                <div id="uploader">
+                     <div>选择文件</div>
+                </div>
+                <small class="text-info">请将所有测试用例打包在一个文件中上传，所有文件要在压缩包的根目录，且输入输出文件名要以从1开始连续数字标识要对应例如：<br>
+                        1.in 1.out 2.in 2.out
+                </small><br>
+            
                 <input type="submit" class="btn btn-success btn-lg" value="发布比赛">
             </div>
         </div>
@@ -196,5 +230,4 @@
     </form>
 </div>
 
-<script src="/static/js/app/admin/contest/contest.js"></script>
-<link href="/static/css/tagEditor/jquery.tag-editor.css" rel="stylesheet">
+<script src="/static/js/app/admin/contest/add_contest.js"></script>
