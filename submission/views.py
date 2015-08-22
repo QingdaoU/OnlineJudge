@@ -85,7 +85,7 @@ def problem_my_submissions_list_page(request, problem_id):
         problem = Problem.objects.get(id=problem_id, visible=True)
     except Problem.DoesNotExist:
         return error_page(request, u"问题不存在")
-    submissions = Submission.objects.filter(user_id=request.user.id, problem_id=problem.id).order_by("-create_time").\
+    submissions = Submission.objects.filter(user_id=request.user.id, problem_id=problem.id).order_by("-create_time"). \
         values("id", "result", "create_time", "accepted_answer_time", "language")
     return render(request, "oj/problem/my_submissions_list.html",
                   {"submissions": submissions, "problem": problem})
@@ -117,7 +117,6 @@ def my_submission(request, submission_id):
                   {"submission": submission, "problem": problem, "info": info})
 
 
-
 class SubmissionAdminAPIView(APIView):
     def get(self, request):
         problem_id = request.GET.get("problem_id", None)
@@ -126,11 +125,13 @@ class SubmissionAdminAPIView(APIView):
         submissions = Submission.objects.filter(problem_id=problem_id).order_by("-create_time")
         return paginate(request, submissions, SubmissionSerializer)
 
+
 @login_required
-def my_submission_list_page(request, page = 1):
+def my_submission_list_page(request, page=1):
     if not page:
-	    page = 1
-    submissions = Submission.objects.filter(user_id=request.user.id)
+        page = 1
+    submissions = Submission.objects.filter(user_id=request.user.id). \
+        values("id", "result", "create_time", "accepted_answer_time", "language")
     paginator = Paginator(submissions, 20)
     try:
         current_page = paginator.page(int(page))
