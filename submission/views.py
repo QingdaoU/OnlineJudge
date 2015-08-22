@@ -15,6 +15,7 @@ from problem.models import Problem
 from utils.shortcuts import serializer_invalid_response, error_response, success_response, error_page, paginate
 from .models import Submission
 from .serializers import CreateSubmissionSerializer, SubmissionSerializer
+from django.core.paginator import Paginator
 
 
 class SubmissionAPIView(APIView):
@@ -84,7 +85,7 @@ def problem_my_submissions_list_page(request, problem_id):
         problem = Problem.objects.get(id=problem_id, visible=True)
     except Problem.DoesNotExist:
         return error_page(request, u"问题不存在")
-    submissions = Submission.objects.filter(user_id=request.user.id, problem_id=problem.id).order_by("-create_time").\
+    submissions = Submission.objects.filter(user_id=request.user.id, problem_id=problem.id).order_by("-create_time"). \
         values("id", "result", "create_time", "accepted_answer_time", "language")
     return render(request, "oj/problem/my_submissions_list.html",
                   {"submissions": submissions, "problem": problem})
@@ -116,7 +117,6 @@ def my_submission(request, submission_id):
                   {"submission": submission, "problem": problem, "info": info})
 
 
-
 class SubmissionAdminAPIView(APIView):
     def get(self, request):
         problem_id = request.GET.get("problem_id", None)
@@ -124,3 +124,27 @@ class SubmissionAdminAPIView(APIView):
             return error_response(u"参数错误")
         submissions = Submission.objects.filter(problem_id=problem_id).order_by("-create_time")
         return paginate(request, submissions, SubmissionSerializer)
+
+
+@login_required
+def my_submission_list_page(request, page=1):
+    submissions = Submission.objects.filter(user_id=request.user.id). \
+        values("id", "result", "create_time", "accepted_answer_time", "language")
+    paginator = Paginator(submissions, 20)
+    try:
+        current_page = paginator.page(int(page))
+    except Exception:
+        return error_page(request, u"不存在的页码")
+    previous_page = next_page = None
+    try:
+        previous_page = current_page.previous_page_number()
+    except Exception:
+        pass
+    try:
+        next_page = current_page.next_page_number()
+    except Exception:
+        pass
+
+    return render(request, "oj/submission/my_submissions_list.html",
+                  {"submissions": current_page, "page": int(page),
+                   "previous_page": previous_page, "next_page": next_page, "startId":int(page)*20-20})

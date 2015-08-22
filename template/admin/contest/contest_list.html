@@ -1,0 +1,168 @@
+<div ms-controller="contestList" class="col-md-9">
+    <h1>比赛列表</h1>
+
+    <div class="right">
+        <form class="form-inline" onsubmit="return false;">
+            <div class="form-group-sm">
+                <label>搜索</label>
+                <input name="keyWord" class="form-control" placeholder="请输入关键词" ms-duplex="keyword">
+                <input type="submit" value="搜索" class="btn btn-primary" ms-click="getPage(1)">
+            </div>
+        </form>
+        <br>
+    </div>
+    <table class="table table-striped">
+        <tr>
+            <th>ID</th>
+            <th>比赛</th>
+            <th>比赛类型</th>
+            <th>公开排名</th>
+            <th>开始时间</th>
+            <th>结束时间</th>
+            <th>创建时间</th>
+            <th>创建者</th>
+        </tr>
+        <tr ms-repeat="contestList" ms-click="showEditContestArea($index+1)">
+            <td>{{ el.id }}</td>
+            <td>{{ el.title }}</td>
+            <td>{{ contestTypeNameList[el.contest_type] }}</td>
+            <td>{{ el.show_rank }}</td>
+            <td>{{ el.start_time|date("yyyy-MM-dd HH:mm:ss")}}</td>
+            <td>{{ el.end_time|date("yyyy-MM-dd HH:mm:ss")}}</td>
+            <td>{{ el.create_time|date("yyyy-MM-dd HH:mm:ss")}}</td>
+            <td>{{ el.created_by.username }}</td>
+        </tr>
+    </table>
+    <div class="text-right">
+        页数：{{ page }}/{{ totalPage }}&nbsp;&nbsp;
+        <button ms-attr-class="getBtnClass('pre')" ms-click="getPrevious">上一页</button>
+        <button ms-attr-class="getBtnClass('next')" ms-click="getNext">下一页</button>
+    </div>
+    <div ms-visible="editingContestId">
+        <div class="col-md-12">
+            <label>比赛名称</label>
+        </div>
+        <div class="col-md-12">
+            <div class="form-group">
+                <input type="text" name="name" class="form-control" ms-duplex="editTitle"
+                       data-error="请填写比赛名称(名称不能超过50个字)" required>
+
+                <div class="help-block with-errors"></div>
+            </div>
+        </div>
+        <div class="col-md-12">
+            <label>说明</label>
+        </div>
+        <div class="col-md-12">
+            <div class="form-group">
+                <textarea id="editor" placeholder="这里输入内容" autofocus ms-duplex="editDescription"></textarea>
+                <div class="help-block with-errors"></div>
+                <small ms-visible="description==''" style="color:red">请填写比赛描述</small>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <label>开始时间</label>
+        </div>
+        <div class="col-md-6">
+            <label>结束时间</label>
+        </div>
+        <div class="col-md-6">
+            <div class="form-group">
+                <input type="text" class="form-control" name="start_time" id="contest_start_time"
+                       ms-duplex="editStartTime" data-error="请填写比赛开始时间" required>
+                <div class="help-block with-errors"></div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="form-group">
+                <input type="text" class="form-control" name="end_time" id="contest_end_time"
+                       ms-duplex="editEndTime" data-error="请填写比赛结束时间" required>
+                <div class="help-block with-errors"></div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <label>允许参加的用户</label>
+        </div>
+        <div class="col-md-6">
+            <label>密码保护</label>
+        </div>
+        <div class="col-md-6">
+            <div class="form-group">
+                <select class="form-control" name="password" ms-duplex="group" ms-change="addGroup" value="-1">
+                    <option value="-1">请选择</option>
+                    <option ms-repeat="groupList" ms-attr-value="$index" ms-visible="!el.chose">{{el.name}}</option>
+                </select>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="form-group">
+                <input type="text" class="form-control" name="password" placeholder="留空就是公开赛" ms-duplex="editPassword"
+                       ms-attr-readonly="!passwordUsable">
+            </div>
+        </div>
+        <div class="col-md-12">
+            <div ms-repeat="choseGroupList" class="group-tag" ms-click="unchose($index)">{{el.name}}</div>
+        </div>
+        <div class="col-md-6">
+            <label>排名方式</label>
+        </div>
+        <div class="col-md-3">
+            <label>结束前是否开放排名</label>
+        </div>
+        <div class="col-md-3">
+            <label>是否公开提交记录</label>
+        </div>
+        <div class="col-md-6">
+            <div class="form-group">
+                <label><input type="radio" name="mode" ms-duplex-string="editMode" value="0">
+                    <small>ACM</small>
+                </label>
+                <label><input type="radio" name="mode" ms-duplex-string="editMode" value="1">
+                    <small>AC数量</small>
+                </label>
+                <label><input type="radio" name="mode" ms-duplex-string="editMode" value="2">
+                    <small>分数</small>
+                </label>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="form-group">
+                <label class="text"><input type="checkbox" ms-duplex-checked="editShowRank">
+                    <small>开放排名</small>
+                </label>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="form-group">
+                <label class="text"><input type="checkbox" ms-duplex-checked="editShowSubmission">
+                    <small>允许查看提交记录</small>
+                </label>
+            </div>
+        </div>
+        <div class="col-md-12">
+            <label>添加题目</label>
+            <a href="javascript:void(0)" class="btn btn-primary btn-sm" ms-click="add_problem()">添加</a>
+            <table class="table table-striped">
+                <tr>
+                    <th>编号</th>
+                    <th>题目</th>
+                    <th>测试数据</th>
+                    <td></td>
+                </tr>
+                <tr ms-repeat="editProblemList">
+                    <td>题目{{ $index+1 }}</td>
+                    <td>{{ el.title }}</td>
+                    <td>{{ el.testCaseList.length }}组</td>
+                    <td>
+                        <a href="javascript:void(0)" class="btn-sm btn-info"
+                           ms-click="showProblemEditArea($index+1)">编辑</a>
+                        <a href="javascript:void(0)" class="btn-sm btn-danger" ms-click="del_problem($index+1)">删除</a>
+                    </td>
+                </tr>
+            </table>
+
+        </div>
+    </div>
+
+</div>
+<script src="/static/js/app/admin/contest/contest_list.js"></script>
