@@ -55,18 +55,7 @@
             </div>
 
             <div class="col-lg-3">
-                <div class="panel panel-info">
-                    <div class="panel-heading">
-                        <h3 class="panel-title">
-                            <span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span>
-                            公告
-                        </h3></div>
-                    <div class="panel-body">
-                        {% for item in announcements %}
-                            {{ forloop.counter }}.&nbsp;&nbsp;<a href="/announcement/{{ item.id }}/" target="_blank">{{ item.title }}</a>
-                        {% endfor %}
-                    </div>
-                </div>
+                {% include "oj/announcement/_announcement_panel.html" %}
                 <div class="panel panel-info">
                     <div class="panel-heading">
                         <h3 class="panel-title">

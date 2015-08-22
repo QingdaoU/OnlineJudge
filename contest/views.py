@@ -1,6 +1,7 @@
 # coding=utf-8
 import json
 import datetime
+from django.utils.timezone import localtime
 from django.shortcuts import render
 from django.db import IntegrityError
 from django.utils import dateparse
@@ -209,7 +210,7 @@ class ContestProblemAdminAPIView(APIView):
         """
         比赛题目分页json api接口
         ---
-        response_serializer: ProblemSerializer
+        response_serializer: ContestProblemSerializer
         """
         contest_problem_id = request.GET.get("contest_problem_id", None)
         if contest_problem_id:
@@ -239,6 +240,11 @@ def contest_list_page(request, page=1):
     if keyword:
         contests = contests.filter(title__contains=keyword)
 
+    # 筛选我能参加的比赛
+    join = request.GET.get("join", None)
+    if join:
+        contests = Contest.objects.filter(Q(contest_type__in=[1, 2]) | Q(groups__in=request.user.group_set.all()))
+
     paginator = Paginator(contests, 20)
     try:
         current_page = paginator.page(int(page))
@@ -262,7 +268,7 @@ def contest_list_page(request, page=1):
     # 系统当前时间
     now = datetime.datetime.now()
     return render(request, "oj/contest/contest_list.html",
-                  {"problems": current_page, "page": int(page),
+                  {"contests": current_page, "page": int(page),
                    "previous_page": previous_page, "next_page": next_page,
                    "keyword": keyword, "announcements": announcements,
-                   "now": now})
+                   "join": join, "now": now})
