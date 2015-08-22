@@ -60,18 +60,6 @@ class SubmissionAPIView(APIView):
             submission = Submission.objects.get(id=submission_id, user_id=request.user.id)
         except Submission.DoesNotExist:
             return error_response(u"提交不存在")
-        # 标记这个submission 已经被统计
-        if not submission.is_counted:
-            submission.is_counted = True
-            submission.save()
-        if submission.result == result["accepted"]:
-            # 更新题目的 ac 计数器
-            try:
-                problem = Problem.objects.get(id=submission.problem_id)
-                problem.total_accepted_number += 1
-                problem.save()
-            except Problem.DoesNotExist:
-                pass
         response_data = {"result": submission.result}
         if submission.result == 0:
             response_data["accepted_answer_time"] = submission.accepted_answer_time

@@ -52,7 +52,10 @@ INSTALLED_APPS = (
     'problem',
     'admin',
     'submission',
+    'mq',
 
+
+    'django_extensions',
     'rest_framework',
     'rest_framework_swagger',
 )
