@@ -128,8 +128,6 @@ class SubmissionAdminAPIView(APIView):
 
 @login_required
 def my_submission_list_page(request, page=1):
-    if not page:
-        page = 1
     submissions = Submission.objects.filter(user_id=request.user.id). \
         values("id", "result", "create_time", "accepted_answer_time", "language")
     paginator = Paginator(submissions, 20)
