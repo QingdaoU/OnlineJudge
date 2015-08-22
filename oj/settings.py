@@ -148,7 +148,7 @@ LOGGING = {
         }
     },
     'loggers': {
-        'app_info_logger': {
+        'app_info': {
             'handlers': ['app_info', "console"],
             'level': 'DEBUG',
             'propagate': True
