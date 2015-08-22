@@ -202,7 +202,7 @@ class ContestProblemAdminAPIView(APIView):
         """
         比赛题目分页json api接口
         ---
-        response_serializer: ProblemSerializer
+        response_serializer: ContestProblemSerializer
         """
         contest_problem_id = request.GET.get("contest_problem_id", None)
         if contest_problem_id:
