@@ -3,41 +3,58 @@ require(["jquery", "avalon", "editor", "uploader", "bsAlert", "csrfToken", "date
     function ($, avalon, editor, uploader, bsAlert, csrfTokenHeader) {
         avalon.vmodels.add_contest = null;
         $("#add-contest-form").validator().on('submit', function (e) {
-                if (!e.isDefaultPrevented()){
-					alert("smoething went wrong!");
+            if (!e.isDefaultPrevented()){
+                e.preventDefault();
+				var ajaxData = {
+					title: vm.title,
+				    description: vm.description,
+				    mode: vm.mode,
+				    contest_type: 0,
+				    show_rank: vm.showRank,
+				    show_user_submission: vm.showSubmission,
+				    //password: vm.password,
+					start_time: vm.startTime,
+					end_time: vm.endTime,
+					visible: true
+				};
+				if (vm.choseGroupList[0].id == 0) //everyone | public contest
+				    if (vm.password == "")
+				        ajaxData.contest_type = 1;
+				    else{
+				        ajaxData.password = vm.password;
+				    }
+				else { // Add groups info
+				    ajaxData.groups = [];
+				    for (var i = 0; vm.choseGroupList[i]; i++)
+				        ajaxData.groups.push(parseInt(vm.choseGroupList[i].id))
 				}
-				else{	
-					var data = {
-						title: vm.title, 
-							 description: vm.description, 
-							 start_time: vm.startTime, 
-						end_time: vm.endTime,
-						password: vm.password, 
-						mode: vm.model, 
-						show_rank: vm.openRank
-					};
-					$.ajax({
-								beforeSend: csrfTokenHeader,
-								url: "/api/admin/contest/",
-								dataType: "json",
-								data: data,
-								method: "post",
-								contentType: "application/json",
-								success: function (data) {
-									if (!data.code) {
-										bsAlert("添加成功！");
-												console.log(data);
-									}
-									else {
-										bsAlert(data.data);
-										console.log(data);
-									}
-								}
-							});
-					console.log(data);
-				}
-                return false;
-        })
+
+
+				console.log(ajaxData);
+				$.ajax({
+					beforeSend: csrfTokenHeader,
+					url: "/api/admin/contest/",
+					dataType: "json",
+					contentType: "application/json",
+					data: JSON.stringify(ajaxData),
+					method: "post",
+					contentType: "application/json",
+					success: function (data) {
+						if (!data.code) {
+							bsAlert("添加成功！");
+							console.log(data);
+						}
+						else {
+							bsAlert(data.data);
+							console.log(data);
+						}
+					}
+				});
+				console.log(JSON.stringify(ajaxData));
+			}
+			return false;
+		});
+
         editor("#editor");
         editor("#problemDescriptionEditor");
         editor("#problemHintEditor");
@@ -57,8 +74,8 @@ require(["jquery", "avalon", "editor", "uploader", "bsAlert", "csrfToken", "date
             editSamples: [],
             editTestCaseList: [],
             group: "-1",
-            groupList: [{name:"Group one", id :3, choosed: false},{name:"Group two", id:5,  choosed: false}],
-            choosedGroupList: [],
+            groupList: [],
+            choseGroupList: [],
             showProblemEditArea: function (problemIndex) {
                 if (vm.editingProblemId == problemIndex){
                     vm.problems[vm.editingProblemId-1].samples = vm.editSamples;
@@ -126,50 +143,48 @@ require(["jquery", "avalon", "editor", "uploader", "bsAlert", "csrfToken", "date
 				if (vm.group == -1) return;
 				if (vm.groupList[vm.group].id == 0){
 					vm.passwordUsable = true;
-					vm.choosedGroupList = [];
+					vm.choseGroupList = [];
 					for (var key in vm.groupList){
-						vm.groupList[key].choosed = true;
+						vm.groupList[key].chose = true;
 					}
 				}
-				vm.groupList[vm.group]. choosed = true;
-				vm.choosedGroupList .push({name:vm.groupList[vm.group].name, index:vm.group, id:vm.groupList[vm.group].id});
+				vm.groupList[vm.group]. chose = true;
+				vm.choseGroupList.push({name:vm.groupList[vm.group].name, index:vm.group, id:vm.groupList[vm.group].id});
 			},
-			unchoosed: function(groupIndex){
-				if (vm.groupList[vm.choosedGroupList[groupIndex].index].id == 0){
+			unchose: function(groupIndex){
+				if (vm.groupList[vm.choseGroupList[groupIndex].index].id == 0){
 					vm.passwordUsable = false;
 					for (key in vm.groupList){
-						vm.groupList[key].choosed = false;
+						vm.groupList[key].chose = false;
 					}
 				}
-				vm.groupList[vm.choosedGroupList[groupIndex].index].choosed = false;
-				vm.choosedGroupList.remove(vm.choosedGroupList[groupIndex]);
+				vm.groupList[vm.choseGroupList[groupIndex].index].chose = false;
+				vm.choseGroupList.remove(vm.choseGroupList[groupIndex]);
 			}
         });
 
 		var isSuperAdmin = true;
 		$.ajax({      //用于获取该用户创建的所有小组的ajax请求
-								beforeSend: csrfTokenHeader,
-								url: "/api/admin/group/?my_group=true",
-								dataType: "json",
-								method: "get",
-								contentType: "application/json",
-								success: function (data) {
-									if (!data.code) {
-												for (var key in data.data)
-												{
-													data.data[key].choosed = false;
-													vm.groupList.push(data.data[key]);
-												}
-												if (isSuperAdmin)
-													vm.groupList.push({id:0, name:"everyone", choosed: false});
-												console.log(data);
-									}
-									else {
-										bsAlert(data.data);
-										console.log(data);
-									}
-								}
-							});
+			beforeSend: csrfTokenHeader,
+			url: "/api/admin/group/?my_group=true",
+			dataType: "json",
+			method: "get",
+			contentType: "application/json",
+			success: function (data) {
+				if (!data.code) {
+				    if (isSuperAdmin)
+						vm.groupList.push({id:0, name:"所有人", chose: false});
+					for (var key in data.data) {
+						data.data[key].chose = false;
+						vm.groupList.push(data.data[key]);
+					}
+				}
+				else {
+					bsAlert(data.data);
+					console.log(data);
+		    	}
+			}
+		});
 
 
 		

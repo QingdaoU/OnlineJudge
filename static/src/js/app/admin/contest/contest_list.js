@@ -13,10 +13,25 @@ require(["jquery", "avalon", "csrfToken", "bsAlert", "editor", "datetimePicker"]
                 nextPage: 0,
                 page: 1,
                 totalPage: 1,
+                group: "-1",
+                groupList: [],
                 keyword: "",
 				editingContestId: 0,
 				editTitle: "",
-				editingProblemList: [],
+				editProblemList: [],
+				editPassword: "",
+				editStartTime: "",
+                editEndTime: "",
+                editMode: "",
+                editShowRank: false,
+                editShowSubmission: false,
+                editProblemList: [],
+                editingProblemId: 0,
+                editSamples: [],
+                editTestCaseList: [],
+                editChoseGroupList: [],
+				modelNameList: ["ACM", "AC总数", "分数"],
+				contestTypeNameList: ["小组赛", "公开赛", "有密码保护的公开赛"],
                 getNext: function () {
                     if (!vm.nextPage)
                         return;
@@ -44,6 +59,24 @@ require(["jquery", "avalon", "csrfToken", "bsAlert", "editor", "datetimePicker"]
 					else {
 						vm.editingContestId = contestId;
 						vm.editTitle = vm.contestList[contestId-1].title;
+						vm.editEndTime = vm.contestList[contestId-1].end_time;
+						vm.editPassword = vm.contestList[contestId-1].password;
+						vm.editStartTime = vm.contestList[contestId-1].start_time;
+						vm.editMode     = vm.contestList[contestId-1].mode;
+						vm.editChoseGroupList = [];
+						//= vm.contestList[contestId-1].group;//
+						/*for (var key in vm.contestList[contestId-1].groups){
+						    var id = parseInt(vm.contestList[contestId-1].groups);
+						    for ()
+						    vm.editChoseGroupList.push({
+						        name:vm.groupList[vm.group].name,
+						        index:index,
+						        id:parseInt(vm.contestList[contestId-1].groups)
+						    });
+						}*/
+						vm.editShowRank = vm.contestList[contestId-1].show_rank;
+						vm.editShowSubmission = vm.contestList[contestId-1].show_user_submission;
+						//vm.editProblemList    = vm.contestList[contestId-1].problems
 						editor("#editor").setValue(vm.contestList[contestId-1].description);
 						vm.editingProblemList = vm.contestList[contestId-1].problemList;
 					}
@@ -54,7 +87,7 @@ require(["jquery", "avalon", "csrfToken", "bsAlert", "editor", "datetimePicker"]
         }
 
         function getPageData(page) {
-/*
+
             var url = "/api/admin/contest/?paging=true&page=" + page + "&page_size=10";
             if (vm.keyword != "")
                 url += "&keyword=" + vm.keyword;
@@ -75,20 +108,30 @@ require(["jquery", "avalon", "csrfToken", "bsAlert", "editor", "datetimePicker"]
                     }
                 }
             });
-*/
-                        vm.contestList =[{
-							id: 1, title:"The first contest",
-							created_by: {username:"owen"},
-							description:"<p>this contest is just for<h1>fun</h1></p>",
-							problemList:[{title:"A+B problem", id:1, testCaseList:[1,2], samples:[1,2]}]
-							}]; 
-                        vm.totalPage = 1;
-                        vm.previousPage = false;
-                        vm.nextPage = false;
-                        vm.page = 1;
         }
 
-
+        var isSuperAdmin = true;
+		$.ajax({      //用于获取该用户创建的所有小组的ajax请求
+			beforeSend: csrfTokenHeader,
+			url: "/api/admin/group/?my_group=true",
+			dataType: "json",
+			method: "get",
+			contentType: "application/json",
+			success: function (data) {
+				if (!data.code) {
+				    if (isSuperAdmin)
+						vm.groupList.push({id:0, name:"所有人", chose: false});
+					for (var key in data.data) {
+						data.data[key].chose = false;
+						vm.groupList.push(data.data[key]);
+					}
+				}
+				else {
+					bsAlert(data.data);
+					console.log(data);
+		    	}
+			}
+		});
     });
     avalon.scan();
 });
