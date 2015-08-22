@@ -32,8 +32,6 @@ class AbstractProblem(models.Model):
     # last_update_time = models.DateTimeField(auto_now=True)
     # 这个题是谁创建的
     created_by = models.ForeignKey(User)
-    # 来源
-    source = models.CharField(max_length=30, blank=True, null=True)
     # 时间限制 单位是毫秒
     time_limit = models.IntegerField()
     # 内存限制 单位是MB
@@ -54,3 +52,5 @@ class Problem(AbstractProblem):
     difficulty = models.IntegerField()
     # 标签
     tags = models.ManyToManyField(ProblemTag)
+    # 来源
+    source = models.CharField(max_length=30, blank=True, null=True)

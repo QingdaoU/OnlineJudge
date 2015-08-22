@@ -130,7 +130,7 @@ class UserChangePasswordAPITest(APITestCase):
         self.assertEqual(response.data, {"code": 1, "data": u"密码不正确，请重新修改！"})
 
     def test_invalid_data_format(self):
-        data = {"username": "test", "old_password": "aaa", "new_password": "aaaddd"}
+        data = {"old_password": "aaa", "new_password": "aaaddd"}
         response = self.client.post(self.url, data=data)
         self.assertEqual(response.data["code"], 1)
 
@@ -152,15 +152,50 @@ class UserAdminAPITest(APITestCase):
         user = User.objects.create(username="testx", real_name="xx", admin_type=SUPER_ADMIN)
         user.set_password("testxx")
         user.save()
+        user = User.objects.create(username="testy", real_name="yy", admin_type=SUPER_ADMIN)
+        user.set_password("testyy")
+        user.save()
         self.client.login(username="testx", password="testxx")
 
+    # 以下是编辑用户的测试
     def test_success_get_data(self):
         self.assertEqual(self.client.get(self.url).data["code"], 0)
+
+    def test_put_invalid_data(self):
+        data = {"username": "test", "password": "testaa", "email": "60@qq.com", "admin_type": "2"}
+        response = self.client.put(self.url, data=data)
+        self.assertEqual(response.data["code"], 1)
+
+    def test_user_does_not_exist(self):
+        data = {"id": 3, "username": "test0", "real_name": "test00",
+                "password": "testaa", "email": "60@qq.com", "admin_type": "2"}
+        response = self.client.put(self.url, data=data)
+        self.assertEqual(response.data, {"code": 1, "data": u"该用户不存在！"})
+
+    def test_username_exists(self):
+        data = {"id": 1, "username": "testy", "real_name": "test00",
+                "password": "testaa", "email": "60@qq.com", "admin_type": "2"}
+        response = self.client.put(self.url, data=data)
+        self.assertEqual(response.data, {"code": 1, "data": u"昵称已经存在"})
+
+    def test_user_edit_not_password_successfully(self):
+        data = {"id": 1, "username": "test0", "real_name": "test00",
+                "email": "60@qq.com", "admin_type": "2"}
+        response = self.client.put(self.url, data=data)
+        self.assertEqual(response.data["code"], 0)
+
+    def test_user_edit_change_password_successfully(self):
+        data = {"id": 1, "username": "test0", "real_name": "test00", "password": "111111",
+                "email": "60@qq.com", "admin_type": "2"}
+        response = self.client.put(self.url, data=data)
+        self.assertEqual(response.data["code"], 0)
+        self.assertIsNotNone(auth.authenticate(username="test0", password="111111"))
 
     def test_error_admin_type(self):
         response = self.client.get(self.url + "?admin_type=error")
         self.assertEqual(response.data, {"code": 1, "data": u"参数错误"})
 
+    # 以下是用户分页的测试
     def test_query_by_keyword(self):
         user1 = User.objects.create(username="test1", real_name="aa")
         user1.set_password("testaa")
@@ -177,29 +212,18 @@ class UserAdminAPITest(APITestCase):
         response = self.client.get(self.url + "?keyword=test1")
         self.assertEqual(response.data["code"], 0)
 
-    def test_put_invalid_data(self):
-        data = {"username": "test", "password": "testaa", "email": "60@qq.com", "admin_type": "2"}
-        response = self.client.put(self.url, data=data)
-        self.assertEqual(response.data["code"], 1)
 
-    def test_user_does_not_exist(self):
-        data = {"id": 2, "username": "test0", "real_name": "test00",
-                "password": "testaa","email": "60@qq.com", "admin_type": "2"}
-        response = self.client.put(self.url, data=data)
-        self.assertEqual(response.data, {"code": 1, "data": u"该用户不存在！"})
+class UserInfoAPITest(APITestCase):
+    def setUp(self):
+        self.client = APIClient()
+        self.url = reverse('user_info_api')
+        user = User.objects.create(username="test1", real_name="aa")
+        user.set_password("testaa")
+        user.save()
 
-    def test_success_user_edit_not_password(self):
-        data = {"id": 1, "username": "test0", "real_name": "test00",
-                "email": "60@qq.com", "admin_type": "2"}
-        response = self.client.put(self.url, data=data)
-        self.assertEqual(response.data["code"], 0)
-
-    def test_success_user_edit_change_password(self):
-        data = {"id": 1, "username": "test0", "real_name": "test00", "password": "111111",
-                "email": "60@qq.com", "admin_type": "2"}
-        response = self.client.put(self.url, data=data)
-        self.assertEqual(response.data["code"], 0)
-        self.assertIsNotNone(auth.authenticate(username="test0", password="111111"))
+    def test_get_data_successfully(self):
+        self.client.login(username="test1", password="testaa")
+        self.assertEqual(self.client.get(self.url).data["code"], 0)
 
 
 @login_required

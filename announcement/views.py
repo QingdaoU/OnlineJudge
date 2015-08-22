@@ -36,7 +36,7 @@ class AnnouncementAdminAPIView(APIView):
                 if request.user.admin_type == SUPER_ADMIN:
                     groups = Group.objects.filter(id__in=data["groups"])
                 else:
-                    groups = Group.objects.filter(id__in=data["groups"], created_by=request.user)
+                    groups = Group.objects.filter(id__in=data["groups"], admin=request.user)
                 if not groups.count():
                     return error_response(u"至少选择一个小组")
             else:
@@ -49,7 +49,6 @@ class AnnouncementAdminAPIView(APIView):
                                                        is_global=data["is_global"])
 
             announcement.groups.add(*groups)
-
             return success_response(u"公告发布成功！")
         else:
             return serializer_invalid_response(serializer)
@@ -76,7 +75,7 @@ class AnnouncementAdminAPIView(APIView):
                 if request.user.admin_type == SUPER_ADMIN:
                     groups = Group.objects.filter(id__in=data["groups"])
                 else:
-                    groups = Group.objects.filter(id__in=data["groups"], created_by=request.user)
+                    groups = Group.objects.filter(id__in=data["groups"], admin=request.user)
                 if not groups.count():
                     return error_response(u"至少选择一个小组")
             announcement.title = data["title"]
