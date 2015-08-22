@@ -6,7 +6,7 @@
 @import url("webuploader/webuploader.css");
 @import url("datetime_picker/bootstrap-datetimepicker.css");
 @import url("tagEditor/jquery.tag-editor.css");
-@import url("add_contest.css");
+@import url("contest/add_contest.css");
 
 #loading-gif{
     width: 40px;
