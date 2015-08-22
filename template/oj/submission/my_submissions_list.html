@@ -26,8 +26,8 @@
         <tbody>
         {% for item in submissions %}
         <tr class="{{ item.result|translate_result_class }}">
-            <th scope="row"><a href="/my_submission/{{ item.id }}/" id="id_{{ forloop.counter }}">{{ forloop.counter
-                }}</a></th>
+            <th scope="row"><a href="/my_submission/{{ item.id }}/" id="id_{{ forloop.counter }}">
+                {{ forloop.counter |add:startId  }}</a></th>
             <td>{{ item.create_time }}</td>
             <td>{{ item.result|translate_result }}</td>
             <td>
@@ -63,12 +63,4 @@
         </ul>
     </nav>
 </div>
-<script>
-    for (var i = 1; true; i++) {
-        if (!document.getElementById("id_"+i)) break;
-        document.getElementById("id_"+i).innerHTML= ""+(i+{{page}}*20-20);
-    }
-
-
-</script>
 {% endblock %}
