@@ -1,15 +1,19 @@
 # coding=utf-8
 import json
+import datetime
+from django.utils.timezone import localtime
 from django.shortcuts import render
 from django.db import IntegrityError
 from django.utils import dateparse
 from django.db.models import Q
+from django.core.paginator import Paginator
 from rest_framework.views import APIView
 from utils.shortcuts import (serializer_invalid_response, error_response,
                              success_response, paginate, rand_str, error_page)
 
 from account.models import REGULAR_USER, ADMIN, SUPER_ADMIN
 from group.models import Group
+from announcement.models import Announcement
 
 from .models import Contest, ContestProblem
 from .serializers import (CreateContestSerializer, ContestSerializer, EditContestSerializer,
@@ -17,7 +21,11 @@ from .serializers import (CreateContestSerializer, ContestSerializer, EditContes
 
 
 def contest_page(request, contest_id):
-    pass
+    try:
+        contest = Contest.objects.get(id=contest_id, visible=True)
+    except Contest.DoesNotExist:
+        return error_page(request, u"比赛不存在")
+    return render(request, "oj/contest/problems.html", {"contest": contest})
 
 
 class ContestAdminAPIView(APIView):
@@ -221,3 +229,46 @@ class ContestProblemAdminAPIView(APIView):
                                                      Q(description__contains=keyword))
 
         return paginate(request, contest_problem, ContestProblemSerializer)
+
+
+def contest_list_page(request, page=1):
+    # 正常情况
+    contests = Contest.objects.filter(visible=True)
+
+    # 搜索的情况
+    keyword = request.GET.get("keyword", None)
+    if keyword:
+        contests = contests.filter(title__contains=keyword)
+
+    # 筛选我能参加的比赛
+    join = request.GET.get("join", None)
+    if join:
+        contests = Contest.objects.filter(Q(contest_type__in=[1, 2]) | Q(groups__in=request.user.group_set.all()))
+
+    paginator = Paginator(contests, 20)
+    try:
+        current_page = paginator.page(int(page))
+    except Exception:
+        return error_page(request, u"不存在的页码")
+
+    previous_page = next_page = None
+
+    try:
+        previous_page = current_page.previous_page_number()
+    except Exception:
+        pass
+
+    try:
+        next_page = current_page.next_page_number()
+    except Exception:
+        pass
+
+    # 右侧的公告列表
+    announcements = Announcement.objects.filter(is_global=True, visible=True).order_by("-create_time")
+    # 系统当前时间
+    now = datetime.datetime.now()
+    return render(request, "oj/contest/contest_list.html",
+                  {"contests": current_page, "page": int(page),
+                   "previous_page": previous_page, "next_page": next_page,
+                   "keyword": keyword, "announcements": announcements,
+                   "join": join, "now": now})
