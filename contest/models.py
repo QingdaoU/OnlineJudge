@@ -58,3 +58,20 @@ class ContestProblemTestCase(models.Model):
 
     class Meta:
         db_table = "contest_problem_test_case"
+
+
+class ContestSubmission(models.Model):
+    """
+    用于保存比赛提交和排名的一些数据，加快检索速度
+    """
+    user = models.ForeignKey(User)
+    problem = models.ForeignKey(ContestProblem)
+    contest = models.ForeignKey(Contest)
+    total_submission_number = models.IntegerField(default=1)
+    # 这道题是 AC 还是没过
+    ac = models.BooleanField()
+    # 总的时间，用于acm 类型的，也需要保存罚时
+    total_time = models.IntegerField(default=0)
+
+    class Meta:
+        db_table = "contest_submission"

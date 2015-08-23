@@ -56,7 +56,7 @@ require(["jquery", "codeMirror", "csrfToken", "bsAlert"], function ($, codeMirro
     var counter = 0;
 
     function getResult() {
-        if(counter++ > 10){
+        if (counter++ > 10) {
             hideLoading();
             bsAlert("抱歉，服务器可能出现了故障，请稍后到我的提交列表中查看");
             counter = 0;
@@ -88,12 +88,32 @@ require(["jquery", "codeMirror", "csrfToken", "bsAlert"], function ($, codeMirro
     }
 
     $("#submit-code-button").click(function () {
-        var problemId = window.location.pathname.split("/")[2];
+
         var code = codeEditor.getValue();
+        if (location.href.indexOf("contest") > -1) {
+            var problemId = location.pathname.split("/")[4];
+            var contestId = location.pathname.split("/")[2];
+            var url = "/api/contest/submission/";
+            var data = {
+                problem_id: problemId,
+                language: language,
+                code: code,
+                contest_id: contestId
+            };
+        }
+        else {
+            var problemId = window.location.pathname.split("/")[2];
+            var url = "/api/submission/";
+            var data = {
+                problem_id: problemId,
+                language: language,
+                code: code
+            };
+        }
 
         showLoading();
 
-        if(!code.trim()){
+        if (!code.trim()) {
             bsAlert("请填写代码！");
             hideLoading();
             return false;
@@ -101,15 +121,12 @@ require(["jquery", "codeMirror", "csrfToken", "bsAlert"], function ($, codeMirro
 
         $("#result").html("");
 
+
         $.ajax({
             beforeSend: csrfTokenHeader,
-            url: "/api/submission/",
+            url: url,
             method: "post",
-            data: JSON.stringify({
-                problem_id: problemId,
-                language: language,
-                code: codeEditor.getValue()
-            }),
+            data: JSON.stringify(data),
             contentType: "application/json",
             success: function (data) {
                 if (!data.code) {
@@ -118,7 +135,7 @@ require(["jquery", "codeMirror", "csrfToken", "bsAlert"], function ($, codeMirro
                     setTimeout(getResult, 2000);
                 }
                 else {
-                    bs_alert(data.data);
+                    bsAlert(data.data);
                     hideLoading();
                 }
             }
@@ -127,11 +144,11 @@ require(["jquery", "codeMirror", "csrfToken", "bsAlert"], function ($, codeMirro
     });
 
     $.ajax({
-        url : "/api/user/",
+        url: "/api/user/",
         method: "get",
         dataType: "json",
-        success: function(data){
-            if(data.code){
+        success: function (data) {
+            if (data.code) {
                 $("#submit-code-button").attr("disabled", "disabled");
                 $("#result").html('<div class="alert alert-danger" role="alert"><div class="alert-link">请先<a href="/login/" target="_blank">登录</a>!</div> </div>');
             }

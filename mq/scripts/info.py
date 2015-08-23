@@ -1,10 +1,13 @@
 # coding=utf-8
 import logging
+
 import redis
+
 from judge.judger_controller.settings import redis_config
 from judge.judger.result import result
 from submission.models import Submission
 from problem.models import Problem
+from contest.models import ContestProblem, Contest, ContestSubmission
 
 logger = logging.getLogger("app_info")
 
@@ -22,17 +25,68 @@ class MessageQueue(object):
                 submission = Submission.objects.get(id=submission_id)
             except Submission.DoesNotExist:
                 logger.warning("Submission does not exist, submission_id: " + submission_id)
-                pass
+                continue
 
-            if submission.result == result["accepted"]:
-                # 更新题目的 ac 计数器
+            if submission.result == result["accepted"] and not submission.contest_id:
+                # 更新普通题目的 ac 计数器
                 try:
                     problem = Problem.objects.get(id=submission.problem_id)
                     problem.total_accepted_number += 1
                     problem.save()
                 except Problem.DoesNotExist:
                     logger.warning("Submission problem does not exist, submission_id: " + submission_id)
-                    pass
+                # 普通题目的话，到这里就结束了
+                continue
+
+            # 能运行到这里的都是比赛题目
+            try:
+                contest = Contest.objects.get(id=submission.contest_id)
+                contest_problem = ContestProblem.objects.get(contest=contest, id=submission.problem_id)
+            except Contest.DoesNotExist:
+                logger.warning("Submission contest does not exist, submission_id: " + submission_id)
+                continue
+            except ContestProblem.DoesNotExist:
+                logger.warning("Submission problem does not exist, submission_id: " + submission_id)
+                continue
+
+            try:
+                contest_submission = ContestSubmission.objects.get(user_id=submission.user_id, contest=contest,
+                                                                   problem_id=contest_problem.id)
+
+                if submission.result == result["accepted"]:
+
+                    # 避免这道题已经 ac 了，但是又重新提交了一遍
+                    if not contest_submission.ac:
+                        # 这种情况是这个题目前处于错误状态，就使用已经存储了的罚时加上这道题的实际用时
+                        logger.debug(contest.start_time)
+                        logger.debug(submission.create_time)
+                        logger.debug((submission.create_time - contest.start_time).total_seconds())
+                        contest_submission.total_time += int((submission.create_time - contest.start_time).total_seconds() / 60)
+                    # 标记为已经通过
+                    contest_submission.ac = True
+                    # contest problem ac 计数器加1
+                    contest_problem.total_accepted_number += 1
+                else:
+                    # 如果这个提交是错误的，就罚时20分钟
+                    contest_submission.ac = False
+                    contest_submission.total_time += 20
+                contest_submission.save()
+                contest_problem.save()
+            except ContestSubmission.DoesNotExist:
+                # 第一次提交
+                is_ac = submission.result == result["accepted"]
+                # 增加题目总提交数计数器
+                contest_problem.total_submit_number += 1
+                if is_ac:
+                    total_time = 0
+                    # 增加题目总的ac数计数器
+                    contest_problem.total_accepted_number += 1
+                    contest_problem.save()
+                else:
+                    # 没过罚时20分钟
+                    total_time = 20
+                ContestSubmission.objects.create(user_id=submission.user_id, contest=contest, problem=contest_problem,
+                                                 ac=is_ac, total_time=total_time)
 
 
 logger.debug("Start message queue")
