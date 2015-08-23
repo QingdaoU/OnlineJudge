@@ -12,6 +12,7 @@ from judge.judger_controller.settings import redis_config
 from account.decorators import login_required
 from account.models import SUPER_ADMIN
 from problem.models import Problem
+from contest.models import Contest, ContestProblem
 from utils.shortcuts import serializer_invalid_response, error_response, success_response, error_page, paginate
 from .models import Submission
 from .serializers import CreateSubmissionSerializer, SubmissionSerializer
@@ -77,6 +78,22 @@ def problem_my_submissions_list_page(request, problem_id):
         values("id", "result", "create_time", "accepted_answer_time", "language")
     return render(request, "oj/problem/my_submissions_list.html",
                   {"submissions": submissions, "problem": problem})
+
+
+@login_required
+def contest_problem_my_submissions_list_page(request, contest_id, contest_problem_id):
+    try:
+        Contest.objects.get(id=contest_id)
+    except Contest.DoesNotExist:
+        return error_page(request, u"比赛不存在")
+    try:
+        contest_problem = ContestProblem.objects.get(id=contest_problem_id, visible=True)
+    except Problem.DoesNotExist:
+        return error_page(request, u"比赛问题不存在")
+    submissions = Submission.objects.filter(user_id=request.user.id, problem_id=contest_problem.id).order_by("-create_time"). \
+        values("id", "result", "create_time", "accepted_answer_time", "language")
+    return render(request, "oj/contest/my_submissions_list.html",
+                  {"submissions": submissions, "contest_problem": contest_problem})
 
 
 @login_required
