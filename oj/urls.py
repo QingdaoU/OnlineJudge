@@ -16,7 +16,7 @@ from group.views import (GroupAdminAPIView, GroupMemberAdminAPIView,
 from admin.views import AdminTemplateView
 
 from problem.views import TestCaseUploadAPIView, ProblemTagAdminAPIView, ProblemAdminAPIView
-from submission.views import SubmissionAPIView, SubmissionAdminAPIView
+from submission.views import SubmissionAPIView, SubmissionAdminAPIView, ContestSubmissionAPIView
 from monitor.views import QueueLengthMonitorAPIView
 
 
@@ -82,5 +82,6 @@ urlpatterns = [
     url(r'^api/admin/monitor/$', QueueLengthMonitorAPIView.as_view(), name="queue_length_monitor_api"),
     url(r'^contest/(?P<contest_id>\d+)/$', "contest.views.contest_page", name="contest_page"),
     url(r'^api/contest/password/$', ContestPasswordVerifyAPIView.as_view(), name="contest_password_verify_api"),
+    url(r'^api/contest/submission/$', ContestSubmissionAPIView.as_view(), name="contest_submission_api"),
 
 ]
