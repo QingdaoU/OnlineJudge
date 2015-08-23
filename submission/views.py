@@ -173,6 +173,8 @@ class ContestSubmissionAPIView(APIView):
                 contest = Contest.objects.get(id=data["contest_id"])
             except Contest.DoesNotExist:
                 return error_response(u"比赛不存在")
+            if contest.status != 0:
+                return error_response(u"比赛已经结束或者还没有开始")
             try:
                 problem = ContestProblem.objects.get(contest=contest, id=data["problem_id"])
                 # 更新题目提交计数器
