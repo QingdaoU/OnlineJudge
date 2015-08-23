@@ -74,7 +74,7 @@ def check_user_contest_permission(func):
                                   {"reason": "group_limited", "show_tab": False, "contest": contest})
 
         # 比赛没有开始
-        if contest.start_time > now():
+        if contest.status == 1:
             if request.is_ajax():
                 return error_response(u"比赛还没有开始")
             else:

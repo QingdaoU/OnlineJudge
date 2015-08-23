@@ -1,5 +1,6 @@
 # coding=utf-8
 from django.db import models
+from django.utils.timezone import now
 
 from account.models import User
 from problem.models import AbstractProblem
@@ -33,6 +34,18 @@ class Contest(models.Model):
     groups = models.ManyToManyField(Group)
     # 是否可见 false的话相当于删除
     visible = models.BooleanField(default=True)
+
+    @property
+    def status(self):
+        if self.start_time > now():
+            # 没有开始 返回1
+            return 1
+        elif self.end_time < now():
+            # 已经结束 返回0
+            return -1
+        else:
+            # 正在进行 返回0
+            return 0
 
     class Meta:
         db_table = "contest"
