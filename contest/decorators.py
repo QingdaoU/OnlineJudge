@@ -1,7 +1,7 @@
 # coding=utf-8
 from functools import wraps
 
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.utils.timezone import now
 
@@ -30,7 +30,7 @@ def check_user_contest_permission(func):
             if request.is_ajax():
                 return error_response(u"请先登录")
             else:
-                return error_page(request, u"请先登录")
+                return HttpResponseRedirect("/login/")
 
         # kwargs 就包含了url 里面的播或参数
         if "contest_id" in kwargs:
