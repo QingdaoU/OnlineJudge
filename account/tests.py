@@ -280,7 +280,7 @@ class LoginRequiredDecoratorTest(TestCase):
     def test_cbv_without_args(self):
         # 没登陆
         response = self.client.get("/login_required_test/cbv/1/")
-        self.assertTemplateUsed(response, "utils/error.html")
+        self.assertRedirects(response, "/login/")
 
         # 登陆后
         self.client.login(username="test", password="test")
@@ -353,7 +353,7 @@ class AdminRequiredDecoratorTest(TestCase):
     def test_cbv_without_args(self):
         # 没登陆
         response = self.client.get("/admin_required_test/cbv/1/")
-        self.assertRedirects(response, "/login/")
+        self.assertTemplateUsed(response, "utils/error.html")
 
         # 登陆后
         self.client.login(username="test", password="test")
