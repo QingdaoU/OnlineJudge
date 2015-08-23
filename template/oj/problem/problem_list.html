@@ -22,15 +22,15 @@
                             <th>#</th>
                             <th>题目</th>
                             <th><a href="/problems/?order_by=difficulty">难度</a></th>
-                            <th><a href="/problems/?order_by=aceptance">通过率</a></th>
+                            <th><a href="/problems/?order_by=acceptance">通过率</a></th>
                         </tr>
                         </thead>
                         <tbody>
                         {% for item in problems %}
                             <tr>
                                 <th><span class="glyphicon glyphicon-ok ac-flag"></span></th>
-                                <th scope="row"><a href="/problem/{{ item.id }}/">{{ item.id }}</a></th>
-                                <td><a href="/problem/{{ item.id }}/">{{ item.title }}</a></td>
+                                <th scope="row"><a href="/problem/{{ item.id }}/" target="_blank">{{ item.id }}</a></th>
+                                <td><a href="/problem/{{ item.id }}/" target="_blank">{{ item.title }}</a></td>
                                 <td>{{ item.difficulty }}</td>
                                 <td>{{ item|accepted_radio }}</td>
                             </tr>
