@@ -123,6 +123,17 @@ define("admin", ["jquery", "avalon"], function ($, avalon) {
             vm.template_url = "template/problem/submission_list.html";
         });
 
+        vm.$watch("showContestProblemPage", function (problemId, contestId) {
+            vm.problemId = problemId;
+            vm.contestId = contestId;
+            vm.template_url = "template/contest/edit_problem.html";
+        });
+
+        vm.$watch("showContestListPage", function (problemId) {
+            vm.problemId = problemId;
+            vm.template_url = "template/contest/contest_list.html";
+        });
+
         avalon.scan();
 
         window.onhashchange = function () {
