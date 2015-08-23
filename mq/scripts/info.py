@@ -75,10 +75,8 @@ class MessageQueue(object):
             except ContestSubmission.DoesNotExist:
                 # 第一次提交
                 is_ac = submission.result == result["accepted"]
-                # 增加题目总提交数计数器
-                contest_problem.total_submit_number += 1
                 if is_ac:
-                    total_time = 0
+                    total_time = int((submission.create_time - contest.start_time).total_seconds() / 60)
                     # 增加题目总的ac数计数器
                     contest_problem.total_accepted_number += 1
                     contest_problem.save()
