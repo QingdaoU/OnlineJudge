@@ -23,21 +23,6 @@ var require = {
 
 
         // ------ 下面写的都不要直接用，而是使用上面的封装版本 ------
-
-        //formValidation -> utils/validation
-        base: "lib/formValidation/base",
-        helper: "lib/formValidation/helper",
-        "language/zh_CN": "lib/formValidation/language/zh_CN",
-        "framework/bootstrap": "lib/formValidation/framework/bootstrap",
-        "validator/notEmpty": "lib/formValidation/validator/notEmpty",
-        "validator/stringLength": "lib/formValidation/validator/stringLength",
-        "validator/date": "lib/formValidation/validator/date",
-        "validator/integer": "lib/formValidation/validator/integer",
-        "validator/between": "lib/formValidation/validator/between",
-        "validator/confirm":"lib/formValidation/validator/confirm",
-        "validator/remote":"lib/formValidation/validator/remote",
-        "validator/emailAddress":"lib/formValidation/validator/emailAddress",
-
         //富文本编辑器simditor -> editor
         simditor: "lib/simditor/simditor",
         "simple-module": "lib/simditor/module",

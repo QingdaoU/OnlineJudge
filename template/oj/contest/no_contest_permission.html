@@ -6,6 +6,17 @@
             <li role="presentation" class="active">
                 <a href="/contest/{{ contest.id }}/">比赛详情</a>
             </li>
+            {% if show_tab %}
+                <li role="presentation">
+                    <a href="/contest/{{ contest.id }}/problems/">题目</a>
+                </li>
+                <li role="presentation">
+                    <a href="/contest/{{ contest.id }}/submissions/">提交</a>
+                </li>
+                <li role="presentation">
+                    <a href="/contest/{{ contest.id }}/rank/">排名</a>
+                </li>
+            {% endif %}
         </ul>
         {% include "oj/contest/_contest_header.html" %}
         {% ifequal reason "password_protect" %}
@@ -16,8 +27,12 @@
                 </div>
                 <button type="button" id="contest-password-btn" class="btn btn-primary">提交</button>
             </div>
-        {% else %}
+        {% endifequal %}
+        {% ifequal reason "group_limited" %}
             <div class="alert alert-danger" role="alert">比赛仅指定小组可以参加，你不在这些小组中。</div>
+        {% endifequal %}
+        {% ifequal reason "contest_not_start" %}
+            <div class="alert alert-danger" role="alert">比赛还没有开始。</div>
         {% endifequal %}
     </div>
 {% endblock %}
