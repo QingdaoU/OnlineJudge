@@ -1,0 +1,38 @@
+{% load contest %}
+<h2 class="text-center">{{ contest.title }}</h2>
+
+<hr>
+<div>
+    <table class="table table-bordered">
+        <thead>
+        <tr>
+            <th>开始时间</th>
+            <th>结束时间</th>
+            <th>状态</th>
+            <th>比赛类型</th>
+            <th>创建者</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>{{ contest.start_time }}</td>
+            <td>{{ contest.end_time }}</td>
+            <td>{{ contest|contest_status }}</td>
+            {% ifequal contest.contest_type 0 %}
+                <td>小组赛</td>
+            {% endifequal %}
+            {% ifequal contest.contest_type 1 %}
+                <td>公开赛</td>
+            {% endifequal %}
+            {% ifequal contest.contest_type 2 %}
+                <td>公开赛(密码保护)</td>
+            {% endifequal %}
+
+            <td>{{ contest.created_by.username }}</td>
+        </tr>
+        </tbody>
+    </table>
+    <hr>
+    <div>{{ contest.description|safe }}</div>
+</div>
+<p class="text-center"></p>

@@ -59,6 +59,7 @@ require(["jquery", "codeMirror", "csrfToken", "bsAlert"], function ($, codeMirro
         if(counter++ > 10){
             hideLoading();
             bsAlert("抱歉，服务器可能出现了故障，请稍后到我的提交列表中查看");
+            counter = 0;
             return;
         }
         $.ajax({
@@ -73,6 +74,7 @@ require(["jquery", "codeMirror", "csrfToken", "bsAlert"], function ($, codeMirro
                         setTimeout(getResult, 1000);
                     }
                     else {
+                        counter = 0;
                         hideLoading();
                         $("#result").html(getResultHtml(data.data));
                     }

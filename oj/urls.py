@@ -8,7 +8,7 @@ from account.views import (UserLoginAPIView, UsernameCheckAPIView, UserRegisterA
                            UserAdminAPIView, UserInfoAPIView)
 from announcement.views import AnnouncementAdminAPIView
 
-from contest.views import ContestAdminAPIView, ContestProblemAdminAPIView
+from contest.views import ContestAdminAPIView, ContestProblemAdminAPIView, ContestPasswordVerifyAPIView
 
 from group.views import (GroupAdminAPIView, GroupMemberAdminAPIView,
                          JoinGroupAPIView, JoinGroupRequestAdminAPIView)
@@ -40,12 +40,15 @@ urlpatterns = [
     url(r'^api/admin/contest/$', ContestAdminAPIView.as_view(), name="contest_admin_api"),
     url(r'^api/admin/user/$', UserAdminAPIView.as_view(), name="user_admin_api"),
     url(r'^problem/(?P<problem_id>\d+)/$', "problem.views.problem_page", name="problem_page"),
+    url(r'^contest/(?P<contest_id>\d+)/$', "contest.views.contest_page", name="contest_page"),
     url(r'^announcement/(?P<announcement_id>\d+)/$', "announcement.views.announcement_page",
         name="announcement_page"),
     url(r'^admin/contest/$', TemplateView.as_view(template_name="admin/contest/add_contest.html"),
         name="add_contest_page"),
     url(r'^problems/$', "problem.views.problem_list_page", name="problem_list_page"),
     url(r'^problems/(?P<page>\d+)/$', "problem.views.problem_list_page", name="problem_list_page"),
+    url(r'^contests/$', "contest.views.contest_list_page", name="contest_list_page"),
+    url(r'^contests/(?P<page>\d+)/$', "contest.views.contest_list_page", name="contest_list_page"),
     url(r'^admin/template/(?P<template_dir>\w+)/(?P<template_name>\w+).html$', AdminTemplateView.as_view(),
         name="admin_template"),
     url(r'^api/admin/group/$', GroupAdminAPIView.as_view(), name="group_admin_api"),
@@ -66,5 +69,7 @@ urlpatterns = [
     url(r'^my_submissions/$', "submission.views.my_submission_list_page", name="my_submission_list_page"),
     url(r'^my_submissions/(?P<page>\d+)/$', "submission.views.my_submission_list_page", name="my_submission_list_page"),
     url(r'^api/admin/monitor/$', QueueLengthMonitorAPIView.as_view(), name="queue_length_monitor_api"),
+    url(r'^contest/(?P<contest_id>\d+)/$', "contest.views.contest_page", name="contest_page"),
+    url(r'^api/contest/password/$', ContestPasswordVerifyAPIView.as_view(), name="contest_password_verify_api"),
 
 ]

@@ -61,18 +61,6 @@ class SubmissionAPIView(APIView):
             submission = Submission.objects.get(id=submission_id, user_id=request.user.id)
         except Submission.DoesNotExist:
             return error_response(u"提交不存在")
-        # 标记这个submission 已经被统计
-        if not submission.is_counted:
-            submission.is_counted = True
-            submission.save()
-        if submission.result == result["accepted"]:
-            # 更新题目的 ac 计数器
-            try:
-                problem = Problem.objects.get(id=submission.problem_id)
-                problem.total_accepted_number += 1
-                problem.save()
-            except Problem.DoesNotExist:
-                pass
         response_data = {"result": submission.result}
         if submission.result == 0:
             response_data["accepted_answer_time"] = submission.accepted_answer_time
@@ -129,7 +117,7 @@ class SubmissionAdminAPIView(APIView):
 @login_required
 def my_submission_list_page(request, page=1):
     submissions = Submission.objects.filter(user_id=request.user.id). \
-        values("id", "result", "create_time", "accepted_answer_time", "language")
+        values("id", "result", "create_time", "accepted_answer_time", "language").order_by("-create_time")
     paginator = Paginator(submissions, 20)
     try:
         current_page = paginator.page(int(page))
@@ -147,4 +135,4 @@ def my_submission_list_page(request, page=1):
 
     return render(request, "oj/submission/my_submissions_list.html",
                   {"submissions": current_page, "page": int(page),
-                   "previous_page": previous_page, "next_page": next_page, "startId":int(page)*20-20})
+                   "previous_page": previous_page, "next_page": next_page, "start_id": int(page) * 20 - 20})

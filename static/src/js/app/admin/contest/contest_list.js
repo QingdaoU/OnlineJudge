@@ -11,29 +11,29 @@ require(["jquery", "avalon", "csrfToken", "bsAlert", "editor", "datetimePicker",
                     id:                   vm.contestList[vm.editingContestId-1].id,
                     title:                vm.editTitle,
                     description:          vm.editDescription,
-				    mode:                 vm.editMode,
-				    contest_type:         0,
+                    mode:                 vm.editMode,
+                    contest_type:         0,
                     show_rank:            vm.editShowRank,
                     show_user_submission: vm.editShowSubmission,
                     start_time:           vm.editStartTime,
-					end_time:             vm.editEndTime,
-					visible:              vm.editVisible
-				};
-				if (vm.choseGroupList.length == 0) {
-				    bsAlert("你没有选择参赛用户!");
-				    return false;
-				}
-				if (vm.choseGroupList[0].id == 0) //everyone | public contest
-				    if (vm.password == "")
-				        ajaxData.contest_type = 1;
-				    else{
-				        ajaxData.password = vm.password;
-				    }
-				else { // Add groups info
-				    ajaxData.groups = [];
-				    for (var i = 0; vm.choseGroupList[i]; i++)
-				        ajaxData.groups.push(parseInt(vm.choseGroupList[i].id))
-				}
+                    end_time:             vm.editEndTime,
+                    visible:              vm.editVisible
+                };
+                if (vm.choseGroupList.length == 0) {
+                    bsAlert("你没有选择参赛用户!");
+                    return false;
+                }
+                if (vm.choseGroupList[0].id == 0) //everyone | public contest
+                    if (vm.password == "")
+                        ajaxData.contest_type = 1;
+                    else{
+                        ajaxData.password = vm.password;
+                    }
+                else { // Add groups info
+                    ajaxData.groups = [];
+                    for (var i = 0; vm.choseGroupList[i]; i++)
+                        ajaxData.groups.push(parseInt(vm.choseGroupList[i].id))
+                }
 
 				console.log(ajaxData);
 				$.ajax({                                  // Add contest
@@ -73,12 +73,12 @@ require(["jquery", "avalon", "csrfToken", "bsAlert", "editor", "datetimePicker",
             choseGroupList: [],
             passwordUsable: false,
             keyword: "",
-			editingContestId: 0,
-			editTitle: "",
-			editDescription: "",
-			editProblemList: [],
-			editPassword: "",
-			editStartTime: "",
+            editingContestId: 0,
+            editTitle: "",
+            editDescription: "",
+            editProblemList: [],
+            editPassword: "",
+            editStartTime: "",
             editEndTime: "",
             editMode: "",
             editShowRank: false,
@@ -109,36 +109,36 @@ require(["jquery", "avalon", "csrfToken", "bsAlert", "editor", "datetimePicker",
                 getPageData(page_index);
             },
             showEditContestArea: function (contestId) {
-				if (contestId == vm.editingContestId)
-					vm.editingContestId = 0;
-				else {
-					vm.editingContestId = contestId;
-					vm.editTitle     = vm.contestList[contestId-1].title;
-					vm.editPassword  = vm.contestList[contestId-1].password;
-					vm.editStartTime = vm.contestList[contestId-1].start_time.substring(0,16).replace("T"," ");
-					vm.editEndTime   = vm.contestList[contestId-1].end_time.substring(0,16).replace("T"," ");
-					vm.editMode      = vm.contestList[contestId-1].mode;
-					editVisible      = vm.contestList[contestId-1].visible;
-					vm.editChoseGroupList = [];
-					for (var i = 0; i < vm.contestList[contestId-1].groups.length; i++){
-					    var id = parseInt(vm.contestList[contestId-1].groups[i]);
-					    var index = 0;
-					    for (; vm.groupList[index]; index++) {
-					        if (vm.groupList[index].id == id)
-					            break;
-					    }
-					    vm.groupList[index].chose = true;
-				    	vm.choseGroupList.push({
-				           name:vm.groupList[i].name,
-						    index:index,
-						    id:id
+                if (contestId == vm.editingContestId)
+                    vm.editingContestId = 0;
+                else {
+                    vm.editingContestId = contestId;
+                    vm.editTitle     = vm.contestList[contestId-1].title;
+                    vm.editPassword  = vm.contestList[contestId-1].password;
+                    vm.editStartTime = vm.contestList[contestId-1].start_time.substring(0,16).replace("T"," ");
+                    vm.editEndTime   = vm.contestList[contestId-1].end_time.substring(0,16).replace("T"," ");
+                    vm.editMode      = vm.contestList[contestId-1].mode;
+                    editVisible      = vm.contestList[contestId-1].visible;
+                    vm.editChoseGroupList = [];
+                    for (var i = 0; i < vm.contestList[contestId-1].groups.length; i++){
+                        var id = parseInt(vm.contestList[contestId-1].groups[i]);
+                        var index = 0;
+                        for (; vm.groupList[index]; index++) {
+                            if (vm.groupList[index].id == id)
+                                break;
+                        }
+                        vm.groupList[index].chose = true;
+                        vm.choseGroupList.push({
+                            name:vm.groupList[i].name,
+                            index:index,
+                            id:id
                         });
                     }
                     vm.editShowRank = vm.contestList[contestId-1].show_rank;
                     vm.editShowSubmission = vm.contestList[contestId-1].show_user_submission;
                     editor("#editor").setValue(vm.contestList[contestId-1].description);
                     vm.editingProblemContestIndex = 0;
-			    }
+                }
             },
             showEditProblemArea: function(contestId) {
                 if (vm.editingProblemContestIndex == contestId) {
