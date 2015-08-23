@@ -11,7 +11,12 @@
     <div class="container main">
         <ul class="nav nav-tabs nav-tabs-google">
             <li role="presentation">
-                <a href="/problem/{{ problem.id }}/">题目</a></li>
+                {% if submission.contest_id %}
+                    <a href="/contest/{{ submission.contest_id }}/problem/{{ problem.id }}/">题目</a>
+                {% else %}
+                <a href="/problem/{{ problem.id }}/">题目</a>
+                {% endif %}
+            </li>
             <li role="presentation" class="active"><a href="/problem/{{ problem.id }}/my_submissions/">我的提交</a></li>
         </ul>
         {% include "oj/problem/_problem_header.html" %}
