@@ -1,5 +1,6 @@
 # coding=utf-8
 import json
+
 from django.test import TestCase, Client
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse
@@ -11,7 +12,7 @@ def middleware_test_func(request):
     return HttpResponse(json.dumps({"code": 0}))
 
 
-class AdminRequiredMidlewareTest(TestCase):
+class AdminRequiredMiddlewareTest(TestCase):
     urls = "admin.test_urls"
 
     def setUp(self):
@@ -66,3 +67,21 @@ class AdminRequiredMidlewareTest(TestCase):
         response = self.client.get(url, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
         self.assertEqual(json.loads(response.content)["code"], 0)
 
+
+class AdminTemplateViewTest(TestCase):
+    def setUp(self):
+        super_admin_user = User.objects.create(username="test", admin_type=2)
+        super_admin_user.set_password("test")
+        super_admin_user.save()
+
+        self.client = Client()
+        self.client.login(username="test", password="test")
+
+    def test_file_exists(self):
+        response = self.client.get("/admin/template/index/index.html")
+        self.assertEqual(response.status_code, 200)
+
+    def test_file_does_not_exist(self):
+        response = self.client.get("/admin/template/index/index123.html")
+        self.assertEqual(response.status_code, 200)
+        self.assertHTMLEqual(response.content, u"模板不存在")
