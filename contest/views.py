@@ -1,7 +1,8 @@
 # coding=utf-8
 import json
 import datetime
-from django.utils.timezone import localtime
+from functools import wraps
+from django.utils.timezone import now
 from django.shortcuts import render
 from django.db import IntegrityError
 from django.utils import dateparse
@@ -17,6 +18,7 @@ from group.models import Group
 from announcement.models import Announcement
 
 from .models import Contest, ContestProblem
+from .decorators import check_user_contest_permission
 from .serializers import (CreateContestSerializer, ContestSerializer, EditContestSerializer,
                           CreateContestProblemSerializer, ContestProblemSerializer,
                           EditContestProblemSerializer, ContestPasswordVerifySerializer,
@@ -251,32 +253,12 @@ class ContestPasswordVerifyAPIView(APIView):
             return serializer_invalid_response(serializer)
 
 
-def check_user_contest_permission(request, contest):
-    # 有密码的公开赛
-    if contest.contest_type == 2:
-        # 没有输入过密码
-        if contest.id not in request.session.get("contests", []):
-            return {"result": False, "reason": "password_protect"}
-
-    # 指定小组参加的
-    if contest.contest_type == 0:
-        if not contest.groups.filter(id__in=request.user.group_set.all()).exists():
-            return {"result": False, "reason": "limited_group"}
-    return {"result": True}
-
-
-@login_required
+@check_user_contest_permission
 def contest_page(request, contest_id):
     try:
         contest = Contest.objects.get(id=contest_id)
     except Contest.DoesNotExist:
         return error_page(request, u"比赛不存在")
-
-    Contest.objects.filter(Q(contest_type__in=[1, 2]) | Q(groups__in=request.user.group_set.all()))
-
-    result = check_user_contest_permission(request, contest)
-    if not result["result"]:
-        return render(request, "oj/contest/contest_no_privilege.html", {"contest": contest, "reason": result["reason"]})
 
     return render(request, "oj/contest/contest_index.html", {"contest": contest})
 
