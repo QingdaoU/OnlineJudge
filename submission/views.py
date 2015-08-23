@@ -7,13 +7,16 @@ from django.core.paginator import Paginator
 
 from rest_framework.views import APIView
 
-from problem.models import Problem
 from judge.judger_controller.tasks import judge
 from judge.judger_controller.settings import redis_config
 from account.decorators import login_required
 from account.models import SUPER_ADMIN
-from contest.models import Contest, ContestProblem
+
 from contest.decorators import check_user_contest_permission
+
+from problem.models import Problem
+from contest.models import Contest, ContestProblem
+
 from utils.shortcuts import serializer_invalid_response, error_response, success_response, error_page, paginate
 from .models import Submission
 from .serializers import CreateSubmissionSerializer, SubmissionSerializer, CreateContestSubmissionSerializer
@@ -81,6 +84,23 @@ def problem_my_submissions_list_page(request, problem_id):
 
 
 @login_required
+def contest_problem_my_submissions_list_page(request, contest_id, contest_problem_id):
+    try:
+        Contest.objects.get(id=contest_id)
+    except Contest.DoesNotExist:
+        return error_page(request, u"比赛不存在")
+    try:
+        contest_problem = ContestProblem.objects.get(id=contest_problem_id, visible=True)
+    except Problem.DoesNotExist:
+        return error_page(request, u"比赛问题不存在")
+    submissions = Submission.objects.filter(user_id=request.user.id, problem_id=contest_problem.id).order_by(
+        "-create_time"). \
+        values("id", "result", "create_time", "accepted_answer_time", "language")
+    return render(request, "oj/contest/my_submissions_list.html",
+                  {"submissions": submissions, "contest_problem": contest_problem})
+
+
+@login_required
 def my_submission(request, submission_id):
     try:
         # 超级管理员可以查看所有的提交
@@ -139,9 +159,8 @@ def my_submission_list_page(request, page=1):
                    "previous_page": previous_page, "next_page": next_page, "start_id": int(page) * 20 - 20})
 
 
-
 class ContestSubmissionAPIView(APIView):
-    @check_user_contest_permission
+    # @check_user_contest_permission
     def post(self, request):
         """
         创建比赛的提交

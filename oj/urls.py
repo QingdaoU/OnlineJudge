@@ -40,7 +40,14 @@ urlpatterns = [
     url(r'^api/admin/contest/$', ContestAdminAPIView.as_view(), name="contest_admin_api"),
     url(r'^api/admin/user/$', UserAdminAPIView.as_view(), name="user_admin_api"),
     url(r'^problem/(?P<problem_id>\d+)/$', "problem.views.problem_page", name="problem_page"),
+    url(r'^problem/(?P<problem_id>\d+)/$', "problem.views.problem_page", name="problem_page"),
+
+    url(r'^contest/(?P<contest_id>\d+)/problem/(?P<contest_problem_id>\d+)/$', "contest.views.contest_problem_page",
+        name="contest_problem_page"),
+
     url(r'^contest/(?P<contest_id>\d+)/$', "contest.views.contest_page", name="contest_page"),
+    url(r'^contest/(?P<contest_id>\d+)/problems/$', "contest.views.contest_problems_list_page",
+        name="contest_problems_list_page"),
     url(r'^announcement/(?P<announcement_id>\d+)/$', "announcement.views.announcement_page",
         name="announcement_page"),
     url(r'^admin/contest/$', TemplateView.as_view(template_name="admin/contest/add_contest.html"),
@@ -60,6 +67,10 @@ urlpatterns = [
     url(r'^api/admin/tag/$', ProblemTagAdminAPIView.as_view(), name="problem_tag_admin_api"),
     url(r'^problem/(?P<problem_id>\d+)/my_submissions/$', "submission.views.problem_my_submissions_list_page",
         name="problem_my_submissions_page"),
+
+    url(r'^contest/(?P<contest_id>\d+)/problem/(?P<contest_problem_id>\d+)/my_submissions/$',
+        "submission.views.contest_problem_my_submissions_list_page", name="contest_problem_my_submissions_list_page"),
+
     url(r'^my_submission/(?P<submission_id>\w+)/$', "submission.views.my_submission", name="my_submission_page"),
 
     url(r'^api/admin/join_group_request/$', JoinGroupRequestAdminAPIView.as_view(),
