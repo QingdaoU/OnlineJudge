@@ -285,7 +285,8 @@ def contest_problems_list_page(request, contest_id):
     # 右侧的公告列表
     announcements = Announcement.objects.filter(is_global=True, visible=True).order_by("-create_time")
     return render(request, "oj/contest/contest_problems_list.html", {"contest_problems": contest_problems,
-                                                                     "announcements": announcements})
+                                                                     "announcements": announcements,
+                                                                     "contest": {"id": contest_id}})
 
 
 def contest_list_page(request, page=1):

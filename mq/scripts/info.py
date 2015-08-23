@@ -52,15 +52,16 @@ class MessageQueue(object):
             try:
                 contest_submission = ContestSubmission.objects.get(user_id=submission.user_id, contest=contest,
                                                                    problem_id=contest_problem.id)
-                # 如果这道题已经有提交记录了，总的提交次数计数器加1
-                contest_submission.total_submission_number += 1
 
                 if submission.result == result["accepted"]:
 
                     # 避免这道题已经 ac 了，但是又重新提交了一遍
-                    if not contest_submission.result:
+                    if not contest_submission.ac:
                         # 这种情况是这个题目前处于错误状态，就使用已经存储了的罚时加上这道题的实际用时
-                        contest_submission.total_time += int((submission.create_time - contest.start_time).seconds / 60)
+                        logger.debug(contest.start_time)
+                        logger.debug(submission.create_time)
+                        logger.debug((submission.create_time - contest.start_time).total_seconds())
+                        contest_submission.total_time += int((submission.create_time - contest.start_time).total_seconds() / 60)
                     # 标记为已经通过
                     contest_submission.ac = True
                     # contest problem ac 计数器加1
@@ -86,14 +87,6 @@ class MessageQueue(object):
                     total_time = 20
                 ContestSubmission.objects.create(user_id=submission.user_id, contest=contest, problem=contest_problem,
                                                  ac=is_ac, total_time=total_time)
-
-
-
-
-
-
-            except ContestSubmission.DoesNotExist:
-                pass
 
 
 logger.debug("Start message queue")
