@@ -126,7 +126,10 @@ class ContestAdminAPIView(APIView):
         ---
         response_serializer: ContestSerializer
         """
-        contest = Contest.objects.all().order_by("-last_updated_time")
+        if request.user.admin_type == SUPER_ADMIN:
+            contest = Contest.objects.all().order_by("-last_update_time")
+        else:
+            contest = Contest.objects.filter(created_by=request.user).order_by("-last_updated_time")
         visible = request.GET.get("visible", None)
         if visible:
             contest = contest.filter(visible=(visible == "true"))
@@ -219,5 +222,12 @@ class ContestProblemAdminAPIView(APIView):
         if keyword:
             contest_problem = contest_problem.filter(Q(title__contains=keyword) |
                                                      Q(description__contains=keyword))
+        contest_id = request.GET.get("contest_id", None)
+        if contest_id:
+            try:
+                contest = Contest.objects.get(id=contest_id,created_by=request.user)
+            except Contest.DoesNotExist:
+                return error_response(u"非法的比赛ID")
+            contest_problem = contest_problem.filter(contest=contest).order_by("sort_index")
 
         return paginate(request, contest_problem, ContestProblemSerializer)

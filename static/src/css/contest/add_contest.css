@@ -1,0 +1,5 @@
+.group-tag {
+    padding-left: 5px; color: #46799b; background: #e0eaf1; white-space: nowrap;
+    overflow: hidden; cursor: pointer; border-radius: 2px 0 0 2px;
+            float: left; padding: 0 4px;box-sizing: border-box;list-style-type: none; margin: 5px;
+}
