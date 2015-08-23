@@ -81,6 +81,7 @@
             <textarea id="code-editor"></textarea>
         </div>
         <hr>
+
         <div id="submit-code">
             <button type="button" class="btn btn-primary" id="submit-code-button">
                 提交代码
@@ -88,6 +89,9 @@
             <img src="/static/img/loading.gif" id="loading-gif">
 
         </div>
+    {% if show_warning %}
+        <div class="alert alert-success" role="alert">您已经提交过本题的正确答案了！</div>
+    {% endif %}
 
         <div id="result">
         </div>

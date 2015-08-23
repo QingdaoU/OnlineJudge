@@ -93,8 +93,7 @@ def contest_problem_my_submissions_list_page(request, contest_id, contest_proble
         contest_problem = ContestProblem.objects.get(id=contest_problem_id, visible=True)
     except Problem.DoesNotExist:
         return error_page(request, u"比赛问题不存在")
-    submissions = Submission.objects.filter(user_id=request.user.id, problem_id=contest_problem.id).order_by(
-        "-create_time"). \
+    submissions = Submission.objects.filter(user_id=request.user.id, problem_id=contest_problem.id).order_by("-create_time"). \
         values("id", "result", "create_time", "accepted_answer_time", "language")
     return render(request, "oj/contest/my_submissions_list.html",
                   {"submissions": submissions, "contest_problem": contest_problem})
@@ -160,7 +159,7 @@ def my_submission_list_page(request, page=1):
 
 
 class ContestSubmissionAPIView(APIView):
-    # @check_user_contest_permission
+    @check_user_contest_permission
     def post(self, request):
         """
         创建比赛的提交

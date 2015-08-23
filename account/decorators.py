@@ -1,6 +1,6 @@
 # coding=utf-8
 from functools import wraps
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 
 from utils.shortcuts import error_response, error_page
@@ -18,7 +18,7 @@ def login_required(func):
         if request.is_ajax():
             return error_response(u"请先登录")
         else:
-            return error_page(request, u"请先登录")
+            return HttpResponseRedirect("/login/")
     return check
 
 
@@ -31,5 +31,5 @@ def admin_required(func):
         if request.is_ajax():
             return error_response(u"需要管理员权限")
         else:
-            return error_page(request, u"需要管理员权限")
+            return error_page(request, u"需要管理员权限，如果没有登录，请先登录")
     return check
