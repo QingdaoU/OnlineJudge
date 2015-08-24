@@ -54,7 +54,7 @@ class AdminRequiredMiddlewareTest(TestCase):
         self.assertEqual(json.loads(response.content), {"code": 1, "data": u"请先登录"})
 
         self.client.login(username="test", password="test")
-        rresponse = self.client.get(url, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+        response = self.client.get(url, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
         self.assertEqual(json.loads(response.content), {"code": 1, "data": u"请先登录"})
         self.client.logout()
 
