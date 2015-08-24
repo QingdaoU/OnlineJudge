@@ -2,7 +2,6 @@ require(["jquery", "avalon", "editor", "uploader", "bsAlert", "csrfToken", "tagE
     function ($, avalon, editor, uploader, bsAlert, csrfTokenHeader) {
 
         avalon.ready(function () {
-            avalon.vmodels.editProblem = null;
 
             $("#edit-problem-form").validator()
                 .on('submit', function (e) {
@@ -65,6 +64,7 @@ require(["jquery", "avalon", "editor", "uploader", "bsAlert", "csrfToken", "tagE
                             success: function (data) {
                                 if (!data.code) {
                                     bsAlert("题目编辑成功！");
+                                    vm.showProblemListPage();
                                 }
                                 else {
                                     bsAlert(data.data);
@@ -75,7 +75,24 @@ require(["jquery", "avalon", "editor", "uploader", "bsAlert", "csrfToken", "tagE
                         return false;
                     }
                 });
-
+        if (avalon.vmodels.editProblem) {
+            var vm = avalon.vmodels.editProblem;
+            title: "",
+            description= "";
+            timeLimit= -1;
+            memoryLimit= -1;
+            samples= [];
+            hint= "";
+            visible= true;
+            difficulty= 0;
+            inputDescription= "";
+            outputDescription= "";
+            testCaseIdd= "";
+            uploadSuccess= false;
+            source= "";
+            testCaseList= [];
+        }
+        else
             var vm = avalon.define({
                 $id: "editProblem",
                 title: "",
