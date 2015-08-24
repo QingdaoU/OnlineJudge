@@ -84,4 +84,6 @@ urlpatterns = [
     url(r'^api/contest/password/$', ContestPasswordVerifyAPIView.as_view(), name="contest_password_verify_api"),
     url(r'^api/contest/submission/$', ContestSubmissionAPIView.as_view(), name="contest_submission_api"),
 
+    url(r'^contest/(?P<contest_id>\d+)/rank/$', "contest.views.contest_rank_page", name="contest_rank_page")
+
 ]
