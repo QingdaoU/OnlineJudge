@@ -44,7 +44,7 @@
             <div class="col-md-6">
                 <label>允许参加的用户</label>
                 <div class="form-group">
-                    <select class="form-control" name="password" ms-duplex="group" ms-change="addGroup" value="-1">
+                    <select class="form-control" ms-duplex="group" ms-change="addGroup" value="-1">
                         <option value="-1">请选择</option>
                         <option ms-repeat="groupList" ms-attr-value="$index" ms-visible="!el.chose">{{el.name}}</option>
                     </select>

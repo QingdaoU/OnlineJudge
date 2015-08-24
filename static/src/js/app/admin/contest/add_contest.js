@@ -66,7 +66,7 @@ require(["jquery", "avalon", "editor", "uploader", "bsAlert", "csrfToken", "date
                             bsAlert(data.data);
                             console.log(data);
                         }
-					}
+                    }
                 });
                 console.log(JSON.stringify(ajaxData));
             }
@@ -92,28 +92,28 @@ require(["jquery", "avalon", "editor", "uploader", "bsAlert", "csrfToken", "date
             choseGroupList: [],
             passwordUsable: false,
             addGroup: function() {
-				if (vm.group == -1) return;
-				if (vm.groupList[vm.group].id == 0){
-					vm.passwordUsable = true;
-					vm.choseGroupList = [];
-					for (var key in vm.groupList){
-						vm.groupList[key].chose = true;
-					}
-				}
-				vm.groupList[vm.group]. chose = true;
-				vm.choseGroupList.push({name:vm.groupList[vm.group].name, index:vm.group, id:vm.groupList[vm.group].id});
-				vm.group = -1;
-			},
-			removeGroup: function(groupIndex){
-				if (vm.groupList[vm.choseGroupList[groupIndex].index].id == 0){
-					vm.passwordUsable = false;
-					for (key in vm.groupList){
-						vm.groupList[key].chose = false;
-					}
-				}
-				vm.groupList[vm.choseGroupList[groupIndex].index].chose = false;
-				vm.choseGroupList.remove(vm.choseGroupList[groupIndex]);
-			}
+                if (vm.group == -1) return;
+                if (vm.groupList[vm.group].id == 0){
+                    vm.passwordUsable = true;
+                    vm.choseGroupList = [];
+                    for (var key in vm.groupList){
+                        vm.groupList[key].chose = true;
+                    }
+                }
+                vm.groupList[vm.group]. chose = true;
+                vm.choseGroupList.push({name:vm.groupList[vm.group].name, index:vm.group, id:vm.groupList[vm.group].id});
+                vm.group = -1;
+            },
+            removeGroup: function(groupIndex){
+                if (vm.groupList[vm.choseGroupList[groupIndex].index].id == 0){
+                    vm.passwordUsable = false;
+                    for (key in vm.groupList){
+                        vm.groupList[key].chose = false;
+                    }
+                }
+                vm.groupList[vm.choseGroupList[groupIndex].index].chose = false;
+                vm.choseGroupList.remove(vm.choseGroupList[groupIndex]);
+            }
         });
 
         $.ajax({  // Get current user type

@@ -22,8 +22,8 @@ require(["jquery", "avalon", "csrfToken", "bsAlert", "editor", "datetimePicker",
                     return false;
                 }
                 if (vm.choseGroupList[0].id == 0) { //everyone | public contest
-                    if (vm.password) {
-                        ajaxData.password = vm.password;
+                    if (vm.editPassword) {
+                        ajaxData.password = vm.editPassword;
                         ajaxData.contest_type = 2;
                     }
                     else{
@@ -59,8 +59,8 @@ require(["jquery", "avalon", "csrfToken", "bsAlert", "editor", "datetimePicker",
 				});
 				console.log(JSON.stringify(ajaxData));
 			}
-			return false;
-		});
+            return false;
+        });
 
     if(avalon.vmodels.contestList){
         // this page has been loaded before, so set the default value
@@ -152,8 +152,8 @@ require(["jquery", "avalon", "csrfToken", "bsAlert", "editor", "datetimePicker",
                     if (vm.contestList[contestId-1].contest_type == 0) { //contest type == 0, contest in group
                         //Clear the choseGroupList
                         var stack = [], sp;
-                        for (sp = 0; i < vm.editChoseGroupList.length; sp++){
-                            stack.push(vm.editChoseGroupList[i].index);
+                        for (sp = 0; sp < vm.choseGroupList.length; sp++){
+                            stack.   push(vm.choseGroupList[sp].index);
                         }
                         while (sp--){
                             vm.removeGroup(stack[sp]);
