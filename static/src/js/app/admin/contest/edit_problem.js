@@ -2,7 +2,7 @@ require(["jquery", "avalon", "editor", "uploader", "bsAlert", "csrfToken", "tagE
     function ($, avalon, editor, uploader, bsAlert, csrfTokenHeader) {
 
         avalon.ready(function () {
-            avalon.vmodels.editProblem = null;
+
             $("#edit-problem-form").validator()
                 .on('submit', function (e) {
                     if (!e.isDefaultPrevented()){
@@ -38,15 +38,22 @@ require(["jquery", "avalon", "editor", "uploader", "bsAlert", "csrfToken", "tagE
                             test_case_id: vm.testCaseId,
                             hint: vm.hint,
                             visible:            vm.visible,
-                            contest_id:         avalon.vmodels.admin.contestId,
+                            contest_id:         avalon.vmodels.admin.$contestId,
                             input_description:  vm.inputDescription,
                             output_description: vm.outputDescription,
                             sort_index:         vm.sortIndex,
                         };
+                        if (vm.contestMode == '2') {
+                            if (!vm.score) {
+                                bsAlert("请输入有效的分值!")
+                                return false;
+                            }
+                            ajaxData.score = vm.score;
+                        }
                         var method = "post";
-                        if (avalon.vmodels.admin.problemId) {
+                        if (avalon.vmodels.admin.$problemId) {
                             method = "put";
-                            ajaxData.id = avalon.vmodels.admin.problemId;
+                            ajaxData.id = avalon.vmodels.admin.$problemId;
                         }
 
                         for (var i = 0; i < vm.samples.$model.length; i++) {
@@ -75,6 +82,7 @@ require(["jquery", "avalon", "editor", "uploader", "bsAlert", "csrfToken", "tagE
                     }
                 });
 
+        if (!avalon.vmodels.editProblem)
             var vm = avalon.define({
                 $id: "editProblem",
                 title: "",
@@ -85,12 +93,12 @@ require(["jquery", "avalon", "editor", "uploader", "bsAlert", "csrfToken", "tagE
                 hint: "",
                 sortIndex: "",
                 visible: true,
-                //difficulty: 0,
                 inputDescription: "",
                 outputDescription: "",
                 testCaseIdd: "",
+                contestMode: 0,
+                score: 1,
                 uploadSuccess: false,
-                //source: "",
                 testCaseList: [],
                 addSample: function () {
                     vm.samples.push({input: "", output: "", "visible": true});
@@ -114,6 +122,9 @@ require(["jquery", "avalon", "editor", "uploader", "bsAlert", "csrfToken", "tagE
                     }
                 }
             });
+        else
+            vm = avalon.vmodels.editProblem;
+
             var hintEditor = editor("#hint");
             var descriptionEditor = editor("#problemDescription");
             var testCaseUploader = uploader("#testCaseFile", "/api/admin/test_case_upload/", function (file, response) {
@@ -133,24 +144,31 @@ require(["jquery", "avalon", "editor", "uploader", "bsAlert", "csrfToken", "tagE
                 }
             });
 
-
-            if (avalon.vmodels.admin.problemId){
+            vm.contestMode = avalon.vmodels.admin.$contestMode;
+            if (avalon.vmodels.admin.$problemId){
                 $.ajax({
-                    url: "/api/admin/contest_problem/?contest_problem_id=" + avalon.vmodels.admin.problemId,
+                    url: "/api/admin/contest_problem/?contest_problem_id=" + avalon.vmodels.admin.$problemId,
                     method: "get",
                     dataType: "json",
                     success: function (data) {
                         if (data.code) {
                             bsAlert(data.data);
                         }
-                        else {
+                        else {  // Edit mode    load the problem data
                             var problem = data.data;
-                            console.log(problem);
-                            vm.sortIndex   = problem.sort_index;
-                            vm.title       = problem.title;
-                            vm.description = problem.description;
-                            vm.timeLimit   = problem.time_limit;
-                            vm.memoryLimit = problem.memory_limit;
+                            vm.testCaseList      = [];
+                            vm.sortIndex         = problem.sort_index;
+                            vm.title             = problem.title;
+                            vm.description       = problem.description;
+                            vm.timeLimit         = problem.time_limit;
+                            vm.memoryLimit       = problem.memory_limit;
+                            vm.hint              = problem.hint;
+                            vm.visible           = problem.visible;
+                            vm.inputDescription  = problem.input_description;
+                            vm.outputDescription = problem.output_description;
+                            vm.score             = problem.score;
+                            vm.samples           = [];
+                            vm.testCaseId        = problem.test_case_id;
                             for (var i = 0; i < problem.samples.length; i++) {
                                 vm.samples.push({
                                     input: problem.samples[i].input,
@@ -158,17 +176,26 @@ require(["jquery", "avalon", "editor", "uploader", "bsAlert", "csrfToken", "tagE
                                     visible: false
                                 })
                             }
-                            vm.hint = problem.hint;
-                            vm.visible = problem.visible;
-                            vm.inputDescription = problem.input_description;
-                            vm.outputDescription = problem.output_description;
-                            vm.testCaseId = problem.test_case_id;
-                            vm.source = problem.source;
                             hintEditor.setValue(vm.hint);
                             descriptionEditor.setValue(vm.description);
                         }
                     }
                 });
+            }
+            else {   //Create new problem    Set default values
+                vm.testCaseList      = [];
+                vm.title             = "";
+                vm.timeLimit         = 1000;
+                vm.memoryLimit       = 256;
+                vm.samples           = [];
+                vm.visible           = true;
+                vm.inputDescription  = "";
+                vm.outputDescription = "";
+                vm.testCaseId        = "";
+                vm.sortIndex         = "";
+                vm.score             = 0;
+                hintEditor.setValue("");
+                descriptionEditor.setValue("");
             }
         });
         avalon.scan();

@@ -2,8 +2,6 @@ require(["jquery", "avalon", "csrfToken", "bsAlert", "editor", "datetimePicker",
 
     avalon.ready(function () {
 
-        avalon.vmodels.contestList=null;
-
         $("#edit-contest-form").validator().on('submit', function (e) {
             if (!e.isDefaultPrevented()){
                 e.preventDefault();
@@ -23,12 +21,15 @@ require(["jquery", "avalon", "csrfToken", "bsAlert", "editor", "datetimePicker",
                     bsAlert("你没有选择参赛用户!");
                     return false;
                 }
-                if (vm.choseGroupList[0].id == 0) //everyone | public contest
-                    if (vm.password == "")
-                        ajaxData.contest_type = 1;
-                    else{
+                if (vm.choseGroupList[0].id == 0) { //everyone | public contest
+                    if (vm.password) {
                         ajaxData.password = vm.password;
+                        ajaxData.contest_type = 2;
                     }
+                    else{
+                        ajaxData.contest_type = 1;
+                    }
+                }
                 else { // Add groups info
                     ajaxData.groups = [];
                     for (var i = 0; vm.choseGroupList[i]; i++)
@@ -61,6 +62,35 @@ require(["jquery", "avalon", "csrfToken", "bsAlert", "editor", "datetimePicker",
 			return false;
 		});
 
+    if(avalon.vmodels.contestList){
+        // this page has been loaded before, so set the default value
+        var vm = avalon.vmodels.contestList;
+        vm.contestList= [];
+        vm.previousPage= 0;
+        vm.nextPage= 0;
+        vm.page= 1;
+        vm.totalPage= 1;
+        vm.group= "-1";
+        vm.groupList= [];
+        vm.choseGroupList= [];
+        vm.passwordUsable= false;
+        vm.keyword= "";
+        vm.editingContestId= 0;
+        vm.editTitle= "";
+        vm.editDescription= "";
+        vm.editProblemList= [];
+        vm.editPassword= "";
+        vm.editStartTime= "";
+        vm.editEndTime= "";
+        vm.editMode= "";
+        vm.editShowRank= false;
+        vm.editShowSubmission= false;
+        vm.editProblemList= [];
+        vm.editVisible= false;
+        vm.editChoseGroupList= [];
+        vm.editingProblemContestIndex= 0;
+    }
+    else
         var vm = avalon.define({
             $id: "contestList",
             contestList: [],
@@ -119,20 +149,34 @@ require(["jquery", "avalon", "csrfToken", "bsAlert", "editor", "datetimePicker",
                     vm.editEndTime   = vm.contestList[contestId-1].end_time.substring(0,16).replace("T"," ");
                     vm.editMode      = vm.contestList[contestId-1].mode;
                     editVisible      = vm.contestList[contestId-1].visible;
-                    vm.editChoseGroupList = [];
-                    for (var i = 0; i < vm.contestList[contestId-1].groups.length; i++){
-                        var id = parseInt(vm.contestList[contestId-1].groups[i]);
-                        var index = 0;
-                        for (; vm.groupList[index]; index++) {
-                            if (vm.groupList[index].id == id)
-                                break;
+                    if (vm.contestList[contestId-1].contest_type == 0) { //contest type == 0, contest in group
+                        //Clear the choseGroupList
+                        var stack = [], sp;
+                        for (sp = 0; i < vm.editChoseGroupList.length; sp++){
+                            stack.push(vm.editChoseGroupList[i].index);
                         }
-                        vm.groupList[index].chose = true;
-                        vm.choseGroupList.push({
-                            name:vm.groupList[i].name,
-                            index:index,
-                            id:id
-                        });
+                        while (sp--){
+                            vm.removeGroup(stack[sp]);
+                        }
+
+                        for (var i = 0; i < vm.contestList[contestId-1].groups.length; i++){
+                            var id = parseInt(vm.contestList[contestId-1].groups[i]);
+                            var index = 0;
+                            for (; vm.groupList[index]; index++) {
+                                if (vm.groupList[index].id == id)
+                                    break;
+                            }
+                            vm.groupList[index].chose = true;
+                            vm.choseGroupList.push({
+                                name:vm.groupList[index].name,
+                                index:index,
+                                id:id
+                            });
+                        }
+                    }
+                    else{
+                        vm.group = "0";
+                        vm.addGroup()//vm.editChoseGroupList = [0]; id 0 is for the group of everyone~
                     }
                     vm.editShowRank = vm.contestList[contestId-1].show_rank;
                     vm.editShowSubmission = vm.contestList[contestId-1].show_user_submission;
@@ -145,7 +189,7 @@ require(["jquery", "avalon", "csrfToken", "bsAlert", "editor", "datetimePicker",
                     vm.editingProblemContestIndex = 0;
                     return;
                 }
-                if (vm.editingContestId&&!confirm("如果继续将丢失为保存的信息,是否继续?")){
+                if (vm.editingContestId&&!confirm("如果继续将丢失未保存的信息,是否继续?")){
                     return;
                 }
                 $.ajax({      // Get the problem list of current contest
@@ -164,6 +208,7 @@ require(["jquery", "avalon", "csrfToken", "bsAlert", "editor", "datetimePicker",
                     });
                 vm.editingContestId = 0;
                 vm.editingProblemContestIndex = contestId;
+                vm.editMode = vm.contestList[contestId-1].mode;
             },
             addGroup: function() {
                     if (vm.group == -1) return;
@@ -175,9 +220,10 @@ require(["jquery", "avalon", "csrfToken", "bsAlert", "editor", "datetimePicker",
                         }
                     }
                     vm.groupList[vm.group]. chose = true;
+                    // index of the group is relative. It is related to user
                     vm.choseGroupList.push({name:vm.groupList[vm.group].name, index:vm.group, id:vm.groupList[vm.group].id});
                     vm.group = -1;
-                },
+            },
             removeGroup: function(groupIndex){
                     if (vm.groupList[vm.choseGroupList[groupIndex].index].id == 0){
                         vm.passwordUsable = false;
@@ -189,16 +235,18 @@ require(["jquery", "avalon", "csrfToken", "bsAlert", "editor", "datetimePicker",
                     vm.choseGroupList.remove(vm.choseGroupList[groupIndex]);
                 },
             add_problem: function () {
-                vm.$fire("up!showContestProblemPage", 0, vm.contestList[vm.editingProblemContestIndex-1].id);
+                vm.$fire("up!showContestProblemPage", 0, vm.contestList[vm.editingProblemContestIndex-1].id, vm.editMode);
             },
             showProblemEditor: function(el) {
                 console.log(el);
-                vm.$fire("up!showContestProblemPage", el.id, vm.contestList[vm.editingProblemContestIndex-1].id);
+                vm.$fire("up!showContestProblemPage", el.id, vm.contestList[vm.editingProblemContestIndex-1].id, vm.editMode);
+            },
+            getYesOrNo: function(yORn) {
+                if (yORn) return "是";
+                return "否";
             }
         });
         getPageData(1);
-        vm.editingContestId = 0;
-        vm.editingProblemContestIndex = 0;
 
         //init time picker
         $("#contest_start_time").datetimepicker({
@@ -255,7 +303,7 @@ require(["jquery", "avalon", "csrfToken", "bsAlert", "editor", "datetimePicker",
                         success: function (data) {
                             if (!data.code) {
                                 if (!data.data.length) {
-                                    //bsAlert("您的用户权限只能创建组内比赛，但是您还没有创建过小组");
+                                    //this user have no group can use
                                     return;
                                 }
                                 for (var i = 0; i < data.data.length; i++) {
@@ -272,7 +320,6 @@ require(["jquery", "avalon", "csrfToken", "bsAlert", "editor", "datetimePicker",
                 }
             }
         });
-
 
     });
     avalon.scan();

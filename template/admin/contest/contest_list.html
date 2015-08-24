@@ -24,8 +24,8 @@
         <tr ms-repeat="contestList">
             <td>{{ el.id }}</td>
             <td>{{ el.title }}</td>
-            <td>{{ el.show_rank }}</td>
-            <td>{{ el.visible }}</td>
+            <td>{{ getYesOrNo(el.show_rank) }}</td>
+            <td>{{ getYesOrNo(el.visible) }}</td>
             <td>{{ el.create_time|date("yyyy-MM-dd HH:mm:ss")}}</td>
             <td>{{ el.created_by.username }}</td>
             <td>
@@ -160,12 +160,14 @@
             <tr>
                 <th>编号</th>
                 <th>题目</th>
+                <th ms-visible="editMode=='2'">分值</th>
                 <th>创建时间</th>
                 <td></td>
             </tr>
             <tr ms-repeat="editProblemList">
                 <td>{{ el.sort_index }}</td>
                 <td>{{ el.title }}</td>
+                <td ms-visible="editMode=='2'">{{ el.score}}</td>
                 <td>{{ el.create_time|date("yyyy-MM-dd HH:mm:ss") }}</td>
                 <td>
                     <a href="javascript:void(0)" class="btn-sm btn-info"

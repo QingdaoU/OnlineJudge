@@ -75,6 +75,9 @@ define("admin", ["jquery", "avalon"], function ($, avalon) {
             groupId: -1,
             problemId: -1,
             adminNavList: [],
+            $contestMode: -1,
+            $problemId: -1,
+            $contestId: -1,
             hide_loading: function () {
                 $("#loading-gif").hide();
             },
@@ -123,9 +126,10 @@ define("admin", ["jquery", "avalon"], function ($, avalon) {
             vm.template_url = "template/problem/submission_list.html";
         });
 
-        vm.$watch("showContestProblemPage", function (problemId, contestId) {
-            vm.problemId = problemId;
-            vm.contestId = contestId;
+        vm.$watch("showContestProblemPage", function (problemId, contestId, contestMode) {
+            vm.$problemId = problemId;
+            vm.$contestId = contestId;
+            vm.$contestMode = contestMode
             vm.template_url = "template/contest/edit_problem.html";
         });
 
