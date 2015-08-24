@@ -255,6 +255,9 @@ class ContestPasswordVerifyAPIView(APIView):
 
 @check_user_contest_permission
 def contest_page(request, contest_id):
+    """
+    单个比赛的详情页
+    """
     try:
         contest = Contest.objects.get(id=contest_id)
     except Contest.DoesNotExist:
@@ -265,6 +268,9 @@ def contest_page(request, contest_id):
 
 @check_user_contest_permission
 def contest_problem_page(request, contest_id, contest_problem_id):
+    """
+    单个比赛题目的详情页
+    """
     try:
         contest = Contest.objects.get(id=contest_id)
     except Contest.DoesNotExist:
@@ -286,6 +292,9 @@ def contest_problem_page(request, contest_id, contest_problem_id):
 
 @check_user_contest_permission
 def contest_problems_list_page(request, contest_id):
+    """
+    比赛所有题目的列表页
+    """
     try:
         contest_problems = ContestProblem.objects.filter(contest=Contest.objects.get(id=contest_id)).order_by("sort_index")
     except Contest.DoesNotExist:
@@ -298,6 +307,9 @@ def contest_problems_list_page(request, contest_id):
 
 
 def contest_list_page(request, page=1):
+    """
+    所有比赛的列表页
+    """
     # 正常情况
     contests = Contest.objects.filter(visible=True)
 
