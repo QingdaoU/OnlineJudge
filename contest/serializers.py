@@ -70,11 +70,11 @@ class CreateContestProblemSerializer(serializers.Serializer):
     time_limit = serializers.IntegerField()
     memory_limit = serializers.IntegerField()
     hint = serializers.CharField(max_length=3000, allow_blank=True)
+    score = serializers.IntegerField(required=False, default=0)
     sort_index = serializers.CharField(max_length=30)
 
 
 class ContestProblemSerializer(serializers.ModelSerializer):
-
     class ContestSerializer(serializers.ModelSerializer):
         class Meta:
             model = Contest
@@ -101,10 +101,9 @@ class EditContestProblemSerializer(serializers.Serializer):
     hint = serializers.CharField(max_length=3000, allow_blank=True)
     visible = serializers.BooleanField()
     sort_index = serializers.CharField(max_length=30)
+    score = serializers.IntegerField(required=False, default=0)
 
 
 class ContestPasswordVerifySerializer(serializers.Serializer):
     contest_id = serializers.IntegerField()
     password = serializers.CharField(max_length=30)
-
-
