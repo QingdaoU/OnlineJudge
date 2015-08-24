@@ -107,6 +107,8 @@ class ContestAdminAPIView(APIView):
                     return error_response(u"请至少选择一个小组")
             if data["start_time"] >= data["end_time"]:
                 return error_response(u"比赛的开始时间不能晚于或等于比赛结束的时间")
+            if request.user.admin_type != SUPER_ADMIN and request.user != contest.created_by:
+                return error_response(u"你无权修改该比赛!")
             contest.title = data["title"]
             contest.description = data["description"]
             contest.mode = data["mode"]
@@ -187,10 +189,14 @@ class ContestProblemAdminAPIView(APIView):
         serializer = EditContestProblemSerializer(data=request.data)
         if serializer.is_valid():
             data = serializer.data
+
             try:
                 contest_problem = ContestProblem.objects.get(id=data["id"])
             except ContestProblem.DoesNotExist:
                 return error_response(u"该比赛题目不存在！")
+            contest = Contest.objects.get(id=contest_problem.contest_id)
+            if request.user.admin_type != SUPER_ADMIN and contest.created_by != request.user:
+                return error_response(u"你无权修改该题目!")
             contest_problem.title = data["title"]
             contest_problem.description = data["description"]
             contest_problem.input_description = data["input_description"]
