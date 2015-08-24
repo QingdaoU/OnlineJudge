@@ -28,6 +28,9 @@ class ContestAdminAPITest(APITestCase):
         self.group = Group.objects.create(name="group1", description="des0",
                                           join_group_setting=0, visible=True,
                                           admin=user2)
+        self.group2 = Group.objects.create(name="group2", description="des0",
+                                          join_group_setting=0, visible=True,
+                                          admin=user1)
         self.global_contest = Contest.objects.create(title="titlex", description="descriptionx", mode=1,
                                                      contest_type=2, show_rank=True, show_user_submission=True,
                                                      start_time="2015-08-15T10:00:00.000Z",
@@ -78,9 +81,17 @@ class ContestAdminAPITest(APITestCase):
         response = self.client.post(self.url, data=data)
         self.assertEqual(response.data["code"], 0)
 
-    def test_group_contest_successfully(self):
+    def test_group_contest_super_admin_successfully(self):
         self.client.login(username="test1", password="testaa")
         data = {"title": "title3", "description": "description3", "mode": 1, "contest_type": 0,
+                "show_rank": True, "show_user_submission": True, "start_time": "2015-08-15T10:00:00.000Z",
+                "end_time": "2015-08-15T12:00:00.000Z", "groups": [self.group.id], "visible": True}
+        response = self.client.post(self.url, data=data)
+        self.assertEqual(response.data["code"], 0)
+
+    def test_group_contest_admin_successfully(self):
+        self.client.login(username="test2", password="testbb")
+        data = {"title": "title6", "description": "description6", "mode": 2, "contest_type": 0,
                 "show_rank": True, "show_user_submission": True, "start_time": "2015-08-15T10:00:00.000Z",
                 "end_time": "2015-08-15T12:00:00.000Z", "groups": [self.group.id], "visible": True}
         response = self.client.post(self.url, data=data)
@@ -141,6 +152,15 @@ class ContestAdminAPITest(APITestCase):
         self.assertEqual(response.data["data"]["end_time"], "2015-08-15T13:00:00Z")
         self.assertEqual(response.data["data"]["visible"], False)
 
+    def test_edit_group_contest_unsuccessfully(self):
+        self.client.login(username="test2", password="testbb")
+        data = {"id": self.group_contest.id, "title": "titleyyy", "description": "descriptionyyyy", "mode": 1,
+                "contest_type": 0, "show_rank": True, "show_user_submission": True,
+                "start_time": "2015-08-15T10:00:00.000Z", "end_time": "2015-08-15T13:00:00.000Z",
+                "groups": [self.group.id], "visible": False}
+        response = self.client.put(self.url, data=data)
+        self.assertEqual(response.data["code"], 1)
+
     def test_edit_group_at_least_one(self):
         self.client.login(username="test1", password="testaa")
         data = {"id": self.group_contest.id, "title": "titleyyy", "description": "descriptionyyyy", "mode": 1,
@@ -169,7 +189,8 @@ class ContestAdminAPITest(APITestCase):
 
     def test_edit_global_contest_password_exists(self):
         self.client.login(username="test1", password="testaa")
-        data = {"id": self.global_contest.id, "title": "title0", "description": "description0", "mode": 1, "contest_type": 2,
+        data = {"id": self.global_contest.id, "title": "title0", "description": "description0", "mode": 1,
+                "contest_type": 2,
                 "show_rank": True, "show_user_submission": True, "start_time": "2015-08-15T10:00:00.000Z",
                 "end_time": "2015-08-15T12:00:00.000Z", "visible": True}
         response = self.client.put(self.url, data=data)
@@ -187,6 +208,10 @@ class ContestAdminAPITest(APITestCase):
     # 以下是比赛分页的测试
     def test_get_data_successfully(self):
         self.client.login(username="test1", password="testaa")
+        self.assertEqual(self.client.get(self.url).data["code"], 0)
+
+    def test_get_data_successfully_by_normal_admin(self):
+        self.client.login(username="test2", password="testbb")
         self.assertEqual(self.client.get(self.url).data["code"], 0)
 
     def test_keyword_contest(self):
@@ -209,24 +234,30 @@ class ContestProblemAdminAPItEST(APITestCase):
         self.user = User.objects.create(username="test1", admin_type=SUPER_ADMIN)
         self.user.set_password("testaa")
         self.user.save()
+        self.user2 = User.objects.create(username="test2", admin_type=ADMIN)
+        self.user2.set_password("testaa")
+        self.user2.save()
+        self.user3 = User.objects.create(username="test3", admin_type=ADMIN)
+        self.user3.set_password("testaa")
+        self.user3.save()
         self.client.login(username="test1", password="testaa")
         self.global_contest = Contest.objects.create(title="titlex", description="descriptionx", mode=1,
                                                      contest_type=2, show_rank=True, show_user_submission=True,
                                                      start_time="2015-08-15T10:00:00.000Z",
                                                      end_time="2015-08-15T12:00:00.000Z",
                                                      password="aacc", created_by=User.objects.get(username="test1"))
-        self. contest_problem = ContestProblem.objects.create(title="titlex",
-                                                              description="descriptionx",
-                                                              input_description="input1_description",
-                                                              output_description="output1_description",
-                                                              test_case_id="1",
-                                                              samples=json.dumps([{"input": "1 1", "output": "2"}]),
-                                                              time_limit=100,
-                                                              memory_limit=1000,
-                                                              hint="hint1",
-                                                              created_by=User.objects.get(username="test1"),
-                                                              contest=Contest.objects.get(title="titlex"),
-                                                              sort_index="a")
+        self.contest_problem = ContestProblem.objects.create(title="titlex",
+                                                             description="descriptionx",
+                                                             input_description="input1_description",
+                                                             output_description="output1_description",
+                                                             test_case_id="1",
+                                                             samples=json.dumps([{"input": "1 1", "output": "2"}]),
+                                                             time_limit=100,
+                                                             memory_limit=1000,
+                                                             hint="hint1",
+                                                             created_by=User.objects.get(username="test1"),
+                                                             contest=Contest.objects.get(title="titlex"),
+                                                             sort_index="a")
 
     # 以下是发布比赛题目的测试
     def test_invalid_format(self):
@@ -311,6 +342,10 @@ class ContestProblemAdminAPItEST(APITestCase):
         self.client.login(username="test1", password="testaa")
         self.assertEqual(self.client.get(self.url).data["code"], 0)
 
+    def test_get_data_unsuccessfully(self):
+        self.client.login(username="test1", password="testaa")
+        self.assertEqual(self.client.get(self.url+"?contest_id=12").data["code"], 1)
+
     def test_keyword_contest(self):
         self.client.login(username="test1", password="testaa")
         response = self.client.get(self.url + "?visible=true")
@@ -333,4 +368,33 @@ class ContestProblemAdminAPItEST(APITestCase):
         response = self.client.get(self.url, data=data)
         self.assertEqual(response.data["code"], 0)
 
+    def test_query_contest_problem_exists_by_contest_id(self):
+        self.client.login(username="test3", password="testaa")
+        response = self.client.get(self.url + "?contest_id=1")
+        self.assertEqual(response.data["code"], 0)
+        self.assertEqual(len(response.data["data"]), 0)
+
+    def test_query_contest_problem_exists_by_normal_admin(self):
+        self.client.login(username="test2", password="testaa")
+        data = {"contest_problem_id": self.contest_problem.id}
+        response = self.client.get(self.url, data=data)
+        self.assertEqual(response.data["code"], 0)
+
+    def test_edit_problem_unsuccessfully_can_not_access(self):
+        self.client.login(username="test2", password="testaa")
+        data = {"id": self.contest_problem.id,
+                "title": "title2222222",
+                "description": "description22222222",
+                "input_description": "input_description2",
+                "output_description": "output_description2",
+                "test_case_id": "1",
+                "source": "source1",
+                "samples": [{"input": "1 1", "output": "2"}],
+                "time_limit": "100",
+                "memory_limit": "1000",
+                "hint": "hint1",
+                "sort_index": "b",
+                "visible": True}
+        response = self.client.put(self.url, data=data)
+        self.assertEqual(response.data["code"], 1)
 

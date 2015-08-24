@@ -6,6 +6,7 @@ require(["jquery", "avalon", "editor", "uploader", "bsAlert", "csrfToken", "tagE
             $("#edit-problem-form").validator()
                 .on('submit', function (e) {
                     if (!e.isDefaultPrevented()){
+                        e.preventDefault();
                         if (vm.testCaseId == "") {
                             bsAlert("你还没有上传测试数据!");
                             return false;
@@ -28,13 +29,7 @@ require(["jquery", "avalon", "editor", "uploader", "bsAlert", "csrfToken", "tagE
                                 return false;
                             }
                         }
-                        var tags = $("#tags").tagEditor("getTags")[0].tags;
-                        if (tags.length == 0) {
-                            bsAlert("请至少添加一个标签，这将有利于用户发现你的题目!");
-                            return false;
-                        }
                         var ajaxData = {
-                            id: avalon.vmodels.admin.problemId,
                             title: vm.title,
                             description: vm.description,
                             time_limit: vm.timeLimit,
@@ -42,13 +37,24 @@ require(["jquery", "avalon", "editor", "uploader", "bsAlert", "csrfToken", "tagE
                             samples: [],
                             test_case_id: vm.testCaseId,
                             hint: vm.hint,
-                            source: vm.source,
-                            visible: vm.visible,
-                            tags: tags,
-                            input_description: vm.inputDescription,
+                            visible:            vm.visible,
+                            contest_id:         avalon.vmodels.admin.$contestId,
+                            input_description:  vm.inputDescription,
                             output_description: vm.outputDescription,
-                            difficulty: vm.difficulty
+                            sort_index:         vm.sortIndex,
                         };
+                        if (vm.contestMode == '2') {
+                            if (!vm.score) {
+                                bsAlert("请输入有效的分值!")
+                                return false;
+                            }
+                            ajaxData.score = vm.score;
+                        }
+                        var method = "post";
+                        if (avalon.vmodels.admin.$problemId) {
+                            method = "put";
+                            ajaxData.id = avalon.vmodels.admin.$problemId;
+                        }
 
                         for (var i = 0; i < vm.samples.$model.length; i++) {
                             ajaxData.samples.push({input: vm.samples.$model[i].input, output: vm.samples.$model[i].output});
@@ -56,15 +62,15 @@ require(["jquery", "avalon", "editor", "uploader", "bsAlert", "csrfToken", "tagE
 
                         $.ajax({
                             beforeSend: csrfTokenHeader,
-                            url: "/api/admin/problem/",
+                            url: "/api/admin/contest_problem/",
                             dataType: "json",
                             data: JSON.stringify(ajaxData),
-                            method: "put",
+                            method: method,
                             contentType: "application/json",
                             success: function (data) {
                                 if (!data.code) {
                                     bsAlert("题目编辑成功！");
-                                    vm.showProblemListPage();
+                                    vm.goBack(true);
                                 }
                                 else {
                                     bsAlert(data.data);
@@ -75,39 +81,24 @@ require(["jquery", "avalon", "editor", "uploader", "bsAlert", "csrfToken", "tagE
                         return false;
                     }
                 });
-        if (avalon.vmodels.editProblem) {
-            var vm = avalon.vmodels.editProblem;
-            title: "",
-            description= "";
-            timeLimit= -1;
-            memoryLimit= -1;
-            samples= [];
-            hint= "";
-            visible= true;
-            difficulty= 0;
-            inputDescription= "";
-            outputDescription= "";
-            testCaseIdd= "";
-            uploadSuccess= false;
-            source= "";
-            testCaseList= [];
-        }
-        else
+
+        if (!avalon.vmodels.editProblem)
             var vm = avalon.define({
                 $id: "editProblem",
                 title: "",
                 description: "",
-                timeLimit: -1,
-                memoryLimit: -1,
+                timeLimit: 0,
+                memoryLimit: 0,
                 samples: [],
                 hint: "",
+                sortIndex: "",
                 visible: true,
-                difficulty: 0,
                 inputDescription: "",
                 outputDescription: "",
                 testCaseIdd: "",
+                contestMode: 0,
+                score: 1,
                 uploadSuccess: false,
-                source: "",
                 testCaseList: [],
                 addSample: function () {
                     vm.samples.push({input: "", output: "", "visible": true});
@@ -125,10 +116,15 @@ require(["jquery", "avalon", "editor", "uploader", "bsAlert", "csrfToken", "tagE
                         return "折叠";
                     return "展开";
                 },
-                showProblemListPage: function(){
-                    vm.$fire("up!showProblemListPage");
+                goBack: function(check){
+                    if (check||confirm("这将丢失所有的改动,确定要继续么?")) {
+                        vm.$fire("up!showContestListPage");
+                    }
                 }
             });
+        else
+            vm = avalon.vmodels.editProblem;
+
             var hintEditor = editor("#hint");
             var descriptionEditor = editor("#problemDescription");
             var testCaseUploader = uploader("#testCaseFile", "/api/admin/test_case_upload/", function (file, response) {
@@ -148,69 +144,59 @@ require(["jquery", "avalon", "editor", "uploader", "bsAlert", "csrfToken", "tagE
                 }
             });
 
-            $.ajax({
-                url: "/api/admin/problem/?problem_id=" + avalon.vmodels.admin.problemId,
-                method: "get",
-                dataType: "json",
-                success: function (data) {
-                    if (data.code) {
-                        bsAlert(data.data);
-                    }
-                    else {
-                        var problem = data.data;
-                        console.log(problem);
-                        vm.title = problem.title;
-                        vm.description = problem.description;
-                        vm.timeLimit = problem.time_limit;
-                        vm.memoryLimit = problem.memory_limit;
-                        for (var i = 0; i < problem.samples.length; i++) {
-                            vm.samples.push({
-                                input: problem.samples[i].input,
-                                output: problem.samples[i].output,
-                                visible: false
-                            })
+            vm.contestMode = avalon.vmodels.admin.$contestMode;
+            if (avalon.vmodels.admin.$problemId){
+                $.ajax({
+                    url: "/api/admin/contest_problem/?contest_problem_id=" + avalon.vmodels.admin.$problemId,
+                    method: "get",
+                    dataType: "json",
+                    success: function (data) {
+                        if (data.code) {
+                            bsAlert(data.data);
                         }
-                        vm.hint = problem.hint;
-                        vm.visible = problem.visible;
-                        vm.difficulty = problem.difficulty;
-                        vm.inputDescription = problem.input_description;
-                        vm.outputDescription = problem.output_description;
-                        vm.testCaseId = problem.test_case_id;
-                        vm.source = problem.source;
-                        var problemTags = problem.tags;
-                        hintEditor.setValue(vm.hint);
-                        descriptionEditor.setValue(vm.description);
-                        $.ajax({
-                            url: "/api/admin/tag/",
-                            dataType: "json",
-                            method: "get",
-                            success: function (data) {
-                                if (!data.code) {
-                                    var tagAutoCompleteList = [], tags = [];
-                                    for (var i = 0; i < data.data.length; i++) {
-                                        tagAutoCompleteList.push(data.data[i].name);
-                                    }
-                                    for (var j = 0; j < problem.tags.length; j++) {
-                                        tags.push(problemTags[j].name);
-                                    }
-                                    $("#tags").tagEditor({
-                                        initialTags: tags,
-                                        autocomplete: {
-                                            delay: 0,
-                                            position: {collision: 'flip'},
-                                            source: tagAutoCompleteList
-                                        }
-                                    });
-                                }
-                                else {
-                                    bsAlert(data.data);
-                                }
+                        else {  // Edit mode    load the problem data
+                            var problem = data.data;
+                            vm.testCaseList      = [];
+                            vm.sortIndex         = problem.sort_index;
+                            vm.title             = problem.title;
+                            vm.description       = problem.description;
+                            vm.timeLimit         = problem.time_limit;
+                            vm.memoryLimit       = problem.memory_limit;
+                            vm.hint              = problem.hint;
+                            vm.visible           = problem.visible;
+                            vm.inputDescription  = problem.input_description;
+                            vm.outputDescription = problem.output_description;
+                            vm.score             = problem.score;
+                            vm.samples           = [];
+                            vm.testCaseId        = problem.test_case_id;
+                            for (var i = 0; i < problem.samples.length; i++) {
+                                vm.samples.push({
+                                    input: problem.samples[i].input,
+                                    output: problem.samples[i].output,
+                                    visible: false
+                                })
                             }
-
-                        });
+                            hintEditor.setValue(vm.hint);
+                            descriptionEditor.setValue(vm.description);
+                        }
                     }
-                }
-            });
+                });
+            }
+            else {   //Create new problem    Set default values
+                vm.testCaseList      = [];
+                vm.title             = "";
+                vm.timeLimit         = 1000;
+                vm.memoryLimit       = 256;
+                vm.samples           = [];
+                vm.visible           = true;
+                vm.inputDescription  = "";
+                vm.outputDescription = "";
+                vm.testCaseId        = "";
+                vm.sortIndex         = "";
+                vm.score             = 0;
+                hintEditor.setValue("");
+                descriptionEditor.setValue("");
+            }
         });
         avalon.scan();
 

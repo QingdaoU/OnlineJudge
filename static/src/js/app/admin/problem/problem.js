@@ -41,10 +41,8 @@ require(["jquery", "avalon", "csrfToken", "bsAlert"], function ($, avalon, csrfT
                     vm.$fire("up!showProblemSubmissionPage", problemId);
                 }
             });
-
-            getPageData(1);
         }
-
+        getPageData(1);
         function getPageData(page) {
             var url = "/api/admin/problem/?paging=true&page=" + page + "&page_size=10";
             if (vm.keyword != "")

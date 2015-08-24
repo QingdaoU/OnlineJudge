@@ -1,0 +1,138 @@
+<div ms-controller="editProblem" class="col-md-9">
+    <form id="edit-problem-form">
+        <nav>
+            <ul class="pager">
+                <li class="previous" ms-click="goBack()"><a href="javascript:void(0)"><span
+                        aria-hidden="true">&larr;</span> 返回</a></li>
+            </ul>
+        </nav>
+
+        <div class="form-group col-md-3">
+            <label>题目编号</label>
+            <input type="text" name="title" autofocus class="form-control" ms-duplex="sortIndex"
+                   data-error="请填写题目编号" maxlength="30" required>
+            <div class="help-block with-errors"></div>
+        </div>
+        <div class="form-group col-md-9">
+            <label>题目标题</label>
+            <input type="text" name="title" autofocus class="form-control" ms-duplex="title"
+                   data-error="请填写题目名称" maxlength="30" required>
+            <div class="help-block with-errors"></div>
+        </div>
+
+        <div class="form-group col-md-12">
+            <label>题目描述</label>
+            <textarea id="problemDescription" placeholder="这里输入内容(此内容不能为空)" ms-duplex="description"></textarea>
+            <small ms-visible="description==''" style="color:red">请填写题目描述</small>
+        </div>
+
+
+        <div class="col-md-3">
+            <div class="form-group"><label>时间限制(ms)</label>
+                <input type="number" name="timeLimit" class="form-control" ms-duplex="timeLimit"
+                       data-error="请输入时间限制(保证是一个1000-5000的合法整数)" required>
+                <div class="help-block with-errors"></div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="form-group"><label>内存限制(MB)</label>
+                <input type="number" name="memory" class="form-control" ms-duplex="memoryLimit"
+                       data-error="请输入内存限制(保证是一个合法整数)" required>
+                <div class="help-block with-errors"></div>
+            </div>
+        </div>
+        <div class="col-md-3" ms-visible="contestMode=='2'">
+            <div class="form-group"><label>分值(仅计分模式)</label>
+                <input type="number" name="score" class="form-control" ms-duplex="score">
+            </div>
+        </div>
+        <div class="col-md-3 form-group">
+            <label>是否可见</label><br>
+            <label><input type="checkbox" ms-duplex-checked="visible">
+                <small> 可见</small>
+            </label>
+        </div>
+        <div class="col-md-12 form-group">
+            <label>输入描述</label><br>
+            <textarea class="form-control" rows="5" name="input_description"
+                      ms-duplex="inputDescription" data-error="请填写输入描述"
+                      maxlength="10000" required>
+            </textarea>
+            <div class="help-block with-errors"></div>
+        </div>
+        <div class="col-md-12 form-group">
+            <label>输出描述</label><br>
+            <textarea class="form-control" rows="5" name="output_escription"
+                      ms-duplex="outputDescription" data-error="请填写输出描述"
+                      maxlength="10000" required>
+            </textarea>
+            <div class="help-block with-errors"></div>
+        </div>
+        <div class="col-md-12"><br>
+            <label>样例</label>
+            <a href="javascript:void(0)" class="btn btn-primary btn-sm" ms-click="addSample()">添加</a>
+
+            <div class="sample">
+                <div class="panel panel-default sample-panel" ms-repeat-sample="samples">
+                    <div class="panel-heading">
+                        <span class="panel-title">样例{{$index + 1}}</span>
+                        <a href="javascript:void(0)" class="btn btn-primary btn-sm"
+                           ms-click="toggleSample(sample)">
+                            {{ getBtnContent(sample)}}
+                        </a>
+                        <a href="javascript:void(0)" class="btn btn-danger btn-sm"
+                           ms-click="delSample(sample)">
+                            删除
+                        </a>
+                    </div>
+                    <div class="panel-body row" ms-visible="sample.visible">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>样例输入</label>
+                                <textarea class="form-control" rows="5" ms-duplex="sample.input"></textarea>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>样例输出</label>
+                                <textarea class="form-control" rows="5" ms-duplex="sample.output"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-12"><br>
+            <label>测试数据(多次上传将覆盖原有测试用例)</label><br>
+            <small class="text-info">请将所有测试用例打包在一个文件中上传，所有文件要在压缩包的根目录，且输入输出文件名要以从1开始连续数字标识要对应例如：<br>
+                1.in 1.out 2.in 2.out
+            </small>
+            <table class="table table-striped" ms-visible="uploadSuccess">
+                <tr>
+                    <td>编号</td>
+                    <td>输入文件名</td>
+                    <td>输出文件名</td>
+                </tr>
+                <tr ms-repeat="testCaseList">
+                    <td>{{ $index + 1 }}</td>
+                    <td>{{ el.input }}</td>
+                    <td>{{ el.output }}</td>
+                </tr>
+            </table>
+        </div>
+        <div class="col-md-12">
+            <div class="form-group">
+                <div id="testCaseFile">选择文件</div>
+            </div>
+        </div>
+        <div class="form-group col-md-12">
+            <label>提示</label>
+            <textarea id="hint" placeholder="这里输入内容" ms-duplex="hint"></textarea>
+        </div>
+        <div class="col-md-12">
+            <input type="submit" class="btn btn-success btn-lg" value="发布题目" id="submitBtn">
+        </div>
+    </form>
+</div>
+
+<script src="/static/js/app/admin/contest/edit_problem.js"></script>
