@@ -17,7 +17,7 @@ from account.decorators import login_required
 from group.models import Group
 from announcement.models import Announcement
 
-from .models import Contest, ContestProblem
+from .models import Contest, ContestProblem, ContestSubmission
 from .decorators import check_user_contest_permission
 from .serializers import (CreateContestSerializer, ContestSerializer, EditContestSerializer,
                           CreateContestProblemSerializer, ContestProblemSerializer,
@@ -284,6 +284,40 @@ def contest_page(request, contest_id):
     return render(request, "oj/contest/contest_index.html", {"contest": contest})
 
 
+@check_user_contest_permission
+def contest_problem_page(request, contest_id, contest_problem_id):
+    try:
+        contest = Contest.objects.get(id=contest_id)
+    except Contest.DoesNotExist:
+        return error_page(request, u"比赛不存在")
+    try:
+        contest_problem = ContestProblem.objects.get(id=contest_problem_id, visible=True)
+    except ContestProblem.DoesNotExist:
+        return error_page(request, u"比赛题目不存在")
+    show_warning = False
+    try:
+        submission = ContestSubmission.objects.get(user=request.user, contest=contest, problem=contest_problem)
+        show_warning = submission.ac
+    except ContestSubmission.DoesNotExist:
+        pass
+    return render(request, "oj/contest/contest_problem.html", {"contest_problem": contest_problem,
+                                                               "samples": json.loads(contest_problem.samples),
+                                                               "show_warning": show_warning})
+
+
+@check_user_contest_permission
+def contest_problems_list_page(request, contest_id):
+    try:
+        contest_problems = ContestProblem.objects.filter(contest=Contest.objects.get(id=contest_id)).order_by("sort_index")
+    except Contest.DoesNotExist:
+        return error_page(request, u"比赛题目不存在")
+    # 右侧的公告列表
+    announcements = Announcement.objects.filter(is_global=True, visible=True).order_by("-create_time")
+    return render(request, "oj/contest/contest_problems_list.html", {"contest_problems": contest_problems,
+                                                                     "announcements": announcements,
+                                                                     "contest": {"id": contest_id}})
+
+
 def contest_list_page(request, page=1):
     # 正常情况
     contests = Contest.objects.filter(visible=True)
@@ -319,10 +353,10 @@ def contest_list_page(request, page=1):
 
     # 右侧的公告列表
     announcements = Announcement.objects.filter(is_global=True, visible=True).order_by("-create_time")
-    # 系统当前时间
-    now = datetime.datetime.now()
+
     return render(request, "oj/contest/contest_list.html",
                   {"contests": current_page, "page": int(page),
                    "previous_page": previous_page, "next_page": next_page,
                    "keyword": keyword, "announcements": announcements,
-                   "join": join, "now": now})
+                   "join": join})
+
