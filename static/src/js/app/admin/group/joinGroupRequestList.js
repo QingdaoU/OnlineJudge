@@ -1,4 +1,4 @@
-require(["jquery", "avalon", "csrfToken", "bsAlert", "formValidation"], function ($, avalon, csrfTokenHeader, bsAlert) {
+require(["jquery", "avalon", "csrfToken", "bsAlert"], function ($, avalon, csrfTokenHeader, bsAlert) {
 
     // avalon:定义模式 group_list
     avalon.ready(function () {
