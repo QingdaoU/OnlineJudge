@@ -2,7 +2,8 @@ require(["jquery", "avalon", "editor", "uploader", "bsAlert", "csrfToken", "tagE
     function ($, avalon, editor, uploader, bsAlert, csrfTokenHeader) {
 
         avalon.ready(function () {
-            avalon.vmodels.editProblem = null;
+
+
 
             $("#edit-problem-form").validator()
                 .on('submit', function (e) {
@@ -76,42 +77,48 @@ require(["jquery", "avalon", "editor", "uploader", "bsAlert", "csrfToken", "tagE
                     }
                 });
 
-            var vm = avalon.define({
-                $id: "editProblem",
-                title: "",
-                description: "",
-                timeLimit: -1,
-                memoryLimit: -1,
-                samples: [],
-                hint: "",
-                visible: true,
-                difficulty: 0,
-                inputDescription: "",
-                outputDescription: "",
-                testCaseIdd: "",
-                uploadSuccess: false,
-                source: "",
-                testCaseList: [],
-                addSample: function () {
-                    vm.samples.push({input: "", output: "", "visible": true});
-                },
-                delSample: function (sample) {
-                    if (confirm("你确定要删除么?")) {
-                        vm.samples.remove(sample);
+            if(avalon.vmodels.editProblem){
+                var vm = avalon.vmodels.editProblem;
+            }
+            else {
+                var vm = avalon.define({
+                    $id: "editProblem",
+                    title: "",
+                    description: "",
+                    timeLimit: -1,
+                    memoryLimit: -1,
+                    samples: [],
+                    hint: "",
+                    visible: true,
+                    difficulty: 0,
+                    inputDescription: "",
+                    outputDescription: "",
+                    testCaseIdd: "",
+                    uploadSuccess: false,
+                    source: "",
+                    testCaseList: [],
+                    addSample: function () {
+                        vm.samples.push({input: "", output: "", "visible": true});
+                    },
+                    delSample: function (sample) {
+                        if (confirm("你确定要删除么?")) {
+                            vm.samples.remove(sample);
+                        }
+                    },
+                    toggleSample: function (sample) {
+                        sample.visible = !sample.visible;
+                    },
+                    getBtnContent: function (item) {
+                        if (item.visible)
+                            return "折叠";
+                        return "展开";
+                    },
+                    showProblemListPage: function () {
+                        vm.$fire("up!showProblemListPage");
                     }
-                },
-                toggleSample: function (sample) {
-                    sample.visible = !sample.visible;
-                },
-                getBtnContent: function (item) {
-                    if (item.visible)
-                        return "折叠";
-                    return "展开";
-                },
-                showProblemListPage: function(){
-                    vm.$fire("up!showProblemListPage");
-                }
-            });
+                });
+
+            }
             var hintEditor = editor("#hint");
             var descriptionEditor = editor("#problemDescription");
             var testCaseUploader = uploader("#testCaseFile", "/api/admin/test_case_upload/", function (file, response) {
