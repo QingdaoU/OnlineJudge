@@ -161,6 +161,7 @@
                 <th>编号</th>
                 <th>题目</th>
                 <th ms-visible="editMode=='2'">分值</th>
+                <th>可见</th>
                 <th>创建时间</th>
                 <td></td>
             </tr>
@@ -168,6 +169,7 @@
                 <td>{{ el.sort_index }}</td>
                 <td>{{ el.title }}</td>
                 <td ms-visible="editMode=='2'">{{ el.score}}</td>
+                <td>{{ getYesOrNo(el.visible) }}</td>
                 <td>{{ el.create_time|date("yyyy-MM-dd HH:mm:ss") }}</td>
                 <td>
                     <a href="javascript:void(0)" class="btn-sm btn-info"
