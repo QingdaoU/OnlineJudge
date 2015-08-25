@@ -7,10 +7,10 @@ require(["jquery", "avalon", "csrfToken", "bsAlert", "validator"], function ($, 
         if (avalon.vmodels.userList) {
             var vm = avalon.vmodels.userList;
             // initialize avalon object
-            userList= [],     previousPage= 0, nextPage= 0, page= 1,
-            editingUserId= 0, totalPage: 1,    keyword: "", showAdminOnly: false,
+            userList     = []; previousPage= 0; nextPage= 0;  page         = 1;
+            editingUserId= 0;  totalPage   = 1;  keyword= ""; showAdminOnly= false;
                 //user editor fields
-            username: "",     realName: "",    email: "",   adminType: 0, id: 0,
+            username= "";     realName= "";    email= "";   adminType= 0; id= 0;
         }
         else {
             var vm = avalon.define({
@@ -42,7 +42,7 @@ require(["jquery", "avalon", "csrfToken", "bsAlert", "validator"], function ($, 
                     getPageData(vm.page - 1);
                 },
                 getBtnClass: function (btn) {                                                         //上一页/下一页按钮启用禁用逻辑
-                    if (btn) {
+                    if (btn == "next") {
                         return vm.nextPage ? "btn btn-primary" : "btn btn-primary disabled";
                     }
                     else {
