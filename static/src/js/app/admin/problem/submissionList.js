@@ -1,4 +1,4 @@
-require(["jquery", "avalon", "csrfToken", "bsAlert", "formValidation"], function ($, avalon, csrfTokenHeader, bsAlert) {
+require(["jquery", "avalon", "csrfToken", "bsAlert"], function ($, avalon, csrfTokenHeader, bsAlert) {
 
     avalon.ready(function () {
         avalon.vmodels.submissionList = null;
@@ -41,9 +41,11 @@ require(["jquery", "avalon", "csrfToken", "bsAlert", "formValidation"], function
             getPage: function (page_index) {
                 getPageData(page_index);
             },
-
             showSubmissionDetailPage: function (submissionId) {
 
+            },
+            showProblemListPage: function(){
+                vm.$fire("up!showProblemListPage");
             }
         });
 

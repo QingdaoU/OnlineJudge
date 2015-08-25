@@ -1,4 +1,10 @@
 <div ms-controller="submissionList" class="col-md-9">
+    <nav>
+        <ul class="pager">
+            <li class="previous" ms-click="showProblemListPage()"><a href="javascript:void(0)"><span
+                    aria-hidden="true">&larr;</span> 返回</a></li>
+        </ul>
+    </nav>
     <h1>提交列表</h1>
 
     <table class="table table-striped">
@@ -25,4 +31,4 @@
         <button ms-attr-class="getBtnClass('next')" ms-click="getNext">下一页</button>
     </div>
 </div>
-<script src="/static/js/app/admin/problem/submission_list.js"></script>
+<script src="/static/js/app/admin/problem/submissionList.js"></script>
