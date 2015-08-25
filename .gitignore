@@ -55,4 +55,9 @@ db.db
 db.sqlite3
 .DS_Store
 log/
-release/
+static/release/css
+static/release/js
+static/release/img
+build.txt
+tmp/
+test_case/

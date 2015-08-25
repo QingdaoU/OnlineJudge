@@ -1,0 +1,67 @@
+{% extends "oj_base.html" %}
+{% block body %}
+{% load problem %}
+<div class="container main">
+
+
+    <div class="row">
+        <div class="col-lg-12 contest-tab">
+
+            <ul class="nav nav-tabs nav-tabs-google">
+                <li role="presentation">
+                    <a href="/contest/{{ contest.id }}/">比赛详情</a>
+                </li>
+                <li role="presentation" class="active">
+                    <a href="/contest/{{ contest.id }}/problems/">题目</a>
+                </li>
+                <li role="presentation">
+                    <a href="/contest/{{ contest.id }}/submissions/">提交</a>
+                </li>
+                <li role="presentation">
+                    <a href="/contest/{{ contest.id }}/rank/">排名</a>
+                </li>
+            </ul>
+
+
+        </div>
+
+
+        <div class="col-lg-9">
+            <div>
+                <table class="table table-striped">
+                    <thead>
+                    <tr>
+                        <th></th>
+                        <th>#</th>
+                        <th>题目</th>
+                        <th>通过率</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for item in contest_problems %}
+                    <tr>
+                        <th><span class="glyphicon glyphicon-ok ac-flag"></span></th>
+                        <th scope="row">
+                            <a href="/contest/{{ item.contest.id }}/problem/{{ item.id }}/" target="_blank">{{ item.sort_index }}</a>
+                        </th>
+                        <td>
+                            <a href="/contest/{{ item.contest.id }}/problem/{{ item.id }}/" target="_blank">{{ item.title }}</a>
+                        </td>
+                        <td>{{ item|accepted_radio }}</td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+
+            </div>
+        </div>
+        <div class="col-lg-3">
+            {% include "oj/announcement/_announcement_panel.html" %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block js_block %}
+<script src="/static/js/app/oj/problem/problem_list.js"></script>
+{% endblock %}

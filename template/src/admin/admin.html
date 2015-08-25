@@ -1,0 +1,141 @@
+{% verbatim %}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="renderer" content="webkit">
+
+    <title>在线评测系统 - 后台管理</title>
+
+    <!-- global css begin -->
+    <link href="/static/css/admin.css" rel="stylesheet">
+    <!-- global css end -->
+</head>
+
+
+<body>
+
+<!-- nav begin -->
+<nav class="navbar navbar-masthead navbar-default navbar-static-top">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar"
+                    aria-expanded="false" aria-controls="navbar">
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="#">qduoj admin</a>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+            <ul class="nav navbar-nav">
+                <li class="active"><a href="#">主页</a></li>
+                <li><a href="#about">题目</a></li>
+                <li><a href="#contact">提交</a></li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
+                       aria-expanded="false">
+                        李扬
+                        <span class="caret"></span></a>
+                    <ul class="dropdown-menu">
+                        <li><a href="#">我的提交</a></li>
+                        <li><a href="#">我的资料</a></li>
+                        <li role="separator" class="divider"></li>
+                        <li><a href="#">退出</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+<!-- nav end -->
+
+<!--browser happy begin -->
+<!--[if lt IE 9]>
+<div class="alert alert-danger text-center" role="alert">
+    当前网页 <strong>不支持</strong> 你正在使用的浏览器. 为了正常的访问, 请 <a href="http://browsehappy.com/">升级你的浏览器</a>.
+</div>
+<![endif]-->
+<!-- browser happy end -->
+
+<div class="container main" ms-controller="admin">
+    <div class="row">
+        <!-- admin left begin-->
+        <div class="col-md-2">
+            <ul class="list-group">
+                <div ms-repeat="adminNavList">
+                    <li class="list-group-header">{{ el.name }}</li>
+                    <li class="list-group-item" ms-attr-id="getLiId(item.hash)" ms-repeat-item="el.children">
+                    <a ms-attr-href="el.hash">{{ item.name }}</a>
+                    </li>
+                </div>
+                <!--<li class="list-group-header">首页</li>
+                <li class="list-group-item" id="li-index-index">
+                    <a href="#index/index">主页</a>
+                </li>
+                <li class="list-group-item" id="li-monitor-monitor">
+                    <a href="#monitor/monitor">监控</a>
+                </li>
+                <li class="list-group-item" id="li-statistics-statistics">
+                    <a href="#statistics/statistics">统计</a>
+                </li>
+                <li class="list-group-header">通用</li>
+                <li class="list-group-item" id="li-announcement-announcement">
+                    <a href="#announcement/announcement">公告管理</a>
+                </li>
+                <li class="list-group-item" id="li-user-user_list">
+                    <a href="#user/user_list">用户管理</a>
+                </li>
+                <li class="list-group-header">题目管理</li>
+                <li class="list-group-item" id="li-problem-problem_list">
+                    <a href="#problem/problem_list">题目列表</a>
+                </li>
+                <li class="list-group-item" id="li-problem-add_problem">
+                    <a href="#problem/add_problem">创建题目</a>
+                </li>
+                <li class="list-group-header">比赛管理</li>
+                <li class="list-group-item" id="li-contest-contest_list">
+                    <a href="#contest/contest_list">比赛列表</a>
+                </li>
+                <li class="list-group-item" id="li-contest-add_contest">
+                    <a href="#contest/add_contest">创建比赛</a>
+                </li>
+
+                <li class="list-group-header">小组管理</li>
+                <li class="list-group-item" id="li-group-group">
+                    <a href="#group/group">小组列表</a>
+                </li>
+                <li class="list-group-item" id="li-group-join_group_request_list">
+                    <a href="#group/join_group_request_list">加入小组请求</a>
+                </li>-->
+            </ul>
+        </div>
+        <!-- admin left end -->
+        <img src="/static/img/loading.gif" id="loading-gif">
+        <!-- custom body begin -->
+
+        <div ms-include-src="template_url" data-include-rendered="hide_loading" data-include-replace="true"></div>
+
+        <!-- custom body end -->
+    </div>
+</div>
+
+
+<script src="/static/js/config.js"></script>
+<script src="/static/js/require.js"></script>
+<script>
+    require(["bootstrap", "admin"]);
+</script>
+
+<!-- footer begin -->
+<div class="footer">
+    <p class="text-muted text-center">Copyright © 2015 青岛大学信息工程学院 创新实验室</p>
+</div>
+<!-- footer end -->
+</body>
+</html>
+{% endverbatim %}

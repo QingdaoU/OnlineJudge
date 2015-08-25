@@ -1,0 +1,34 @@
+<div ms-controller="submissionList" class="col-md-9">
+    <nav>
+        <ul class="pager">
+            <li class="previous" ms-click="showProblemListPage()"><a href="javascript:void(0)"><span
+                    aria-hidden="true">&larr;</span> 返回</a></li>
+        </ul>
+    </nav>
+    <h1>提交列表</h1>
+
+    <table class="table table-striped">
+        <tr>
+            <th>ID</th>
+            <th>创建时间</th>
+            <th>作者</th>
+            <td>结果</td>
+            <td></td>
+        </tr>
+        <tr ms-repeat="submissionList">
+            <td>{{ el.id }}</td>
+            <td>{{ el.create_time|date("yyyy-MM-dd HH:mm:ss")}}</td>
+            <td>{{ el.user }}</td>
+            <td>{{ results[el.result] }}</td>
+            <td>
+                <a class="btn btn-info" ms-attr-href="'/my_submission/' + el.id + '/'" target="_blank">详情</a>
+            </td>
+        </tr>
+    </table>
+    <div class="text-right">
+        页数：{{ page }}/{{ totalPage }}&nbsp;&nbsp;
+        <button ms-attr-class="getBtnClass('pre')" ms-click="getPrevious">上一页</button>
+        <button ms-attr-class="getBtnClass('next')" ms-click="getNext">下一页</button>
+    </div>
+</div>
+<script src="/static/js/app/admin/problem/submissionList.js"></script>

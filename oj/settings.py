@@ -39,7 +39,6 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = (
-    'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
@@ -47,7 +46,17 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
 
     'account',
+    'announcement',
+    'utils',
+    'group',
+    'problem',
+    'admin',
+    'submission',
+    'mq',
+    'contest',
+    'contest_submission',
 
+    'django_extensions',
     'rest_framework',
     'rest_framework_swagger',
 )
@@ -61,6 +70,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.security.SecurityMiddleware',
+    'admin.middleware.AdminRequiredMiddleware'
 )
 
 ROOT_URLCONF = 'oj.urls'
@@ -68,7 +78,7 @@ ROOT_URLCONF = 'oj.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR, 'template')],
+        'DIRS': [os.path.join(BASE_DIR, 'template/src')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -106,7 +116,7 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = (os.path.join(BASE_DIR, "static/src/"),)
 
 TEMPLATE_DIRS = (
-    os.path.join(BASE_DIR, "template"),
+    os.path.join(BASE_DIR, "template/src"),
 )
 
 AUTH_USER_MODEL = 'account.User'
@@ -120,10 +130,16 @@ LOGGING = {
         # 日志格式
     },
     'handlers': {
-        'file_handler': {
+        'django_error': {
             'level': 'DEBUG',
             'class': 'logging.handlers.RotatingFileHandler',
-            'filename': LOG_PATH + 'info.log',
+            'filename': LOG_PATH + 'django.log',
+            'formatter': 'standard'
+        },
+        'app_info': {
+            'level': 'DEBUG',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': LOG_PATH + 'app_info.log',
             'formatter': 'standard'
         },
         'console': {
@@ -133,13 +149,13 @@ LOGGING = {
         }
     },
     'loggers': {
-        'info_logger': {
-            'handlers': ['file_handler', "console"],
+        'app_info': {
+            'handlers': ['app_info', "console"],
             'level': 'DEBUG',
             'propagate': True
         },
         'django.request': {
-            'handlers': ['file_handler', 'console'],
+            'handlers': ['django_error', 'console'],
             'level': 'DEBUG',
             'propagate': True,
         },
@@ -149,4 +165,9 @@ LOGGING = {
             'propagate': True,
         }
     },
+}
+
+
+REST_FRAMEWORK = {
+    'TEST_REQUEST_DEFAULT_FORMAT': 'json'
 }

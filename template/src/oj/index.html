@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <title>青岛大学在线评测平台 - 首页</title>
+
+    <link rel="stylesheet" type="text/css" href="/static/css/fullpage/jquery.fullPage.css">
+    <style>
+        html, textarea, input, option, select, button {
+            font: 1em "Helvetica Neue", Helvetica, "Lantinghei SC", "Hiragino Sans GB", "Microsoft YaHei", "微软雅黑", "STHeiti", "WenQuanYi Micro Hei", SimSun, sans-serif;
+            color: #FFF;
+        }
+
+        a {
+            text-decoration: none;
+            color: #FFF;
+        }
+
+        #header {
+            position: fixed;
+            height: 30px;
+            display: block;
+            width: 100%;
+            background: transparent;
+            z-index: 10;
+            padding: 20px 20px 0 20px;
+        }
+
+        #name {
+            font-size: 45px;
+            margin-right: 20px;
+        }
+
+        .section {
+            position: relative;
+        }
+
+        .section h1 {
+            font-size: 60px;
+        }
+
+        .section h3 {
+            font-size: 30px;
+            font-weight: normal;
+        }
+
+        .bottom-pointer {
+            top: auto;
+            bottom: 20px;
+            position: absolute;
+            left: 48%;
+        }
+
+        .index-section-text {
+            position: absolute;
+            top: 30%;
+            width: 100%;
+            text-align: center;
+        }
+
+        .section-text {
+            text-align: center;
+        }
+
+        .icon {
+            max-height: 300px;
+            max-width: 300px;
+        }
+
+    </style>
+    <link rel="stylesheet" href="/static/css/animate/animate.css">
+
+    <script src="/static/js/lib/jquery/jquery.js"></script>
+
+    <script src="/static/js/lib/fullpage/jquery.fullPage.min.js"></script>
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $('#fullpage').fullpage({
+                sectionsColor: ['#28ac72', '#2f7ddb', '#FAC832', '#B01414'],
+                css3: true,
+                navigation: true,
+                loopBottom: true
+            });
+        });
+    </script>
+
+</head>
+<body>
+<div id="header">
+    <span id="name">qduoj</span>
+    <a href="/problems/">题目</a>&nbsp;&nbsp;<a href="/contests/">比赛</a>&nbsp;&nbsp;<a href="#">小组</a>
+</div>
+
+<div id="fullpage">
+    <div class="section" id="section0">
+        <div class="index-section-text animated bounceInUp">
+            <h1>青岛大学在线评测平台</h1>
+
+            <h3>全新面貌，新的开始~</h3>
+        </div>
+        <div class="bottom-pointer">↓继续滚动~</div>
+    </div>
+    <div class="section" id="section1">
+
+        <div class="section-text">
+            <img class="icon" id="img1" src="/static/img/index/a.png">
+
+            <h1>分布式评测</h1>
+
+            <h3>再也不怕一直是 waiting 了~~</h3>
+        </div>
+
+    </div>
+    <div class="section" id="section2">
+
+        <div class="section-text">
+            <img class="icon" id="img2" src="/static/img/index/c.png">
+
+            <h1>多种比赛模式</h1>
+
+            <h3>ACM 模式，AC 数量模式，单题得分模式等</h3>
+        </div>
+    </div>
+    <div class="section" id="section3">
+
+        <div class="section-text">
+            <img class="icon" id="img3" src="/static/img/index/m.png">
+
+            <h1>自由举办小组赛</h1>
+
+            <h3>内部比赛，日常作业，期末考试，通通搞定</h3>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

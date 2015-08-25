@@ -1,0 +1,31 @@
+<div ms-controller="requestList" class="col-md-9">
+    <h1>加入小组请求管理</h1>
+    <table class="table table-striped">
+        <tr>
+            <th>创建时间</th>
+            <th>小组</th>
+            <th>用户</th>
+            <th>附加消息</th>
+            <th></th>
+        </tr>
+        <tr ms-repeat="requestList">
+            <td>{{ el.create_time|date("yyyy-MM-dd HH:mm:ss")}}</td>
+            <td>{{ el.group.name }}</td>
+            <td>{{ el.user.username }}</td>
+            <td>{{ el.message }}</td>
+
+            <td>
+                <button class="btn-sm btn-success" ms-click="processRequest(el, true)">同意</button>
+                <button class="btn-sm btn-danger" ms-click="processRequest(el, false)">拒绝</button>
+            </td>
+        </tr>
+    </table>
+
+    <div class="text-right">
+        页数：{{ page }}/{{ totalPage }}&nbsp;&nbsp;
+        <button ms-attr-class="getBtnClass('pre')" ms-click="getPrevious">上一页</button>
+        <button ms-attr-class="getBtnClass('next')" ms-click="getNext">下一页</button>
+    </div>
+
+</div>
+<script src="/static/js/app/admin/group/joinGroupRequestList.js"></script>

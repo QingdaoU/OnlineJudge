@@ -1,0 +1,84 @@
+{% extends 'oj_base.html' %}
+
+{% block body %}
+
+    {% load submission %}
+    {% load user %}
+    <div class="container main">
+        <div class="contest-tab">
+            <ul class="nav nav-tabs nav-tabs-google">
+                <li role="presentation">
+                    <a href="/contest/{{ contest.id }}/">比赛详情</a>
+                </li>
+                <li role="presentation">
+                    <a href="/contest/{{ contest.id }}/problems/">题目</a>
+                </li>
+                <li role="presentation" class="active">
+                    <a href="/contest/{{ contest.id }}/submissions/">提交</a>
+                </li>
+                <li role="presentation">
+                    <a href="/contest/{{ contest.id }}/rank/">排名</a>
+                </li>
+            </ul>
+        </div>
+        {% if submissions %}
+            <table class="table table-bordered">
+                <thead>
+                <tr class="" success>
+                    <th>#</th>
+                    <td>用户</td>
+                    <th>提交时间</th>
+                    <th>结果</th>
+                    <th>运行时间</th>
+                    <th>语言</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for item in submissions %}
+                    <tr class="{{ item.result|translate_result_class }}">
+
+                        {% ifequal item.user_id request.user.id %}
+                            <th scope="row"><a href="/submission/{{ item.id }}/" id="id_{{ forloop.counter }}">
+                                {{ forloop.counter |add:start_id }}</a></th>
+                        {% else %}
+                            <th scope="row">{{ forloop.counter |add:start_id }}</th>
+                        {% endifequal %}
+
+                        <td>{{ item.user_id|get_username }}</td>
+
+                        <td>{{ item.create_time }}</td>
+                        <td>{{ item.result|translate_result }}</td>
+                        <td>
+                            {% if item.accepted_answer_time %}
+                                {{ item.accepted_answer_time }}ms
+                            {% else %}
+                                --
+                            {% endif %}
+                        </td>
+                        <td>
+                            {{ item.language|translate_language }}
+                        </td>
+                    </tr>
+                {% endfor %}
+
+                </tbody>
+            </table>
+        {% else %}
+            <p>你还没有提交记录!</p>
+        {% endif %}
+        <nav>
+            <ul class="pager">
+                {% if previous_page %}
+                    <li class="previous"><a
+                            href="/contest/{{ contest.id }}/submissions/{{ previous_page }}/">
+                        <span aria-hidden="true">&larr;</span> 上一页</a></li>
+                {% endif %}
+                {% if next_page %}
+                    <li class="next">
+                        <a href="/contest/{{ contest.id }}/submissions/{{ next_page }}/">下一页 <span
+                                aria-hidden="true">&rarr;</span></a></li>
+                {% endif %}
+            </ul>
+        </nav>
+    </div>
+{% endblock %}

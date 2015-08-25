@@ -1,20 +1,23 @@
-define("uploader", ["webuploader"], function(webuploader){
-    function uploader(selector) {
-        return webuploader.create({
-
+define("uploader", ["webUploader", "csrfToken"], function(webuploader,csrfTokenHeader){
+    function uploader(selector, server, onSuccess, beforeUpload) {
+        var Webuploader=  webuploader.create({
+            auto: true,
             // swf文件路径
-            swf: "/js/Uploader.swf",
-
+            swf: "/static/img/Uploader.swf",
             // 文件接收服务端。
-            server: "http://webuploader.duapp.com/server/fileupload.php",
-
+            server: server,
             // 选择文件的按钮。可选。
             // 内部根据当前运行是创建，可能是input元素，也可能是flash.
             pick: selector,
-
             // 不压缩image, 默认如果是jpeg，文件上传前会压缩一把再上传！
-            resize: false
+            resize: false,
+            uploadBeforeSend : csrfTokenHeader
         });
+        Webuploader.on("uploadBeforeSend",csrfTokenHeader);
+        Webuploader.on("uploadSuccess", onSuccess);
+		Webuploader.on("beforeFileQueued", beforeUpload);
+        return Webuploader;
     }
+
     return uploader;
 });

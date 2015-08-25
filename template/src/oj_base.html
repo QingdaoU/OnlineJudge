@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="renderer" content="webkit">
+
+    <title>在线评测系统</title>
+
+    <!-- global css begin -->
+    <link href="/static/css/oj.css" rel="stylesheet">
+    <!-- global css end -->
+
+    <!-- custom css begin -->
+    {% block css_block %}{% endblock %}
+    <!-- custom css end -->
+</head>
+{% load website_info %}
+
+<body>
+
+<!--browser happy begin -->
+<!--[if lt IE 9]>
+<div class="alert alert-danger text-center" role="alert">
+    当前网页 <strong>不支持</strong> 你正在使用的浏览器. 为了正常的访问, 请 <a href="http://browsehappy.com/">升级你的浏览器</a>.
+</div>
+<![endif]-->
+<!-- browser happy end -->
+
+<!-- nav begin -->
+<nav class="navbar navbar-masthead navbar-default navbar-static-top">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar"
+                    aria-expanded="false" aria-controls="navbar">
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">{% show_website_info "website_name" %}</a>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+            <ul class="nav navbar-nav">
+                <li><a href="/problems/">题目</a></li>
+                <li><a href="/submissions/">提交</a></li>
+                <li><a href="/contests/">比赛</a></li>
+                <li><a href="/about/">关于</a></li>
+            </ul>
+            {% if request.user.is_authenticated %}
+                <ul class="nav navbar-nav navbar-right">
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
+                           aria-expanded="false">
+                            李扬
+                            <span class="caret"></span></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="#">我的提交</a></li>
+                            <li><a href="#">我的资料</a></li>
+                            <li role="separator" class="divider"></li>
+                            <li><a href="#">退出</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            {% else %}
+                <ul class="nav navbar-nav navbar-right">
+                    <li class="dropdown">
+                        <a href="/login/" class="dropdown-toggle">
+                            登录
+                        </a>
+                    </li>
+                </ul>
+            {% endif %}
+        </div>
+    </div>
+</nav>
+<!-- nav end -->
+
+<!-- custom body begin -->
+{% block body %}{% endblock %}
+<!-- custom body end -->
+
+<script src="/static/js/config.js"></script>
+<script src="/static/js/require.js"></script>
+<script>
+    require(["bootstrap"]);
+</script>
+{% block js_block %}{% endblock %}
+<!-- footer begin -->
+<div class="footer">
+    <p class="text-muted text-center">Copyright © 2015 {% show_website_info "website_footer" %}</p>
+</div>
+<!-- footer end -->
+</body>
+</html>
