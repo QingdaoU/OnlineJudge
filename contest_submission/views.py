@@ -109,8 +109,6 @@ def contest_problem_submissions_list_page(request, contest_id, page=1):
     except Exception:
         pass
 
-    print current_page
-
     return render(request, "oj/contest/submissions_list.html",
                   {"submissions": current_page, "page": int(page),
                    "previous_page": previous_page, "next_page": next_page, "start_id": int(page) * 20 - 20,
