@@ -300,7 +300,7 @@ def contest_problem_page(request, contest_id, contest_problem_id):
         contest_problem = ContestProblem.objects.get(id=contest_problem_id, visible=True)
     except ContestProblem.DoesNotExist:
         return error_page(request, u"比赛题目不存在")
-    warning = u"您已经提交过本题的正确答案！"
+    warning = u"您已经提交过本题的正确答案，重复提交可能造成时间累计。"
     show_warning = False
     try:
         submission = ContestSubmission.objects.get(user=request.user, contest=contest, problem=contest_problem)
@@ -394,39 +394,22 @@ def _cmp(x, y):
 
 @check_user_contest_permission
 def contest_rank_page(request, contest_id):
+    contest = Contest.objects.get(id=contest_id)
+    contest_problems = ContestProblem.objects.filter(contest=contest).order_by("sort_index")
     result = ContestSubmission.objects.values("user_id").annotate(total_submit=Count("user_id"))
     for i in range(0, len(result)):
         # 这个人所有的提交
         submissions = ContestSubmission.objects.filter(user_id=result[i]["user_id"])
+        result[i]["submissions"] = {}
+        for item in submissions:
+            result[i]["submissions"][item.problem_id] = item
         result[i]["total_ac"] = submissions.filter(ac=True).count()
         result[i]["user"] = User.objects.get(id=result[i]["user_id"])
-        result[i]["submissions"] = submissions.order_by("problem__sort_index")
         result[i]["total_time"] = submissions.filter(ac=True).aggregate(total_time=Sum("total_time"))["total_time"]
-    print result
 
-    return render(request, "oj/contest/contest_rank.html")
 
-    #
-    #
-    # return
-    # contest = Contest.objects.get(id=contest_id)
-    # contest_submissions = ContestSubmission.objects.filter(contest=contest)
-    # result = {}
-    # # 先把数据按照用户id 为 key 整理一下
-    # # {1: {"submissions": [], "total_time": 0, "total_ac": 0}}
-    # for item in contest_submissions:
-    #     if item.user.id not in contest_submissions:
-    #         result[item.user.id] = {"user": {"id": item.user.id, "username": item.user.username,
-    #                                          "real_name": item.user.real_name},
-    #                                 "submissions": [], "total_time": 0, "total_ac": 0}
-    #     result[item.user.id]["submissions"].append(ContestSubmissionSerializer(item).data)
-    #     if item.ac:
-    #         result[item.user.id]["total_time"] += item.total_time
-    #         result[item.user.id]["total_ac"] += 1
-    # l = []
-    # for k, v in result.iteritems():
-    #     l.append(v)
-    # print sorted(l, cmp=_cmp, reverse=True)
+    return render(request, "oj/contest/contest_rank.html",
+                  {"contest": contest, "contest_problems": contest_problems, "result": sorted(result, cmp=_cmp, reverse=True)})
 
 
 

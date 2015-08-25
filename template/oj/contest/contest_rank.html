@@ -1,10 +1,10 @@
 {% extends "oj_base.html" %}
 {% block body %}
-    {% load contest %}
+    {% load submission %}
     <div class="container main">
         <div class="col-lg-12 contest-tab">
             <ul class="nav nav-tabs nav-tabs-google">
-                <li role="presentation" class="active">
+                <li role="presentation">
                     <a href="/contest/{{ contest.id }}/">比赛详情</a>
                 </li>
                 <li role="presentation">
@@ -13,13 +13,42 @@
                 <li role="presentation">
                     <a href="/contest/{{ contest.id }}/submissions/">提交</a>
                 </li>
-                <li role="presentation">
+                <li role="presentation" class="active">
                     <a href="/contest/{{ contest.id }}/rank/">排名</a>
                 </li>
             </ul>
         </div>
         <div class="row">
             <div class="col-lg-12">
+                <table class="table table-bordered">
+                    <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>用户名</th>
+                        <th>AC / 总提交</th>
+                        <th>用时 + 罚时</th>
+                        {% for item in contest_problems %}
+                            <th><a href="/contest/{{ contest.id }}/problem/{{ item.id }}/">{{ item.sort_index }}</a>
+                            </th>
+                        {% endfor %}
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for item in result %}
+                        <tr>
+                            <th scope="row">{{ forloop.counter }}</th>
+                            <td>{{ item.user.username }}</td>
+                            <td>{{ item.total_ac }} / {{ item.total_submit }}</td>
+                            <td>{% if item.total_time %}{{ item.total_time }} min{% else %}--{% endif %}</td>
+                            {% for problem in contest_problems %}
+                                <td class="{% submission_problem_result_class problem item.submissions %}">
+                                    {% submission_problem problem item.submissions %}
+                                </td>
+                            {% endfor %}
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
