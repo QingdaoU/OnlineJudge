@@ -2,7 +2,6 @@
 import json
 import datetime
 from functools import wraps
-from collections import OrderedDict
 from django.utils.timezone import now
 from django.shortcuts import render
 from django.db import IntegrityError
@@ -108,6 +107,8 @@ class ContestAdminAPIView(APIView):
                     return error_response(u"请至少选择一个小组")
             if data["start_time"] >= data["end_time"]:
                 return error_response(u"比赛的开始时间不能晚于或等于比赛结束的时间")
+            if request.user.admin_type != SUPER_ADMIN and request.user != contest.created_by:
+                return error_response(u"你无权修改该比赛!")
             contest.title = data["title"]
             contest.description = data["description"]
             contest.mode = data["mode"]
@@ -132,7 +133,10 @@ class ContestAdminAPIView(APIView):
         ---
         response_serializer: ContestSerializer
         """
-        contest = Contest.objects.all().order_by("-last_updated_time")
+        if request.user.admin_type == SUPER_ADMIN:
+            contest = Contest.objects.all().order_by("-last_updated_time")
+        else:
+            contest = Contest.objects.filter(created_by=request.user).order_by("-last_updated_time")
         visible = request.GET.get("visible", None)
         if visible:
             contest = contest.filter(visible=(visible == "true"))
@@ -169,7 +173,8 @@ class ContestProblemAdminAPIView(APIView):
                                                             created_by=request.user,
                                                             hint=data["hint"],
                                                             contest=contest,
-                                                            sort_index=data["sort_index"])
+                                                            sort_index=data["sort_index"],
+                                                            score=data["score"])
             return success_response(ContestProblemSerializer(contest_problem).data)
         else:
             return serializer_invalid_response(serializer)
@@ -184,10 +189,14 @@ class ContestProblemAdminAPIView(APIView):
         serializer = EditContestProblemSerializer(data=request.data)
         if serializer.is_valid():
             data = serializer.data
+
             try:
                 contest_problem = ContestProblem.objects.get(id=data["id"])
             except ContestProblem.DoesNotExist:
                 return error_response(u"该比赛题目不存在！")
+            contest = Contest.objects.get(id=contest_problem.contest_id)
+            if request.user.admin_type != SUPER_ADMIN and contest.created_by != request.user:
+                return error_response(u"你无权修改该题目!")
             contest_problem.title = data["title"]
             contest_problem.description = data["description"]
             contest_problem.input_description = data["input_description"]
@@ -199,6 +208,7 @@ class ContestProblemAdminAPIView(APIView):
             contest_problem.hint = data["hint"]
             contest_problem.visible = data["visible"]
             contest_problem.sort_index = data["sort_index"]
+            contest_problem.score = data["score"]
             contest_problem.save()
             return success_response(ContestProblemSerializer(contest_problem).data)
         else:
@@ -217,7 +227,10 @@ class ContestProblemAdminAPIView(APIView):
                 return success_response(ContestProblemSerializer(contest_problem).data)
             except ContestProblem.DoesNotExist:
                 return error_response(u"比赛题目不存在")
-        contest_problem = ContestProblem.objects.all().order_by("sort_index")
+        if request.user.admin_type == SUPER_ADMIN:
+            contest_problem = ContestProblem.objects.all().order_by("sort_index")
+        else:
+            contest_problem = ContestProblem.objects.filter(created_by=request.user).order_by("sort_index")
         visible = request.GET.get("visible", None)
         if visible:
             contest_problem = contest_problem.filter(visible=(visible == "true"))
@@ -225,6 +238,13 @@ class ContestProblemAdminAPIView(APIView):
         if keyword:
             contest_problem = contest_problem.filter(Q(title__contains=keyword) |
                                                      Q(description__contains=keyword))
+        contest_id = request.GET.get("contest_id", None)
+        if contest_id:
+            try:
+                contest = Contest.objects.get(id=contest_id)
+            except Contest.DoesNotExist:
+                return error_response(u"该比赛不存在!")
+            contest_problem = contest_problem.filter(contest=contest).order_by("sort_index")
 
         return paginate(request, contest_problem, ContestProblemSerializer)
 
@@ -280,7 +300,7 @@ def contest_problem_page(request, contest_id, contest_problem_id):
         contest_problem = ContestProblem.objects.get(id=contest_problem_id, visible=True)
     except ContestProblem.DoesNotExist:
         return error_page(request, u"比赛题目不存在")
-    warning = "您已经提交过本题的正确答案！"
+    warning = u"您已经提交过本题的正确答案！"
     show_warning = False
     try:
         submission = ContestSubmission.objects.get(user=request.user, contest=contest, problem=contest_problem)
@@ -291,7 +311,7 @@ def contest_problem_page(request, contest_id, contest_problem_id):
     # 已经结束
     if contest.status == -1:
         show_warning = True
-        warning = "比赛已经结束！"
+        warning = u"比赛已经结束"
     return render(request, "oj/contest/contest_problem.html", {"contest_problem": contest_problem, "contest": contest,
                                                                "samples": json.loads(contest_problem.samples),
                                                                "show_warning": show_warning, "warning": warning})
