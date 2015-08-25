@@ -26,27 +26,27 @@ class SubmissionsListPageTest(TestCase):
 
     def test_visit_submissionsListPage_successfully(self):
         self.client.login(username="gogoing", password="666666")
-        response = self.client.get('/my_submissions/1/')
+        response = self.client.get('/submissions/1/')
         self.assertEqual(response.status_code, 200)
 
     def test_visit_submissionsListPage_without_page_successfully(self):
         self.client.login(username="gogoing", password="666666")
-        response = self.client.get('/my_submissions/')
+        response = self.client.get('/submissions/')
         self.assertEqual(response.status_code, 200)
 
     def test_submissionsListPage_does_not_exist(self):
         self.client.login(username="gogoing", password="666666")
-        response = self.client.get('/my_submissions/5/')
+        response = self.client.get('/submissions/5/')
         self.assertTemplateUsed(response, "utils/error.html")
 
     def test_submissionsListPage_page_not_exist(self):
         self.client.login(username="gogoing", password="666666")
-        response = self.client.get('/my_submissions/5/')
+        response = self.client.get('/submissions/5/')
         self.assertTemplateUsed(response, "utils/error.html")
 
     def test_submissionsListPage_have_no_submission(self):
         self.client.login(username="cool", password="666666")
-        response = self.client.get('/my_submissions/')
+        response = self.client.get('/submissions/')
         self.assertEqual(response.status_code, 200)
 
 
