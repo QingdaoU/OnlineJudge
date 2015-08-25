@@ -134,9 +134,9 @@ class ContestAdminAPIView(APIView):
         response_serializer: ContestSerializer
         """
         if request.user.admin_type == SUPER_ADMIN:
-            contest = Contest.objects.all().order_by("-last_updated_time")
+            contest = Contest.objects.all().order_by("-create_time")
         else:
-            contest = Contest.objects.filter(created_by=request.user).order_by("-last_updated_time")
+            contest = Contest.objects.filter(created_by=request.user).order_by("-create_time")
         visible = request.GET.get("visible", None)
         if visible:
             contest = contest.filter(visible=(visible == "true"))
