@@ -1,7 +1,7 @@
 require(["jquery", "avalon", "editor", "uploader", "bsAlert", "csrfToken", "tagEditor", "validator", "jqueryUI"],
     function ($, avalon, editor, uploader, bsAlert, csrfTokenHeader) {
         avalon.ready(function () {
-            avalon.vmodels.addProblem = null;
+
             $("#add-problem-form").validator()
                 .on('submit', function (e) {
                     if (!e.isDefaultPrevented()){
@@ -63,6 +63,7 @@ require(["jquery", "avalon", "editor", "uploader", "bsAlert", "csrfToken", "tagE
                             success: function (data) {
                                 if (!data.code) {
                                     bsAlert("题目添加成功！");
+                                    location.hash = "problem/problem_list";
                                 }
                                 else {
                                     bsAlert(data.data);
@@ -92,41 +93,61 @@ require(["jquery", "avalon", "editor", "uploader", "bsAlert", "csrfToken", "tagE
 
             var hintEditor = editor("#hint");
             var problemDescription = editor("#problemDescription");
-
-            var vm = avalon.define({
-                $id: "addProblem",
-                title: "",
-                description: "",
-                timeLimit: 1000,
-                memoryLimit: 256,
-                samples: [{input: "", output: "", "visible": true}],
-                hint: "",
-                visible: true,
-                difficulty: 0,
-                tags: [],
-                inputDescription: "",
-                outputDescription: "",
-                testCaseId: "",
-                testCaseList: [],
-                uploadSuccess: false,
-                source: "",
-                addSample: function () {
-                    vm.samples.push({input: "", output: "", "visible": true});
-                },
-                delSample: function (sample) {
-                    if (confirm("你确定要删除么?")) {
-                        vm.samples.remove(sample);
+            if (avalon.vmodels.addProblem) {
+                var vm = avalon.vmodels.addProblem;
+                vm.title = "";
+                vm.description = "";
+                vm.timeLimit =  1000;
+                vm.memoryLimit = 256;
+                vm.samples = [{input: "", output: "", "visible": true}];
+                vm.hint = "";
+                vm.visible = true;
+                vm.difficulty = 0;
+                vm.tags = [];
+                vm.inputDescription = "";
+                vm.outputDescription = "";
+                vm.testCaseId = "";
+                vm.testCaseList = [];
+                vm.uploadSuccess = false;
+                vm.source = "";
+                hintEditor.setValue("");
+                problemDescription.setValue("");
+            }
+            else
+                var vm = avalon.define({
+                    $id: "addProblem",
+                    title: "",
+                    description: "",
+                    timeLimit: 1000,
+                    memoryLimit: 256,
+                    samples: [{input: "", output: "", "visible": true}],
+                    hint: "",
+                    visible: true,
+                    difficulty: 0,
+                    tags: [],
+                    inputDescription: "",
+                    outputDescription: "",
+                    testCaseId: "",
+                    testCaseList: [],
+                    uploadSuccess: false,
+                    source: "",
+                    addSample: function () {
+                        vm.samples.push({input: "", output: "", "visible": true});
+                    },
+                    delSample: function (sample) {
+                        if (confirm("你确定要删除么?")) {
+                            vm.samples.remove(sample);
+                        }
+                    },
+                    toggleSample: function (sample) {
+                        sample.visible = !sample.visible;
+                    },
+                    getBtnContent: function (item) {
+                        if (item.visible)
+                            return "折叠";
+                        return "展开";
                     }
-                },
-                toggleSample: function (sample) {
-                    sample.visible = !sample.visible;
-                },
-                getBtnContent: function (item) {
-                    if (item.visible)
-                        return "折叠";
-                    return "展开";
-                }
-            });
+                });
 
             var tagAutoCompleteList = [];
 

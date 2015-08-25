@@ -40,6 +40,12 @@ require(["jquery", "avalon", "csrfToken", "bsAlert"], function ($, avalon, csrfT
             },
             getPage: function (page_index) {
                 getPageData(page_index);
+            },
+            showSubmissionDetailPage: function (submissionId) {
+
+            },
+            showProblemListPage: function(){
+                vm.$fire("up!showProblemListPage");
             }
         });
 
@@ -66,9 +72,7 @@ require(["jquery", "avalon", "csrfToken", "bsAlert"], function ($, avalon, csrfT
             });
         }
 
-        avalon.scan();
-
 
     });
-
+    avalon.scan();
 });

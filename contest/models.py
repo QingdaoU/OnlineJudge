@@ -55,6 +55,7 @@ class ContestProblem(AbstractProblem):
     contest = models.ForeignKey(Contest)
     # 比如A B 或者1 2 或者 a b 将按照这个排序
     sort_index = models.CharField(max_length=30)
+    score = models.IntegerField(default=0)
 
     class Meta:
         db_table = "contest_problem"

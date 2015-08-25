@@ -157,4 +157,3 @@ def my_submission_list_page(request, page=1):
     return render(request, "oj/submission/my_submissions_list.html",
                   {"submissions": current_page, "page": int(page),
                    "previous_page": previous_page, "next_page": next_page, "start_id": int(page) * 20 - 20})
-

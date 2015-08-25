@@ -3,8 +3,6 @@ require(["jquery", "avalon", "editor", "uploader", "bsAlert", "csrfToken", "tagE
 
         avalon.ready(function () {
 
-
-
             $("#edit-problem-form").validator()
                 .on('submit', function (e) {
                     if (!e.isDefaultPrevented()){
@@ -66,6 +64,7 @@ require(["jquery", "avalon", "editor", "uploader", "bsAlert", "csrfToken", "tagE
                             success: function (data) {
                                 if (!data.code) {
                                     bsAlert("题目编辑成功！");
+                                    vm.showProblemListPage();
                                 }
                                 else {
                                     bsAlert(data.data);
@@ -76,49 +75,60 @@ require(["jquery", "avalon", "editor", "uploader", "bsAlert", "csrfToken", "tagE
                         return false;
                     }
                 });
-
-            if(avalon.vmodels.editProblem){
-                var vm = avalon.vmodels.editProblem;
-            }
-            else {
-                var vm = avalon.define({
-                    $id: "editProblem",
-                    title: "",
-                    description: "",
-                    timeLimit: -1,
-                    memoryLimit: -1,
-                    samples: [],
-                    hint: "",
-                    visible: true,
-                    difficulty: 0,
-                    inputDescription: "",
-                    outputDescription: "",
-                    testCaseIdd: "",
-                    uploadSuccess: false,
-                    source: "",
-                    testCaseList: [],
-                    addSample: function () {
-                        vm.samples.push({input: "", output: "", "visible": true});
-                    },
-                    delSample: function (sample) {
-                        if (confirm("你确定要删除么?")) {
-                            vm.samples.remove(sample);
-                        }
-                    },
-                    toggleSample: function (sample) {
-                        sample.visible = !sample.visible;
-                    },
-                    getBtnContent: function (item) {
-                        if (item.visible)
-                            return "折叠";
-                        return "展开";
-                    },
-                    showProblemListPage: function () {
-                        vm.$fire("up!showProblemListPage");
+        if (avalon.vmodels.editProblem) {
+            var vm = avalon.vmodels.editProblem;
+            title: "",
+            description= "";
+            timeLimit= -1;
+            memoryLimit= -1;
+            samples= [];
+            hint= "";
+            visible= true;
+            difficulty= 0;
+            inputDescription= "";
+            outputDescription= "";
+            testCaseIdd= "";
+            uploadSuccess= false;
+            source= "";
+            testCaseList= [];
+        }
+        else
+            var vm = avalon.define({
+                $id: "editProblem",
+                title: "",
+                description: "",
+                timeLimit: -1,
+                memoryLimit: -1,
+                samples: [],
+                hint: "",
+                visible: true,
+                difficulty: 0,
+                inputDescription: "",
+                outputDescription: "",
+                testCaseIdd: "",
+                uploadSuccess: false,
+                source: "",
+                testCaseList: [],
+                addSample: function () {
+                    vm.samples.push({input: "", output: "", "visible": true});
+                },
+                delSample: function (sample) {
+                    if (confirm("你确定要删除么?")) {
+                        vm.samples.remove(sample);
                     }
-                });
-
-            }
+                },
+                toggleSample: function (sample) {
+                    sample.visible = !sample.visible;
+                },
+                getBtnContent: function (item) {
+                    if (item.visible)
+                        return "折叠";
+                    return "展开";
+                },
+                showProblemListPage: function(){
+                    vm.$fire("up!showProblemListPage");
+                }
+            });
             var hintEditor = editor("#hint");
             var descriptionEditor = editor("#problemDescription");
             var testCaseUploader = uploader("#testCaseFile", "/api/admin/test_case_upload/", function (file, response) {
@@ -148,7 +158,6 @@ require(["jquery", "avalon", "editor", "uploader", "bsAlert", "csrfToken", "tagE
                     }
                     else {
                         var problem = data.data;
-                        console.log(problem);
                         vm.title = problem.title;
                         vm.description = problem.description;
                         vm.timeLimit = problem.time_limit;

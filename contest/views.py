@@ -2,17 +2,18 @@
 import json
 import datetime
 from functools import wraps
+from collections import OrderedDict
 from django.utils.timezone import now
 from django.shortcuts import render
 from django.db import IntegrityError
 from django.utils import dateparse
-from django.db.models import Q
+from django.db.models import Q, Count, Sum
 from django.core.paginator import Paginator
 from rest_framework.views import APIView
 from utils.shortcuts import (serializer_invalid_response, error_response,
                              success_response, paginate, rand_str, error_page)
 
-from account.models import REGULAR_USER, ADMIN, SUPER_ADMIN
+from account.models import REGULAR_USER, ADMIN, SUPER_ADMIN, User
 from account.decorators import login_required
 from group.models import Group
 from announcement.models import Announcement
@@ -279,15 +280,21 @@ def contest_problem_page(request, contest_id, contest_problem_id):
         contest_problem = ContestProblem.objects.get(id=contest_problem_id, visible=True)
     except ContestProblem.DoesNotExist:
         return error_page(request, u"比赛题目不存在")
+    warning = "您已经提交过本题的正确答案！"
     show_warning = False
     try:
         submission = ContestSubmission.objects.get(user=request.user, contest=contest, problem=contest_problem)
         show_warning = submission.ac
     except ContestSubmission.DoesNotExist:
         pass
-    return render(request, "oj/contest/contest_problem.html", {"contest_problem": contest_problem,
+
+    # 已经结束
+    if contest.status == -1:
+        show_warning = True
+        warning = "比赛已经结束！"
+    return render(request, "oj/contest/contest_problem.html", {"contest_problem": contest_problem, "contest": contest,
                                                                "samples": json.loads(contest_problem.samples),
-                                                               "show_warning": show_warning})
+                                                               "show_warning": show_warning, "warning": warning})
 
 
 @check_user_contest_permission
@@ -350,6 +357,57 @@ def contest_list_page(request, page=1):
                    "previous_page": previous_page, "next_page": next_page,
                    "keyword": keyword, "announcements": announcements,
                    "join": join})
+
+
+
+def _cmp(x, y):
+    if x["total_ac"] > y["total_ac"]:
+        return 1
+    elif x["total_ac"] < y["total_ac"]:
+        return -1
+    else:
+        if x["total_time"] < y["total_time"]:
+            return 1
+        else:
+            return -1
+
+
+@check_user_contest_permission
+def contest_rank_page(request, contest_id):
+    result = ContestSubmission.objects.values("user_id").annotate(total_submit=Count("user_id"))
+    for i in range(0, len(result)):
+        # 这个人所有的提交
+        submissions = ContestSubmission.objects.filter(user_id=result[i]["user_id"])
+        result[i]["total_ac"] = submissions.filter(ac=True).count()
+        result[i]["user"] = User.objects.get(id=result[i]["user_id"])
+        result[i]["submissions"] = submissions.order_by("problem__sort_index")
+        result[i]["total_time"] = submissions.filter(ac=True).aggregate(total_time=Sum("total_time"))["total_time"]
+    print result
+
+    return render(request, "oj/contest/contest_rank.html")
+
+    #
+    #
+    # return
+    # contest = Contest.objects.get(id=contest_id)
+    # contest_submissions = ContestSubmission.objects.filter(contest=contest)
+    # result = {}
+    # # 先把数据按照用户id 为 key 整理一下
+    # # {1: {"submissions": [], "total_time": 0, "total_ac": 0}}
+    # for item in contest_submissions:
+    #     if item.user.id not in contest_submissions:
+    #         result[item.user.id] = {"user": {"id": item.user.id, "username": item.user.username,
+    #                                          "real_name": item.user.real_name},
+    #                                 "submissions": [], "total_time": 0, "total_ac": 0}
+    #     result[item.user.id]["submissions"].append(ContestSubmissionSerializer(item).data)
+    #     if item.ac:
+    #         result[item.user.id]["total_time"] += item.total_time
+    #         result[item.user.id]["total_ac"] += 1
+    # l = []
+    # for k, v in result.iteritems():
+    #     l.append(v)
+    # print sorted(l, cmp=_cmp, reverse=True)
+
 
 
 
