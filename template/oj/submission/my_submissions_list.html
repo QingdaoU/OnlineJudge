@@ -44,12 +44,12 @@
             <ul class="pager">
                 {% if previous_page %}
                     <li class="previous"><a
-                            href="/my_submissions/{{ previous_page }}/{% if keyword %}?keyword={{ keyword }}{% endif %}{% if tag %}?tag={{ tag }}{% endif %}">
+                            href="/submissions/{{ previous_page }}/{% if keyword %}?keyword={{ keyword }}{% endif %}{% if tag %}?tag={{ tag }}{% endif %}">
                         <span aria-hidden="true">&larr;</span> 上一页</a></li>
                 {% endif %}
                 {% if next_page %}
                     <li class="next"><a
-                            href="/my_submissions/{{ next_page }}/{% if keyword %}?keyword={{ keyword }}{% endif %}{% if tag %}?tag={{ tag }}{% endif %}">下一页 <span
+                            href="/submissions/{{ next_page }}/{% if keyword %}?keyword={{ keyword }}{% endif %}{% if tag %}?tag={{ tag }}{% endif %}">下一页 <span
                             aria-hidden="true">&rarr;</span></a></li>
                 {% endif %}
             </ul>

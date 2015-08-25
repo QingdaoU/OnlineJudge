@@ -1,20 +1,27 @@
 {% extends 'oj_base.html' %}
 
 {% block body %}
-    <div class="container main">
-        <ul class="nav nav-tabs nav-tabs-google">
-            <li role="presentation" class="active">
-                <a href="/contest/{{ contest_problem.contest.id }}/problem/{{ contest_problem.id }}/">题目</a></li>
-            <li role="presentation"><a
-                    href="/contest/{{ contest_problem.contest.id }}/problem/{{ contest_problem.id }}/my_submissions/">我的提交</a>
-            </li>
-        </ul>
-        <h2 class="text-center">{{ contest_problem.title }}</h2>
+<div class="container main">
+    <ul class="nav nav-tabs nav-tabs-google">
+        <li role="presentation" class="active">
+            <a href="/contest/{{ contest_problem.contest.id }}/problem/{{ contest_problem.id }}/">题目</a></li>
+        <li role="presentation"><a href="/contest/{{ contest_problem.contest.id }}/problem/{{ contest_problem.id }}/submissions/">我的提交</a></li>
+    </ul>
+    <h2 class="text-center">{{ contest_problem.title }}</h2>
 
-        <p class="text-muted text-center">发布时间 : {{ contest_problem.create_time }}&nbsp;&nbsp;
-            时间限制 : {{ contest_problem.time_limit }}ms&nbsp;&nbsp;
-            内存限制 : {{ contest_problem.memory_limit }}M
-        </p>
+    <p class="text-muted text-center">发布时间 : {{ contest_problem.create_time }}&nbsp;&nbsp;
+        时间限制 : {{ contest_problem.time_limit }}ms&nbsp;&nbsp;
+        内存限制 : {{ contest_problem.memory_limit }}M
+    </p>
+
+    <div>
+        <div class="problem-section">
+            <label class="problem-label">描述</label>
+
+            <p class="problem-detail">{{ contest_problem.description|safe }}</p>
+        </div>
+        <div class="problem-section">
+            <label class="problem-label">输入</label>
 
         <div>
             <div class="problem-section">
