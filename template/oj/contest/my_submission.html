@@ -11,24 +11,11 @@
     <div class="container main">
         <ul class="nav nav-tabs nav-tabs-google">
             <li role="presentation">
-                {% if submission.contest_id %}
-
-                    <a href="/contest/{{ submission.contest_id }}/problem/{{ problem.id }}/">题目</a>
-
-                {% else %}
-                    <a href="/problem/{{ problem.id }}/">题目</a>
-                {% endif %}
-            </li>
-
-
+                <a href="/contest/{{ problem.contest.id }}/problem/{{ problem.id }}/">题目</a></li>
             <li role="presentation" class="active">
-                {% if submission.contest_id %}
-                    <a href="/contest/{{ submission.contest_id }}/problem/{{ problem.id }}/submissions/">我的提交</a>
-                {% else %}
-                    <a href="/problem/{{ problem.id }}/submissions/">我的提交</a>
-                {% endif %}
+                <a href="/contest/{{ problem.contest.id }}/problem/{{ problem.id }}/submissions/">
+                    我的提交</a>
             </li>
-
         </ul>
         {% include "oj/problem/_problem_header.html" %}
         <div class="panel panel-default">

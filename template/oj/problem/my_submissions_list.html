@@ -8,13 +8,9 @@
             <li role="presentation">
                 <a href="/problem/{{ problem.id }}/">题目</a></li>
             <li role="presentation" class="active">
-                <a href="/problem/{{ problem.id }}/my_submissions/">我的提交</a></li>
+                <a href="/problem/{{ problem.id }}/submissions/">我的提交</a></li>
         </ul>
-        <h2 class="text-center">{{ problem.title }}</h2>
-
-        <p class="text-muted text-center">发布时间: {{ problem.create_time }}&nbsp;&nbsp;
-            时间限制: {{ problem.time_limit }}ms&nbsp;&nbsp;
-            内存限制: {{ problem.memory_limit }}M</p>
+        {% include "oj/problem/_problem_header.html" %}
         <table class="table table-bordered">
             <thead>
             <tr class="" success>
@@ -28,7 +24,7 @@
             <tbody>
             {% for item in submissions %}
                 <tr class="{{ item.result|translate_result_class }}">
-                    <th scope="row"><a href="/my_submission/{{ item.id }}/">{{ forloop.counter }}</a></th>
+                    <th scope="row"><a href="/submission/{{ item.id }}/">{{ forloop.counter }}</a></th>
                     <td>{{ item.create_time }}</td>
                     <td>{{ item.result|translate_result }}</td>
                     <td>

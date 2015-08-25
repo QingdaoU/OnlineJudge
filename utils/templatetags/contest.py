@@ -4,19 +4,23 @@ from django.utils.timezone import now
 
 
 def get_contest_status(contest):
-    if contest.start_time > now():
+    status = contest.status
+    if status == 1:
         return "没有开始"
-    if contest.end_time < now():
+    elif status == -1:
         return "已经结束"
-    return "正在进行"
+    else:
+        return "正在进行"
 
 
 def get_contest_status_color(contest):
-    if contest.start_time > now():
+    status = contest.status
+    if status == 1:
         return "info"
-    if contest.end_time < now():
+    elif status == -1:
         return "warning"
-    return "success"
+    else:
+        return "success"
 
 
 from django import template
