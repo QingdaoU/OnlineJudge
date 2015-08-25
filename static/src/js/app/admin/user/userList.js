@@ -3,58 +3,68 @@ require(["jquery", "avalon", "csrfToken", "bsAlert", "validator"], function ($, 
 
     // avalon:定义模式 userList
     avalon.ready(function () {
-        avalon.vmodels.userList = null;
-        var vm = avalon.define({
-            $id: "userList",
-            //通用变量
-            userList: [],
-            previousPage: 0,
-            nextPage: 0,
-            page: 1,
-            editingUserId: 0,
-            totalPage: 1,
-            userType: ["一般用户", "管理员", "超级管理员"],
-            keyword: "",
-            showAdminOnly: false,
-            //编辑区域同步变量
-            username: "",
-            realName: "",
-            email: "",
-            adminType: 0,
-            id: 0,
-            getNext: function () {
-                if (!vm.nextPage)
-                    return;
-                getPageData(vm.page + 1);
-            },
-            getPrevious: function () {
-                if (!vm.previousPage)
-                    return;
-                getPageData(vm.page - 1);
-            },
-            getBtnClass: function (btn) {                                                         //上一页/下一页按钮启用禁用逻辑
-                if (btn) {
-                    return vm.nextPage ? "btn btn-primary" : "btn btn-primary disabled";
+        //avalon.vmodels.userList = null;
+        if (avalon.vmodels.userList) {
+            var vm = avalon.vmodels.userList;
+            // initialize avalon object
+            userList= [],     previousPage= 0, nextPage= 0, page= 1,
+            editingUserId= 0, totalPage: 1,    keyword: "", showAdminOnly: false,
+                //user editor fields
+            username: "",     realName: "",    email: "",   adminType: 0, id: 0,
+        }
+        else {
+            var vm = avalon.define({
+                $id: "userList",
+                //通用变量
+                userList: [],
+                previousPage: 0,
+                nextPage: 0,
+                page: 1,
+                editingUserId: 0,
+                totalPage: 1,
+                userType: ["一般用户", "管理员", "超级管理员"],
+                keyword: "",
+                showAdminOnly: false,
+                //编辑区域同步变量
+                username: "",
+                realName: "",
+                email: "",
+                adminType: 0,
+                id: 0,
+                getNext: function () {
+                    if (!vm.nextPage)
+                        return;
+                    getPageData(vm.page + 1);
+                },
+                getPrevious: function () {
+                    if (!vm.previousPage)
+                        return;
+                    getPageData(vm.page - 1);
+                },
+                getBtnClass: function (btn) {                                                         //上一页/下一页按钮启用禁用逻辑
+                    if (btn) {
+                        return vm.nextPage ? "btn btn-primary" : "btn btn-primary disabled";
+                    }
+                    else {
+                        return vm.previousPage ? "btn btn-primary" : "btn btn-primary disabled";
+                    }
+                },
+                editUser: function (user) {                                                               //点击编辑按钮的事件,显示/隐藏编辑区
+                    vm.username = user.username;
+                    vm.realName = user.real_name;
+                    vm.adminType = user.admin_type;
+                    vm.email = user.email;
+                    vm.id = user.id;
+                    if (vm.editingUserId == user.id)
+                        vm.editingUserId = 0;
+                    else
+                        vm.editingUserId = user.id;
+                },
+                search: function () {
+                    getPageData(1);
                 }
-                else {
-                    return vm.previousPage ? "btn btn-primary" : "btn btn-primary disabled";
-                }
-            },
-            editUser: function (user) {                                                               //点击编辑按钮的事件,显示/隐藏编辑区
-                vm.username = user.username;
-                vm.realName = user.real_name;
-                vm.adminType = user.admin_type;
-                vm.email = user.email;
-                vm.id = user.id;
-                if (vm.editingUserId == user.id)
-                    vm.editingUserId = 0;
-                else
-                    vm.editingUserId = user.id;
-            },
-            search: function () {
-                getPageData(1);
-            }
-        });
+            });
+        }
         vm.$watch("showAdminOnly", function () {
             getPageData(1);
         });
