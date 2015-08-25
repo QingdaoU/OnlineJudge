@@ -338,7 +338,7 @@ def contest_list_page(request, page=1):
     所有比赛的列表页
     """
     # 正常情况
-    contests = Contest.objects.filter(visible=True)
+    contests = Contest.objects.filter(visible=True).order_by("-create_time")
 
     # 搜索的情况
     keyword = request.GET.get("keyword", None)
