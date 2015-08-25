@@ -40,29 +40,26 @@ require(["jquery", "avalon", "csrfToken", "bsAlert", "editor", "datetimePicker",
                         ajaxData.groups.push(parseInt(vm.choseGroupList[i].id))
                 }
 
-				console.log(ajaxData);
-				$.ajax({                                  // Add contest
-					beforeSend: csrfTokenHeader,
-					url: "/api/admin/contest/",
-					dataType: "json",
-					contentType: "application/json",
-					data: JSON.stringify(ajaxData),
-					method: "put",
-					contentType: "application/json",
-					success: function (data) {
-						if (!data.code) {
-						    bsAlert("修改成功!");
+                $.ajax({                                  // Add contest
+                    beforeSend: csrfTokenHeader,
+                    url: "/api/admin/contest/",
+                    dataType: "json",
+                    contentType: "application/json",
+                    data: JSON.stringify(ajaxData),
+                    method: "put",
+                    contentType: "application/json",
+                    success: function (data) {
+                        if (!data.code) {
+                            bsAlert("修改成功!");
                             vm.editingContestId = 0; // Hide the editor
 							vm.getPage(1);           // Refresh the contest list
-						}
-						else {
-							bsAlert(data.data);
-							console.log(data);
-						}
-					}
-				});
-				console.log(JSON.stringify(ajaxData));
-			}
+                        }
+                        else {
+                            bsAlert(data.data);
+                        }
+                    }
+                });
+            }
             return false;
         });
 
@@ -228,7 +225,6 @@ require(["jquery", "avalon", "csrfToken", "bsAlert", "editor", "datetimePicker",
                     vm.group = -1;
             },
             removeGroup: function(groupIndex){
-                    console.log(groupIndex);
                     if (vm.groupList[vm.choseGroupList[groupIndex].index].id == 0){
                         vm.passwordUsable = false;
                         for (var i = 0; i < vm.groupList.length; i++) {
@@ -242,7 +238,6 @@ require(["jquery", "avalon", "csrfToken", "bsAlert", "editor", "datetimePicker",
                 vm.$fire("up!showContestProblemPage", 0, vm.contestList[vm.editingProblemContestIndex-1].id, vm.editMode);
             },
             showProblemEditor: function(el) {
-                console.log(el);
                 vm.$fire("up!showContestProblemPage", el.id, vm.contestList[vm.editingProblemContestIndex-1].id, vm.editMode);
             },
             getYesOrNo: function(yORn) {
