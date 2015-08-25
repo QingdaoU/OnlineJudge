@@ -21,6 +21,10 @@ require(["jquery", "avalon", "csrfToken", "bsAlert", "editor", "datetimePicker",
                     bsAlert("你没有选择参赛用户!");
                     return false;
                 }
+                if (vm.editDescription == "") {
+                    bsAlert("比赛描述不能为空!");
+                    return false;
+                }
                 if (vm.choseGroupList[0].id == 0) { //everyone | public contest
                     if (vm.editPassword) {
                         ajaxData.password = vm.editPassword;
@@ -48,8 +52,8 @@ require(["jquery", "avalon", "csrfToken", "bsAlert", "editor", "datetimePicker",
 					success: function (data) {
 						if (!data.code) {
 						    bsAlert("修改成功!");
-							console.log(data);
-							vm.getPage(1);
+                            vm.editingContestId = 0; // Hide the editor
+							vm.getPage(1);           // Refresh the contest list
 						}
 						else {
 							bsAlert(data.data);
@@ -148,7 +152,7 @@ require(["jquery", "avalon", "csrfToken", "bsAlert", "editor", "datetimePicker",
                     vm.editStartTime = vm.contestList[contestId-1].start_time.substring(0,16).replace("T"," ");
                     vm.editEndTime   = vm.contestList[contestId-1].end_time.substring(0,16).replace("T"," ");
                     vm.editMode      = vm.contestList[contestId-1].mode;
-                    editVisible      = vm.contestList[contestId-1].visible;
+                    vm.editVisible      = vm.contestList[contestId-1].visible;
                     if (vm.contestList[contestId-1].contest_type == 0) { //contest type == 0, contest in group
                         //Clear the choseGroupList
                         var stack = [], sp;
