@@ -21,6 +21,10 @@ require(["jquery", "avalon", "csrfToken", "bsAlert", "editor", "datetimePicker",
                     bsAlert("你没有选择参赛用户!");
                     return false;
                 }
+                if (vm.editDescription == "") {
+                    bsAlert("比赛描述不能为空!");
+                    return false;
+                }
                 if (vm.choseGroupList[0].id == 0) { //everyone | public contest
                     if (vm.editPassword) {
                         ajaxData.password = vm.editPassword;
@@ -36,29 +40,26 @@ require(["jquery", "avalon", "csrfToken", "bsAlert", "editor", "datetimePicker",
                         ajaxData.groups.push(parseInt(vm.choseGroupList[i].id))
                 }
 
-				console.log(ajaxData);
-				$.ajax({                                  // Add contest
-					beforeSend: csrfTokenHeader,
-					url: "/api/admin/contest/",
-					dataType: "json",
-					contentType: "application/json",
-					data: JSON.stringify(ajaxData),
-					method: "put",
-					contentType: "application/json",
-					success: function (data) {
-						if (!data.code) {
-						    bsAlert("修改成功!");
-							console.log(data);
-							vm.getPage(1);
-						}
-						else {
-							bsAlert(data.data);
-							console.log(data);
-						}
-					}
-				});
-				console.log(JSON.stringify(ajaxData));
-			}
+                $.ajax({                                  // Add contest
+                    beforeSend: csrfTokenHeader,
+                    url: "/api/admin/contest/",
+                    dataType: "json",
+                    contentType: "application/json",
+                    data: JSON.stringify(ajaxData),
+                    method: "put",
+                    contentType: "application/json",
+                    success: function (data) {
+                        if (!data.code) {
+                            bsAlert("修改成功!");
+                            vm.editingContestId = 0; // Hide the editor
+							vm.getPage(1);           // Refresh the contest list
+                        }
+                        else {
+                            bsAlert(data.data);
+                        }
+                    }
+                });
+            }
             return false;
         });
 
@@ -90,7 +91,7 @@ require(["jquery", "avalon", "csrfToken", "bsAlert", "editor", "datetimePicker",
         vm.editChoseGroupList= [];
         vm.editingProblemContestIndex= 0;
     }
-    else
+    else {
         var vm = avalon.define({
             $id: "contestList",
             contestList: [],
@@ -98,6 +99,7 @@ require(["jquery", "avalon", "csrfToken", "bsAlert", "editor", "datetimePicker",
             nextPage: 0,
             page: 1,
             totalPage: 1,
+            showVisibleOnly: false,
             group: "-1",
             groupList: [],
             choseGroupList: [],
@@ -139,6 +141,8 @@ require(["jquery", "avalon", "csrfToken", "bsAlert", "editor", "datetimePicker",
                 getPageData(page_index);
             },
             showEditContestArea: function (contestId) {
+                if (vm.editingContestId && !confirm("如果继续将丢失未保存的信息,是否继续?"))
+                    return;
                 if (contestId == vm.editingContestId)
                     vm.editingContestId = 0;
                 else {
@@ -148,15 +152,11 @@ require(["jquery", "avalon", "csrfToken", "bsAlert", "editor", "datetimePicker",
                     vm.editStartTime = vm.contestList[contestId-1].start_time.substring(0,16).replace("T"," ");
                     vm.editEndTime   = vm.contestList[contestId-1].end_time.substring(0,16).replace("T"," ");
                     vm.editMode      = vm.contestList[contestId-1].mode;
-                    editVisible      = vm.contestList[contestId-1].visible;
+                    vm.editVisible      = vm.contestList[contestId-1].visible;
                     if (vm.contestList[contestId-1].contest_type == 0) { //contest type == 0, contest in group
                         //Clear the choseGroupList
-                        var stack = [], sp;
-                        for (sp = 0; sp < vm.choseGroupList.length; sp++){
-                            stack.   push(vm.choseGroupList[sp].index);
-                        }
-                        while (sp--){
-                            vm.removeGroup(stack[sp]);
+                        while (vm.choseGroupList.length) {
+                            vm.removeGroup(0);
                         }
 
                         for (var i = 0; i < vm.contestList[contestId-1].groups.length; i++){
@@ -215,8 +215,8 @@ require(["jquery", "avalon", "csrfToken", "bsAlert", "editor", "datetimePicker",
                     if (vm.groupList[vm.group].id == 0){
                         vm.passwordUsable = true;
                         vm.choseGroupList = [];
-                        for (var key in vm.groupList){
-                            vm.groupList[key].chose = true;
+                        for (var i = 0; i < vm.groupList.length; i++) {
+                            vm.groupList[i].chose = true;
                         }
                     }
                     vm.groupList[vm.group]. chose = true;
@@ -227,8 +227,8 @@ require(["jquery", "avalon", "csrfToken", "bsAlert", "editor", "datetimePicker",
             removeGroup: function(groupIndex){
                     if (vm.groupList[vm.choseGroupList[groupIndex].index].id == 0){
                         vm.passwordUsable = false;
-                        for (key in vm.groupList){
-                            vm.groupList[key].chose = false;
+                        for (var i = 0; i < vm.groupList.length; i++) {
+                            vm.groupList[i].chose = false;
                         }
                     }
                     vm.groupList[vm.choseGroupList[groupIndex].index].chose = false;
@@ -238,7 +238,6 @@ require(["jquery", "avalon", "csrfToken", "bsAlert", "editor", "datetimePicker",
                 vm.$fire("up!showContestProblemPage", 0, vm.contestList[vm.editingProblemContestIndex-1].id, vm.editMode);
             },
             showProblemEditor: function(el) {
-                console.log(el);
                 vm.$fire("up!showContestProblemPage", el.id, vm.contestList[vm.editingProblemContestIndex-1].id, vm.editMode);
             },
             getYesOrNo: function(yORn) {
@@ -246,6 +245,10 @@ require(["jquery", "avalon", "csrfToken", "bsAlert", "editor", "datetimePicker",
                 return "否";
             }
         });
+        vm.$watch("showVisibleOnly", function() {
+            getPageData(1);
+        })
+    }
         getPageData(1);
 
         //init time picker
@@ -264,6 +267,8 @@ require(["jquery", "avalon", "csrfToken", "bsAlert", "editor", "datetimePicker",
 
         function getPageData(page) {
             var url = "/api/admin/contest/?paging=true&page=" + page + "&page_size=10";
+            if (vm.showVisibleOnly)
+                url += "&visible=true"
             if (vm.keyword != "")
                 url += "&keyword=" + vm.keyword;
             $.ajax({

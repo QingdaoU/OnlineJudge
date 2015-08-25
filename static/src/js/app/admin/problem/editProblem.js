@@ -158,7 +158,6 @@ require(["jquery", "avalon", "editor", "uploader", "bsAlert", "csrfToken", "tagE
                     }
                     else {
                         var problem = data.data;
-                        console.log(problem);
                         vm.title = problem.title;
                         vm.description = problem.description;
                         vm.timeLimit = problem.time_limit;

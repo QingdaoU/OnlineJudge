@@ -36,7 +36,6 @@ require(["jquery", "avalon", "editor", "uploader", "bsAlert", "csrfToken", "date
                         ajaxData.groups.push(parseInt(vm.choseGroupList[i].id))
                 }
 
-                console.log(ajaxData);
                 $.ajax({                                  // Add contest
                     beforeSend: csrfTokenHeader,
                     url: "/api/admin/contest/",
@@ -64,11 +63,9 @@ require(["jquery", "avalon", "editor", "uploader", "bsAlert", "csrfToken", "date
                         }
                         else {
                             bsAlert(data.data);
-                            console.log(data);
                         }
                     }
                 });
-                console.log(JSON.stringify(ajaxData));
             }
             return false;
         });

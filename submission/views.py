@@ -164,7 +164,7 @@ class ContestSubmissionAPIView(APIView):
         """
         创建比赛的提交
         ---
-        request_serializer: ConestSubmissionSerializer
+        request_serializer: CreateContestSubmissionSerializer
         """
         serializer = CreateContestSubmissionSerializer(data=request.data)
         if serializer.is_valid():
