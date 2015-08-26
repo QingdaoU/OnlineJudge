@@ -18,7 +18,7 @@
                 <tbody>
                 {% for item in submissions %}
                     <tr class="{{ item.result|translate_result_class }}">
-                        <th scope="row"><a href="/my_submission/{{ item.id }}/" id="id_{{ forloop.counter }}">
+                        <th scope="row"><a href="/submission/{{ item.id }}/" id="id_{{ forloop.counter }}">
                             {{ forloop.counter |add:start_id }}</a></th>
                         <td>{{ item.create_time }}</td>
                         <td>{{ item.result|translate_result }}</td>

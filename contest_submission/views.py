@@ -34,16 +34,13 @@ class ContestSubmissionAPIView(APIView):
         serializer = CreateContestSubmissionSerializer(data=request.data)
         if serializer.is_valid():
             data = serializer.data
-            try:
-                contest = Contest.objects.get(id=data["contest_id"])
-            except Contest.DoesNotExist:
-                return error_response(u"比赛不存在")
+            contest = Contest.objects.get(id=data["contest_id"])
             try:
                 problem = ContestProblem.objects.get(contest=contest, id=data["problem_id"])
                 # 更新题目提交计数器
                 problem.total_submit_number += 1
                 problem.save()
-            except Problem.DoesNotExist:
+            except ContestProblem.DoesNotExist:
                 return error_response(u"题目不存在")
 
             submission = Submission.objects.create(user_id=request.user.id, language=int(data["language"]),
@@ -74,7 +71,7 @@ def contest_problem_my_submissions_list_page(request, contest_id, contest_proble
         return error_page(request, u"比赛不存在")
     try:
         contest_problem = ContestProblem.objects.get(id=contest_problem_id, visible=True)
-    except Problem.DoesNotExist:
+    except ContestProblem.DoesNotExist:
         return error_page(request, u"比赛问题不存在")
     submissions = Submission.objects.filter(user_id=request.user.id, problem_id=contest_problem.id).order_by("-create_time"). \
         values("id", "result", "create_time", "accepted_answer_time", "language")

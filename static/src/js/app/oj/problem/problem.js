@@ -48,7 +48,7 @@ require(["jquery", "codeMirror", "csrfToken", "bsAlert"], function ($, codeMirro
         if (!data.result) {
             html += "CPU time: " + data.accepted_answer_time + "ms &nbsp;&nbsp;";
         }
-        html += ('<a href="/my_submission/' + submissionId + '/" target="_blank">查看详情</a></div> </div>');
+        html += ('<a href="/submission/' + submissionId + '/" target="_blank">查看详情</a></div> </div>');
 
         return html;
     }
