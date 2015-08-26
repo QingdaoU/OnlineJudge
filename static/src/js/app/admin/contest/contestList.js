@@ -242,7 +242,7 @@ require(["jquery", "avalon", "csrfToken", "bsAlert", "editor", "datetimePicker",
             },
             showSubmissionPage: function() {
                 vm.$fire("up!showContestSubmissionPage", el.id, vm.contestList[vm.editingProblemContestIndex-1].id, vm.editMode);
-            }
+            },
             getYesOrNo: function(yORn) {
                 if (yORn) return "是";
                 return "否";
