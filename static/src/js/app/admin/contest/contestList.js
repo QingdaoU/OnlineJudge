@@ -234,12 +234,15 @@ require(["jquery", "avalon", "csrfToken", "bsAlert", "editor", "datetimePicker",
                     vm.groupList[vm.choseGroupList[groupIndex].index].chose = false;
                     vm.choseGroupList.remove(vm.choseGroupList[groupIndex]);
                 },
-            add_problem: function () {
+            addProblem: function () {
                 vm.$fire("up!showContestProblemPage", 0, vm.contestList[vm.editingProblemContestIndex-1].id, vm.editMode);
             },
             showProblemEditor: function(el) {
                 vm.$fire("up!showContestProblemPage", el.id, vm.contestList[vm.editingProblemContestIndex-1].id, vm.editMode);
             },
+            showSubmissionPage: function() {
+                vm.$fire("up!showContestSubmissionPage", el.id, vm.contestList[vm.editingProblemContestIndex-1].id, vm.editMode);
+            }
             getYesOrNo: function(yORn) {
                 if (yORn) return "是";
                 return "否";
