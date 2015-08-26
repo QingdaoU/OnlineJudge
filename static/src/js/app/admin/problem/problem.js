@@ -3,6 +3,7 @@ require(["jquery", "avalon", "csrfToken", "bsAlert"], function ($, avalon, csrfT
     avalon.ready(function () {
         if(avalon.vmodels.problemList){
             vm = avalon.vmodels.problemList;
+            problemList = [];
         }
         else {
             var vm = avalon.define({
