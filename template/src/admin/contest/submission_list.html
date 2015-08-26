@@ -1,11 +1,14 @@
 <div ms-controller="contestSubmissionList" class="col-md-9">
     <nav>
         <ul class="pager">
-            <li class="previous" ms-click="showProblemListPage()"><a href="javascript:void(0)"><span
+            <li class="previous" ms-click="goBack()"><a href="javascript:void(0)"><span
                     aria-hidden="true">&larr;</span> 返回</a></li>
         </ul>
     </nav>
     <h1>提交列表</h1>
+        <a href="javascript:void(0)" class="btn btn-sm btn-primary" ms-click="getPage(1)">
+            <span class="glyphicon glyphicon-refresh"></span> 刷新
+        </a>
 
     <table class="table table-striped">
         <tr>

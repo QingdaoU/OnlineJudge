@@ -158,8 +158,8 @@
     </div>
     <div class="col-md-12" ms-visible="editingProblemContestIndex">
         <label>题目列表</label>
-        <a href="javascript:void(0)" class="btn btn-success btn-sm" ms-click="addProblem()">添加</a>
-        <a href="javascript:void(0)" class="btn btn-success btn-sm" ms-click="showSubmission()">查看提交</a>
+        <a href="javascript:void(0)" class="btn btn-success btn-sm" ms-click="addProblem()">添加题目</a>
+        <a href="javascript:void(0)" class="btn btn-info btn-sm" ms-click="showSubmissionPage()">查看提交</a>
         <table class="table table-striped">
             <tr>
                 <th>编号</th>
@@ -177,7 +177,9 @@
                 <td>{{ el.create_time|date("yyyy-MM-dd HH:mm:ss") }}</td>
                 <td>
                     <a href="javascript:void(0)" class="btn-sm btn-info"
-                       ms-click="showProblemEditor(el)">编辑</a>
+                       ms-click="showProblemEditPage(el)">编辑</a>
+                    <a href="javascript:void(0)" class="btn-sm btn-info"
+                       ms-click="showSubmissionPage(el)">提交</a>
                 </td>
             </tr>
         </table>
