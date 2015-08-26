@@ -1,11 +1,13 @@
 {% extends 'oj_base.html' %}
 
 {% block body %}
-<div class="container main">
+    <div class="container main">
     <ul class="nav nav-tabs nav-tabs-google">
         <li role="presentation" class="active">
             <a href="/contest/{{ contest_problem.contest.id }}/problem/{{ contest_problem.id }}/">题目</a></li>
-        <li role="presentation"><a href="/contest/{{ contest_problem.contest.id }}/problem/{{ contest_problem.id }}/submissions/">我的提交</a></li>
+        <li role="presentation"><a
+                href="/contest/{{ contest_problem.contest.id }}/problem/{{ contest_problem.id }}/submissions/">我的提交</a>
+        </li>
     </ul>
     <h2 class="text-center">{{ contest_problem.title }}</h2>
 
@@ -15,29 +17,22 @@
     </p>
 
     <div>
-        <div class="problem-section">
-            <label class="problem-label">描述</label>
+    <div class="problem-section">
+        <label class="problem-label">描述</label>
 
-            <p class="problem-detail">{{ contest_problem.description|safe }}</p>
-        </div>
-        <div class="problem-section">
-            <label class="problem-label">输入</label>
+        <p class="problem-detail">{{ contest_problem.description|safe }}</p>
+    </div>
+    <div class="problem-section">
+        <label class="problem-label">输入</label>
+
+        <p class="problem-detail">{{ contest_problem.input_description }}</p>
 
         <div>
-            <div class="problem-section">
-                <label class="problem-label">描述</label>
 
-                <p class="problem-detail">{{ contest_problem.description|safe }}</p>
-            </div>
-            <div class="problem-section">
-                <label class="problem-label">输入</label>
-
-                <p class="problem-detail">{{ contest_problem.input_description }}</p>
-            </div>
             <div class="problem-section">
                 <label class="problem-label">输出</label>
 
-                <p class="problem-detail">{{ contest_problem.output_description }}k</p>
+                <p class="problem-detail">{{ contest_problem.output_description }}</p>
             </div>
             {% for item in samples %}
                 <div class="problem-section">

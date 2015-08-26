@@ -78,7 +78,7 @@ ROOT_URLCONF = 'oj.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR, 'template')],
+        'DIRS': [os.path.join(BASE_DIR, 'template/src')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -116,7 +116,7 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = (os.path.join(BASE_DIR, "static/src/"),)
 
 TEMPLATE_DIRS = (
-    os.path.join(BASE_DIR, "template"),
+    os.path.join(BASE_DIR, "template/src"),
 )
 
 AUTH_USER_MODEL = 'account.User'
