@@ -41,7 +41,7 @@ class SubmissionsListPageTest(TestCase):
 
     def test_submissionsListPage_page_not_exist(self):
         self.client.login(username="gogoing", password="666666")
-        response = self.client.get('/submissions/5/')
+        response = self.client.get('/submissions/999/')
         self.assertTemplateUsed(response, "utils/error.html")
 
     def test_submissionsListPage_have_no_submission(self):
