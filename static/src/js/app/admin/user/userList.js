@@ -3,12 +3,12 @@ require(["jquery", "avalon", "csrfToken", "bsAlert", "validator"], function ($, 
 
     // avalon:定义模式 userList
     avalon.ready(function () {
-        //avalon.vmodels.userList = null;
+
         if (avalon.vmodels.userList) {
             var vm = avalon.vmodels.userList;
             // initialize avalon object
-            userList     = []; previousPage= 0; nextPage= 0;  page         = 1;
-            editingUserId= 0;  totalPage   = 1;  keyword= ""; showAdminOnly= false;
+            userList     = []; //previousPage= 0; nextPage= 0;  page         = 1;
+            //editingUserId= 0;  totalPage   = 1;  keyword= ""; showAdminOnly= false;
                 //user editor fields
             username= "";     realName= "";    email= "";   adminType= 0; id= 0;
         }

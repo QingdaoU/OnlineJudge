@@ -2,13 +2,13 @@ require(["jquery", "avalon", "csrfToken", "bsAlert"], function ($, avalon, csrfT
 
     avalon.ready(function () {
 
-        if (avalon.vmodels.submissionList){
-            var vm = avalon.vmodels.submissionList;
+        if (avalon.vmodels.contestSubmissionList){
+            var vm = avalon.vmodels.contestSubmissionList;
         }
         else {
 
             var vm = avalon.define({
-                $id: "submissionList",
+                $id: "contestSubmissionList",
                 submissionList: [],
                 previousPage: 0,
                 nextPage: 0,
@@ -44,13 +44,15 @@ require(["jquery", "avalon", "csrfToken", "bsAlert"], function ($, avalon, csrfT
                     }
                 },
                 getPage: function (page_index) {
+                    if (!page_index)
+                        var page_index = vm.page;
                     getPageData(page_index);
                 },
                 showSubmissionDetailPage: function (submissionId) {
 
                 },
-                showProblemListPage: function(){
-                    vm.$fire("up!showProblemListPage");
+                goBack: function(check){
+                        vm.$fire("up!showContestListPage");
                 }
             });
         }
@@ -58,7 +60,9 @@ require(["jquery", "avalon", "csrfToken", "bsAlert"], function ($, avalon, csrfT
         getPageData(1);
 
         function getPageData(page) {
-            var url = "/api/admin/submission/?paging=true&page=" + page + "&page_size=10&problem_id=" + avalon.vmodels.admin.problemId;
+            var url = "/api/admin/contest_submission/?paging=true&page=" + page + "&page_size=10&contest_id=" + avalon.vmodels.admin.$contestId;
+            if (avalon.vmodels.admin.$problemId)
+                url += "&problem_id=" + avalon.vmodels.admin.$problemId
             $.ajax({
                 url: url,
                 dataType: "json",

@@ -15,22 +15,22 @@
         <tr>
             <th>ID</th>
             <th>比赛</th>
-            <th>公开排名</th>
-            <th>可见</th>
+            <th>排名</th>
             <th>创建时间</th>
             <th>创建者</th>
+            <th>可见</th>
             <th></th>
         </tr>
         <tr ms-repeat="contestList">
             <td>{{ el.id }}</td>
             <td>{{ el.title }}</td>
-            <td>{{ getYesOrNo(el.show_rank) }}</td>
-            <td>{{ getYesOrNo(el.visible) }}</td>
+            <td ms-text="el.show_rank?'公开':'不公开'"></td>
             <td>{{ el.create_time|date("yyyy-MM-dd HH:mm:ss")}}</td>
             <td>{{ el.created_by.username }}</td>
+            <td ms-text="el.visible?'可见':'不可见'"></td>
             <td>
-                <a class="btn btn-info" href="javascript:void(0)" ms-click="showEditContestArea($index+1)">编辑</a>
-                <a class="btn btn-primary" href="javascript:void(0)" ms-click="showEditProblemArea($index+1)">编辑问题</a>
+                <a class="btn btn-info btn-sm" href="javascript:void(0)" ms-click="showEditContestArea($index+1)">编辑</a>
+                <a class="btn btn-info btn-sm" href="javascript:void(0)" ms-click="showEditProblemArea($index+1)">题目</a>
             </td>
         </tr>
     </table>
@@ -63,7 +63,7 @@
                     <textarea id="editor" placeholder="这里输入内容" autofocus ms-duplex="editDescription"></textarea>
 
                     <div class="help-block with-errors"></div>
-                    <small ms-visible="editDescription==''" style="color:red">请填写比赛描述</small>
+                    <p class="error-info" ms-visible="editDescription==''" >请填写比赛描述</p>
                 </div>
             </div>
             <div class="col-md-6">
@@ -152,13 +152,14 @@
                 </div>
             </div>
             <div class="col-md-12">
-                <button class="btn btn-primary" type="submit">保存修改</button>
+                <button class="btn btn-success" type="submit">保存修改</button>
             </div>
         </form>
     </div>
     <div class="col-md-12" ms-visible="editingProblemContestIndex">
         <label>题目列表</label>
-        <a href="javascript:void(0)" class="btn btn-success btn-sm" ms-click="add_problem()">添加</a>
+        <a href="javascript:void(0)" class="btn btn-primary btn-sm" ms-click="addProblem()">添加题目</a>
+        <a href="javascript:void(0)" class="btn btn-info btn-sm" ms-click="showSubmissionPage()">查看提交</a>
         <table class="table table-striped">
             <tr>
                 <th>编号</th>
@@ -176,7 +177,9 @@
                 <td>{{ el.create_time|date("yyyy-MM-dd HH:mm:ss") }}</td>
                 <td>
                     <a href="javascript:void(0)" class="btn-sm btn-info"
-                       ms-click="showProblemEditor(el)">编辑</a>
+                       ms-click="showProblemEditPage(el)">编辑</a>
+                    <a href="javascript:void(0)" class="btn-sm btn-info"
+                       ms-click="showSubmissionPage(el)">提交</a>
                 </td>
             </tr>
         </table>

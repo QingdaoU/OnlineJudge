@@ -21,6 +21,7 @@ from utils.shortcuts import serializer_invalid_response, error_response, success
 
 from submission.models import Submission
 from .serializers import CreateContestSubmissionSerializer
+from submission.serializers import SubmissionSerializer
 
 
 class ContestSubmissionAPIView(APIView):
@@ -76,7 +77,8 @@ def contest_problem_my_submissions_list_page(request, contest_id, contest_proble
         contest_problem = ContestProblem.objects.get(id=contest_problem_id, visible=True)
     except Problem.DoesNotExist:
         return error_page(request, u"比赛问题不存在")
-    submissions = Submission.objects.filter(user_id=request.user.id, problem_id=contest_problem.id).order_by("-create_time"). \
+    submissions = Submission.objects.filter(user_id=request.user.id, problem_id=contest_problem.id).order_by(
+        "-create_time"). \
         values("id", "result", "create_time", "accepted_answer_time", "language")
     return render(request, "oj/contest/my_submissions_list.html",
                   {"submissions": submissions, "problem": contest_problem})
@@ -113,3 +115,37 @@ def contest_problem_submissions_list_page(request, contest_id, page=1):
                   {"submissions": current_page, "page": int(page),
                    "previous_page": previous_page, "next_page": next_page, "start_id": int(page) * 20 - 20,
                    "contest": contest})
+
+
+class ContestSubmissionAdminAPIView(APIView):
+    def get(self, request):
+        """
+        查询比赛提交,单个比赛题目提交的adminAPI
+        ---
+        response_serializer: SubmissionSerializer
+        """
+        problem_id = request.GET.get("problem_id", None)
+        contest_id = request.GET.get("contest_id", None)
+        if contest_id:
+            try:
+                contest = Contest.objects.get(pk=contest_id)
+            except Contest.DoesNotExist:
+                return error_response(u"比赛不存在!")
+            if request.user.admin_type != SUPER_ADMIN and contest.created_by != request.user:
+                return error_response(u"您无权查看该信息!")
+            submissions = Submission.objects.filter(contest_id=contest_id).order_by("-create_time")
+        else:
+            if problem_id:
+                try:
+                    contest_problem = ContestProblem.objects.get(pk=problem_id)
+                except ContestProblem.DoesNotExist:
+                    return error_response(u"问题不存在!")
+                if request.user.admin_type != SUPER_ADMIN and contest_problem.contest.created_by != request.user:
+                    return error_response(u"您无权查看该信息!")
+                submissions = Submission.objects.filter(contest_id=contest_problem.contest_id).order_by("-create_time")
+            else:
+                return error_response(u"参数错误!")
+        if problem_id:
+            submissions = submissions.filter(problem_id=problem_id)
+
+        return paginate(request, submissions, SubmissionSerializer)
