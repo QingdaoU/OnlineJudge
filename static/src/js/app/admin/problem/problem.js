@@ -14,6 +14,7 @@ require(["jquery", "avalon", "csrfToken", "bsAlert"], function ($, avalon, csrfT
                 page: 1,
                 totalPage: 1,
                 keyword: "",
+                showVisibleOnly: false,
                 getNext: function () {
                     if (!vm.nextPage)
                         return;
@@ -40,7 +41,14 @@ require(["jquery", "avalon", "csrfToken", "bsAlert"], function ($, avalon, csrfT
                 },
                 showProblemSubmissionPage: function(problemId){
                     vm.$fire("up!showProblemSubmissionPage", problemId);
+                },
+                getYesOrNo: function(yORn) {
+                if (yORn) return "是";
+                return "否";
                 }
+            });
+            vm.$watch("showVisibleOnly", function () {
+                    getPageData(1);
             });
         }
         getPageData(1);
@@ -48,6 +56,8 @@ require(["jquery", "avalon", "csrfToken", "bsAlert"], function ($, avalon, csrfT
             var url = "/api/admin/problem/?paging=true&page=" + page + "&page_size=10";
             if (vm.keyword != "")
                 url += "&keyword=" + vm.keyword;
+            if (vm.showVisibleOnly)
+                url += "&visible=true";
             $.ajax({
                 url: url,
                 dataType: "json",

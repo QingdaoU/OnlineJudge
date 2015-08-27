@@ -26,11 +26,9 @@ require(["jquery", "avalon", "csrfToken", "bsAlert", "editor", "validator"],
                     showGlobalViewRadio: true,
                     isGlobal: true,
                     allGroups: [],
-                    getState: function (el) {   //获取公告当前状态，显示
-                        if (el.visible)
-                            return "可见";
-                        else
-                            return "隐藏";
+                    getYesOrNo: function(yORn) {
+                        if (yORn) return "是";
+                        return "否";
                     },
                     getNext: function () {
                         if (!vm.nextPage)
