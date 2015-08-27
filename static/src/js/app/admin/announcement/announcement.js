@@ -131,38 +131,40 @@ require(["jquery", "avalon", "csrfToken", "bsAlert", "editor", "validator"],
             getPageData(1);
 
             $.ajax({
-                url: "/api/admin/group/",
-                method: "get",
-                dataType: "json",
-                success: function (data) {
-                    if (!data.code) {
-                        if (!data.data.length) {
-                            bsAlert("您的用户权限只能创建组内公告，但是您还没有创建过小组");
-                            return;
-                        }
-                        for (var i = 0; i < data.data.length; i++) {
-                            var item = data.data[i];
-                            item["isSelected"] = false;
-                            vm.allGroups.push(item);
-                        }
-                    }
-                    else {
-                        bsAlert(data.data);
-                    }
-                }
-            });
-
-            $.ajax({
                 url: "/api/user/",
                 method: "get",
                 dataType: "json",
                 success: function (data) {
                     if (!data.code) {
+                        var admin_type = data.data.admin_type;
                         if (data.data.admin_type == 1) {
                             vm.isGlobal = false;
                             vm.showGlobalViewRadio = false;
+
                         }
                     }
+                    $.ajax({
+                        url: "/api/admin/group/",
+                        method: "get",
+                        dataType: "json",
+                        success: function (data) {
+                            if (!data.code) {
+                                if (!data.data.length) {
+                                    if (admin_type != 2)
+                                    bsAlert("您的用户权限只能创建组内公告，但是您还没有创建过小组");
+                                    return;
+                                }
+                                for (var i = 0; i < data.data.length; i++) {
+                                    var item = data.data[i];
+                                    item["isSelected"] = false;
+                                    vm.allGroups.push(item);
+                                }
+                            }
+                            else {
+                                bsAlert(data.data);
+                            }
+                        }
+                    });
                 }
             });
 
