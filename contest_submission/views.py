@@ -140,6 +140,8 @@ class ContestSubmissionAdminAPIView(APIView):
                     contest_problem = ContestProblem.objects.get(pk=problem_id)
                 except ContestProblem.DoesNotExist:
                     return error_response(u"问题不存在!")
+                if request.user.admin_type != SUPER_ADMIN and contest_problem.contest.created_by != request.user:
+                    return error_response(u"您无权查看该信息!")
                 submissions = Submission.objects.filter(contest_id=contest_problem.contest_id).order_by("-create_time")
             else:
                 return error_response(u"参数错误!")
