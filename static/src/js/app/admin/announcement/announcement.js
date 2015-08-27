@@ -26,10 +26,6 @@ require(["jquery", "avalon", "csrfToken", "bsAlert", "editor", "validator"],
                     showGlobalViewRadio: true,
                     isGlobal: true,
                     allGroups: [],
-                    getYesOrNo: function(yORn) {
-                        if (yORn) return "是";
-                        return "否";
-                    },
                     getNext: function () {
                         if (!vm.nextPage)
                             return;
@@ -47,7 +43,6 @@ require(["jquery", "avalon", "csrfToken", "bsAlert", "editor", "validator"],
                         else {
                             return vm.previousPage ? "btn btn-primary" : "btn btn-primary disabled";
                         }
-
                     },
                     editAnnouncement: function (announcement) {
                         vm.newTitle = announcement.title;

@@ -41,10 +41,6 @@ require(["jquery", "avalon", "csrfToken", "bsAlert"], function ($, avalon, csrfT
                 },
                 showProblemSubmissionPage: function(problemId){
                     vm.$fire("up!showProblemSubmissionPage", problemId);
-                },
-                getYesOrNo: function(yORn) {
-                if (yORn) return "是";
-                return "否";
                 }
             });
             vm.$watch("showVisibleOnly", function () {

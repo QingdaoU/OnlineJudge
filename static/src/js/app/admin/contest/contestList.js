@@ -245,10 +245,6 @@ require(["jquery", "avalon", "csrfToken", "bsAlert", "editor", "datetimePicker",
                 if (el)
                     problemId = el.id;
                 vm.$fire("up!showContestSubmissionPage", problemId, vm.contestList[vm.editingProblemContestIndex-1].id, vm.editMode);
-            },
-            getYesOrNo: function(yORn) {
-                if (yORn) return "是";
-                return "否";
             }
         });
         vm.$watch("showVisibleOnly", function() {

@@ -15,7 +15,7 @@
         <tr>
             <th>ID</th>
             <th>比赛</th>
-            <th>公开排名</th>
+            <th>排名</th>
             <th>创建时间</th>
             <th>创建者</th>
             <th>可见</th>
@@ -24,10 +24,10 @@
         <tr ms-repeat="contestList">
             <td>{{ el.id }}</td>
             <td>{{ el.title }}</td>
-            <td>{{ getYesOrNo(el.show_rank) }}</td>
+            <td ms-text="el.show_rank?'公开':'不公开'"></td>
             <td>{{ el.create_time|date("yyyy-MM-dd HH:mm:ss")}}</td>
             <td>{{ el.created_by.username }}</td>
-            <td>{{ getYesOrNo(el.visible) }}</td>
+            <td ms-text="el.visible?'可见':'不可见'"></td>
             <td>
                 <a class="btn btn-info btn-sm" href="javascript:void(0)" ms-click="showEditContestArea($index+1)">编辑</a>
                 <a class="btn btn-info btn-sm" href="javascript:void(0)" ms-click="showEditProblemArea($index+1)">题目</a>
