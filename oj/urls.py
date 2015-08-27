@@ -5,7 +5,7 @@ from django.views.generic import TemplateView
 
 from account.views import (UserLoginAPIView, UsernameCheckAPIView, UserRegisterAPIView,
                            UserChangePasswordAPIView, EmailCheckAPIView,
-                           UserAdminAPIView, UserInfoAPIView)
+                           UserAdminAPIView, UserInfoAPIView, Logout)
 from announcement.views import AnnouncementAdminAPIView
 
 from contest.views import ContestAdminAPIView, ContestProblemAdminAPIView, ContestPasswordVerifyAPIView
@@ -34,6 +34,7 @@ urlpatterns = [
         name="admin_template"),
 
     url(r'^login/$', TemplateView.as_view(template_name="oj/account/login.html"), name="user_login_page"),
+    url(r'^logout/$', Logout, name="user_logout_api"),
     url(r'^register/$', TemplateView.as_view(template_name="oj/account/register.html"),
         name="user_register_page"),
     url(r'^change_password/$', TemplateView.as_view(template_name="oj/account/change_password.html"),

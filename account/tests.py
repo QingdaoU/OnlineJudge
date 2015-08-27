@@ -369,3 +369,18 @@ class AdminRequiredDecoratorTest(TestCase):
         self.client.login(username="test", password="test")
         response = self.client.get("/admin_required_test/cbv/1024/")
         self.assertEqual(response.content, "1024")
+
+
+class UserLogoutTest(TestCase):
+    def setUp(self):
+        self.client = Client()
+        user = User.objects.create(username="test")
+        user.admin_type = 1
+        user.set_password("1")
+        user.save()
+
+    def logout_success(self):
+        self.client = Client()
+        self.client.login(username="test", password="1")
+        response = self.client.get("/logout/")
+        self.assertEqual(response.status_code, 302)
