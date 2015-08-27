@@ -38,7 +38,8 @@
 
         <div class="form-group">
             <label>标题</label>
-            <input name="title" type="text" class="form-control" id="newTitle" placeholder="公告标题" value="" ms-duplex="newTitle"></div>
+            <input name="title" type="text" class="form-control" id="newTitle" placeholder="公告标题" value=""
+                   ms-duplex="newTitle"></div>
         <div class="form-group">
             <label>内容</label>
             <textarea id="edit-announcement-editor"></textarea>
@@ -78,12 +79,14 @@
             <label>标题</label>
             <input name="title" type="text" class="form-control" id="title" placeholder="公告标题"
                    data-error="请填写公告标题(标题不得超过50字)" maxlength="50" required>
+
             <div class="help-block with-errors"></div>
         </div>
         <div class="form-group">
             <label>内容</label>
             <textarea id="create-announcement-editor" placeholder="公告内容" maxlength="10000" required>
             </textarea>
+
             <div class="help-block with-errors"></div>
         </div>
         <div class="form-group">
@@ -91,10 +94,16 @@
 
             <div>
                 <span ms-if="showGlobalViewRadio">
-                    <input type="radio" value="true" name="isGlobal" ms-duplex-boolean="isGlobal">全局可见
+                    <label>
+                        <small><input type="radio" value="true" name="isGlobal" ms-duplex-boolean="isGlobal">全局可见
+                        </small>
+                    </label>
                 </span>
                 <span>
-                    <input type="radio" value="false" name="isGlobal" ms-duplex-boolean="isGlobal">小组内可见
+                    <label>
+                        <small><input type="radio" value="false" name="isGlobal" ms-duplex-boolean="isGlobal">小组内可见
+                        </small>
+                    </label>
                 </span>
             </div>
 
