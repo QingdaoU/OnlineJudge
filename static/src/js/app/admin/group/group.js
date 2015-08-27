@@ -51,7 +51,7 @@ require(["jquery", "avalon", "csrfToken", "bsAlert"], function ($, avalon, csrfT
         getPageData(1);
 
         function getPageData(page) {
-            var url = "/api/admin/group/?paging=true&page=" + page + "&page_size=2";
+            var url = "/api/admin/group/?paging=true&page=" + page + "&page_size=10";
             if (vm.keyword)
                 url += "&keyword=" + vm.keyword;
             $.ajax({
