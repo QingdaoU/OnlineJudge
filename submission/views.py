@@ -140,6 +140,15 @@ def my_submission_list_page(request, page=1):
     """
     submissions = Submission.objects.filter(user_id=request.user.id). \
         values("id", "result", "create_time", "accepted_answer_time", "language").order_by("-create_time")
+    language = request.GET.get("language", None)
+    filter = None
+    if language:
+        submissions = submissions.filter(language=int(language))
+        filter = {"name": "language", "content": language}
+    result = request.GET.get("result", None)
+    if result:
+        submissions = submissions.filter(result=int(result))
+        filter = {"name": "result", "content": result}
     paginator = Paginator(submissions, 20)
     try:
         current_page = paginator.page(int(page))
@@ -161,4 +170,4 @@ def my_submission_list_page(request, page=1):
     return render(request, "oj/submission/my_submissions_list.html",
                   {"submissions": current_page, "page": int(page),
                    "previous_page": previous_page, "next_page": next_page, "start_id": int(page) * 20 - 20,
-                   "announcements": announcements})
+                   "announcements": announcements, "filter":filter})

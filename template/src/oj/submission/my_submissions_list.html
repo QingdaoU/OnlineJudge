@@ -8,12 +8,36 @@
         {% if submissions %}
         <table class="table table-bordered">
             <thead>
-            <tr class="" success>
+            <tr>
                 <th>#</th>
                 <th>提交时间</th>
-                <th>结果</th>
+                <th><div class="dropdown">
+                    <a href="#" class="dropdown-toggle" id="resultFilter" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                        结果<span class="caret"></span>
+                    </a>
+                    <ul class="dropdown-menu" aria-labelledby="resultFilter">
+                        <li><a href="/submissions/?result=0">Accepted</a></li>
+                        <li><a href="/submissions/?result=6">Wrong Answer</a></li>
+                        <li><a href="/submissions/?result=1">Runtime Error</a></li>
+                        <li><a href="/submissions/?result=2">Time Limit Exceeded</a></li>
+                        <li><a href="/submissions/?result=3">Memory Limit Exceeded</a></li>
+                        <li><a href="/submissions/?result=4">Compile Error</a></li>
+                        <li><a href="/submissions/?result=5">Format Error</a></li>
+                        <li><a href="/submissions/">取消筛选</a></li>
+                    </ul></div>
+                </th>
                 <th>运行时间</th>
-                <th>语言</th>
+                <th><div class="dropdown">
+                    <a href="#" class="dropdown-toggle" id="languageFilter" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                        语言<span class="caret"></span>
+                    </a>
+                    <ul class="dropdown-menu" aria-labelledby="languageFilter">
+                        <li><a href="/submissions/?language=1">C</a></li>
+                        <li><a href="/submissions/?language=2">C++</a></li>
+                        <li><a href="/submissions/?language=3">Java</a></li>
+                        <li><a href="/submissions/">取消筛选</a></li>
+                    </ul></div>
+                </th>
             </tr>
             </thead>
             <tbody>
@@ -42,12 +66,12 @@
             <ul class="pager">
                 {% if previous_page %}
                 <li class="previous"><a
-                        href="/submissions/{{ previous_page }}/{% if keyword %}?keyword={{ keyword }}{% endif %}{% if tag %}?tag={{ tag }}{% endif %}">
+                        href="/submissions/{{ previous_page }}/{% if filter %}?{{ filter.name }}={{ filter.content }}{% endif %}">
                     <span aria-hidden="true">&larr;</span> 上一页</a></li>
                 {% endif %}
                 {% if next_page %}
                 <li class="next"><a
-                        href="/submissions/{{ next_page }}/{% if keyword %}?keyword={{ keyword }}{% endif %}{% if tag %}?tag={{ tag }}{% endif %}">下一页 <span
+                        href="/submissions/{{ next_page }}/{% if filter %}?{{ filter.name }}={{ filter.content }}{% endif %}">下一页 <span
                         aria-hidden="true">&rarr;</span></a></li>
                 {% endif %}
             </ul>
