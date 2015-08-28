@@ -4,13 +4,15 @@ import json
 import redis
 from django.shortcuts import render
 from django.core.paginator import Paginator
+from django.core.urlresolvers import reverse
 
 from rest_framework.views import APIView
+from rest_framework.test import APITestCase, APIClient
 
 from judge.judger_controller.tasks import judge
 from judge.judger_controller.settings import redis_config
 from account.decorators import login_required
-from account.models import SUPER_ADMIN
+from account.models import User, ADMIN, SUPER_ADMIN
 
 from contest.decorators import check_user_contest_permission
 
@@ -21,6 +23,7 @@ from utils.shortcuts import serializer_invalid_response, error_response, success
 
 from submission.models import Submission
 from .serializers import CreateContestSubmissionSerializer
+from submission.serializers import SubmissionSerializer
 
 
 class ContestSubmissionAPIView(APIView):
@@ -73,7 +76,8 @@ def contest_problem_my_submissions_list_page(request, contest_id, contest_proble
         contest_problem = ContestProblem.objects.get(id=contest_problem_id, visible=True)
     except ContestProblem.DoesNotExist:
         return error_page(request, u"比赛问题不存在")
-    submissions = Submission.objects.filter(user_id=request.user.id, problem_id=contest_problem.id).order_by("-create_time"). \
+    submissions = Submission.objects.filter(user_id=request.user.id, problem_id=contest_problem.id).order_by(
+        "-create_time"). \
         values("id", "result", "create_time", "accepted_answer_time", "language")
     return render(request, "oj/contest/my_submissions_list.html",
                   {"submissions": submissions, "problem": contest_problem})
@@ -110,3 +114,111 @@ def contest_problem_submissions_list_page(request, contest_id, page=1):
                   {"submissions": current_page, "page": int(page),
                    "previous_page": previous_page, "next_page": next_page, "start_id": int(page) * 20 - 20,
                    "contest": contest})
+
+
+class ContestSubmissionAdminAPIView(APIView):
+    def get(self, request):
+        """
+        查询比赛提交,单个比赛题目提交的adminAPI
+        ---
+        response_serializer: SubmissionSerializer
+        """
+        problem_id = request.GET.get("problem_id", None)
+        contest_id = request.GET.get("contest_id", None)
+        if contest_id:
+            try:
+                contest = Contest.objects.get(pk=contest_id)
+            except Contest.DoesNotExist:
+                return error_response(u"比赛不存在!")
+            if request.user.admin_type != SUPER_ADMIN and contest.created_by != request.user:
+                return error_response(u"您无权查看该信息!")
+            submissions = Submission.objects.filter(contest_id=contest_id).order_by("-create_time")
+        else:
+            if problem_id:
+                try:
+                    contest_problem = ContestProblem.objects.get(pk=problem_id)
+                except ContestProblem.DoesNotExist:
+                    return error_response(u"问题不存在!")
+                if request.user.admin_type != SUPER_ADMIN and contest_problem.contest.created_by != request.user:
+                    return error_response(u"您无权查看该信息!")
+                submissions = Submission.objects.filter(contest_id=contest_problem.contest_id).order_by("-create_time")
+            else:
+                return error_response(u"参数错误!")
+        if problem_id:
+            submissions = submissions.filter(problem_id=problem_id)
+
+        return paginate(request, submissions, SubmissionSerializer)
+
+
+class SubmissionAPITest(APITestCase):
+    def setUp(self):
+        self.client = APIClient()
+        self.url = reverse('contest_submission_admin_api_view')
+        self.userA = User.objects.create(username="test1", admin_type=ADMIN)
+        self.userA.set_password("testaa")
+        self.userA.save()
+        self.userS = User.objects.create(username="test2", admin_type=SUPER_ADMIN)
+        self.userS.set_password("testbb")
+        self.userS.save()
+        self.global_contest = Contest.objects.create(title="titlex", description="descriptionx", mode=1,
+                                                     contest_type=2, show_rank=True, show_user_submission=True,
+                                                     start_time="2015-08-15T10:00:00.000Z",
+                                                     end_time="2015-08-15T12:00:00.000Z",
+                                                     password="aacc", created_by=self.userS
+                                                     )
+        self.problem = ContestProblem.objects.create(title="title1",
+                                                     description="description1",
+                                                     input_description="input1_description",
+                                                     output_description="output1_description",
+                                                     test_case_id="1",
+                                                     sort_index="1",
+                                                     samples=json.dumps([{"input": "1 1", "output": "2"}]),
+                                                     time_limit=100,
+                                                     memory_limit=1000,
+                                                     hint="hint1",
+                                                     contest=self.global_contest,
+                                                     created_by=self.userS)
+        self.submission = Submission.objects.create(user_id=self.userA.id,
+                                                    language=1,
+                                                    code='#include "stdio.h"\nint main(){\n\treturn 0;\n}',
+                                                    problem_id=self.problem.id)
+        self.submissionS = Submission.objects.create(user_id=self.userS.id,
+                                                     language=2,
+                                                     code='#include "stdio.h"\nint main(){\n\treturn 0;\n}',
+                                                     problem_id=self.problem.id)
+
+    def test_submission_contest_does_not_exist(self):
+        self.client.login(username="test2", password="testbb")
+        response = self.client.get(self.url + "?contest_id=99")
+        self.assertEqual(response.data["code"], 1)
+
+    def test_submission_contest_parameter_error(self):
+        self.client.login(username="test2", password="testbb")
+        response = self.client.get(self.url)
+        self.assertEqual(response.data["code"], 1)
+
+    def test_submission_access_denied(self):
+        self.client.login(username="test1", password="testaa")
+        response = self.client.get(self.url + "?problem_id=" + str(self.problem.id))
+        self.assertEqual(response.data["code"], 1)
+
+    def test_submission_access_denied_with_contest_id(self):
+        self.client.login(username="test1", password="testaa")
+        response = self.client.get(self.url + "?contest_id=" + str(self.global_contest.id))
+        self.assertEqual(response.data["code"], 1)
+
+    def test_get_submission_successfully(self):
+        self.client.login(username="test2", password="testbb")
+        response = self.client.get(
+            self.url + "?contest_id=" + str(self.global_contest.id) + "&problem_id=" + str(self.problem.id))
+        self.assertEqual(response.data["code"], 0)
+
+    def test_get_submission_successfully_problem(self):
+        self.client.login(username="test2", password="testbb")
+        response = self.client.get(self.url + "?problem_id=" + str(self.problem.id))
+        self.assertEqual(response.data["code"], 0)
+
+    def test_get_submission_problem_do_not_exist(self):
+        self.client.login(username="test2", password="testbb")
+        response = self.client.get(self.url + "?problem_id=9999")
+        self.assertEqual(response.data["code"], 1)

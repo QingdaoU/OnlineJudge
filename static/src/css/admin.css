@@ -55,3 +55,12 @@
     list-style-type: none;
     margin: 5px;
 }
+
+.error-info {
+    color: #dd4b39;
+    font-family:
+    Arial,Helvetica,sans-serif;
+    font-size: 13px;
+    line-height: 1.4;
+    font-weight: 600;
+}

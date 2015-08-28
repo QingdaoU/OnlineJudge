@@ -3,55 +3,60 @@ require(["jquery", "avalon", "csrfToken", "bsAlert", "validator"], function ($, 
 
     // avalon:定义模式 group_list
     avalon.ready(function () {
-        avalon.vmodels.groupDetail = null;
-        var vm = avalon.define({
-            $id: "groupDetail",
-            //通用变量
-            memberList: [],
-            previousPage: 0,
-            nextPage: 0,
-            page: 1,
-            totalPage: 1,
-            name: "",
-            description: "",
-            checkedSetting: "0",
 
-            getNext: function () {
-                if (!vm.nextPage)
-                    return;
-                getPageData(vm.page + 1);
-            },
-            getPrevious: function () {
-                if (!vm.previousPage)
-                    return;
-                getPageData(vm.page - 1);
-            },
-            getBtnClass: function (btn) {
-                if (btn == "next") {
-                    return vm.nextPage ? "btn btn-primary" : "btn btn-primary disabled";
-                }
-                else {
-                    return vm.previousPage ? "btn btn-primary" : "btn btn-primary disabled";
-                }
-            },
+        if (avalon.vmodels.groupDetail) {
+            var vm = avalon.vmodels.groupDetail;
+        }
+        else {
+            var vm = avalon.define({
+                $id: "groupDetail",
+                //通用变量
+                memberList: [],
+                previousPage: 0,
+                nextPage: 0,
+                page: 1,
+                totalPage: 1,
+                name: "",
+                description: "",
+                checkedSetting: "0",
 
-            removeMember: function (relation) {
-                $.ajax({
-                    beforeSend: csrfTokenHeader,
-                    url: "/api/admin/group_member/",
-                    method: "put",
-                    data: JSON.stringify({group_id: relation.group, members: [relation.user.id]}),
-                    contentType: "application/json",
-                    success: function (data) {
-                        vm.memberList.remove(relation);
-                        bsAlert(data.data);
+                getNext: function () {
+                    if (!vm.nextPage)
+                        return;
+                    getPageData(vm.page + 1);
+                },
+                getPrevious: function () {
+                    if (!vm.previousPage)
+                        return;
+                    getPageData(vm.page - 1);
+                },
+                getBtnClass: function (btn) {
+                    if (btn == "next") {
+                        return vm.nextPage ? "btn btn-primary" : "btn btn-primary disabled";
                     }
-                })
-            },
-            showGroupListPage: function () {
-                vm.$fire("up!showGroupListPage");
-            }
-        });
+                    else {
+                        return vm.previousPage ? "btn btn-primary" : "btn btn-primary disabled";
+                    }
+                },
+
+                removeMember: function (relation) {
+                    $.ajax({
+                        beforeSend: csrfTokenHeader,
+                        url: "/api/admin/group_member/",
+                        method: "put",
+                        data: JSON.stringify({group_id: relation.group, members: [relation.user.id]}),
+                        contentType: "application/json",
+                        success: function (data) {
+                            vm.memberList.remove(relation);
+                            bsAlert(data.data);
+                        }
+                    })
+                },
+                showGroupListPage: function () {
+                    vm.$fire("up!showGroupListPage");
+                }
+            });
+        }
 
         avalon.scan();
         getPageData(1);

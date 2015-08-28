@@ -234,15 +234,17 @@ require(["jquery", "avalon", "csrfToken", "bsAlert", "editor", "datetimePicker",
                     vm.groupList[vm.choseGroupList[groupIndex].index].chose = false;
                     vm.choseGroupList.remove(vm.choseGroupList[groupIndex]);
                 },
-            add_problem: function () {
+            addProblem: function () {
                 vm.$fire("up!showContestProblemPage", 0, vm.contestList[vm.editingProblemContestIndex-1].id, vm.editMode);
             },
-            showProblemEditor: function(el) {
+            showProblemEditPage: function(el) {
                 vm.$fire("up!showContestProblemPage", el.id, vm.contestList[vm.editingProblemContestIndex-1].id, vm.editMode);
             },
-            getYesOrNo: function(yORn) {
-                if (yORn) return "是";
-                return "否";
+            showSubmissionPage: function(el) {
+                var problemId = 0
+                if (el)
+                    problemId = el.id;
+                vm.$fire("up!showContestSubmissionPage", problemId, vm.contestList[vm.editingProblemContestIndex-1].id, vm.editMode);
             }
         });
         vm.$watch("showVisibleOnly", function() {

@@ -86,3 +86,4 @@ class ContestProblemMySubmissionListTest(TestCase):
                                                              created_by=self.user1,
                                                              contest=self.global_contest,
                                                              sort_index="a")
+
