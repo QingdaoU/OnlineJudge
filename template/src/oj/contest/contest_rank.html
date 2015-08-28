@@ -20,6 +20,7 @@
         </div>
         <div class="row">
             <div class="col-lg-12">
+                {% if result %}
                 <table class="table table-bordered">
                     <thead>
                     <tr>
@@ -49,6 +50,9 @@
                     {% endfor %}
                     </tbody>
                 </table>
+                {% else %}
+                    <p>还没有结果</p>
+                {% endif %}
             </div>
         </div>
     </div>
