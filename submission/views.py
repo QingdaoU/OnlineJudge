@@ -12,15 +12,14 @@ from judge.judger_controller.settings import redis_config
 from account.decorators import login_required
 from account.models import SUPER_ADMIN
 
-from contest.decorators import check_user_contest_permission
 
 from problem.models import Problem
-from contest.models import Contest, ContestProblem
+from contest.models import ContestProblem
 
 from utils.shortcuts import serializer_invalid_response, error_response, success_response, error_page, paginate
 from .models import Submission
 from .serializers import CreateSubmissionSerializer, SubmissionSerializer
-
+from announcement.models import Announcement
 
 class SubmissionAPIView(APIView):
     @login_required
@@ -80,8 +79,10 @@ def problem_my_submissions_list_page(request, problem_id):
         problem = Problem.objects.get(id=problem_id, visible=True)
     except Problem.DoesNotExist:
         return error_page(request, u"问题不存在")
+
     submissions = Submission.objects.filter(user_id=request.user.id, problem_id=problem.id, contest_id__isnull=True).order_by("-create_time"). \
         values("id", "result", "create_time", "accepted_answer_time", "language")
+
     return render(request, "oj/problem/my_submissions_list.html",
                   {"submissions": submissions, "problem": problem})
 
@@ -154,6 +155,10 @@ def my_submission_list_page(request, page=1):
     except Exception:
         pass
 
+    # 右侧的公告列表
+    announcements = Announcement.objects.filter(is_global=True, visible=True).order_by("-create_time")
+
     return render(request, "oj/submission/my_submissions_list.html",
                   {"submissions": current_page, "page": int(page),
-                   "previous_page": previous_page, "next_page": next_page, "start_id": int(page) * 20 - 20})
+                   "previous_page": previous_page, "next_page": next_page, "start_id": int(page) * 20 - 20,
+                   "announcements": announcements})

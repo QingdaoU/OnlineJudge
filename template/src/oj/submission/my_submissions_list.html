@@ -2,57 +2,62 @@
 
 {% block body %}
 
-    {% load submission %}
-    <div class="container main">
+{% load submission %}
+<div class="container main">
+    <div class="col-md-9 col-lg-9">
         {% if submissions %}
-            <table class="table table-bordered">
-                <thead>
-                <tr class="" success>
-                    <th>#</th>
-                    <th>提交时间</th>
-                    <th>结果</th>
-                    <th>运行时间</th>
-                    <th>语言</th>
-                </tr>
-                </thead>
-                <tbody>
-                {% for item in submissions %}
-                    <tr class="{{ item.result|translate_result_class }}">
-                        <th scope="row"><a href="/my_submission/{{ item.id }}/" id="id_{{ forloop.counter }}">
-                            {{ forloop.counter |add:start_id }}</a></th>
-                        <td>{{ item.create_time }}</td>
-                        <td>{{ item.result|translate_result }}</td>
-                        <td>
-                            {% if item.accepted_answer_time %}
-                                {{ item.accepted_answer_time }}ms
-                            {% else %}
-                                --
-                            {% endif %}
-                        </td>
-                        <td>
-                            {{ item.language|translate_language }}
-                        </td>
-                    </tr>
-                {% endfor %}
+        <table class="table table-bordered">
+            <thead>
+            <tr class="" success>
+                <th>#</th>
+                <th>提交时间</th>
+                <th>结果</th>
+                <th>运行时间</th>
+                <th>语言</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for item in submissions %}
+            <tr class="{{ item.result|translate_result_class }}">
+                <th scope="row"><a href="/my_submission/{{ item.id }}/" id="id_{{ forloop.counter }}">
+                    {{ forloop.counter |add:start_id }}</a></th>
+                <td>{{ item.create_time }}</td>
+                <td>{{ item.result|translate_result }}</td>
+                <td>
+                    {% if item.accepted_answer_time %}
+                    {{ item.accepted_answer_time }}ms
+                    {% else %}
+                    --
+                    {% endif %}
+                </td>
+                <td>
+                    {{ item.language|translate_language }}
+                </td>
+            </tr>
+            {% endfor %}
 
-                </tbody>
-            </table>
-        {% else %}
-            <p>你还没有提交记录!</p>
-        {% endif %}
+            </tbody>
+        </table>
         <nav>
             <ul class="pager">
                 {% if previous_page %}
-                    <li class="previous"><a
-                            href="/submissions/{{ previous_page }}/{% if keyword %}?keyword={{ keyword }}{% endif %}{% if tag %}?tag={{ tag }}{% endif %}">
-                        <span aria-hidden="true">&larr;</span> 上一页</a></li>
+                <li class="previous"><a
+                        href="/submissions/{{ previous_page }}/{% if keyword %}?keyword={{ keyword }}{% endif %}{% if tag %}?tag={{ tag }}{% endif %}">
+                    <span aria-hidden="true">&larr;</span> 上一页</a></li>
                 {% endif %}
                 {% if next_page %}
-                    <li class="next"><a
-                            href="/submissions/{{ next_page }}/{% if keyword %}?keyword={{ keyword }}{% endif %}{% if tag %}?tag={{ tag }}{% endif %}">下一页 <span
-                            aria-hidden="true">&rarr;</span></a></li>
+                <li class="next"><a
+                        href="/submissions/{{ next_page }}/{% if keyword %}?keyword={{ keyword }}{% endif %}{% if tag %}?tag={{ tag }}{% endif %}">下一页 <span
+                        aria-hidden="true">&rarr;</span></a></li>
                 {% endif %}
             </ul>
         </nav>
+        {% else %}
+        <p>你还没有提交记录!</p>
+        {% endif %}
     </div>
+    <div class="col-md-3 col-lg-3">
+        {% include "oj/announcement/_announcement_panel.html" %}
+    </div>
+</div>
 {% endblock %}
