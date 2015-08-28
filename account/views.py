@@ -36,7 +36,7 @@ class UserLoginAPIView(APIView):
             return serializer_invalid_response(serializer)
 
 
-def Logout(request):
+def logout(request):
     auth.logout(request)
     return http.HttpResponseRedirect("/")
 
