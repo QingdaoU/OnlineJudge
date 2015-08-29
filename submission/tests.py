@@ -29,6 +29,16 @@ class SubmissionsListPageTest(TestCase):
         response = self.client.get('/submissions/1/')
         self.assertEqual(response.status_code, 200)
 
+    def test_visit_submissionsListPage_successfully_language_filter(self):
+        self.client.login(username="gogoing", password="666666")
+        response = self.client.get('/submissions/?language=1')
+        self.assertEqual(response.status_code, 200)
+
+    def test_visit_submissionsListPage_successfully_result_filter(self):
+        self.client.login(username="gogoing", password="666666")
+        response = self.client.get('/submissions/?result=1')
+        self.assertEqual(response.status_code, 200)
+
     def test_visit_submissionsListPage_without_page_successfully(self):
         self.client.login(username="gogoing", password="666666")
         response = self.client.get('/submissions/')
@@ -137,10 +147,3 @@ class ContestSubmissionAPITest(APITestCase):
         data = {"language": 1}
         response = self.client.post(self.url, data=data)
         pass
-
-
-
-
-
-
-
