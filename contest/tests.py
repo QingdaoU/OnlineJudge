@@ -568,6 +568,13 @@ class ContestListPageTest(TestCase):
         response = self.client.get('/contests/2/')
         self.assertTemplateUsed(response, "utils/error.html")
 
+    def test_query_by_keyword(self):
+        response = self.client.get(self.url + "?keyword=title1")
+        self.assertEqual(response.status_code, 200)
+
+    def test_query_by_join_successfully(self):
+        response = self.client.get(self.url + "?join=True")
+        self.assertEqual(response.status_code, 200)
 
 
 

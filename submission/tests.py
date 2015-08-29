@@ -150,12 +150,12 @@ class SubmissionAdminAPITest(APITestCase):
                                               memory_limit=1000,
                                               difficulty=1,
                                               hint="hint1",
-                                              created_by=User.objects.get(username="test1"))
+                                              created_by=self.user)
         self.global_contest = Contest.objects.create(title="titlex", description="descriptionx", mode=1,
                                                      contest_type=2, show_rank=True, show_user_submission=True,
                                                      start_time="2015-08-15T10:00:00.000Z",
                                                      end_time="2015-08-15T12:00:00.000Z",
-                                                     password="aacc", created_by=User.objects.get(username="test1"))
+                                                     password="aacc", created_by=self.user)
 
         self.submission = Submission.objects.create(user_id=self.user.id,
                                                     language=1,
@@ -165,11 +165,6 @@ class SubmissionAdminAPITest(APITestCase):
     def test_invalid_format(self):
         response = self.client.get(self.url)
         self.assertEqual(response.data, {"code": 1, "data": u"参数错误"})
-
-    def test_submission_successfully(self):
-        data = {"problem_id": self.problem.id}
-        response = self.client.get(self.url, data=data)
-        self.assertEqual(response.data["code"], 0)
 
 
 class SubmissionPageTest(TestCase):

@@ -87,6 +87,11 @@ class ContestProblemMySubmissionListTest(TestCase):
                                                              contest=self.global_contest,
                                                              sort_index="a")
 
+    def test_contestsList_page_not_exist(self):
+        self.client.login(username="test1", password="testaa")
+        response = self.client.get('/contest/1/submissions/999/')
+        self.assertTemplateUsed(response, "utils/error.html")
+
 
 class SubmissionAPITest(APITestCase):
     def setUp(self):

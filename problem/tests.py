@@ -187,5 +187,19 @@ class ProblemListPageTest(TestCase):
                                               hint="hint1",
                                               created_by=User.objects.get(username="test"))
 
+    def test_problemListPage_not_exist(self):
+        response = self.client.get('/problems/999/')
+        self.assertTemplateUsed(response, "utils/error.html")
 
+    def test_query_by_keyword(self):
+        response = self.client.get(self.url + "?keyword=title1")
+        self.assertEqual(response.status_code, 200)
+
+    def test_query_by_tag_successfully(self):
+        response = self.client.get(self.url + "?tag=")
+        self.assertEqual(response.status_code, 200)
+
+    def test_tag_does_not_exists(self):
+        response = self.client.get(self.url + "?tag=xxxxxx")
+        self.assertTemplateUsed(response, "utils/error.html")
 

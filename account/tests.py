@@ -379,7 +379,7 @@ class UserLogoutTest(TestCase):
         user.set_password("1")
         user.save()
 
-    def logout_success(self):
+    def test_logout_success(self):
         self.client = Client()
         self.client.login(username="test", password="1")
         response = self.client.get("/logout/")
