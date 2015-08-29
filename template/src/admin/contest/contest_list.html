@@ -173,7 +173,7 @@
                 <td>{{ el.sort_index }}</td>
                 <td>{{ el.title }}</td>
                 <td ms-visible="editMode=='2'">{{ el.score}}</td>
-                <td>{{ getYesOrNo(el.visible) }}</td>
+                <td ms-text="el.visible?'可见':'不可见'"></td>
                 <td>{{ el.create_time|date("yyyy-MM-dd HH:mm:ss") }}</td>
                 <td>
                     <a href="javascript:void(0)" class="btn-sm btn-info"

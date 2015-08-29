@@ -100,6 +100,9 @@ urlpatterns = [
     url(r'^submissions/$', "submission.views.my_submission_list_page", name="my_submission_list_page"),
     url(r'^submissions/(?P<page>\d+)/$', "submission.views.my_submission_list_page", name="my_submission_list_page"),
 
-    url(r'^contest/(?P<contest_id>\d+)/rank/$', "contest.views.contest_rank_page", name="contest_rank_page")
+    url(r'^contest/(?P<contest_id>\d+)/rank/$', "contest.views.contest_rank_page", name="contest_rank_page"),
+
+    url(r'^groups/$', "group.views.group_list_page", name="group_list_page"),
+    url(r'^groups/(?P<page>\d+)/$', "group.views.group_list_page", name="group_list_page")
 
 ]
