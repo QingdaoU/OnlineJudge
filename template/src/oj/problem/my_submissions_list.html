@@ -11,6 +11,7 @@
                 <a href="/problem/{{ problem.id }}/submissions/">我的提交</a></li>
         </ul>
         {% include "oj/problem/_problem_header.html" %}
+        {% if submissions %}
         <table class="table table-bordered">
             <thead>
             <tr class="" success>
@@ -42,5 +43,8 @@
 
             </tbody>
         </table>
+        {% else %}
+            <p>你还没有提交该题目</p>
+        {% endif %}
     </div>
 {% endblock %}
