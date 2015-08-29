@@ -18,21 +18,27 @@
                     <table class="table table-striped">
                         <thead>
                         <tr>
-                            <th></th>
                             <th>#</th>
-                            <th>题目</th>
-                            <th><a href="/problems/?order_by=difficulty">难度</a></th>
-                            <th><a href="/problems/?order_by=acceptance">通过率</a></th>
+                            <th>名称</th>
+                            <th>加入方式</th>
+                            <th>创建者</th>
+                            <th>创建时间</th>
                         </tr>
                         </thead>
                         <tbody>
-                        {% for item in problems %}
+                        {% for item in groups %}
                             <tr>
-                                <th><span class="glyphicon glyphicon-ok ac-flag"></span></th>
-                                <th scope="row"><a href="/problem/{{ item.id }}/" target="_blank">{{ item.id }}</a></th>
-                                <td><a href="/problem/{{ item.id }}/" target="_blank">{{ item.title }}</a></td>
-                                <td>{{ item.difficulty }}</td>
-                                <td>{{ item|accepted_radio }}</td>
+                                <th scope="row"><a href="/group/{{ item.id }}/" target="_blank">{{ item.id }}</a></th>
+                                <td><a href="/group/{{ item.id }}/" target="_blank">{{ item.name }}</a></td>
+                                <td>
+                                    {% if item.join_group_setting %}
+                                        需要申请
+                                    {% else %}
+                                        无需申请
+                                    {% endif %}
+                                </td>
+                                <td>{{ item.admin }}</td>
+                                <td>{{ item.create_time }}</td>
                             </tr>
                         {% endfor %}
                         </tbody>
@@ -41,13 +47,16 @@
                         <ul class="pager">
                             {% if previous_page %}
                                 <li class="previous"><a
-                                        href="/problems/{{ previous_page }}/{% if keyword %}?keyword={{ keyword }}{% endif %}{% if tag %}?tag={{ tag }}{% endif %}">
-                                    <span aria-hidden="true">&larr;</span> 上一页</a></li>
+                                        href="/groups/{{ previous_page }}/{% if keyword %}?keyword={{ keyword }}{% endif %}">
+                                    <span aria-hidden="true">&larr;</span> 上一页</a>
+                                </li>
                             {% endif %}
                             {% if next_page %}
-                                <li class="next"><a
-                                        href="/problems/{{ next_page }}/{% if keyword %}?keyword={{ keyword }}{% endif %}{% if tag %}?tag={{ tag }}{% endif %}">下一页 <span
-                                        aria-hidden="true">&rarr;</span></a></li>
+                                <li class="next">
+                                    <a href="/groups/{{ next_page }}/{% if keyword %}?keyword={{ keyword }}{% endif %}">
+                                        下一页 <span aria-hidden="true">&rarr;</span>
+                                    </a>
+                                </li>
                             {% endif %}
                         </ul>
                     </nav>
@@ -56,28 +65,7 @@
 
             <div class="col-md-3 col-lg-3">
                 {% include "oj/announcement/_announcement_panel.html" %}
-                <div class="panel panel-info">
-                    <div class="panel-heading">
-                        <h3 class="panel-title">
-                            <span class="glyphicon glyphicon-tag" aria-hidden="true"></span>
-                            分类
-                        </h3>
-                    </div>
-                    <ul class="list-group">
-                        {% for item in tags %}
-                        <li class="list-group-item problem-tag" onclick="location.href='/problems/?tag={{ item.name }}'">
-                            <span class="badge">{{ item.problem_number }}</span>
-                            {{ item.name }}
-                        </li>
-                        {% endfor %}
-                    </ul>
-                </div>
-
             </div>
         </div>
     </div>
-{% endblock %}
-
-{% block js_block %}
-    <script src="/static/js/app/oj/problem/problem_list.js"></script>
 {% endblock %}
