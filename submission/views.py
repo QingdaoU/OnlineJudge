@@ -138,7 +138,7 @@ def my_submission_list_page(request, page=1):
     """
     我的所有提交的列表页
     """
-    submissions = Submission.objects.filter(user_id=request.user.id). \
+    submissions = Submission.objects.filter(user_id=request.user.id, contest_id__isnull=True). \
         values("id", "result", "create_time", "accepted_answer_time", "language").order_by("-create_time")
     language = request.GET.get("language", None)
     filter = None
