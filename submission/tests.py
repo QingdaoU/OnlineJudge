@@ -29,6 +29,16 @@ class SubmissionsListPageTest(TestCase):
         response = self.client.get('/submissions/1/')
         self.assertEqual(response.status_code, 200)
 
+    def test_visit_submissionsListPage_successfully_language_filter(self):
+        self.client.login(username="gogoing", password="666666")
+        response = self.client.get('/submissions/?language=1')
+        self.assertEqual(response.status_code, 200)
+
+    def test_visit_submissionsListPage_successfully_result_filter(self):
+        self.client.login(username="gogoing", password="666666")
+        response = self.client.get('/submissions/?result=1')
+        self.assertEqual(response.status_code, 200)
+
     def test_visit_submissionsListPage_without_page_successfully(self):
         self.client.login(username="gogoing", password="666666")
         response = self.client.get('/submissions/')
@@ -156,7 +166,7 @@ class SubmissionAdminAPITest(APITestCase):
         response = self.client.get(self.url)
         self.assertEqual(response.data, {"code": 1, "data": u"参数错误"})
 
-    def test_problem_does_not_exist(self):
+    def test_submission_successfully(self):
         data = {"problem_id": self.problem.id}
         response = self.client.get(self.url, data=data)
         self.assertEqual(response.data["code"], 0)
@@ -195,5 +205,3 @@ class SubmissionPageTest(TestCase):
                                                     language=1,
                                                     code='#include "stdio.h"\nint main(){\n\treturn 0;\n}',
                                                     problem_id=self.problem.id)
-
-
