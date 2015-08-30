@@ -133,9 +133,15 @@ define("admin", ["jquery", "avalon"], function ($, avalon) {
             vm.template_url = "template/contest/edit_problem.html";
         });
 
-        vm.$watch("showContestListPage", function (problemId) {
-            vm.problemId = problemId;
+        vm.$watch("showContestListPage", function () {
             vm.template_url = "template/contest/contest_list.html";
+        });
+
+        vm.$watch("showContestSubmissionPage", function (problemId, contestId, contestMode) {
+            vm.$problemId = problemId;
+            vm.$contestId = contestId;
+            vm.$contestMode = contestMode
+            vm.template_url = "template/contest/submission_list.html";
         });
 
         avalon.scan();

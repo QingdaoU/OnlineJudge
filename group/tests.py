@@ -8,6 +8,8 @@ from rest_framework.test import APITestCase, APIClient
 from account.models import User, REGULAR_USER, ADMIN, SUPER_ADMIN
 from group.models import Group, UserGroupRelation, JoinGroupRequest
 
+from django.test import TestCase, Client
+
 
 class GroupAPITest(APITestCase):
     pass
@@ -253,4 +255,29 @@ class JoinGroupRequestAdminAPITest(APITestCase):
         data = {"request_id": request.id, "status": True}
         response = self.client.put(self.url, data=data)
         self.assertEqual(response.data, {"code": 1, "data": u"加入失败，已经在本小组内"})
+
+
+class ProblemListPageTest(TestCase):
+    def setUp(self):
+        self.client = Client()
+        self.url = reverse('group_list_page')
+        self.url = reverse('problem_list_page', kwargs={"page": 1})
+        self.user = User.objects.create(username="test", admin_type=SUPER_ADMIN)
+        self.user.set_password("testaa")
+        self.user.save()
+        self.group = Group.objects.create(name="group1",
+                                            description="description1",
+                                            # 0是公开 1是需要申请后加入 2是不允许任何人加入
+                                            join_group_setting = 1,
+                                            admin=User.objects.get(username="test"))
+
+    def get_group_list_page_successful(self):
+        self.client.login(username="test", password="testaa")
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_coed, 200)
+
+    def get_group_list_page_successful_with_keyword(self):
+        self.client.login(username="test", password="testaa")
+        response = self.client.get(self.url+"?keyword=gro")
+        self.assertEqual(response.status_coed, 200)
 

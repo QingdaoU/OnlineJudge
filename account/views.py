@@ -1,4 +1,5 @@
 # coding=utf-8
+from django import http
 from django.contrib import auth
 from django.shortcuts import render
 from django.db.models import Q
@@ -34,6 +35,10 @@ class UserLoginAPIView(APIView):
         else:
             return serializer_invalid_response(serializer)
 
+
+def logout(request):
+    auth.logout(request)
+    return http.HttpResponseRedirect("/")
 
 class UserRegisterAPIView(APIView):
     def post(self, request):

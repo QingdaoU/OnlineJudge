@@ -45,31 +45,32 @@
                 <li><a href="/problems/">题目</a></li>
                 <li><a href="/submissions/">提交</a></li>
                 <li><a href="/contests/">比赛</a></li>
+                <li><a href="/groups/">小组</a></li>
                 <li><a href="/about/">关于</a></li>
             </ul>
             {% if request.user.is_authenticated %}
-                <ul class="nav navbar-nav navbar-right">
-                    <li class="dropdown">
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
-                           aria-expanded="false">
-                            李扬
-                            <span class="caret"></span></a>
-                        <ul class="dropdown-menu">
-                            <li><a href="#">我的提交</a></li>
-                            <li><a href="#">我的资料</a></li>
-                            <li role="separator" class="divider"></li>
-                            <li><a href="#">退出</a></li>
-                        </ul>
-                    </li>
-                </ul>
+            <ul class="nav navbar-nav navbar-right">
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
+                       aria-expanded="false">
+                        {{ request.user.username }}
+                        <span class="caret"></span></a>
+                    <ul class="dropdown-menu">
+                        <li><a href="/submission/">我的提交</a></li>
+                        <li><a href="#">我的资料</a></li>
+                        <li role="separator" class="divider"></li>
+                        <li><a href="/logout/">退出</a></li>
+                    </ul>
+                </li>
+            </ul>
             {% else %}
-                <ul class="nav navbar-nav navbar-right">
-                    <li class="dropdown">
-                        <a href="/login/" class="dropdown-toggle">
-                            登录
-                        </a>
-                    </li>
-                </ul>
+            <ul class="nav navbar-nav navbar-right">
+                <li>
+                    <a href="/login/">
+                        登录
+                    </a>
+                </li>
+            </ul>
             {% endif %}
         </div>
     </div>
@@ -84,6 +85,10 @@
 <script src="/static/js/require.js"></script>
 <script>
     require(["bootstrap"]);
+
+
+
+
 </script>
 {% block js_block %}{% endblock %}
 <!-- footer begin -->

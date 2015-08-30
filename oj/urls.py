@@ -1,11 +1,11 @@
 # coding=utf-8
 from django.conf.urls import include, url
-from django.contrib import admin
 from django.views.generic import TemplateView
 
 from account.views import (UserLoginAPIView, UsernameCheckAPIView, UserRegisterAPIView,
                            UserChangePasswordAPIView, EmailCheckAPIView,
                            UserAdminAPIView, UserInfoAPIView)
+
 from announcement.views import AnnouncementAdminAPIView
 
 from contest.views import ContestAdminAPIView, ContestProblemAdminAPIView, ContestPasswordVerifyAPIView
@@ -17,7 +17,7 @@ from admin.views import AdminTemplateView
 
 from problem.views import TestCaseUploadAPIView, ProblemTagAdminAPIView, ProblemAdminAPIView
 from submission.views import SubmissionAPIView, SubmissionAdminAPIView
-from contest_submission.views import ContestSubmissionAPIView
+from contest_submission.views import ContestSubmissionAPIView, ContestSubmissionAdminAPIView
 from monitor.views import QueueLengthMonitorAPIView
 
 from contest_submission.views import contest_problem_my_submissions_list_page
@@ -34,6 +34,7 @@ urlpatterns = [
         name="admin_template"),
 
     url(r'^login/$', TemplateView.as_view(template_name="oj/account/login.html"), name="user_login_page"),
+    url(r'^logout/$', "account.views.logout", name="user_logout_api"),
     url(r'^register/$', TemplateView.as_view(template_name="oj/account/register.html"),
         name="user_register_page"),
     url(r'^change_password/$', TemplateView.as_view(template_name="oj/account/change_password.html"),
@@ -65,7 +66,7 @@ urlpatterns = [
         name="join_group_request_admin_api"),
     url(r'^api/admin/submission/$', SubmissionAdminAPIView.as_view(), name="submission_admin_api_view"),
     url(r'^api/admin/monitor/$', QueueLengthMonitorAPIView.as_view(), name="queue_length_monitor_api"),
-
+    url(r'^api/admin/contest_submission/$', ContestSubmissionAdminAPIView.as_view(), name="contest_submission_admin_api_view"),
 
 
     url(r'^contest/(?P<contest_id>\d+)/problem/(?P<contest_problem_id>\d+)/$', "contest.views.contest_problem_page",
@@ -99,6 +100,9 @@ urlpatterns = [
     url(r'^submissions/$', "submission.views.my_submission_list_page", name="my_submission_list_page"),
     url(r'^submissions/(?P<page>\d+)/$', "submission.views.my_submission_list_page", name="my_submission_list_page"),
 
-    url(r'^contest/(?P<contest_id>\d+)/rank/$', "contest.views.contest_rank_page", name="contest_rank_page")
+    url(r'^contest/(?P<contest_id>\d+)/rank/$', "contest.views.contest_rank_page", name="contest_rank_page"),
+
+    url(r'^groups/$', "group.views.group_list_page", name="group_list_page"),
+    url(r'^groups/(?P<page>\d+)/$', "group.views.group_list_page", name="group_list_page")
 
 ]
