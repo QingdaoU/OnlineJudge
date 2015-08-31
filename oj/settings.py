@@ -165,3 +165,5 @@ LOGGING = {
 REST_FRAMEWORK = {
     'TEST_REQUEST_DEFAULT_FORMAT': 'json'
 }
+
+DATABASE_ROUTERS = ['oj.db_router.DBRouter']

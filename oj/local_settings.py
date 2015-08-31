@@ -18,7 +18,7 @@ DATABASES = {
         'NAME': 'oj_submission',
         'ENGINE': 'django.db.backends.mysql',
         'HOST': "121.42.32.129",
-        'POST': 3306,
+        'PORT': 3306,
         'USER': 'root',
         'PASSWORD': 'mypwd',
         'CONN_MAX_AGE': 0.1,
@@ -30,7 +30,7 @@ DEBUG = True
 # 同理 这是 web 服务器的上传路径
 TEST_CASE_DIR = os.path.join(BASE_DIR, 'test_case/')
 
-DATABASE_ROUTERS = ['oj.db_router.DBRouter']
+ALLOWED_HOSTS = []
 
 
 ALLOWED_HOSTS = []

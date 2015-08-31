@@ -5,31 +5,33 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
 # 下面是需要自己修改的
-LOG_PATH = "log/"
+LOG_PATH = "/var/log/oj/"
 
 # 注意这是web 服务器访问的地址，判题端访问的地址不一定一样，因为可能不在一台机器上
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': "oj",
+        'CONN_MAX_AGE': 0.1,
+        'HOST': '127.0.0.1',
+        'PORT': 3306,
+        'USER': 'root',
+        'PASSWORD': 'mypwd'
     },
-    # submission 的 name 和 engine 请勿修改，其他代码会用到
     'submission': {
         'NAME': 'oj_submission',
         'ENGINE': 'django.db.backends.mysql',
-        'HOST': "121.42.32.129",
-        'POST': 3306,
-        'USER': 'root',
-        'PASSWORD': 'mypwd',
         'CONN_MAX_AGE': 0.1,
+        'HOST': "127.0.0.1",
+        'PORT': 3306,
+        'USER': 'root',
+        'PASSWORD': 'mypwd'
     }
 }
 
-DEBUG = False
+DEBUG = True
 
 # 同理 这是 web 服务器的上传路径
-TEST_CASE_DIR = os.path.join(BASE_DIR, 'test_case/')
-
-DATABASE_ROUTERS = ['oj.db_router.DBRouter']
+TEST_CASE_DIR = '/root/test_case/'
 
 ALLOWED_HOSTS = ['*']
