@@ -9,7 +9,7 @@ redis_config = {
 
 # 判题的 docker 容器的配置参数
 docker_config = {
-    "image_name": " judger",
+    "image_name": "a7673b55d263",
     "docker_path": "docker",
     "shell": True
 }
