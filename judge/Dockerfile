@@ -7,7 +7,7 @@ RUN apt-get update
 RUN apt-get -y install software-properties-common python-software-properties
 RUN add-apt-repository -y ppa:webupd8team/java
 RUN apt-get update
-RUN apt-get -y install python gcc g++ rake pkg-config git make autoconf automake libtool python-pip
+RUN apt-get -y install python gcc g++ rake pkg-config git make autoconf automake libtool python-pip python2.7-mysqldb
 RUN echo debconf shared/accepted-oracle-license-v1-1 select true | sudo debconf-set-selections
 RUN echo debconf shared/accepted-oracle-license-v1-1 seen true | sudo debconf-set-selections
 RUN apt-get install -y oracle-java7-installer

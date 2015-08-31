@@ -9,7 +9,7 @@ redis_config = {
 
 # 判题的 docker 容器的配置参数
 docker_config = {
-    "image_name": "5453975e94c4",
+    "image_name": "3da0e526934e",
     "docker_path": "docker",
     "shell": True
 }
