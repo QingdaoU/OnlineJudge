@@ -150,7 +150,7 @@ class JoinGroupAPITest(APITestCase):
 
     def setUp(self):
         self.client = APIClient()
-        self.url = reverse('group_join_admin_api')
+        self.url = reverse('group_join_api')
         self.user = User.objects.create(username="test", admin_type=SUPER_ADMIN)
         self.user.set_password("testaa")
         self.user.save()
@@ -257,7 +257,7 @@ class JoinGroupRequestAdminAPITest(APITestCase):
         self.assertEqual(response.data, {"code": 1, "data": u"加入失败，已经在本小组内"})
 
 
-class ProblemListPageTest(TestCase):
+class GroupListPageTest(TestCase):
     def setUp(self):
         self.client = Client()
         self.url = reverse('group_list_page')
