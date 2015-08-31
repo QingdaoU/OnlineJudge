@@ -8,71 +8,65 @@
     <link rel="stylesheet" type="text/css" href="/static/css/fullpage/jquery.fullPage.css">
     <style>
         html, textarea, input, option, select, button {
-        font: 1em "Helvetica Neue", Helvetica, "Lantinghei SC", "Hiragino Sans GB", "Microsoft YaHei", "微软雅黑",
-        "STHeiti", "WenQuanYi Micro Hei", SimSun, sans-serif;
-        color: #FFF;
+            font: 1em "Helvetica Neue", Helvetica, "Lantinghei SC", "Hiragino Sans GB", "Microsoft YaHei", "微软雅黑",
+            "STHeiti", "WenQuanYi Micro Hei", SimSun, sans-serif;
+            color: #FFF;
         }
 
         a {
-        text-decoration: none;
-        color: #FFF;
+            text-decoration: none;
+            color: #FFF;
         }
 
         #header {
-        position: fixed;
-        height: 30px;
-        display: block;
-        width: 100%;
-        background: transparent;
-        z-index: 10;
-        padding: 20px 20px 0 20px;
+            position: fixed;
+            height: 30px;
+            display: block;
+            width: 100%;
+            background: transparent;
+            z-index: 10;
+            padding: 20px 20px 0 20px;
         }
 
         #name {
-        font-size: 45px;
-        margin-right: 20px;
+            font-size: 45px;
+            margin-right: 20px;
         }
 
-        #nav-left{
-        display: inline;
-        position:relative;
-        float: right;
-        margin-right: 28px;
-        }
         .section {
-        position: relative;
+            position: relative;
         }
 
         .section h1 {
-        font-size: 60px;
+            font-size: 60px;
         }
 
         .section h3 {
-        font-size: 30px;
-        font-weight: normal;
+            font-size: 30px;
+            font-weight: normal;
         }
 
         .bottom-pointer {
-        top: auto;
-        bottom: 20px;
-        position: absolute;
-        left: 48%;
+            top: auto;
+            bottom: 20px;
+            position: absolute;
+            left: 48%;
         }
 
         .index-section-text {
-        position: absolute;
-        top: 30%;
-        width: 100%;
-        text-align: center;
+            position: absolute;
+            top: 30%;
+            width: 100%;
+            text-align: center;
         }
 
         .section-text {
-        text-align: center;
+            text-align: center;
         }
 
         .icon {
-        max-height: 300px;
-        max-width: 300px;
+            max-height: 300px;
+            max-width: 300px;
         }
 
     </style>
@@ -103,20 +97,7 @@
     <a href="/submissions/">提交</a>&nbsp;&nbsp;
     <a href="/contests/">比赛</a>&nbsp;&nbsp;
     <a href="/groups/">小组</a>&nbsp;&nbsp;
-    <a href="/about/">关于</a>&nbsp;&nbsp;
-    <div id="nav-left">
-        {% if request.user.is_authenticated %}
-        <a href="#">{{ request.user.username }}</a>
-        <a href="/logout/">退出</a>
-        {% else %}
-        <a href="/login/">
-            登录
-        </a>
-        <a href="/register/">
-            注册
-        </a>
-        {% endif %}
-    </div>
+    <a href="/about/">关于</a>
 
 
 </div>
@@ -124,9 +105,9 @@
 <div id="fullpage">
     <div class="section" id="section0">
         <div class="index-section-text animated bounceInUp">
-            <h1>青岛大学在线评测平台</h1>
+            <h1>青岛大学 Online Judge</h1>
 
-            <h3>全新面貌，新的开始~</h3>
+            <h3>新的面貌，新的开始~</h3>
         </div>
         <div class="bottom-pointer">↓继续滚动~</div>
     </div>
@@ -156,7 +137,7 @@
         <div class="section-text">
             <img class="icon" id="img3" src="/static/img/index/m.png">
 
-            <h1>自由举办小组赛</h1>
+            <h1>自由举办小组赛(10月上线)</h1>
 
             <h3>内部比赛，日常作业，期末考试，通通搞定</h3>
         </div>
