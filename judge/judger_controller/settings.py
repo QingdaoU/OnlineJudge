@@ -9,14 +9,14 @@ redis_config = {
 
 # 判题的 docker 容器的配置参数
 docker_config = {
-    "image_name": "a7673b55d263",
+    "image_name": "5453975e94c4",
     "docker_path": "docker",
     "shell": True
 }
 
 
 # 测试用例的路径，是主机上的实际路径
-test_case_dir = "/var/mnt/source//test_case/"
+test_case_dir = "/var/mnt/source/test_case/"
 # 源代码路径，也就是 manage.py 所在的实际路径
 source_code_dir = "/var/mnt/source/OnlineJudge/"
 
