@@ -105,5 +105,6 @@ urlpatterns = [
     url(r'^groups/$', "group.views.group_list_page", name="group_list_page"),
     url(r'^groups/(?P<page>\d+)/$', "group.views.group_list_page", name="group_list_page"),
     url(r'^group/(?P<group_id>\d+)/$', "group.views.group_page", name="group_page"),
-
+    url(r'^group/(?P<group_id>\d+)/applications/$', "group.views.application_list_page", name="group_application_page"),
+    url(r'^group/application/(?P<request_id>\d+)/$', "group.views.application_page", name="group_application")
 ]
