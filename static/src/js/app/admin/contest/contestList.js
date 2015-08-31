@@ -149,16 +149,8 @@ require(["jquery", "avalon", "csrfToken", "bsAlert", "editor", "datetimePicker",
                     vm.editingContestId = contestId;
                     vm.editTitle     = vm.contestList[contestId-1].title;
                     vm.editPassword  = vm.contestList[contestId-1].password;
-                    //var startTime = new Date(), endTime = new Date();
-                    //startTime.setFullYear(parseInt(vm.contestList[contestId-1].start_time.substring(0,4)))
-                    //startTime.setMonth(parseInt(vm.contestList[contestId-1].start_time.substring(5,7)))
-                    //startTime.setDate(parseInt(vm.contestList[contestId-1].start_time.substring(8,10)))
-                    //startTime.setHours(parseInt(vm.contestList[contestId-1].start_time.substring(11,13)))
-                    //startTime.setMinutes(parseInt(vm.contestList[contestId-1].start_time.substring(14,16)))
-                    //startTime = new Date(startTime + 8 * 60 * 60 * 1000)
-
-                    vm.editStartTime = add8Hours(vm.contestList[contestId-1].start_time);
-                    vm.editEndTime   = add8Hours(vm.contestList[contestId-1].end_time);//.substring(0,16).replace("T"," ");
+                    vm.editStartTime = vm.contestList[contestId-1].start_time.substring(0,16).replace("T"," ");
+                    vm.editEndTime   = vm.contestList[contestId-1].end_time.substring(0,16).replace("T"," ");
                     vm.editMode      = vm.contestList[contestId-1].mode;
                     vm.editVisible      = vm.contestList[contestId-1].visible;
                     if (vm.contestList[contestId-1].contest_type == 0) { //contest type == 0, contest in group
@@ -300,39 +292,6 @@ require(["jquery", "avalon", "csrfToken", "bsAlert", "editor", "datetimePicker",
             });
         }
 
-        function add8Hours(UtcString) {
-            console.log(UtcString);
-            var M = [31, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
-            /*time.setFullYear(parseInt(UtcString.substring(0,4)))
-            time.setMonth(parseInt(UtcString.substring(5,7)))
-            time.setDate(parseInt(UtcString.substring(8,10)))
-            time.setHours(parseInt(UtcString.substring(11,13)))
-            time.setMinutes(parseInt(UtcString.substring(14,16)))
-            time = new Date(time + 8 * 60 * 60 * 1000)*/
-            var year   =UtcString.substring(0,4);
-            var month  =UtcString.substring(5,7);
-            var day    =UtcString.substring(8,10);
-            var hour   =parseInt(UtcString.substring(11,13)) + 8;
-            var minute = UtcString.substring(14,16);
-            if (hour > 23) {
-                hour -= 24; day = parseInt(day)+1; month = parseInt(month);
-                if (month == 2) if (!(year%400)||(!(year%4)&&year%100)) M[2] = 29;
-                if (day > M[month]) {
-                    day = 1;
-                    month = parseInt(month)+1;
-                    if (month > 12) {
-                        year=parseInt(year)+1; month = 1;
-                    }
-                }
-                month = month.toString();
-                day = day.toString();
-                if (month.length==1) month = "0"+month;
-                if (day.length==1)   day   = "0"+day;
-            }
-            hour = hour.toString();
-            if (hour.length==1)      hour="0"+hour;
-            return year+"-"+month+"-"+day+" "+hour+":"+minute;
-        }
         // Get group list
         $.ajax({  // Get current user type
             url: "/api/user/",

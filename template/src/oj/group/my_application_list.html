@@ -1,0 +1,44 @@
+{% extends 'oj_base.html' %}
+
+{% block body %}
+
+<div class="container main">
+    <ul class="nav nav-tabs nav-tabs-google">
+        <li role="presentation">
+            <a href="/group/{{ group.id }}/">详细信息</a></li>
+        <li role="presentation" class="active">
+            <a href="/group/{{ group.id }}/applications/">我的申请</a></li>
+    </ul>
+    {% if applications %}
+    <table class="table table-bordered">
+        <thead>
+        <tr>
+            <th>#</th>
+            <th>提交时间</th>
+            <th>结果</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for item in applications %}
+        <tr>
+            <th scope="row"><a href="/group/application/{{ item.id }}/">{{ forloop.counter }}</a></th>
+            <td>{{ item.create_time }}</td>
+            {% if item.status %}
+                {% if item.accepted %}
+                    <td class="alert-success">通过</td>
+                {% else %}
+                    <td class="alert-danger">拒绝</td>
+                {% endif %}
+            {% else %}
+                <td class="alert-warning">未处理</td>
+            {% endif %}
+        </tr>
+        {% endfor %}
+
+        </tbody>
+    </table>
+    {% else %}
+    <p>你还没有申请该小组</p>
+    {% endif %}
+</div>
+{% endblock %}
