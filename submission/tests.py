@@ -18,7 +18,6 @@ class SubmissionsListPageTest(TestCase):
         self.user.set_password("666666")
         self.user.save()
         self.user2.save()
-        # self.client.login(username="gogoing", password="666666")
         self.submission = Submission.objects.create(user_id=self.user.id,
                                                     language=1,
                                                     code='#include "stdio.h"\nint main(){\n\treturn 0;\n}',

@@ -4,37 +4,43 @@
 {% load submission %}
 <div class="container main">
     <div class="col-md-9 col-lg-9">
-        <table class="table table-bordered">
+        <table class="table table-striped">
             <thead>
             <tr>
                 <th>#</th>
                 <th>提交时间</th>
-                <th><div class="dropdown">
-                    <a href="#" class="dropdown-toggle" id="resultFilter" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                        结果<span class="caret"></span>
-                    </a>
-                    <ul class="dropdown-menu" aria-labelledby="resultFilter">
-                        <li><a href="/submissions/?result=0">Accepted</a></li>
-                        <li><a href="/submissions/?result=6">Wrong Answer</a></li>
-                        <li><a href="/submissions/?result=1">Runtime Error</a></li>
-                        <li><a href="/submissions/?result=2">Time Limit Exceeded</a></li>
-                        <li><a href="/submissions/?result=3">Memory Limit Exceeded</a></li>
-                        <li><a href="/submissions/?result=4">Compile Error</a></li>
-                        <li><a href="/submissions/?result=5">Format Error</a></li>
-                        <li><a href="/submissions/">取消筛选</a></li>
-                    </ul></div>
+                <th>
+                    <div class="dropdown">
+                        <a href="#" class="dropdown-toggle" id="languageFilter" data-toggle="dropdown"
+                           aria-haspopup="true" aria-expanded="true">
+                            语言<span class="caret"></span>
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="languageFilter">
+                            <li><a href="/submissions/?language=1">C</a></li>
+                            <li><a href="/submissions/?language=2">C++</a></li>
+                            <li><a href="/submissions/?language=3">Java</a></li>
+                            <li><a href="/submissions/">取消筛选</a></li>
+                        </ul>
+                    </div>
                 </th>
                 <th>运行时间</th>
-                <th><div class="dropdown">
-                    <a href="#" class="dropdown-toggle" id="languageFilter" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                        语言<span class="caret"></span>
-                    </a>
-                    <ul class="dropdown-menu" aria-labelledby="languageFilter">
-                        <li><a href="/submissions/?language=1">C</a></li>
-                        <li><a href="/submissions/?language=2">C++</a></li>
-                        <li><a href="/submissions/?language=3">Java</a></li>
-                        <li><a href="/submissions/">取消筛选</a></li>
-                    </ul></div>
+                <th>
+                    <div class="dropdown">
+                        <a href="#" class="dropdown-toggle" id="resultFilter" data-toggle="dropdown"
+                           aria-haspopup="true" aria-expanded="true">
+                            结果<span class="caret"></span>
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="resultFilter">
+                            <li><a href="/submissions/?result=0">Accepted</a></li>
+                            <li><a href="/submissions/?result=6">Wrong Answer</a></li>
+                            <li><a href="/submissions/?result=1">Runtime Error</a></li>
+                            <li><a href="/submissions/?result=2">Time Limit Exceeded</a></li>
+                            <li><a href="/submissions/?result=3">Memory Limit Exceeded</a></li>
+                            <li><a href="/submissions/?result=4">Compile Error</a></li>
+                            <li><a href="/submissions/?result=5">Format Error</a></li>
+                            <li><a href="/submissions/">取消筛选</a></li>
+                        </ul>
+                    </div>
                 </th>
             </tr>
             </thead>
@@ -44,7 +50,9 @@
                 <th scope="row"><a href="/submission/{{ item.id }}/" id="id_{{ forloop.counter }}">
                     {{ forloop.counter |add:start_id }}</a></th>
                 <td>{{ item.create_time }}</td>
-                <td>{{ item.result|translate_result }}</td>
+                <td>
+                    {{ item.language|translate_language }}
+                </td>
                 <td>
                     {% if item.accepted_answer_time %}
                     {{ item.accepted_answer_time }}ms
@@ -52,9 +60,10 @@
                     --
                     {% endif %}
                 </td>
-                <td>
-                    {{ item.language|translate_language }}
+                <td class="alert-{{ item.result|translate_result_class }}">
+                    <strong>{{ item.result|translate_result }}</strong>
                 </td>
+
             </tr>
             {% endfor %}
 

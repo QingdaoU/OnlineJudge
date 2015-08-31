@@ -26,7 +26,7 @@
             <td>{{ el.title }}</td>
             <td>{{ el.create_time|date("yyyy-MM-dd HH:mm:ss")}}</td>
             <td>{{ el.created_by.username }}</td>
-            <td ms-text="el.visible?'可见':'不可见'">{{ getYesOrNo(el.visible) }}</td>
+            <td ms-text="el.visible?'可见':'不可见'"></td>
             <td>{{ el.total_accepted_number }}/{{ el.total_submit_number }}</td>
             <td>
                 <button class="btn-sm btn-info" ms-click="showEditProblemPage(el.id)">编辑</button>
