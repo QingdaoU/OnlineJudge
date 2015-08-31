@@ -236,9 +236,10 @@ class JoinGroupRequestAdminAPIView(APIView, GroupAPIViewBase):
 
             join_request.status = True
             join_request.save()
-
             if data["status"]:
                 if join_group(join_request.user, join_request.group):
+                    join_request.accepted = True
+                    join_request.save()
                     return success_response(u"加入成功")
                 else:
                     return error_response(u"加入失败，已经在本小组内")
@@ -247,6 +248,7 @@ class JoinGroupRequestAdminAPIView(APIView, GroupAPIViewBase):
 
         else:
             return serializer_invalid_response(serializer)
+
 
 @login_required
 def group_list_page(request, page=1):
@@ -283,3 +285,31 @@ def group_list_page(request, page=1):
         "previous_page": previous_page, "next_page": next_page,
         "keyword": keyword, "announcements": announcements,
     })
+
+
+@login_required
+def group_page(request, group_id):
+    try:
+        group = Group.objects.get(id=group_id, visible=True)
+    except Group.DoesNotExist:
+        return error_page(request, u"小组不存在")
+    return render(request, "oj/group/group.html", {"group": group})
+
+@login_required
+def application_list_page(request, group_id):
+    try:
+        group = Group.objects.get(id=group_id, visible=True)
+    except Group.DoesNotExist:
+        return error_page(request, u"小组不存在")
+    applications = JoinGroupRequest.objects.filter(user=request.user, group=group)
+    return render(request, "oj/group/my_application_list.html",
+                  {"group": group, "applications": applications})
+
+@login_required
+def application_page(request, request_id):
+    try:
+        application = JoinGroupRequest.objects.get(user=request.user, pk=request_id)
+    except JoinGroupRequest.DoesNotExist:
+        return error_page(request, u"申请不存在")
+    return render(request, "oj/group/my_application.html",
+                  {"application": application})
