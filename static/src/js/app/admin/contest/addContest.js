@@ -43,7 +43,6 @@ require(["jquery", "avalon", "editor", "uploader", "bsAlert", "csrfToken", "date
                     contentType: "application/json",
                     data: JSON.stringify(ajaxData),
                     method: "post",
-                    contentType: "application/json",
                     success: function (data) {
                         if (!data.code) {
                                 bsAlert("添加成功！将转到比赛列表页以便为比赛添加问题(注意比赛当前状态为:隐藏)");
