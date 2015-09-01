@@ -150,7 +150,7 @@ class JoinGroupAPITest(APITestCase):
 
     def setUp(self):
         self.client = APIClient()
-        self.url = reverse('group_join_admin_api')
+        self.url = reverse('group_join_api')
         self.user = User.objects.create(username="test", admin_type=SUPER_ADMIN)
         self.user.set_password("testaa")
         self.user.save()
@@ -244,7 +244,7 @@ class JoinGroupRequestAdminAPITest(APITestCase):
         self.assertEqual(JoinGroupRequest.objects.get(id=self.request.id).status, True)
 
     def test_join_group_successfully(self):
-        data = {"request_id": self.request.id, "status": True}
+        data = {"request_id": self.request.id, "status": True, "": True}
         response = self.client.put(self.url, data=data)
         self.assertEqual(response.data, {"code": 0, "data": u"加入成功"})
         UserGroupRelation.objects.get(group=self.group, user=self.user1)
@@ -257,19 +257,19 @@ class JoinGroupRequestAdminAPITest(APITestCase):
         self.assertEqual(response.data, {"code": 1, "data": u"加入失败，已经在本小组内"})
 
 
-class ProblemListPageTest(TestCase):
+class GroupListPageTest(TestCase):
     def setUp(self):
         self.client = Client()
         self.url = reverse('group_list_page')
-        self.url = reverse('problem_list_page', kwargs={"page": 1})
+        self.url_with_argument = reverse('group_page', kwargs={"page": 1})
         self.user = User.objects.create(username="test", admin_type=SUPER_ADMIN)
         self.user.set_password("testaa")
         self.user.save()
         self.group = Group.objects.create(name="group1",
-                                            description="description1",
-                                            # 0是公开 1是需要申请后加入 2是不允许任何人加入
-                                            join_group_setting = 1,
-                                            admin=User.objects.get(username="test"))
+                                          description="description1",
+                                          # 0是公开 1是需要申请后加入 2是不允许任何人加入
+                                          join_group_setting=1,
+                                          admin=User.objects.get(username="test"))
 
     def get_group_list_page_successful(self):
         self.client.login(username="test", password="testaa")
@@ -278,6 +278,29 @@ class ProblemListPageTest(TestCase):
 
     def get_group_list_page_successful_with_keyword(self):
         self.client.login(username="test", password="testaa")
-        response = self.client.get(self.url+"?keyword=gro")
+        response = self.client.get(self.url + "?keyword=gro")
         self.assertEqual(response.status_coed, 200)
 
+    def get_group_list_page_successful_with_page_argument(self):
+        self.client.login(username="test", password="testaa")
+        response = self.client.get(self.url_with_argument + "?keyword=gro")
+        self.assertEqual(response.status_coed, 200)
+
+
+class GroupPageTest(TestCase):
+    def setUp(self):
+        self.client = Client()
+        self.user = User.objects.create(username="test", admin_type=SUPER_ADMIN)
+        self.user.set_password("testaa")
+        self.user.save()
+        self.group = Group.objects.create(name="group1",
+                                          description="description1",
+                                          # 0是公开 1是需要申请后加入 2是不允许任何人加入
+                                          join_group_setting=1,
+                                          admin=User.objects.get(username="test"))
+        self.url = reverse('group_page', kwargs={"group_id": self.group.id})
+
+    def get_group_list_page_successful(self):
+        self.client.login(username="test", password="testaa")
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_coed, 200)
