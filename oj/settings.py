@@ -113,10 +113,6 @@ STATIC_URL = '/static/'
 
 STATICFILES_DIRS = (os.path.join(BASE_DIR, "static/src/"),)
 
-TEMPLATE_DIRS = (
-    os.path.join(BASE_DIR, "template/src"),
-)
-
 AUTH_USER_MODEL = 'account.User'
 
 LOGGING = {
