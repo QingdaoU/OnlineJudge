@@ -16,7 +16,7 @@ docker_config = {
 
 
 # 测试用例的路径，是主机上的实际路径
-test_case_dir = "/var/mnt/source/test_case/"
+test_case_dir = "/root/test_case/"
 # 源代码路径，也就是 manage.py 所在的实际路径
 source_code_dir = "/var/mnt/source/OnlineJudge/"
 
