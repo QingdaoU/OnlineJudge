@@ -1,7 +1,7 @@
 # coding=utf-8
 # 这个redis 是 celery 使用的，包括存储队列信息还有部分统计信息
 redis_config = {
-    "host": "121.42.32.129",
+    "host": "127.0.0.1",
     "port": 6379,
     "db": 0
 }
@@ -9,7 +9,7 @@ redis_config = {
 
 # 判题的 docker 容器的配置参数
 docker_config = {
-    "image_name": "3da0e526934e",
+    "image_name": "5453975e94c4",
     "docker_path": "docker",
     "shell": True
 }
