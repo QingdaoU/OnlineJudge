@@ -72,6 +72,7 @@ define("admin", ["jquery", "avalon"], function ($, avalon) {
         var vm = avalon.define({
             $id: "admin",
             template_url: "template/" + hash + ".html",
+            username: "",
             groupId: -1,
             problemId: -1,
             adminNavList: [],
@@ -93,6 +94,7 @@ define("admin", ["jquery", "avalon"], function ($, avalon) {
             dataType: "json",
             success: function(data){
                 if(!data.code){
+                    vm.username = data.data.username;
                     if (data.data.admin_type == 2){
                         vm.adminNavList = superAdminNav;
                     }
