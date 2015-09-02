@@ -8,3 +8,4 @@ celery
 gunicorn
 coverage
 django-extensions
+supervisor
