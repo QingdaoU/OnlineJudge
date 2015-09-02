@@ -1,7 +1,8 @@
 # coding=utf-8
 import json
 from rest_framework import serializers
-
+from django.utils import timezone
+import datetime
 from account.models import User
 from account.serializers import UserSerializer
 from .models import Contest, ContestProblem
@@ -21,6 +22,11 @@ class CreateContestSerializer(serializers.Serializer):
     visible = serializers.BooleanField()
 
 
+class DateTimeLocal(serializers.DateTimeField):
+    def to_representation(self, value):
+        return timezone.localtime(value)
+
+
 class ContestSerializer(serializers.ModelSerializer):
     class UserSerializer(serializers.ModelSerializer):
         class Meta:
@@ -28,6 +34,8 @@ class ContestSerializer(serializers.ModelSerializer):
             fields = ["username"]
 
     created_by = UserSerializer()
+    start_time = DateTimeLocal()
+    end_time = DateTimeLocal()
 
     class Meta:
         model = Contest

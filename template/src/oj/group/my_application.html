@@ -1,0 +1,26 @@
+{% extends 'oj_base.html' %}
+
+{% block body %}
+
+<div class="container main">
+    <ul class="nav nav-tabs nav-tabs-google">
+        <li role="presentation">
+            <a href="/group/{{ application.group.id }}/">详细信息</a></li>
+        <li role="presentation" class="active">
+            <a href="/group/{{ application.group.id }}/applications/">我的申请</a>
+        </li>
+    </ul>
+    <label>内容</label>
+    <p>{{ application.message|safe }}</p>
+    <label>结果</label>
+    {% if application.status %}
+        {% if application.accepted %}
+            <p>管理员接受了你的请求</p>
+        {% else %}
+            <p>管理员拒绝了你的请求</p>
+        {% endif %}
+    {% else %}
+        <p>待审核</p>
+    {% endif %}
+</div>
+{% endblock %}

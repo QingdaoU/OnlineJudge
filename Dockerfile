@@ -1,13 +1,7 @@
 FROM python:2.7
-ENV PYTHONUNBUFFERED 1
-ENV oj_env daocloud
-RUN mkdir /var/oj
-COPY . /var/oj/
-WORKDIR /var/oj/
+ENV PYTHONBUFFERED 1
+RUN mkdir -p /code/log /code/test_case
+WORKDIR /code
+ADD requirements.txt /code/
 RUN pip install -r requirements.txt
-EXPOSE 8080
-RUN mkdir LOG
-RUN mkdir test_case
-RUN mkdir tmp
-RUN python manage.py migrate
-CMD python manage.py runserver 0.0.0.0:8080
+EXPOSE 8010

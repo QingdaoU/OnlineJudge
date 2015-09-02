@@ -4,7 +4,7 @@ from django.db import IntegrityError
 
 from rest_framework.views import APIView
 
-from utils.shortcuts import error_response, serializer_invalid_response, success_response, paginate
+from utils.shortcuts import error_response, serializer_invalid_response, success_response, paginate, error_page
 from account.models import REGULAR_USER, ADMIN, SUPER_ADMIN
 from account.decorators import login_required
 
@@ -13,6 +13,9 @@ from .serializers import (CreateGroupSerializer, EditGroupSerializer,
                           CreateJoinGroupRequestSerializer, GroupSerializer,
                           GroupMemberSerializer, EditGroupMemberSerializer,
                           JoinGroupRequestSerializer, PutJoinGroupRequestSerializer)
+from announcement.models import Announcement
+from django.core.paginator import Paginator
+from django.db.models import Q
 
 
 class GroupAPIViewBase(object):
@@ -26,7 +29,7 @@ class GroupAPIViewBase(object):
         else:
             group = Group.objects.get(id=group_id, visible=True, admin=request.user)
         return group
-        
+
     def get_groups(self, request):
         """
         如果是超级管理员，就返回全部的小组
@@ -113,8 +116,8 @@ class GroupAdminAPIView(APIView, GroupAPIViewBase):
             elif request.GET.get("admin_id", None):
                 groups = groups.filter(admin__id=request.GET["admin_id"])
             return paginate(request, groups, GroupSerializer)
-            
-            
+
+
 class GroupMemberAdminAPIView(APIView, GroupAPIViewBase):
     def get(self, request):
         """
@@ -129,9 +132,9 @@ class GroupMemberAdminAPIView(APIView, GroupAPIViewBase):
             group = self.get_group(request, group_id)
         except Group.DoesNotExist:
             return error_response(u"小组不存在")
-        
+
         return paginate(request, UserGroupRelation.objects.filter(group=group), GroupMemberSerializer)
-    
+
     def put(self, request):
         """
         删除小组成员的api接口
@@ -190,7 +193,7 @@ class JoinGroupAPIView(APIView):
                 return error_response(u"该小组不允许任何人加入")
         else:
             return serializer_invalid_response(serializer)
-    
+
     def get(self, request):
         """
         搜索小组的api，需要传递keyword参数
@@ -233,9 +236,10 @@ class JoinGroupRequestAdminAPIView(APIView, GroupAPIViewBase):
 
             join_request.status = True
             join_request.save()
-
             if data["status"]:
                 if join_group(join_request.user, join_request.group):
+                    join_request.accepted = True
+                    join_request.save()
                     return success_response(u"加入成功")
                 else:
                     return error_response(u"加入失败，已经在本小组内")
@@ -244,3 +248,68 @@ class JoinGroupRequestAdminAPIView(APIView, GroupAPIViewBase):
 
         else:
             return serializer_invalid_response(serializer)
+
+
+@login_required
+def group_list_page(request, page=1):
+    # 右侧的公告列表
+    announcements = Announcement.objects.filter(is_global=True, visible=True).order_by("-create_time")
+
+    groups = Group.objects.filter(visible=True, join_group_setting__lte=2)
+    # 搜索的情况
+    keyword = request.GET.get("keyword", None)
+    if keyword:
+        groups = groups.filter(Q(name__contains=keyword) | Q(description__contains=keyword))
+
+    paginator = Paginator(groups, 20)
+    try:
+        current_page = paginator.page(int(page))
+    except Exception:
+        return error_page(request, u"不存在的页码")
+
+    previous_page = next_page = None
+
+    try:
+        previous_page = current_page.previous_page_number()
+    except Exception:
+        pass
+    next_page = None
+    try:
+        next_page = current_page.next_page_number()
+    except Exception:
+        pass
+
+    return render(request, "oj/group/group_list.html", {
+        "groups": groups, "announcements": announcements,
+        "contests": current_page, "page": int(page),
+        "previous_page": previous_page, "next_page": next_page,
+        "keyword": keyword, "announcements": announcements,
+    })
+
+
+@login_required
+def group_page(request, group_id):
+    try:
+        group = Group.objects.get(id=group_id, visible=True)
+    except Group.DoesNotExist:
+        return error_page(request, u"小组不存在")
+    return render(request, "oj/group/group.html", {"group": group})
+
+@login_required
+def application_list_page(request, group_id):
+    try:
+        group = Group.objects.get(id=group_id, visible=True)
+    except Group.DoesNotExist:
+        return error_page(request, u"小组不存在")
+    applications = JoinGroupRequest.objects.filter(user=request.user, group=group)
+    return render(request, "oj/group/my_application_list.html",
+                  {"group": group, "applications": applications})
+
+@login_required
+def application_page(request, request_id):
+    try:
+        application = JoinGroupRequest.objects.get(user=request.user, pk=request_id)
+    except JoinGroupRequest.DoesNotExist:
+        return error_page(request, u"申请不存在")
+    return render(request, "oj/group/my_application.html",
+                  {"application": application})

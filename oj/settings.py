@@ -14,15 +14,13 @@ https://docs.djangoproject.com/en/1.8/ref/settings/
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
 
-# todo 判断运行环境
+# 判断运行环境
 ENV = os.environ.get("oj_env", "local")
 
 if ENV == "local":
     from .local_settings import *
 elif ENV == "server":
     from .server_settings import *
-elif ENV == "daocloud":
-    from .daocloud_settings import *
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -33,7 +31,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'hzfp^8mbgapc&x%$#xv)0=t8s7_ilingw(q3!@h&2fty6v6fxz'
 
-ALLOWED_HOSTS = []
+
 
 
 # Application definition
@@ -115,10 +113,6 @@ STATIC_URL = '/static/'
 
 STATICFILES_DIRS = (os.path.join(BASE_DIR, "static/src/"),)
 
-TEMPLATE_DIRS = (
-    os.path.join(BASE_DIR, "template/src"),
-)
-
 AUTH_USER_MODEL = 'account.User'
 
 LOGGING = {
@@ -171,3 +165,5 @@ LOGGING = {
 REST_FRAMEWORK = {
     'TEST_REQUEST_DEFAULT_FORMAT': 'json'
 }
+
+DATABASE_ROUTERS = ['oj.db_router.DBRouter']

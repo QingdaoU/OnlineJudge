@@ -18,7 +18,6 @@ class SubmissionsListPageTest(TestCase):
         self.user.set_password("666666")
         self.user.save()
         self.user2.save()
-        # self.client.login(username="gogoing", password="666666")
         self.submission = Submission.objects.create(user_id=self.user.id,
                                                     language=1,
                                                     code='#include "stdio.h"\nint main(){\n\treturn 0;\n}',
@@ -27,6 +26,16 @@ class SubmissionsListPageTest(TestCase):
     def test_visit_submissionsListPage_successfully(self):
         self.client.login(username="gogoing", password="666666")
         response = self.client.get('/submissions/1/')
+        self.assertEqual(response.status_code, 200)
+
+    def test_visit_submissionsListPage_successfully_language_filter(self):
+        self.client.login(username="gogoing", password="666666")
+        response = self.client.get('/submissions/?language=1')
+        self.assertEqual(response.status_code, 200)
+
+    def test_visit_submissionsListPage_successfully_result_filter(self):
+        self.client.login(username="gogoing", password="666666")
+        response = self.client.get('/submissions/?result=1')
         self.assertEqual(response.status_code, 200)
 
     def test_visit_submissionsListPage_without_page_successfully(self):
@@ -41,7 +50,7 @@ class SubmissionsListPageTest(TestCase):
 
     def test_submissionsListPage_page_not_exist(self):
         self.client.login(username="gogoing", password="666666")
-        response = self.client.get('/submissions/5/')
+        response = self.client.get('/submissions/999/')
         self.assertTemplateUsed(response, "utils/error.html")
 
     def test_submissionsListPage_have_no_submission(self):
@@ -137,10 +146,3 @@ class ContestSubmissionAPITest(APITestCase):
         data = {"language": 1}
         response = self.client.post(self.url, data=data)
         pass
-
-
-
-
-
-
-
