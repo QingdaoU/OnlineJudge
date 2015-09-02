@@ -7,28 +7,28 @@
             <form id="register-form">
                 <div class="form-group">
                     <label for="username">用户名</label>
-                    <input type="text" class="form-control input-lg" id="username" name="username" placeholder="用户名" data-error="请输入用户名" required autofocus>
+                    <input type="text" class="form-control input-lg" id="username" name="username" placeholder="用户名" data-error="请填写用户名" required autofocus>
                     <div class="help-block with-errors"></div>
                 </div>
                 <div class="form-group">
                     <label for="real_name">真实姓名</label>
-                    <input type="text" class="form-control input-lg" id="real_name" name="real_name" placeholder="真实姓名" data-error="请输入姓名" required>
+                    <input type="text" class="form-control input-lg" id="real_name" name="real_name" placeholder="真实姓名" data-error="请填写姓名" required>
                     <div class="help-block with-errors"></div>
                 </div>
                 <div class="form-group">
                     <label for="email">邮箱地址</label>
-                    <input type="email" class="form-control input-lg" id="email" name="email" placeholder="邮箱地址" data-error="请填写邮箱" required>
+                    <input type="email" class="form-control input-lg" id="email" name="email" placeholder="邮箱地址" data-error="请填写正确的邮箱地址" required>
                     <div class="help-block with-errors"></div>
                 </div>
                 <div class="form-group">
                     <label for="password">密码</label>
-                    <input type="password" class="form-control input-lg" id="password" name="password" placeholder="密码" data-minlength="6" data-minlength-error="密码不得少于6位" required>
+                    <input type="password" class="form-control input-lg" id="password" name="password" data-error="请填写密码" placeholder="密码" data-minlength="6" data-minlength-error="密码不得少于6位" required>
                     <div class="help-block with-errors"></div>
                 </div>
                 <div class="form-group">
                     <label for="confirm_password">确认密码</label>
                     <input type="password" class="form-control input-lg" id="confirm_password" name="confirm_password"
-                           placeholder="确认密码" data-match="#password" data-match-error="两个密码不一致" required>
+                           placeholder="确认密码" data-match="#password" data-match-error="两个密码不一致" data-error="请填写确认密码" required>
                     <div class="help-block with-errors"></div>
                 </div>
                 <div class="form-group">
