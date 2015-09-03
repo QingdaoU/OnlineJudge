@@ -1,9 +1,14 @@
 require(["jquery", "csrfToken", "bsAlert"], function ($, csrfTokenHeader, bsAlert) {
     $("#sendApplication").click(function (){
-        var message = $("#applyMessage").val();
-        console.log(message);
+        var message;
+        if ($("#applyMessage").length) {
+            message = $("#applyMessage").val();
+            if (!message)
+                bsAlert("提交失败,请填写申请信息!");
+                return false;
+        }
+
         var groupId = window.location.pathname.split("/")[2];
-        console.log(groupId);
         data = {group_id: groupId,message:message}
         $.ajax({
             url: "/api/group_join/",
