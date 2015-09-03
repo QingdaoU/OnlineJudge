@@ -21,7 +21,7 @@ class EditGroupSerializer(serializers.Serializer):
 
 class CreateJoinGroupRequestSerializer(serializers.Serializer):
     group_id = serializers.IntegerField()
-    message = serializers.CharField(max_length=30)
+    message = serializers.CharField(max_length=30, required=False)
 
 
 class JoinGroupRequestSerializer(serializers.ModelSerializer):

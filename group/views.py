@@ -183,6 +183,8 @@ class JoinGroupAPIView(APIView):
                 else:
                     return error_response(u"你已经是小组成员了")
             elif group.join_group_setting == 1:
+                if not data["message"]:
+                    return error_response(u"message : 该字段是必填项。")
                 try:
                     JoinGroupRequest.objects.get(user=request.user, group=group, status=False)
                     return error_response(u"你已经提交过申请了，请等待审核")
@@ -295,6 +297,7 @@ def group_page(request, group_id):
         return error_page(request, u"小组不存在")
     return render(request, "oj/group/group.html", {"group": group})
 
+
 @login_required
 def application_list_page(request, group_id):
     try:
@@ -304,6 +307,7 @@ def application_list_page(request, group_id):
     applications = JoinGroupRequest.objects.filter(user=request.user, group=group)
     return render(request, "oj/group/my_application_list.html",
                   {"group": group, "applications": applications})
+
 
 @login_required
 def application_page(request, request_id):
