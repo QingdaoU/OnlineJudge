@@ -4,8 +4,11 @@
 <div class="container main">
     <ul class="nav nav-tabs nav-tabs-google">
         <li role="presentation" class="active">
-            <a href="/group/{{ group.id }}/">详细信息</a></li>
+            <a href="/group/{{ group.id }}/">详细信息</a>
+        </li>
+        {% if group.join_group_setting %}
         <li role="presentation"><a href="/group/{{ group.id }}/applications/">我的申请</a></li>
+        {% endif %}
     </ul>
     <h2 class="text-center">{{ group.name }}</h2>
 
@@ -30,7 +33,11 @@
         </div>
         {% endif %}
         <div class="form-group">
-            <button class="btn btn-primary" id="sendApplication">申请加入</button>
+            <button class="btn btn-primary" id="sendApplication">
+            {% if group.join_group_setting %}
+                申请
+            {% endif %}
+                加入</button>
         </div>
     </div>
 </div>

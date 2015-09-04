@@ -17,7 +17,7 @@ judger_workspace = "/var/judger/"
 
 # 这个是在docker 中访问数据库 ip 不一定和web服务器还有celery的一样
 submission_db = {
-    "host": "192.168.42.1",
+    "host": "10.172.22.50",#"192.168.42.1",
     "port": 3306,
     "db": "oj_submission",
     "user": "root",
