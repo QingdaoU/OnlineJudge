@@ -357,7 +357,7 @@ def contest_list_page(request, page=1):
 
     # 筛选我能参加的比赛
     join = request.GET.get("join", None)
-    if join and request.user.id:
+    if request.user.is_authenticated and join:
         contests = contests.filter(Q(contest_type__in=[1, 2]) | Q(groups__in=request.user.group_set.all())). \
             filter(end_time__gt=datetime.datetime.now(), start_time__lt=datetime.datetime.now())
 
