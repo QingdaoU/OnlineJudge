@@ -48,15 +48,8 @@
 {{ item.output }}</pre>
                 </div>
             {% endfor %}
-            {% if problem.hint %}
-                <div class="problem-section hide">
-                    <label class="problem-label">提示</label>
-
-                    <p class="problem-detail">{{ contest_problem.hint|safe }}</p>
-                </div>
-            {% endif %}
             {% if contest_problem.hint %}
-                <div class="problem-section hide">
+                <div class="problem-section">
                     <label class="problem-label">提示</label>
 
                     <p class="problem-detail">{{ contest_problem.hint|safe }}</p>
