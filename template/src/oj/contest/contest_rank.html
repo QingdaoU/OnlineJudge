@@ -38,7 +38,7 @@
                         <tr>
                             <th scope="row">{{ forloop.counter }}</th>
                             <td>{{ item.user.username }}</td>
-                            <td>{{ item.total_ac }} / {{ item.total_submission_number }}</td>
+                            <td>{{ item.total_ac }} / {{ item.total_submit }}</td>
                             <td>{% if item.total_time %}{{ item.total_time }} min{% else %}--{% endif %}</td>
                             {% for problem in contest_problems %}
                                 <td class="{% submission_problem_result_class problem item.submissions %}">
