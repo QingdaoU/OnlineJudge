@@ -73,6 +73,10 @@ li.list-group-item {
     color: green;
 }
 
+.dealing-flag {
+    color: yellow;
+}
+
 .CodeMirror{
     min-height: 250px;
     _height:250px;

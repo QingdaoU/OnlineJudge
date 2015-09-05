@@ -43,11 +43,11 @@
                         <th>
 
                             <span class="glyphicon
-                            {% if item.ac %}
-                                {% ifequal item.ac 1%}
+                            {% if item.state %}
+                                {% ifequal item.state 1%}
                                 glyphicon-ok ac-flag
                                 {% else %}
-                                glyphicon-arrow-right ac-flag
+                                glyphicon-arrow-right dealing-flag
                                 {% endifequal %}
                             {% endif %}
 

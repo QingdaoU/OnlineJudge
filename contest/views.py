@@ -328,9 +328,12 @@ def contest_problems_list_page(request, contest_id):
         state[item.problem_id] = item.ac
     for item in contest_problems:
         if item.id in state:
-            item.ac = state[item.id]
+            if state[item.id]:
+                item.state = 1
+            else:
+                item.state = 2
         else:
-            item.ac = 0
+            item.state = 0
 
     # 右侧的公告列表
     announcements = Announcement.objects.filter(is_global=True, visible=True).order_by("-create_time")
