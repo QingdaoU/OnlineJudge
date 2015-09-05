@@ -396,10 +396,10 @@ def _cmp(x, y):
 def contest_rank_page(request, contest_id):
     contest = Contest.objects.get(id=contest_id)
     contest_problems = ContestProblem.objects.filter(contest=contest).order_by("sort_index")
-    result = ContestSubmission.objects.values("user_id").annotate(total_submit=Sum("total_submission_number"))
+    result = ContestSubmission.objects.filter(contest=contest).values("user_id").annotate(total_submit=Sum("total_submission_number"))
     for i in range(0, len(result)):
         # 这个人所有的提交
-        submissions = ContestSubmission.objects.filter(user_id=result[i]["user_id"])
+        submissions = ContestSubmission.objects.filter(user_id=result[i]["user_id"], contest_id=contest_id)
         result[i]["submissions"] = {}
         for item in submissions:
             result[i]["submissions"][item.problem_id] = item
