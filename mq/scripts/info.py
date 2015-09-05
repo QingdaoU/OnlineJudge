@@ -71,7 +71,6 @@ class MessageQueue(object):
                     contest_problem.total_accepted_number += 1
                 else:
                     # 如果这个提交是错误的，就罚时20分钟
-                    contest_submission.ac = False
                     contest_submission.total_time += 20
                 contest_submission.save()
                 contest_problem.save()
