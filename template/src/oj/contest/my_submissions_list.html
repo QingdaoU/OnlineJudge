@@ -25,12 +25,10 @@
             </thead>
             <tbody>
             {% for item in submissions %}
-                <tr>
+                <tr class="{{ item.result|translate_result_class }}">
                     <th scope="row"><a href="/submission/{{ item.id }}/">{{ forloop.counter }}</a></th>
                     <td>{{ item.create_time }}</td>
-                    <td>
-                        {{ item.language|translate_language }}
-                    </td>
+                    <td>{{ item.result|translate_result }}</td>
                     <td>
                         {% if item.accepted_answer_time %}
                             {{ item.accepted_answer_time }}ms
@@ -38,8 +36,8 @@
                             --
                         {% endif %}
                     </td>
-                    <td class="alert-{{ item.result|translate_result_class }}">
-                        <strong>{{ item.result|translate_result }}</strong>
+                    <td>
+                        {{ item.language|translate_language }}
                     </td>
                 </tr>
             {% endfor %}
