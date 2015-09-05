@@ -185,8 +185,12 @@ class TestCaseUploadAPIView(APIView):
             os.mkdir(test_case_dir)
             for name in l:
                 f = open(test_case_dir + name, "wb")
-                f.write(test_case_file.read(name).replace("\r\n", "\n"))
-                f.close()
+                try:
+                    f.write(test_case_file.read(name).replace("\r\n", "\n"))
+                except MemoryError:
+                    return error_response(u"单个测试数据体积过大!")
+                finally:
+                    f.close()
             l.sort()
 
             file_info = {"test_case_number": len(l) / 2, "test_cases": {}}
