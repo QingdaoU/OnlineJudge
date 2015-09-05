@@ -40,7 +40,22 @@
                     <tbody>
                     {% for item in contest_problems %}
                     <tr>
-                        <th><span class="glyphicon glyphicon-ok ac-flag"></span></th>
+                        <th>
+
+                            <span class="glyphicon
+                            {% if item.ac %}
+                                {% ifequal item.ac 1%}
+                                glyphicon-ok ac-flag
+                                {% else %}
+                                glyphicon-arrow-right ac-flag
+                                {% endifequal %}
+                            {% endif %}
+
+
+
+                             "></span>
+
+                        </th>
                         <th scope="row">
                             <a href="/contest/{{ item.contest.id }}/problem/{{ item.id }}/" target="_blank">{{ item.sort_index }}</a>
                         </th>
