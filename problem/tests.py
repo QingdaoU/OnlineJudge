@@ -144,7 +144,7 @@ class ProblemAdminTest(APITestCase):
         self.assertEqual(response.data, {"code": 1, "data": u"题目不存在"})
 
     def test_query_problem_exists(self):
-        data = {"problem_id": 1}
+        data = {"problem_id": self.problem.id}
         response = self.client.get(self.url, data=data)
         self.assertEqual(response.data["code"], 0)
 
