@@ -93,15 +93,26 @@ class JudgeClient(object):
         except IOError:
             # 文件不存在等引发的异常 返回结果错误
             return False
-        lines=std.readline()
-        line_conut = len(lines)
-        for i in range(0, line_conut-2):
-            if lines[i]
-
-
-
-
-
+        sline = std.readline().strip('\n')
+        line = f.readline().strip('\n')
+        while sline:
+            try:
+                while line[-1]==' ':
+                    line = line[:-1]
+            except IndexError:
+                return False
+            if sline != line: 
+                return False
+            sline = std.readline().strip('\n')
+            line = f.readline().strip('\n')
+        if line:
+            return False
+        line = f.readline()
+        while line and line == '\n':
+            line = f.readline()
+        if line:
+            return False
+        return True
 
     def _judge_one(self, test_case_id):
         # 运行lrun程序 接收返回值
