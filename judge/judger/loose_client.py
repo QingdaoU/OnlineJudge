@@ -99,7 +99,7 @@ class JudgeClient(object):
             # 文件不存在等引发的异常 返回结果错误
             return False
         try:
-            std = open(self._test_case_dir+test_case_id+".out", "r")
+            std = open(self._test_case_dir+str(test_case_id)+".out", "r")
         except IOError:
             # 文件不存在等引发的异常 返回结果错误
             return False
