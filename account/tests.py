@@ -123,21 +123,12 @@ class UserChangePasswordAPITest(APITestCase):
         user = User.objects.create(username="test")
         user.set_password("aaabbb")
         user.save()
+        self.client.login(username="test",password="aaabbb")
 
     def test_error_old_password(self):
-        data = {"username": "test", "old_password": "aaaccc", "new_password": "aaaddd"}
+        data = {"old_password": "aaaccc", "new_password": "aaaddd"}
         response = self.client.post(self.url, data=data)
         self.assertEqual(response.data, {"code": 1, "data": u"密码不正确，请重新修改！"})
-
-    def test_invalid_data_format(self):
-        data = {"old_password": "aaa", "new_password": "aaaddd"}
-        response = self.client.post(self.url, data=data)
-        self.assertEqual(response.data["code"], 1)
-
-    def test_username_does_not_exist(self):
-        data = {"username": "test1", "old_password": "aaabbb", "new_password": "aaaddd"}
-        response = self.client.post(self.url, data=data)
-        self.assertEqual(response.data["code"], 1)
 
     def test_success_change_password(self):
         data = {"username": "test", "old_password": "aaabbb", "new_password": "aaaccc"}
@@ -369,3 +360,18 @@ class AdminRequiredDecoratorTest(TestCase):
         self.client.login(username="test", password="test")
         response = self.client.get("/admin_required_test/cbv/1024/")
         self.assertEqual(response.content, "1024")
+
+
+class UserLogoutTest(TestCase):
+    def setUp(self):
+        self.client = Client()
+        user = User.objects.create(username="test")
+        user.admin_type = 1
+        user.set_password("1")
+        user.save()
+
+    def logout_success(self):
+        self.client = Client()
+        self.client.login(username="test", password="1")
+        response = self.client.get("/logout/")
+        self.assertEqual(response.status_code, 302)

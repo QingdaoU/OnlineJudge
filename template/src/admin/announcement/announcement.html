@@ -7,8 +7,8 @@
             <th>创建时间</th>
             <th>更新时间</th>
             <th>创建者</th>
-            <td>可见范围</td>
-            <th>状态</th>
+            <th>类型</th>
+            <th>可见</th>
             <th></th>
         </tr>
         <tr ms-repeat="announcementList">
@@ -18,7 +18,7 @@
             <td>{{ el.last_update_time|date("yyyy-MM-dd HH:mm:ss")}}</td>
             <td>{{ el.created_by.username }}</td>
             <td ms-text="el.is_global?'全局可见':'组内可见'"></td>
-            <td>{{ getState(el)}}</td>
+            <td ms-text="el.visible?'可见':'不可见'"></td>
             <td>
                 <button class="btn-sm btn-info" ms-click="editAnnouncement(el)">编辑</button>
             </td>
@@ -38,7 +38,8 @@
 
         <div class="form-group">
             <label>标题</label>
-            <input name="title" type="text" class="form-control" id="newTitle" placeholder="公告标题" value="" ms-duplex="newTitle"></div>
+            <input name="title" type="text" class="form-control" id="newTitle" placeholder="公告标题" value=""
+                   ms-duplex="newTitle"></div>
         <div class="form-group">
             <label>内容</label>
             <textarea id="edit-announcement-editor"></textarea>
@@ -66,7 +67,7 @@
             </div>
         </div>
         <div class="form-group">
-            <button ms-click="submitChange()" class="btn btn-primary">提交</button>
+            <button ms-click="submitChange()" class="btn btn-success">保存修改</button>
             &nbsp;&nbsp;
             <button ms-click="cancelEdit()" class="btn btn-danger">取消</button>
         </div>
@@ -78,12 +79,14 @@
             <label>标题</label>
             <input name="title" type="text" class="form-control" id="title" placeholder="公告标题"
                    data-error="请填写公告标题(标题不得超过50字)" maxlength="50" required>
+
             <div class="help-block with-errors"></div>
         </div>
         <div class="form-group">
             <label>内容</label>
             <textarea id="create-announcement-editor" placeholder="公告内容" maxlength="10000" required>
             </textarea>
+
             <div class="help-block with-errors"></div>
         </div>
         <div class="form-group">
@@ -91,10 +94,16 @@
 
             <div>
                 <span ms-if="showGlobalViewRadio">
-                    <input type="radio" value="true" name="isGlobal" ms-duplex-boolean="isGlobal">全局可见
+                    <label>
+                        <small><input type="radio" value="true" name="isGlobal" ms-duplex-boolean="isGlobal">全局可见
+                        </small>
+                    </label>
                 </span>
                 <span>
-                    <input type="radio" value="false" name="isGlobal" ms-duplex-boolean="isGlobal">小组内可见
+                    <label>
+                        <small><input type="radio" value="false" name="isGlobal" ms-duplex-boolean="isGlobal">小组内可见
+                        </small>
+                    </label>
                 </span>
             </div>
 
@@ -106,7 +115,7 @@
             </div>
         </div>
         <div class="form-group">
-            <button type="submit" class="btn btn-primary">提交</button>
+            <button type="submit" class="btn btn-success">发布公告</button>
         </div>
     </form>
 </div>

@@ -226,7 +226,7 @@ def problem_list_page(request, page=1):
     # 搜索的情况
     keyword = request.GET.get("keyword", None)
     if keyword:
-        problems = problems.filter(title__contains=keyword)
+        problems = problems.filter(Q(title__contains=keyword) | Q(description__contains=keyword))
 
     # 按照标签筛选
     tag_text = request.GET.get("tag", None)

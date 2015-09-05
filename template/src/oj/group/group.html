@@ -1,0 +1,47 @@
+{% extends 'oj_base.html' %}
+
+{% block body %}
+<div class="container main">
+    <ul class="nav nav-tabs nav-tabs-google">
+        <li role="presentation" class="active">
+            <a href="/group/{{ group.id }}/">详细信息</a>
+        </li>
+        {% if group.join_group_setting %}
+        <li role="presentation"><a href="/group/{{ group.id }}/applications/">我的申请</a></li>
+        {% endif %}
+    </ul>
+    <h2 class="text-center">{{ group.name }}</h2>
+
+    <p class="text-muted text-center">发布时间 : {{ group.create_time }}&nbsp;&nbsp;
+        创建者 : {{ group.admin }}
+    </p>
+
+    <div>
+        <div class="group-section">
+            <label class="group-label">描述</label>
+
+            <p class="group-detail">{{ group.description|safe }}</p>
+        </div>
+    </div>
+    <hr>
+    <div>
+        {% if group.join_group_setting %}
+        <div class="form-group">
+            <input id="groupId" value="{{ group.id }" type="hidden">
+            <label>申请信息</label>
+            <textarea class="form-control" id="applyMessage" rows="10"></textarea>
+        </div>
+        {% endif %}
+        <div class="form-group">
+            <button class="btn btn-primary" id="sendApplication">
+            {% if group.join_group_setting %}
+                申请
+            {% endif %}
+                加入</button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block js_block %}
+<script src="/static/js/app/oj/group/group.js"></script>
+{% endblock %}

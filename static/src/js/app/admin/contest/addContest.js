@@ -43,7 +43,6 @@ require(["jquery", "avalon", "editor", "uploader", "bsAlert", "csrfToken", "date
                     contentType: "application/json",
                     data: JSON.stringify(ajaxData),
                     method: "post",
-                    contentType: "application/json",
                     success: function (data) {
                         if (!data.code) {
                                 bsAlert("添加成功！将转到比赛列表页以便为比赛添加问题(注意比赛当前状态为:隐藏)");
@@ -131,7 +130,6 @@ require(["jquery", "avalon", "editor", "uploader", "bsAlert", "csrfToken", "date
                         success: function (data) {
                             if (!data.code) {
                                 if (!data.data.length) {
-                                    bsAlert("您的用户权限只能创建组内比赛，但是您还没有创建过小组");
                                     return;
                                 }
                                 for (var i = 0; i < data.data.length; i++) {

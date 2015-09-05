@@ -1,4 +1,5 @@
 # coding=utf-8
+from django import http
 from django.contrib import auth
 from django.shortcuts import render
 from django.db.models import Q
@@ -34,6 +35,10 @@ class UserLoginAPIView(APIView):
         else:
             return serializer_invalid_response(serializer)
 
+@login_required
+def logout(request):
+    auth.logout(request)
+    return http.HttpResponseRedirect("/")
 
 class UserRegisterAPIView(APIView):
     def post(self, request):
@@ -64,6 +69,7 @@ class UserRegisterAPIView(APIView):
 
 
 class UserChangePasswordAPIView(APIView):
+    @login_required
     def post(self, request):
         """
         用户修改密码json api接口
@@ -73,7 +79,8 @@ class UserChangePasswordAPIView(APIView):
         serializer = UserChangePasswordSerializer(data=request.data)
         if serializer.is_valid():
             data = serializer.data
-            user = auth.authenticate(username=data["username"], password=data["old_password"])
+            username = request.user.username
+            user = auth.authenticate(username=username, password=data["old_password"])
             if user:
                 user.set_password(data["new_password"])
                 user.save()

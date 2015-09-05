@@ -3,7 +3,7 @@
     {% load contest %}
     <div class="container main">
         <div class="row">
-            <div class="col-lg-9">
+            <div class="col-md-9 col-lg-9">
                 <div class="row">
                     <div class="right">
                         <form class="form-inline" method="get">
@@ -15,6 +15,7 @@
                     </div>
                 </div>
                 <div>
+                    {% if contests %}
                     <table class="table table-striped">
                         <thead>
                         <tr>
@@ -47,6 +48,7 @@
                         {% endfor %}
                         </tbody>
                     </table>
+
                     <div class="form-group">
                         <label>仅显示当前可参加的比赛
                             <input id="join" type="checkbox" {% if join %}checked{% endif %} onchange="if(this.checked){location.href='/contests/?join=True'}else{location.href='/contests/'}">
@@ -66,10 +68,13 @@
                             {% endif %}
                         </ul>
                     </nav>
+                    {% else %}
+                        <p>当前没有合适的比赛,你可以尝试到<a href="/groups/">小组列表</a>申请加入一些小组,以便参加小组内部的比赛</p>
+                    {% endif %}
                 </div>
             </div>
 
-            <div class="col-lg-3">
+            <div class="col-md-3 col-lg-3">
                 {% include "oj/announcement/_announcement_panel.html" %}
             </div>
         </div>
