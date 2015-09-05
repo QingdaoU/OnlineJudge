@@ -140,9 +140,9 @@ class UserAdminAPITest(APITestCase):
     def setUp(self):
         self.client = APIClient()
         self.url = reverse("user_admin_api")
-        self.user = User.objects.create(username="testx", real_name="xx", admin_type=SUPER_ADMIN)
-        self.user.set_password("testxx")
-        self.user.save()
+        self.user1 = User.objects.create(username="testx", real_name="xx", admin_type=SUPER_ADMIN)
+        self.user1.set_password("testxx")
+        self.user1.save()
         self.user = User.objects.create(username="testy", real_name="yy", admin_type=SUPER_ADMIN)
         self.user.set_password("testyy")
         self.user.save()
@@ -164,7 +164,7 @@ class UserAdminAPITest(APITestCase):
         self.assertEqual(response.data, {"code": 1, "data": u"该用户不存在！"})
 
     def test_username_exists(self):
-        data = {"id": self.user.id, "username": "testy", "real_name": "test00",
+        data = {"id": self.user.id, "username": "testx", "real_name": "test00",
                 "password": "testaa", "email": "60@qq.com", "admin_type": "2"}
         response = self.client.put(self.url, data=data)
         self.assertEqual(response.data, {"code": 1, "data": u"昵称已经存在"})
