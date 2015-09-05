@@ -258,10 +258,10 @@ class ContestPasswordVerifyAPIView(APIView):
             try:
                 contest = Contest.objects.get(id=data["contest_id"], contest_type=2)
             except Contest.DoesNotExist:
-                return error_response(u"密码错误")
+                return error_response(u"比赛不存在")
 
             if data["password"] != contest.password:
-                return error_response(u" 密码错误")
+                return error_response(u"密码错误")
             else:
                 if "contests" not in request.session:
                     request.session["contests"] = []
@@ -279,10 +279,7 @@ def contest_page(request, contest_id):
     """
     单个比赛的详情页
     """
-    try:
-        contest = Contest.objects.get(id=contest_id)
-    except Contest.DoesNotExist:
-        return error_page(request, u"比赛不存在")
+    contest = Contest.objects.get(id=contest_id)
 
     return render(request, "oj/contest/contest_index.html", {"contest": contest})
 
@@ -292,10 +289,7 @@ def contest_problem_page(request, contest_id, contest_problem_id):
     """
     单个比赛题目的详情页
     """
-    try:
-        contest = Contest.objects.get(id=contest_id)
-    except Contest.DoesNotExist:
-        return error_page(request, u"比赛不存在")
+    contest = Contest.objects.get(id=contest_id)
     try:
         contest_problem = ContestProblem.objects.get(id=contest_problem_id, visible=True)
     except ContestProblem.DoesNotExist:
@@ -334,7 +328,7 @@ def contest_problems_list_page(request, contest_id):
         state[item.problem_id] = item.ac
     for item in contest_problems:
         if item.id in state:
-            item.ac = state[item.id].ac
+            item.ac = state[item.id]
         else:
             item.ac = 0
 
