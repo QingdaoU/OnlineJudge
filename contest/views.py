@@ -258,10 +258,10 @@ class ContestPasswordVerifyAPIView(APIView):
             try:
                 contest = Contest.objects.get(id=data["contest_id"], contest_type=2)
             except Contest.DoesNotExist:
-                return error_response(u"密码错误")
+                return error_response(u"比赛不存在")
 
             if data["password"] != contest.password:
-                return error_response(u" 密码错误")
+                return error_response(u"密码错误")
             else:
                 if "contests" not in request.session:
                     request.session["contests"] = []
@@ -279,10 +279,7 @@ def contest_page(request, contest_id):
     """
     单个比赛的详情页
     """
-    try:
-        contest = Contest.objects.get(id=contest_id)
-    except Contest.DoesNotExist:
-        return error_page(request, u"比赛不存在")
+    contest = Contest.objects.get(id=contest_id)
 
     return render(request, "oj/contest/contest_index.html", {"contest": contest})
 
@@ -292,10 +289,7 @@ def contest_problem_page(request, contest_id, contest_problem_id):
     """
     单个比赛题目的详情页
     """
-    try:
-        contest = Contest.objects.get(id=contest_id)
-    except Contest.DoesNotExist:
-        return error_page(request, u"比赛不存在")
+    contest = Contest.objects.get(id=contest_id)
     try:
         contest_problem = ContestProblem.objects.get(id=contest_problem_id, visible=True)
     except ContestProblem.DoesNotExist:
@@ -323,11 +317,27 @@ def contest_problems_list_page(request, contest_id):
     比赛所有题目的列表页
     """
     try:
-        contest_problems = ContestProblem.objects.filter(contest=Contest.objects.get(id=contest_id)).order_by("sort_index")
+        contest = Contest.objects.get(id=contest_id)
     except Contest.DoesNotExist:
-        return error_page(request, u"比赛题目不存在")
+        return error_page(request, u"比赛不存在")
+
+    contest_problems = ContestProblem.objects.filter(contest=contest).order_by("sort_index")
+    submissions = ContestSubmission.objects.filter(user=request.user, contest=contest)
+    state = {}
+    for item in submissions:
+        state[item.problem_id] = item.ac
+    for item in contest_problems:
+        if item.id in state:
+            if state[item.id]:
+                item.state = 1
+            else:
+                item.state = 2
+        else:
+            item.state = 0
+
     # 右侧的公告列表
     announcements = Announcement.objects.filter(is_global=True, visible=True).order_by("-create_time")
+
     return render(request, "oj/contest/contest_problems_list.html", {"contest_problems": contest_problems,
                                                                      "announcements": announcements,
                                                                      "contest": {"id": contest_id}})
@@ -348,7 +358,7 @@ def contest_list_page(request, page=1):
     # 筛选我能参加的比赛
     join = request.GET.get("join", None)
     if join:
-        contests = contests.filter(Q(contest_type__in=[1, 2]) | Q(groups__in=request.user.group_set.all())).\
+        contests = contests.filter(Q(contest_type__in=[1, 2]) | Q(groups__in=request.user.group_set.all())). \
             filter(end_time__gt=datetime.datetime.now(), start_time__lt=datetime.datetime.now())
 
     paginator = Paginator(contests, 20)
@@ -379,7 +389,6 @@ def contest_list_page(request, page=1):
                    "join": join})
 
 
-
 def _cmp(x, y):
     if x["total_ac"] > y["total_ac"]:
         return 1
@@ -396,7 +405,8 @@ def _cmp(x, y):
 def contest_rank_page(request, contest_id):
     contest = Contest.objects.get(id=contest_id)
     contest_problems = ContestProblem.objects.filter(contest=contest).order_by("sort_index")
-    result = ContestSubmission.objects.filter(contest=contest).values("user_id").annotate(total_submit=Sum("total_submission_number"))
+    result = ContestSubmission.objects.filter(contest=contest).values("user_id").annotate(
+        total_submit=Sum("total_submission_number"))
     for i in range(0, len(result)):
         # 这个人所有的提交
         submissions = ContestSubmission.objects.filter(user_id=result[i]["user_id"], contest_id=contest_id)
@@ -407,11 +417,6 @@ def contest_rank_page(request, contest_id):
         result[i]["user"] = User.objects.get(id=result[i]["user_id"])
         result[i]["total_time"] = submissions.filter(ac=True).aggregate(total_time=Sum("total_time"))["total_time"]
 
-
     return render(request, "oj/contest/contest_rank.html",
-                  {"contest": contest, "contest_problems": contest_problems, "result": sorted(result, cmp=_cmp, reverse=True)})
-
-
-
-
-
+                  {"contest": contest, "contest_problems": contest_problems,
+                   "result": sorted(result, cmp=_cmp, reverse=True)})
