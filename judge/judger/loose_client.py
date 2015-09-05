@@ -38,6 +38,16 @@ class JudgeClient(object):
         self._test_case_dir = test_case_dir
         # 进程池
         self._pool = Pool(processes=max_running_number)
+        self._test_case_info = self._load_test_case_info()
+    def _load_test_case_info(self):
+        # 读取测试用例信息 转换为dict
+        try:
+            f = open(self._test_case_dir + "info")
+            return json.loads(f.read())
+        except IOError:
+            raise JudgeClientError("Test case config file not found")
+        except ValueError:
+            raise JudgeClientError("Test case config file format error")
 
     def _generate_command(self, test_case_id):
         """
