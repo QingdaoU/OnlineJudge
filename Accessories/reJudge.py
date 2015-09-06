@@ -66,7 +66,7 @@ def easy_rejudge(submissions, map_table, user_id, contest_id=None):
         except Exception:
             print "error!"
             continue
-        # 增加redis 中判题队列长度的计数器
+            
         r = redis.Redis(host=redis_config["host"], port=redis_config["port"], db=redis_config["db"])
         r.incr("judge_queue_length")
 
