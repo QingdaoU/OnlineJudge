@@ -41,13 +41,13 @@ def add_contest_problem_to_problem(contest_id):
     try:
         tag = ProblemTag.objects.get(name=contest.title)
     except ProblemTag.DoesNotExist:
-        tag = ProblemTag.objects.create(name=tag)
+        tag = ProblemTag.objects.create(name=contest.title)
         
     #for each problem
     for problem in problems:
         print "Add problem to problem list:"
         print problem.title
-        p = Problem(title=problem.title, 
+        p = Problem.objects.create(title=problem.title, 
                               description=problem.description,
                               input_description=problem.input_description,
                               output_description=problem.output_description,
@@ -61,5 +61,4 @@ def add_contest_problem_to_problem(contest_id):
                               difficulty = 0,
                               source = contest.title)
         p.tags.add(tag)
-        p.save()
     return
