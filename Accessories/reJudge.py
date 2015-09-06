@@ -64,7 +64,7 @@ def easy_rejudge(submissions, map_table, user_id, contest_id=None):
         try:
             judge.delay(submission.id, problem.time_limit, problem.memory_limit, problem.test_case_id)
         except Exception:
-            print "提交判题任务失败"
+            print "error!"
             continue
         # 增加redis 中判题队列长度的计数器
         r = redis.Redis(host=redis_config["host"], port=redis_config["port"], db=redis_config["db"])
