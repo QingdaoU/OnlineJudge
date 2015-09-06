@@ -14,7 +14,7 @@ def add_exist_problem_to_contest(problems, contest_id):
     for problem in problems:
         print "Add the problem:"
         print problem.title
-        ContestProblem.objects.create(contest, sort_index=str(i),
+        ContestProblem.objects.create(contest=contest, sort_index=str(i),
                               title=problem.title, description=problem.description,
                               input_description=problem.input_description,
                               output_description=problem.output_description,
