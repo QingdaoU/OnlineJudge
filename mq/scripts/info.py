@@ -52,6 +52,8 @@ class MessageQueue(object):
             try:
                 contest_submission = ContestSubmission.objects.get(user_id=submission.user_id, contest=contest,
                                                                    problem_id=contest_problem.id)
+                # 提交次数加1
+                contest_submission.total_submission_number += 1
 
                 if submission.result == result["accepted"]:
 
@@ -65,13 +67,10 @@ class MessageQueue(object):
                         contest_submission.total_time += int((submission.create_time - contest.start_time).total_seconds() / 60)
                     # 标记为已经通过
                     contest_submission.ac = True
-                    # 提交次数加1
-                    contest_submission.total_submission_number += 1
                     # contest problem ac 计数器加1
                     contest_problem.total_accepted_number += 1
                 else:
                     # 如果这个提交是错误的，就罚时20分钟
-                    contest_submission.ac = False
                     contest_submission.total_time += 20
                 contest_submission.save()
                 contest_problem.save()

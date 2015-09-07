@@ -373,7 +373,7 @@ class ContestProblemAdminAPItEST(APITestCase):
 
     def test_query_contest_problem_exists_by_contest_id(self):
         self.client.login(username="test3", password="testaa")
-        response = self.client.get(self.url + "?contest_id=1")
+        response = self.client.get(self.url + "?contest_id="+ str(self.global_contest.id))
         self.assertEqual(response.data["code"], 0)
         self.assertEqual(len(response.data["data"]), 0)
 

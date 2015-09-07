@@ -2,8 +2,15 @@
 import sys
 import json
 import MySQLdb
+import os
 
-from client import JudgeClient
+# 判断判题模式
+judge_model = os.environ.get("judge_model", "default")
+if judge_model == "default":
+    from client import JudgeClient
+elif judge_model == "loose":
+    from loose_client import JudgeClient
+
 from language import languages
 from compiler import compile_
 from result import result
