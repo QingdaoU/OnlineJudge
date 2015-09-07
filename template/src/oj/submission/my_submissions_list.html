@@ -8,6 +8,7 @@
             <thead>
             <tr>
                 <th>#</th>
+                <th>题目名称</th>
                 <th>提交时间</th>
                 <th>
                     <div class="dropdown">
@@ -47,8 +48,12 @@
             <tbody>
             {% for item in submissions %}
             <tr>
-                <th scope="row"><a href="/submission/{{ item.id }}/" id="id_{{ forloop.counter }}">
-                    {{ forloop.counter |add:start_id }}</a></th>
+                <th scope="row">
+                    <a href="/submission/{{ item.id }}/">{{ forloop.counter |add:start_id }}</a>
+                </th>
+                <td>
+                    <a href="/problem/{{ item.problem_id }}/">{{ item.problem_id }}</a>
+                </td>
                 <td>{{ item.create_time }}</td>
                 <td>
                     {{ item.language|translate_language }}
