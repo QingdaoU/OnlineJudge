@@ -235,7 +235,7 @@ def problem_list_page(request, page=1):
             tag = ProblemTag.objects.get(name=tag_text)
         except ProblemTag.DoesNotExist:
             return error_page(request, u"标签不存在")
-        problems = tag.problem_set.all()
+        problems = tag.problem_set.all().filter(visible=True)
 
     paginator = Paginator(problems, 20)
     try:
