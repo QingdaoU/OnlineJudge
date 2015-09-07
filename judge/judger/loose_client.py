@@ -134,11 +134,6 @@ class JudgeClient(object):
 
         run_result["test_case_id"] = test_case_id
 
-        # 如果返回值非0 或者信号量不是0 或者程序的stderr有输出 代表非正常结束
-        if run_result["exit_code"] or run_result["term_sig"] or run_result["siginaled"] or error:
-            run_result["result"] = result["runtime_error"]
-            return run_result
-
         # 代表内存或者时间超过限制了
         if run_result["exceed"]:
             if run_result["exceed"] == "memory":
@@ -147,6 +142,11 @@ class JudgeClient(object):
                 run_result["result"] = result["time_limit_exceeded"]
             else:
                 raise JudgeClientError("Error exceeded type: " + run_result["exceed"])
+            return run_result
+
+        # 如果返回值非0 或者信号量不是0 或者程序的stderr有输出 代表非正常结束
+        if run_result["exit_code"] or run_result["term_sig"] or run_result["siginaled"] or error:
+            run_result["result"] = result["runtime_error"]
             return run_result
 
         # 下面就是代码正常运行了 需要判断代码的输出是否正确
