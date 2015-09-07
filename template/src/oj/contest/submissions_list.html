@@ -26,28 +26,61 @@
                 <thead>
                 <tr class="" success>
                     <th>#</th>
-                    <td>用户</td>
+                    <th>题目名称</th>
+                    <th>用户</th>
                     <th>提交时间</th>
-                    <th>结果</th>
+                    <th>
+                        <div class="dropdown">
+                            <a href="#" class="dropdown-toggle" id="languageFilter" data-toggle="dropdown"
+                               aria-haspopup="true" aria-expanded="true">
+                                语言<span class="caret"></span>
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="languageFilter">
+                                <li><a href="/contest/{{ contest.id }}/submissions/?language=1">C</a></li>
+                                <li><a href="/contest/{{ contest.id }}/submissions/?language=2">C++</a></li>
+                                <li><a href="/contest/{{ contest.id }}/submissions/?language=3">Java</a></li>
+                                <li><a href="/contest/{{ contest.id }}/submissions/">取消筛选</a></li>
+                            </ul>
+                        </div>
+                    </th>
                     <th>运行时间</th>
-                    <th>语言</th>
+                    <th>
+                        <div class="dropdown">
+                            <a href="#" class="dropdown-toggle" id="resultFilter" data-toggle="dropdown"
+                               aria-haspopup="true" aria-expanded="true">
+                                结果<span class="caret"></span>
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="resultFilter">
+                                <li><a href="/contest/{{ contest.id }}/submissions/?result=0">Accepted</a></li>
+                                <li><a href="/contest/{{ contest.id }}/submissions/?result=6">Wrong Answer</a></li>
+                                <li><a href="/contest/{{ contest.id }}/submissions/?result=1">Runtime Error</a></li>
+                                <li><a href="/contest/{{ contest.id }}/submissions/?result=2">Time Limit Exceeded</a></li>
+                                <li><a href="/contest/{{ contest.id }}/submissions/?result=3">Memory Limit Exceeded</a></li>
+                                <li><a href="/contest/{{ contest.id }}/submissions/?result=4">Compile Error</a></li>
+                                <li><a href="/contest/{{ contest.id }}/submissions/?result=5">Format Error</a></li>
+                                <li><a href="/contest/{{ contest.id }}/submissions/">取消筛选</a></li>
+                            </ul>
+                        </div>
+                    </th>
                 </tr>
                 </thead>
                 <tbody>
                 {% for item in submissions %}
-                    <tr class="{{ item.result|translate_result_class }}">
-
+                    <tr>
                         {% ifequal item.user_id request.user.id %}
-                            <th scope="row"><a href="/submission/{{ item.id }}/" id="id_{{ forloop.counter }}">
+                            <th scope="row"><a href="/submission/{{ item.id }}/">
                                 {{ forloop.counter |add:start_id }}</a></th>
                         {% else %}
                             <th scope="row">{{ forloop.counter |add:start_id }}</th>
                         {% endifequal %}
-
+                        <th scope="row">
+                            <a href="/contest/{{ item.contest_id }}/problem/{{ item.problem_id }}/">{{ item.title }}</a>
+                        </th>
                         <td>{{ item.user_id|get_username }}</td>
-
                         <td>{{ item.create_time }}</td>
-                        <td>{{ item.result|translate_result }}</td>
+                        <td>
+                            {{ item.language|translate_language }}
+                        </td>
                         <td>
                             {% if item.accepted_answer_time %}
                                 {{ item.accepted_answer_time }}ms
@@ -55,12 +88,11 @@
                                 --
                             {% endif %}
                         </td>
-                        <td>
-                            {{ item.language|translate_language }}
+                        <td class="alert-{{ item.result|translate_result_class }}">
+                            <strong>{{ item.result|translate_result }}</strong>
                         </td>
                     </tr>
                 {% endfor %}
-
                 </tbody>
             </table>
         {% else %}
@@ -70,13 +102,13 @@
             <ul class="pager">
                 {% if previous_page %}
                     <li class="previous"><a
-                            href="/contest/{{ contest.id }}/submissions/{{ previous_page }}/">
+                            href="/contest/{{ contest.id }}/submissions/{{ previous_page }}/{% if filter %}?{{ filter.name }}={{ filter.content }}{% endif %}">
                         <span aria-hidden="true">&larr;</span> 上一页</a></li>
                 {% endif %}
                 {% if next_page %}
                     <li class="next">
-                        <a href="/contest/{{ contest.id }}/submissions/{{ next_page }}/">下一页 <span
-                                aria-hidden="true">&rarr;</span></a></li>
+                        <a href="/contest/{{ contest.id }}/submissions/{{ next_page }}/{% if filter %}?{{ filter.name }}={{ filter.content }}{% endif %}">
+                            下一页 <span aria-hidden="true">&rarr;</span></a></li>
                 {% endif %}
             </ul>
         </nav>
