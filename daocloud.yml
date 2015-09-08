@@ -4,7 +4,7 @@ services:
   - mysql
 
 env:
-  - oj_env="daocloud"
+  - oj_env="local"
 
 script:
   - pip install -r requirements.txt
