@@ -416,4 +416,5 @@ def contest_rank_page(request, contest_id):
 
     return render(request, "oj/contest/contest_rank.html",
                   {"contest": contest, "contest_problems": contest_problems,
-                   "result": sorted(result, cmp=_cmp, reverse=True)})
+                   "result": sorted(result, cmp=_cmp, reverse=True),
+                   "auto_refresh": request.GET.get("auto_refresh", None) == "true"})
