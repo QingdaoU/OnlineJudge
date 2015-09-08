@@ -50,6 +50,7 @@
                     {% endfor %}
                     </tbody>
                 </table>
+                    <input type="checkbox" id="auto-refresh" {% if auto_refresh %}checked{% endif %} onchange="if(this.checked){location.href='?auto_refresh=true'}else{location.href=location.href.split('?')[0]}"> 自动刷新
                 {% else %}
                     <p>还没有结果</p>
                 {% endif %}
@@ -60,4 +61,11 @@
 
 
 {% block js_block %}
+{% if auto_refresh %}
+    <script>
+    setTimeout(function(){
+        location.reload();
+    }, 5000);
+    </script>
+    {% endif %}
 {% endblock %}
