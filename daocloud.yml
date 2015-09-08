@@ -8,5 +8,5 @@ env:
 
 script:
   - pip install -r requirements.txt
-  - mkdir LOG
+  - mkdir log
   - python manage.py test
