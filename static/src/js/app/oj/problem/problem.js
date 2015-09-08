@@ -1,5 +1,10 @@
 require(["jquery", "codeMirror", "csrfToken", "bsAlert"], function ($, codeMirror, csrfTokenHeader, bsAlert) {
-    var codeEditor = codeMirror($("#code-editor")[0], "text/x-csrc");
+    var codeEditorSelector = $("#code-editor")[0];
+    // 部分界面逻辑会隐藏代码输入框，先判断有没有。
+    if (codeEditorSelector == undefined){
+        return;
+    }
+    var codeEditor = codeMirror(codeEditorSelector, "text/x-csrc");
     var language = $("input[name='language'][checked]").val();
     var submissionId;
 
