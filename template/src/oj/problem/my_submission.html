@@ -43,7 +43,7 @@
                     </p>
                 {% endifequal %}
                 {% ifequal submission.result 4 %}
-                    <p>{{ submission.info }}</p>
+                    <pre>{{ submission.info }}</pre>
                 {% endifequal %}
                 <p>提交时间 : {{ submission.create_time }}</p>
             </div>
