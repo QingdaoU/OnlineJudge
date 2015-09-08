@@ -68,12 +68,8 @@
 
                 {% for item in submissions %}
                     <tr>
-                        {% ifequal item.user_id request.user.id %}
-                            <th scope="row"><a href="/submission/{{ item.id }}/">
+                        <th scope="row"><a href="/submission/{{ item.id }}/">
                                 {{ forloop.counter |add:start_id }}</a></th>
-                        {% else %}
-                            <th scope="row">{{ forloop.counter |add:start_id }}</th>
-                        {% endifequal %}
                         <th scope="row">
                             <a href="/contest/{{ item.contest_id }}/problem/{{ item.problem_id }}/">{{ item.title }}</a>
                         </th>
