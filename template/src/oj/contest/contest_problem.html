@@ -23,7 +23,7 @@
     <div class="problem-section">
         <label class="problem-label">描述</label>
 
-        <p class="problem-detail">{{ contest_problem.description|safe }}</p>
+        <div class="problem-detail">{{ contest_problem.description|safe }}</div>
     </div>
     <div class="problem-section">
         <label class="problem-label">输入</label>
@@ -62,7 +62,7 @@
                 <div class="problem-section hide">
                     <label class="problem-label">提示</label>
 
-                    <p class="problem-detail">{{ contest_problem.hint|safe }}</p>
+                    <div class="problem-detail">{{ contest_problem.hint|safe }}</div>
                 </div>
             {% endif %}
 
