@@ -12,7 +12,7 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': "oj",
-        'CONN_MAX_AGE': 0.3,
+        'CONN_MAX_AGE': 0.1,
         'HOST': '127.0.0.1',
         'PORT': 3306,
         'USER': 'root',
@@ -21,6 +21,7 @@ DATABASES = {
     'submission': {
         'NAME': 'oj_submission',
         'ENGINE': 'django.db.backends.mysql',
+        'CONN_MAX_AGE': 0.1,
         'HOST': "127.0.0.1",
         'PORT': 3306,
         'USER': 'root',
@@ -34,4 +35,3 @@ DEBUG = True
 TEST_CASE_DIR = '/root/test_case/'
 
 ALLOWED_HOSTS = ['*']
-

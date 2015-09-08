@@ -13,10 +13,6 @@ require(["jquery", "avalon", "editor", "uploader", "bsAlert", "csrfToken", "tagE
                             bsAlert("题目描述不能为空!");
                             return false;
                         }
-                        if (vm.timeLimit < 1000 || vm.timeLimit > 5000) {
-                            bsAlert("保证时间限制是一个1000-5000的合法整数");
-                            return false;
-                        }
                         if (vm.samples.length == 0) {
                             bsAlert("请至少添加一组样例!");
                             return false;

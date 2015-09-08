@@ -4,8 +4,14 @@
     <div class="container main">
         <ul class="nav nav-tabs nav-tabs-google">
             <li role="presentation" class="active">
-                <a href="/problem/{{ problem.id }}/">题目</a></li>
-            <li role="presentation"><a href="/problem/{{ problem.id }}/submissions/">我的提交</a></li>
+                <a href="/problem/{{ problem.id }}/">题目</a>
+            </li>
+            <li role="presentation">
+                <a href="/problem/{{ problem.id }}/submissions/">我的提交</a>
+            </li>
+            <li role="presentation">
+                <a href="/problems/">返回</a>
+            </li>
         </ul>
         {% include "oj/problem/_problem_header.html" %}
 
@@ -23,7 +29,7 @@
             <div class="problem-section">
                 <label class="problem-label">输出</label>
 
-                <p class="problem-detail">{{ problem.output_description }}k</p>
+                <p class="problem-detail">{{ problem.output_description }}</p>
             </div>
             {% for item in samples %}
                 <div class="problem-section">
@@ -33,7 +39,6 @@
 
                 </div>
                 <div class="problem-section">
-
                     <label class="problem-label">样例输出{{ forloop.counter }}</label>
         <pre>
 {{ item.output }}</pre>
@@ -45,23 +50,19 @@
             {% if problem.hint %}
                 <div class="problem-section hide">
                     <label class="problem-label">提示</label>
-
                     <div class="problem-detail">{{ problem.hint|safe }}</div>
                 </div>
             {% endif %}
             <div class="problem-section hide">
                 <label class="problem-label">标签</label>
-
                 <p class="problem-detail">
                     {% for tag in problem.tags.all %}
                         <span class="label label-success">{{ tag.name }}</span>
                     {% endfor %}
                 </p>
             </div>
-
             <div>
                 <label>选择语言</label>
-
                 <div>
                     <label class="radio-inline">
                         <input type="radio" name="language" value="1" checked> C (gcc 4.8)
@@ -74,7 +75,6 @@
                     </label>
                 </div>
             </div>
-
             <div id="code-field">
                 <label class="problem-label">提交代码</label>
                 <textarea id="code-editor"></textarea>
@@ -85,9 +85,7 @@
                     提交代码
                 </button>
                 <img src="/static/img/loading.gif" id="loading-gif">
-
             </div>
-
             <div id="result">
             </div>
             <hr>
