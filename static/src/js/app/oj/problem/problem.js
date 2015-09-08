@@ -1,5 +1,10 @@
 require(["jquery", "codeMirror", "csrfToken", "bsAlert"], function ($, codeMirror, csrfTokenHeader, bsAlert) {
-    var codeEditor = codeMirror($("#code-editor")[0], "text/x-csrc");
+    var codeEditorSelector = $("#code-editor")[0];
+    // 部分界面逻辑会隐藏代码输入框，先判断有没有。
+    if (codeEditorSelector == undefined) {
+        return;
+    }
+    var codeEditor = codeMirror(codeEditorSelector, "text/x-csrc");
     var language = $("input[name='language'][checked]").val();
     var submissionId;
 
@@ -48,7 +53,7 @@ require(["jquery", "codeMirror", "csrfToken", "bsAlert"], function ($, codeMirro
         if (!data.result) {
             html += "CPU time: " + data.accepted_answer_time + "ms &nbsp;&nbsp;";
         }
-        html += ('<a href="/my_submission/' + submissionId + '/" target="_blank">查看详情</a></div> </div>');
+        html += ('<a href="/submission/' + submissionId + '/" target="_blank">查看详情</a></div> </div>');
 
         return html;
     }
@@ -87,9 +92,37 @@ require(["jquery", "codeMirror", "csrfToken", "bsAlert"], function ($, codeMirro
         })
     }
 
+    function guessLanguage(code) {
+        //cpp
+        if (code.indexOf("using namespace std") > -1) {
+            return "2";
+        }
+        //c
+        if (code.indexOf("printf") > -1) {
+            return "1";
+        }
+        //java
+        if (code.indexOf("public class Main")) {
+            return "3";
+        }
+    }
+
     $("#submit-code-button").click(function () {
 
         var code = codeEditor.getValue();
+
+        if (!code.trim()) {
+            bsAlert("请填写代码！");
+            hideLoading();
+            return false;
+        }
+
+        if(guessLanguage(code) != language){
+            if(!confirm("您选择的代码语言可能存在错误，是否继续提交？")){
+                return;
+            }
+        }
+
         if (location.href.indexOf("contest") > -1) {
             var problemId = location.pathname.split("/")[4];
             var contestId = location.pathname.split("/")[2];
@@ -113,14 +146,7 @@ require(["jquery", "codeMirror", "csrfToken", "bsAlert"], function ($, codeMirro
 
         showLoading();
 
-        if (!code.trim()) {
-            bsAlert("请填写代码！");
-            hideLoading();
-            return false;
-        }
-
         $("#result").html("");
-
 
         $.ajax({
             beforeSend: csrfTokenHeader,

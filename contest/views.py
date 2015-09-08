@@ -320,7 +320,6 @@ def contest_problems_list_page(request, contest_id):
         contest = Contest.objects.get(id=contest_id)
     except Contest.DoesNotExist:
         return error_page(request, u"比赛不存在")
-
     contest_problems = ContestProblem.objects.filter(contest=contest).order_by("sort_index")
     submissions = ContestSubmission.objects.filter(user=request.user, contest=contest)
     state = {}
@@ -334,10 +333,8 @@ def contest_problems_list_page(request, contest_id):
                 item.state = 2
         else:
             item.state = 0
-
     # 右侧的公告列表
     announcements = Announcement.objects.filter(is_global=True, visible=True).order_by("-create_time")
-
     return render(request, "oj/contest/contest_problems_list.html", {"contest_problems": contest_problems,
                                                                      "announcements": announcements,
                                                                      "contest": {"id": contest_id}})
@@ -419,4 +416,5 @@ def contest_rank_page(request, contest_id):
 
     return render(request, "oj/contest/contest_rank.html",
                   {"contest": contest, "contest_problems": contest_problems,
-                   "result": sorted(result, cmp=_cmp, reverse=True)})
+                   "result": sorted(result, cmp=_cmp, reverse=True),
+                   "auto_refresh": request.GET.get("auto_refresh", None) == "true"})

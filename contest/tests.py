@@ -1,15 +1,18 @@
 # coding=utf-8
 import json
 from django.core.urlresolvers import reverse
-from django.test import TestCase
+from django.test import TestCase, Client
+from django.http import HttpResponse
 
 from rest_framework.test import APITestCase, APIClient
 
 from account.models import User
 from group.models import Group
 from contest.models import Contest, ContestProblem
+from .models import ContestSubmission
 from announcement.models import Announcement
 from account.models import REGULAR_USER, ADMIN, SUPER_ADMIN
+from decorators import check_user_contest_permission
 
 
 class ContestAdminAPITest(APITestCase):
@@ -397,4 +400,182 @@ class ContestProblemAdminAPItEST(APITestCase):
                 "visible": True}
         response = self.client.put(self.url, data=data)
         self.assertEqual(response.data["code"], 1)
+
+
+class ContestPasswordVerifyAPITest(APITestCase):
+    def setUp(self):
+        self.client = APIClient()
+        self.url = reverse('contest_password_verify_api')
+        self.user = User.objects.create(username="test1", admin_type=SUPER_ADMIN)
+        self.user.set_password("testaa")
+        self.user.save()
+        self.user2 = User.objects.create(username="test2", admin_type=ADMIN)
+        self.user2.set_password("testbb")
+        self.user2.save()
+        self.client.login(username="test1", password="testaa")
+        self.global_contest = Contest.objects.create(title="titlex", description="descriptionx", mode=1,
+                                                     contest_type=2, show_rank=True, show_user_submission=True,
+                                                     start_time="2015-08-15T10:00:00.000Z",
+                                                     end_time="2015-08-15T12:00:00.000Z",
+                                                     password="aacc", created_by=User.objects.get(username="test1"))
+
+    def test_invalid_format(self):
+        self.client.login(username="test2", password="testbb")
+        data = {"contest_id": self.global_contest.id}
+        response = self.client.post(self.url, data=data)
+        self.assertEqual(response.data["code"], 1)
+
+    def test_contest_does_not_exist(self):
+        self.client.login(username="test2", password="testbb")
+        data = {"contest_id": self.global_contest.id + 1, "password": "aacc"}
+        response = self.client.post(self.url, data=data)
+        self.assertEqual(response.data, {"code": 1, "data": u"比赛不存在"})
+
+    def test_contest_password_verify_unsuccessfully(self):
+        self.client.login(username="test2", password="testbb")
+        data = {"contest_id": self.global_contest.id, "password": "aabb"}
+        response = self.client.post(self.url, data=data)
+        self.assertEqual(response.data, {"code": 1, "data": u"密码错误"})
+
+    def test_contest_password_verify_successfully(self):
+        self.client.login(username="test2", password="testbb")
+        data = {"contest_id": self.global_contest.id, "password": "aacc"}
+        response = self.client.post(self.url, data=data)
+        self.assertEqual(response.data["code"], 0)
+
+
+class ContestPageTest(TestCase):
+    # 单个比赛详情页的测试
+    def setUp(self):
+        self.client = Client()
+        self.user1 = User.objects.create(username="test1", admin_type=SUPER_ADMIN)
+        self.user1.set_password("testaa")
+        self.user1.save()
+        self.client.login(username="test1", password="testaa")
+        self.global_contest = Contest.objects.create(title="titlex", description="descriptionx", mode=1,
+                                                     contest_type=2, show_rank=True, show_user_submission=True,
+                                                     start_time="2015-08-15T10:00:00.000Z",
+                                                     end_time="2015-08-15T12:00:00.000Z",
+                                                     password="aacc", created_by=User.objects.get(username="test1"))
+
+    def test_visit_contest_page_successfully(self):
+        response = self.client.get('/contest/1/')
+        self.assertEqual(response.status_code, 200)
+
+    def test_visit_contest_page_unsuccessfully(self):
+        response = self.client.get('/contest/10/')
+        self.assertTemplateUsed(response, "utils/error.html")
+
+
+class ContestProblemPageTest(TestCase):
+    # 单个比赛题目详情页的测试
+    def setUp(self):
+        self.client = Client()
+        self.user1 = User.objects.create(username="test1", admin_type=SUPER_ADMIN)
+        self.user1.set_password("testaa")
+        self.user1.save()
+        self.client.login(username="test1", password="testaa")
+        self.global_contest = Contest.objects.create(title="titlex", description="descriptionx", mode=1,
+                                                     contest_type=2, show_rank=True, show_user_submission=True,
+                                                     start_time="2015-08-15T10:00:00.000Z",
+                                                     end_time="2015-08-15T12:00:00.000Z",
+                                                     password="aacc", created_by=User.objects.get(username="test1"))
+        self.contest_problem = ContestProblem.objects.create(title="titlex",
+                                                             description="descriptionx",
+                                                             input_description="input1_description",
+                                                             output_description="output1_description",
+                                                             test_case_id="1",
+                                                             samples=json.dumps([{"input": "1 1", "output": "2"}]),
+                                                             time_limit=100,
+                                                             memory_limit=1000,
+                                                             hint="hint1",
+                                                             created_by=User.objects.get(username="test1"),
+                                                             contest=Contest.objects.get(title="titlex"),
+                                                             sort_index="a")
+
+    def test_visit_contest_problem_page_successfully(self):
+        response = self.client.get('/contest/1/problem/1/')
+        self.assertEqual(response.status_code, 200)
+
+    def test_visit_contest_page_unsuccessfully(self):
+        response = self.client.get('/contest/10/')
+        self.assertTemplateUsed(response, "utils/error.html")
+
+    def test_visit_contest_submissions_page_successfully(self):
+        ContestSubmission.objects.create(user=self.user1,
+                                         contest=self.global_contest,
+                                         problem=self.contest_problem,
+                                         ac=True)
+        response = self.client.get('/contest/1/problem/1/submissions/')
+        self.assertEqual(response.status_code, 200)
+
+
+class ContestProblemListPageTest(TestCase):
+    # 比赛题目列表的测试
+    def setUp(self):
+        self.client = Client()
+        self.user1 = User.objects.create(username="test1", admin_type=SUPER_ADMIN)
+        self.user1.set_password("testaa")
+        self.user1.save()
+        self.client.login(username="test1", password="testaa")
+        self.global_contest = Contest.objects.create(title="titlex", description="descriptionx", mode=1,
+                                                     contest_type=2, show_rank=True, show_user_submission=True,
+                                                     start_time="2015-08-15T10:00:00.000Z",
+                                                     end_time="2015-08-15T12:00:00.000Z",
+                                                     password="aacc", created_by=User.objects.get(username="test1"))
+        self.contest_problem = ContestProblem.objects.create(title="titlex",
+                                                             description="descriptionx",
+                                                             input_description="input1_description",
+                                                             output_description="output1_description",
+                                                             test_case_id="1",
+                                                             samples=json.dumps([{"input": "1 1", "output": "2"}]),
+                                                             time_limit=100,
+                                                             memory_limit=1000,
+                                                             hint="hint1",
+                                                             created_by=User.objects.get(username="test1"),
+                                                             contest=Contest.objects.get(title="titlex"),
+                                                             sort_index="a")
+
+    def test_visit_contest_problem_list_page_successfully(self):
+        response = self.client.get('/contest/1/problems/')
+        self.assertEqual(response.status_code, 200)
+
+    def test_visit_contest_problem_page_unsuccessfully(self):
+        response = self.client.get('/contest/1/problem/100/')
+        self.assertTemplateUsed(response, "utils/error.html")
+
+
+class ContestListPageTest(TestCase):
+    # 以下是所有比赛列表页的测试
+    def setUp(self):
+        self.client = Client()
+        self.user1 = User.objects.create(username="test1", admin_type=SUPER_ADMIN)
+        self.user1.set_password("testaa")
+        self.user1.save()
+        self.url = reverse('contest_list_page')
+        self.client.login(username="test1", password="testaa")
+        self.global_contest = Contest.objects.create(title="titlex", description="descriptionx", mode=1,
+                                                     contest_type=2, show_rank=True, show_user_submission=True,
+                                                     start_time="2015-08-15T10:00:00.000Z",
+                                                     end_time="2015-08-15T12:00:00.000Z",
+                                                     password="aacc", created_by=User.objects.get(username="test1"))
+
+    def test_visit_contest_list_page_successfully(self):
+        response = self.client.get('/contests/')
+        self.assertEqual(response.status_code, 200)
+
+    def test_visit_contest_list_page_unsuccessfully(self):
+        response = self.client.get('/contests/2/')
+        self.assertTemplateUsed(response, "utils/error.html")
+
+    def test_query_by_keyword(self):
+        response = self.client.get(self.url + "?keyword=title1")
+        self.assertEqual(response.status_code, 200)
+
+    def test_query_by_join_successfully(self):
+        response = self.client.get(self.url + "?join=True")
+        self.assertEqual(response.status_code, 200)
+
+
+
 
