@@ -57,36 +57,30 @@
             <div class="col-md-12">
                 <div ms-repeat="choseGroupList" class="group-tag" ms-click="removeGroup($index)">{{el.name}}</div>
             </div>
-            <div class="col-md-6">
+            <div class="col-md-3">
+                <label>封榜时间(结束前/min)</label>
+            </div>
+            <div class="col-md-3">
                 <label>排名方式</label>
             </div>
-            <div class="col-md-3">
-                <label>结束前是否开放排名</label>
-            </div>
-            <div class="col-md-3">
+            <div class="col-md-6">
                 <label>是否公开提交记录</label>
             </div>
-            <div class="col-md-6">
+            <div class="col-md-3">
+                <input class="form-control" type="number" name="hideRank" ms-duplex="hideRank" data-error="请填写封榜时间" required>
+                <div class="help-block with-errors"></div>
+            </div>
+            <div class="col-md-3">
                 <div class="form-group">
                     <label><input type="radio" name="mode" ms-duplex-string="mode" value="0">
                         <small>ACM</small>
                     </label>
                     <label><input type="radio" name="mode" ms-duplex-string="mode" value="1">
-                        <small>AC数量</small>
-                    </label>
-                    <label><input type="radio" name="mode" ms-duplex-string="mode" value="2">
                         <small>分数</small>
                     </label>
                 </div>
             </div>
-            <div class="col-md-3">
-                <div class="form-group">
-                    <label class="text"><input type="checkbox" ms-duplex-checked="showRank">
-                        <small>开放排名</small>
-                    </label>
-                </div>
-            </div>
-            <div class="col-md-3">
+            <div class="col-md-6">
                 <div class="form-group">
                     <label class="text"><input type="checkbox" ms-duplex-checked="showSubmission">
                         <small>允许查看提交记录</small>

@@ -112,7 +112,12 @@
             <div class="col-md-3">
 
             </div>
-            <div class="col-md-4">
+            <div class="col-md-3">
+                <label>封榜时间(结束前/min)</label>
+                <input class="form-control" name="hideRank" ms-duplex="hideRank" type="number" data-error="请填写封榜时间" required>
+                <div class="help-block with-errors"></div>
+            </div>
+            <div class="col-md-3">
                 <label>排名方式</label>
 
                 <div class="form-group">
@@ -120,9 +125,6 @@
                         <small>ACM</small>
                     </label>
                     <label><input type="radio" name="mode" ms-duplex-string="editMode" value="1">
-                        <small>AC数量</small>
-                    </label>
-                    <label><input type="radio" name="mode" ms-duplex-string="editMode" value="2">
                         <small>分数</small>
                     </label>
                 </div>
@@ -132,15 +134,6 @@
                 <label><input type="checkbox" ms-duplex-checked="editVisible">
                     <small> 可见</small>
                 </label>
-            </div>
-            <div class="col-md-3">
-                <label>结束前是否开放排名</label>
-
-                <div class="form-group">
-                    <label class="text"><input type="checkbox" ms-duplex-checked="editShowRank">
-                        <small>开放排名</small>
-                    </label>
-                </div>
             </div>
             <div class="col-md-3">
                 <label>是否公开提交记录</label>
