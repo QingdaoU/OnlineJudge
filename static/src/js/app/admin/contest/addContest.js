@@ -2,7 +2,6 @@ require(["jquery", "avalon", "editor", "uploader", "bsAlert", "csrfToken", "date
         "validator"],
     function ($, avalon, editor, uploader, bsAlert, csrfTokenHeader) {
 
-        //avalon.vmodels.add_contest = null;
         $("#add-contest-form").validator().on('submit', function (e) {
             if (!e.isDefaultPrevented()){
                 e.preventDefault();
@@ -11,7 +10,7 @@ require(["jquery", "avalon", "editor", "uploader", "bsAlert", "csrfToken", "date
                     description: vm.description,
                     mode: vm.mode,
                     contest_type: 0,
-                    show_rank: vm.showRank,
+                    hide_rank: vm.hideRank,
                     show_user_submission: vm.showSubmission,
                     start_time: vm.startTime,
                     end_time: vm.endTime,
@@ -52,7 +51,7 @@ require(["jquery", "avalon", "editor", "uploader", "bsAlert", "csrfToken", "date
                                 vm.endTime        = "";
                                 vm.password       = "";
                                 vm.mode           = "";
-                                vm.showRank       = false;
+                                vm.hideRank       = 0;
                                 vm.showSubmission = false;
                                 vm.group          = "-1";
                                 vm.groupList      = [];
@@ -81,7 +80,7 @@ require(["jquery", "avalon", "editor", "uploader", "bsAlert", "csrfToken", "date
             endTime: "",
             password: "",
             mode: "",
-            showRank: false,
+            hideRank: 0,
             showSubmission: false,
             group: "-1",
             groupList: [],

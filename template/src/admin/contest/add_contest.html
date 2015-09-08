@@ -7,7 +7,7 @@
             <div class="col-md-12">
                 <div class="form-group">
                     <input type="text" name="name" class="form-control" ms-duplex="title"
-                           data-error="请填写比赛名称(名称不能超过50个字)" ms-attr-readonly="contestCreated" required>
+                           data-error="请填写比赛名称(名称不能超过50个字)" required>
 
                     <div class="help-block with-errors"></div>
                 </div>
@@ -21,21 +21,26 @@
                     <p class="error-info" ms-visible="description==''">请填写比赛描述</p>
                 </div>
             </div>
-            <div class="col-md-6">
+            <div class="col-md-4">
                 <label>开始时间</label>
                 <div class="form-group">
                     <input type="text" class="form-control" name="start_time" id="contest_start_time"
                            ms-duplex="startTime" data-error="请填写比赛开始时间" required>
-
                     <div class="help-block with-errors"></div>
                 </div>
             </div>
-            <div class="col-md-6">
+            <div class="col-md-4">
                 <label>结束时间</label>
                 <div class="form-group">
                     <input type="text" class="form-control" name="end_time" id="contest_end_time"
                            ms-duplex="endTime" data-error="请填写比赛结束时间" required>
-
+                    <div class="help-block with-errors"></div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <label>封榜时间(结束前/min)</label>
+                <div class="form-group">
+                    <input class="form-control" type="text" ms-duplex="hideRank" data-error="请填写封榜时间" required>
                     <div class="help-block with-errors"></div>
                 </div>
             </div>
@@ -58,19 +63,7 @@
                 <div ms-repeat="choseGroupList" class="group-tag" ms-click="removeGroup($index)">{{el.name}}</div>
             </div>
             <div class="col-md-3">
-                <label>封榜时间(结束前/min)</label>
-            </div>
-            <div class="col-md-3">
                 <label>排名方式</label>
-            </div>
-            <div class="col-md-6">
-                <label>是否公开提交记录</label>
-            </div>
-            <div class="col-md-3">
-                <input class="form-control" type="number" name="hideRank" ms-duplex="hideRank" data-error="请填写封榜时间" required>
-                <div class="help-block with-errors"></div>
-            </div>
-            <div class="col-md-3">
                 <div class="form-group">
                     <label><input type="radio" name="mode" ms-duplex-string="mode" value="0">
                         <small>ACM</small>
@@ -81,6 +74,7 @@
                 </div>
             </div>
             <div class="col-md-6">
+                <label>是否公开提交记录</label>
                 <div class="form-group">
                     <label class="text"><input type="checkbox" ms-duplex-checked="showSubmission">
                         <small>允许查看提交记录</small>

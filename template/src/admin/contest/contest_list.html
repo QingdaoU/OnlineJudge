@@ -66,7 +66,7 @@
                     <p class="error-info" ms-visible="editDescription==''" >请填写比赛描述</p>
                 </div>
             </div>
-            <div class="col-md-6">
+            <div class="col-md-4">
                 <label>开始时间</label>
 
                 <div class="form-group">
@@ -76,13 +76,20 @@
                     <div class="help-block with-errors"></div>
                 </div>
             </div>
-            <div class="col-md-6">
+            <div class="col-md-4">
                 <label>结束时间</label>
 
                 <div class="form-group">
                     <input type="text" class="form-control" name="end_time" id="contest_end_time"
                            ms-duplex="editEndTime" data-error="请填写比赛结束时间" required>
 
+                    <div class="help-block with-errors"></div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <label>封榜时间(结束前/min)</label>
+                <div class="form-group">
+                    <input class="form-control" ms-duplex="editHideRank" type="number" data-error="请填写封榜时间" required>
                     <div class="help-block with-errors"></div>
                 </div>
             </div>
@@ -102,20 +109,6 @@
             </div>
             <div class="col-md-12">
                 <div ms-repeat="choseGroupList" class="group-tag" ms-click="removeGroup($index)">{{el.name}}</div>
-            </div>
-            <div class="col-md-6">
-
-            </div>
-            <div class="col-md-3">
-
-            </div>
-            <div class="col-md-3">
-
-            </div>
-            <div class="col-md-3">
-                <label>封榜时间(结束前/min)</label>
-                <input class="form-control" name="hideRank" ms-duplex="hideRank" type="number" data-error="请填写封榜时间" required>
-                <div class="help-block with-errors"></div>
             </div>
             <div class="col-md-3">
                 <label>排名方式</label>

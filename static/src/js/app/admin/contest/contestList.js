@@ -11,7 +11,7 @@ require(["jquery", "avalon", "csrfToken", "bsAlert", "editor", "datetimePicker",
                     description:          vm.editDescription,
                     mode:                 vm.editMode,
                     contest_type:         0,
-                    show_rank:            vm.editShowRank,
+                    hide_rank:            vm.editHideRank,
                     show_user_submission: vm.editShowSubmission,
                     start_time:           vm.editStartTime,
                     end_time:             vm.editEndTime,
@@ -84,7 +84,7 @@ require(["jquery", "avalon", "csrfToken", "bsAlert", "editor", "datetimePicker",
         vm.editStartTime= "";
         vm.editEndTime= "";
         vm.editMode= "";
-        vm.editShowRank= false;
+        vm.editHideRank= 0;
         vm.editShowSubmission= false;
         vm.editProblemList= [];
         vm.editVisible= false;
@@ -113,7 +113,7 @@ require(["jquery", "avalon", "csrfToken", "bsAlert", "editor", "datetimePicker",
             editStartTime: "",
             editEndTime: "",
             editMode: "",
-            editShowRank: false,
+            editHideRank: false,
             editShowSubmission: false,
             editProblemList: [],
             editVisible: false,
@@ -178,7 +178,7 @@ require(["jquery", "avalon", "csrfToken", "bsAlert", "editor", "datetimePicker",
                         vm.group = "0";
                         vm.addGroup()//vm.editChoseGroupList = [0]; id 0 is for the group of everyone~
                     }
-                    vm.editShowRank = vm.contestList[contestId-1].show_rank;
+                    vm.editHideRank = vm.contestList[contestId-1].Hide_rank;
                     vm.editShowSubmission = vm.contestList[contestId-1].show_user_submission;
                     editor("#editor").setValue(vm.contestList[contestId-1].description);
                     vm.editingProblemContestIndex = 0;
