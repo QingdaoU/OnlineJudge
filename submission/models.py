@@ -19,6 +19,8 @@ class Submission(models.Model):
     accepted_answer_time = models.IntegerField(blank=True, null=True)
     # 这个字段只有在题目是accepted 的时候才会用到，比赛题目的提交可能还会有得分等信息，存储在这里面
     accepted_answer_info = models.TextField(blank=True, null=True)
+    # 是否可以分享
+    shared = models.BooleanField(default=False)
 
     class Meta:
         db_table = "submission"
