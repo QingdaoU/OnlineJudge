@@ -96,3 +96,11 @@ li.list-group-item {
 .contest-tab{
     margin-bottom: 15px;
 }
+
+#share-code{
+    margin-top: 15px;
+}
+
+#share-code textarea {
+    margin-top: 15px;
+}
