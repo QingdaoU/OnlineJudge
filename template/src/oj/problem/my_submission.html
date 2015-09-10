@@ -62,12 +62,26 @@
         <div id="code-field">
             <textarea id="code-editor">{{ submission.code }}</textarea>
         </div>
+    {% ifequal request.user.id submission.user_id %}
+
+        <div id="share-code" class="col-lg-6 col-md-6">
+            {% if submission.shared %}
+                <button class="btn btn-warning" id="share-code-btn">取消分享</button>
+            {% else %}
+                <button class="btn btn-primary" id="share-code-btn">分享我的代码</button>
+            {% endif %}
+            <textarea class="form-control" id="share-code-textarea"
+                      {% if not submission.shared %}style="display: none" {% endif %}>【{{ problem.title }}】- {{ request.user.username }}的提交
+{{ request.build_absolute_uri }}</textarea>
+        </div>
+    {% endifequal %}
+
     </div>
 
 {% endblock %}
 {% block js_block %}
     <script>
-        require(["jquery", "codeMirror"], function ($, codeMirror) {
+        require(["jquery", "codeMirror", "csrfToken"], function ($, codeMirror, csrfTokenHeader) {
             {% ifequal submission.language 1 %}
                 var language = "text/x-csrc";
             {% else %}
@@ -79,6 +93,18 @@
             {% endifequal %}
             var codeEditor = codeMirror($("#code-editor")[0], language);
             codeEditor.setOption("readOnly", true);
+
+            $("#share-code-btn").click(function () {
+                $.ajax({
+                    beforeSend: csrfTokenHeader,
+                    url: "/api/submission/share/",
+                    method: "post",
+                    data: {submission_id: location.href.split("/")[4]},
+                    success: function(data){
+                        location.reload();
+                    }
+                })
+            })
         });
     </script>
 {% endblock %}

@@ -22,3 +22,7 @@ class SubmissionSerializer(serializers.ModelSerializer):
         return User.objects.get(id=obj.user_id).username
 
 
+class SubmissionhareSerializer(serializers.Serializer):
+    submission_id = serializers.CharField(max_length=40)
+
+

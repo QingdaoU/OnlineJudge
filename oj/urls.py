@@ -16,7 +16,7 @@ from group.views import (GroupAdminAPIView, GroupMemberAdminAPIView,
 from admin.views import AdminTemplateView
 
 from problem.views import TestCaseUploadAPIView, ProblemTagAdminAPIView, ProblemAdminAPIView
-from submission.views import SubmissionAPIView, SubmissionAdminAPIView
+from submission.views import SubmissionAPIView, SubmissionAdminAPIView, SubmissionShareAPIView
 from contest_submission.views import ContestSubmissionAPIView, ContestSubmissionAdminAPIView
 from monitor.views import QueueLengthMonitorAPIView
 
@@ -110,4 +110,6 @@ urlpatterns = [
 
     url(r'^about/$', TemplateView.as_view(template_name="utils/about.html"), name="about_page"),
     url(r'^help/$', TemplateView.as_view(template_name="utils/help.html"), name="help_page"),
+
+    url(r'^api/submission/share/$', SubmissionShareAPIView.as_view(), name="submission_share_api"),
 ]
