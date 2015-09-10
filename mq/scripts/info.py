@@ -60,11 +60,12 @@ class MessageQueue(object):
                     # 避免这道题已经 ac 了，但是又重新提交了一遍
                     if not contest_submission.ac:
                         # 这种情况是这个题目前处于错误状态，就使用已经存储了的罚时加上这道题的实际用时
-                        logger.debug(contest.start_time)
-                        logger.debug(submission.create_time)
-                        logger.debug((submission.create_time - contest.start_time).total_seconds())
-                        logger.debug(int((submission.create_time - contest.start_time).total_seconds() / 60))
-                        contest_submission.total_time += int((submission.create_time - contest.start_time).total_seconds() / 60)
+                        # logger.debug(contest.start_time)
+                        # logger.debug(submission.create_time)
+                        # logger.debug((submission.create_time - contest.start_time).total_seconds())
+                        # logger.debug(int((submission.create_time - contest.start_time).total_seconds() / 60))
+                        contest_submission.ac_time = int((submission.create_time - contest.start_time).total_seconds() / 60)
+                        contest_submission.total_time += contest_submission.ac_time
                     # 标记为已经通过
                     contest_submission.ac = True
                     # contest problem ac 计数器加1
