@@ -71,7 +71,7 @@
                 <button class="btn btn-primary" id="share-code-btn">分享我的代码</button>
             {% endif %}
             <textarea class="form-control" id="share-code-textarea"
-                      {% if not submission.shared %}style="display: none" {% endif %}>【{{ problem.title }}】- {{ request.user.username }}的提交
+                      {% if not submission.shared %}style="display: none" {% endif %}>{{ problem.title }}
 {{ request.build_absolute_uri }}</textarea>
         </div>
     {% endifequal %}
