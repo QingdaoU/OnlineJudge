@@ -84,6 +84,8 @@ class ContestSubmission(models.Model):
     total_submission_number = models.IntegerField(default=1)
     # 这道题是 AC 还是没过
     ac = models.BooleanField()
+    # ac 用时
+    ac_time = models.IntegerField(default=0)
     # 总的时间，用于acm 类型的，也需要保存罚时
     total_time = models.IntegerField(default=0)
 
