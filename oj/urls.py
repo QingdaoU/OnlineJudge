@@ -112,4 +112,5 @@ urlpatterns = [
     url(r'^help/$', TemplateView.as_view(template_name="utils/help.html"), name="help_page"),
 
     url(r'^api/submission/share/$', SubmissionShareAPIView.as_view(), name="submission_share_api"),
+    url(r'^captcha/$', "utils.captcha.views.show_captcha", name="show_captcha"),
 ]
