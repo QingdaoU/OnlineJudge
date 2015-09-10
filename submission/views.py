@@ -12,14 +12,15 @@ from judge.judger_controller.settings import redis_config
 from account.decorators import login_required
 from account.models import SUPER_ADMIN
 
-
 from problem.models import Problem
-from contest.models import ContestProblem
-
-from utils.shortcuts import serializer_invalid_response, error_response, success_response, error_page, paginate
-from .models import Submission
-from .serializers import CreateSubmissionSerializer, SubmissionSerializer
+from contest.models import ContestProblem, Contest
 from announcement.models import Announcement
+from utils.shortcuts import serializer_invalid_response, error_response, success_response, error_page, paginate
+
+from .models import Submission
+from .serializers import CreateSubmissionSerializer, SubmissionSerializer, SubmissionhareSerializer
+
+
 
 class SubmissionAPIView(APIView):
     @login_required
@@ -87,18 +88,33 @@ def problem_my_submissions_list_page(request, problem_id):
                   {"submissions": submissions, "problem": problem})
 
 
+def _get_submission(submission_id, user):
+    """
+    判断用户权限 看能否获取这个提交详情页面
+    """
+    submission = Submission.objects.get(id=submission_id)
+    # 超级管理员或者提交者自己或者是一个分享的提交
+    if user.admin_type == SUPER_ADMIN or submission.user_id == user.id or submission.shared:
+        return submission
+    if submission.contest_id:
+        contest = Contest.objects.get(id=submission.contest_id)
+        # 比赛提交的话，比赛创建者也可见
+        if contest.created_by == user:
+            return submission
+    raise Submission.DoesNotExist
+
+
 @login_required
 def my_submission(request, submission_id):
     """
     单个题目的提交详情页
     """
     try:
-        # 超级管理员可以查看所有的提交
-        if request.user.admin_type != SUPER_ADMIN:
-            submission = Submission.objects.get(id=submission_id, user_id=request.user.id)
-        else:
-            submission = Submission.objects.get(id=submission_id)
+        submission = _get_submission(submission_id, request.user)
     except Submission.DoesNotExist:
+        return error_page(request, u"提交不存在")
+
+    if submission.user_id != request.user.id and not submission.shared:
         return error_page(request, u"提交不存在")
 
     if submission.contest_id:
@@ -171,3 +187,19 @@ def my_submission_list_page(request, page=1):
                   {"submissions": current_page, "page": int(page),
                    "previous_page": previous_page, "next_page": next_page, "start_id": int(page) * 20 - 20,
                    "announcements": announcements, "filter":filter})
+
+
+class SubmissionShareAPIView(APIView):
+    def post(self, request):
+        serializer = SubmissionhareSerializer(data=request.data)
+        if serializer.is_valid():
+            submission_id = serializer.data["submission_id"]
+            try:
+                submission = _get_submission(submission_id, request.user)
+            except Submission.DoesNotExist:
+                return error_response(u"提交不存在")
+            submission.shared = not submission.shared
+            submission.save()
+            return success_response(submission.shared)
+        else:
+            return serializer_invalid_response(serializer)
