@@ -7,6 +7,7 @@ from django.db.models import Q
 from rest_framework.views import APIView
 
 from utils.shortcuts import serializer_invalid_response, error_response, success_response, paginate
+from utils.captcha import Captcha
 
 from .decorators import login_required
 from .models import User
@@ -79,6 +80,9 @@ class UserChangePasswordAPIView(APIView):
         serializer = UserChangePasswordSerializer(data=request.data)
         if serializer.is_valid():
             data = serializer.data
+            captcha = Captcha(request)
+            if not captcha.check(data["captcha"]):
+                return error_response(u"验证码错误")
             username = request.user.username
             user = auth.authenticate(username=username, password=data["old_password"])
             if user:
