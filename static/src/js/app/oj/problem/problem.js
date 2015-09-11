@@ -1,11 +1,5 @@
 require(["jquery", "codeMirror", "csrfToken", "bsAlert", "ZeroClipboard"],
     function ($, codeMirror, csrfTokenHeader, bsAlert, ZeroClipboard) {
-        var codeEditorSelector = $("#code-editor")[0];
-        // 部分界面逻辑会隐藏代码输入框，先判断有没有。
-        if (codeEditorSelector == undefined) {
-            return;
-        }
-
         // 复制样例需要 Flash 的支持 检测浏览器是否安装了 Flash
         function detect_flash() {
             var ie_flash;
@@ -25,6 +19,12 @@ require(["jquery", "codeMirror", "csrfToken", "bsAlert", "ZeroClipboard"],
         }
         else{
             $(".copy-sample").hide();
+        }
+
+        var codeEditorSelector = $("#code-editor")[0];
+        // 部分界面逻辑会隐藏代码输入框，先判断有没有。
+        if (codeEditorSelector == undefined) {
+            return;
         }
 
         var codeEditor = codeMirror(codeEditorSelector, "text/x-csrc");
