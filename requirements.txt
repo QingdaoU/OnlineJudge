@@ -9,3 +9,4 @@ gunicorn
 coverage
 django-extensions
 supervisor
+pillow

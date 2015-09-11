@@ -31,6 +31,7 @@
             {% for item in samples %}
                 <div class="problem-section">
                     <label class="problem-label">样例输入{{ forloop.counter }}</label>
+                    <a href="javascript:void(0)" class="copy-sample" data-clipboard-text="{{ item.input }}">复制</a>
         <pre>
 {{ item.input }}</pre>
 

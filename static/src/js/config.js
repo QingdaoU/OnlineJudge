@@ -20,6 +20,7 @@ var require = {
         bootstrap: "lib/bootstrap/bootstrap",
         datetimePicker: "lib/datetime_picker/bootstrap-datetimepicker.zh-CN",
         validator: "lib/validator/validator",
+        ZeroClipboard: "lib/ZeroClipboard/ZeroClipboard",
 
 
         // ------ 下面写的都不要直接用，而是使用上面的封装版本 ------
