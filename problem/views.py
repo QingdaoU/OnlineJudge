@@ -228,6 +228,19 @@ def problem_list_page(request, page=1):
     if keyword:
         problems = problems.filter(Q(title__contains=keyword) | Q(description__contains=keyword))
 
+    difficulty_order = request.GET.get("order_by", None)
+    if difficulty_order:
+        if difficulty_order[0] == "-":
+            problems = problems.order_by("-difficulty")
+            difficulty_order = "difficulty"
+        else:
+            problems = problems.order_by("difficulty")
+            difficulty_order = "-difficulty"
+    else:
+        difficulty_order = "difficulty"
+
+
+
     # 按照标签筛选
     tag_text = request.GET.get("tag", None)
     if tag_text:
@@ -262,4 +275,4 @@ def problem_list_page(request, page=1):
                   {"problems": current_page, "page": int(page),
                    "previous_page": previous_page, "next_page": next_page,
                    "keyword": keyword, "tag": tag_text,
-                   "tags": tags})
+                   "tags": tags, "difficulty_order": difficulty_order})
