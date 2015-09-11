@@ -27,6 +27,7 @@ class UserRegisterSerializer(serializers.Serializer):
 class UserChangePasswordSerializer(serializers.Serializer):
     old_password = serializers.CharField()
     new_password = serializers.CharField(max_length=30, min_length=6)
+    captcha = serializers.CharField(max_length=4, min_length=4)
 
 
 class UserSerializer(serializers.ModelSerializer):

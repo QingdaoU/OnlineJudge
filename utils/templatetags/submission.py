@@ -33,8 +33,14 @@ def get_contest_submission_problem_detail(contest_problem, my_submission):
     if contest_problem.id in my_submission:
         submission = my_submission[contest_problem.id]
         if submission.ac:
-            return u"\n 时间: " + str(submission.total_time) + u" min"
-    return ""
+            # 只提交了一次就AC
+            if submission.total_submission_number == 1:
+                return str(submission.ac_time) + " min"
+            else:
+                return "20 min × " + str(submission.total_submission_number - 1) + " WA + " + str(submission.ac_time) + " min"
+        return str(submission.total_submission_number) + " WA"
+    else:
+        return ""
 
 
 def get_submission_problem_result_class(contest_problem, my_submission):

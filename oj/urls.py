@@ -54,6 +54,7 @@ urlpatterns = [
     url(r'^api/submission/$', SubmissionAPIView.as_view(), name="submission_api"),
     url(r'^api/group_join/$', JoinGroupAPIView.as_view(), name="group_join_api"),
 
+    url(r'^api/admin/up_load_image/$', SimditorImageUploadAPIView.as_view(), name="simditor_upload_image"),
     url(r'^api/admin/announcement/$', AnnouncementAdminAPIView.as_view(), name="announcement_admin_api"),
     url(r'^api/admin/contest/$', ContestAdminAPIView.as_view(), name="contest_admin_api"),
     url(r'^api/admin/user/$', UserAdminAPIView.as_view(), name="user_admin_api"),
@@ -113,5 +114,6 @@ urlpatterns = [
     url(r'^help/$', TemplateView.as_view(template_name="utils/help.html"), name="help_page"),
 
     url(r'^api/submission/share/$', SubmissionShareAPIView.as_view(), name="submission_share_api"),
-    url(r'^api/admin/up_load_image/$', SimditorImageUploadAPIView.as_view(), name="simditor_upload_image"),
+
+    url(r'^captcha/$', "utils.captcha.views.show_captcha", name="show_captcha"),
 ]
