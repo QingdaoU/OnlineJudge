@@ -1,7 +1,7 @@
 require(["jquery", "bsAlert", "csrfToken", "validator"], function ($, bsAlert, csrfTokenHeader) {
 
     function refresh_captcha(){
-        this.src = "/captcha/?" + Math.random();
+        $("#captcha-img")[0].src = "/captcha/?" + Math.random();
         $("#captcha")[0].value = "";
     }
     $("#captcha-img").click(function(){
