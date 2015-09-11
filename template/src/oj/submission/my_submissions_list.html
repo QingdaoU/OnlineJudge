@@ -3,7 +3,7 @@
 {% block body %}
 {% load submission %}
 <div class="container main">
-    <div class="col-md-9 col-lg-9">
+    <div class="col-md-12 col-lg-12">
         <table class="table table-striped">
             <thead>
             <tr>
@@ -92,8 +92,6 @@
         <p>你还没有提交记录!</p>
         {% endif %}
     </div>
-    <div class="col-md-3 col-lg-3">
-        {% include "oj/announcement/_announcement_panel.html" %}
-    </div>
+
 </div>
 {% endblock %}

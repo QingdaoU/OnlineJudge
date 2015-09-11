@@ -255,8 +255,6 @@ def problem_list_page(request, page=1):
     except Exception:
         pass
 
-    # 右侧的公告列表
-    announcements = Announcement.objects.filter(is_global=True, visible=True).order_by("-create_time")
     # 右侧标签列表 按照关联的题目的数量排序 排除题目数量为0的
     tags = ProblemTag.objects.annotate(problem_number=Count("problem")).filter(problem_number__gt=0).order_by("-problem_number")
 
@@ -264,4 +262,4 @@ def problem_list_page(request, page=1):
                   {"problems": current_page, "page": int(page),
                    "previous_page": previous_page, "next_page": next_page,
                    "keyword": keyword, "tag": tag_text,
-                   "announcements": announcements, "tags": tags})
+                   "tags": tags})
