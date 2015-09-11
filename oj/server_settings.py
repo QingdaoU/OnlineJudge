@@ -35,3 +35,5 @@ DEBUG = True
 TEST_CASE_DIR = '/root/test_case/'
 
 ALLOWED_HOSTS = ['*']
+
+IMAGE_UPLOAD_DIR = '/var/mnt/source/OnlineJudeg/static/src/upload_image/'

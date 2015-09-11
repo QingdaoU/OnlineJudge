@@ -19,6 +19,7 @@ from problem.views import TestCaseUploadAPIView, ProblemTagAdminAPIView, Problem
 from submission.views import SubmissionAPIView, SubmissionAdminAPIView, SubmissionShareAPIView
 from contest_submission.views import ContestSubmissionAPIView, ContestSubmissionAdminAPIView
 from monitor.views import QueueLengthMonitorAPIView
+from utils.views import SimditorImageUploadAPIView
 
 from contest_submission.views import contest_problem_my_submissions_list_page
 
@@ -112,4 +113,5 @@ urlpatterns = [
     url(r'^help/$', TemplateView.as_view(template_name="utils/help.html"), name="help_page"),
 
     url(r'^api/submission/share/$', SubmissionShareAPIView.as_view(), name="submission_share_api"),
+    url(r'^api/admin/up_load_image/$', SimditorImageUploadAPIView.as_view(), name="simditor_upload_image"),
 ]
