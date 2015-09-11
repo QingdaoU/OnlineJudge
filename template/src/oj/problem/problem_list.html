@@ -29,8 +29,8 @@
                         {% for item in problems %}
                             <tr>
                                 <th><span class="glyphicon glyphicon-ok ac-flag"></span></th>
-                                <th scope="row"><a href="/problem/{{ item.id }}/" target="_blank">{{ item.id }}</a></th>
-                                <td><a href="/problem/{{ item.id }}/" target="_blank">{{ item.title }}</a></td>
+                                <th scope="row"><a href="/problem/{{ item.id }}/">{{ item.id }}</a></th>
+                                <td><a href="/problem/{{ item.id }}/">{{ item.title }}</a></td>
                                 <td>{{ item.difficulty }}</td>
                                 <td>{{ item|accepted_radio }}</td>
                             </tr>
