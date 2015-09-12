@@ -1,3 +1,4 @@
+{% load announcement_list %}
 <div class="panel panel-info">
     <div class="panel-heading">
         <h3 class="panel-title">
@@ -5,8 +6,9 @@
             公告
         </h3></div>
     <div class="panel-body">
+    {% public_announcement_list as announcements %}
         {% if announcements %}
-            {% for item in announcements %}
+            {% for item in announcements%}
             <p>{{ forloop.counter }}.&nbsp;&nbsp;<a href="/announcement/{{ item.id }}/" target="_blank">{{ item.title }}</a>
             </p>
             {% endfor %}

@@ -18,6 +18,7 @@ from group.models import Group
 from announcement.models import Announcement
 
 from .models import Contest, ContestProblem, ContestSubmission
+from .models import GROUP_CONTEST, PUBLIC_CONTEST, PASSWORD_PUBLIC_CONTEST
 from .decorators import check_user_contest_permission
 from .serializers import (CreateContestSerializer, ContestSerializer, EditContestSerializer,
                           CreateContestProblemSerializer, ContestProblemSerializer,
@@ -37,17 +38,18 @@ class ContestAdminAPIView(APIView):
         if serializer.is_valid():
             data = serializer.data
             groups = []
-            # 首先判断比赛的类型： 0 即为是小组赛，1 即为是无密码的公开赛，2 即为是有密码的公开赛
+            # 首先判断比赛的类型： 0 即为是小组赛(GROUP_CONTEST)，1 即为是无密码的公开赛(PUBLIC_CONTEST)，
+            # 2 即为是有密码的公开赛(PASSWORD_PUBLIC_CONTEST)
             # 此时为有密码的公开赛，并且此时只能超级管理员才有权限此创建比赛
-            if data["contest_type"] in [1, 2]:
+            if data["contest_type"] in [PUBLIC_CONTEST, PASSWORD_PUBLIC_CONTEST]:
                 if request.user.admin_type != SUPER_ADMIN:
                     return error_response(u"只有超级管理员才可创建公开赛")
-            if data["contest_type"] == 2:
+            if data["contest_type"] == PASSWORD_PUBLIC_CONTEST:
                 if not data["password"]:
                     return error_response(u"此比赛为有密码的公开赛，密码不可为空")
 
             # 没有密码的公开赛 没有密码的小组赛
-            elif data["contest_type"] == 0:
+            elif data["contest_type"] == GROUP_CONTEST:
                 if request.user.admin_type == SUPER_ADMIN:
                     groups = Group.objects.filter(id__in=data["groups"])
                 else:
@@ -92,13 +94,13 @@ class ContestAdminAPIView(APIView):
                     return error_response(u"该比赛名称已经存在")
             except Contest.DoesNotExist:
                 pass
-            if data["contest_type"] in [1, 2]:
+            if data["contest_type"] in [PUBLIC_CONTEST, PASSWORD_PUBLIC_CONTEST]:
                 if request.user.admin_type != SUPER_ADMIN:
                     return error_response(u"只有超级管理员才可创建公开赛")
-            if data["contest_type"] == 2:
+            if data["contest_type"] == PASSWORD_PUBLIC_CONTEST:
                 if not data["password"]:
                     return error_response(u"此比赛为有密码的公开赛，密码不可为空")
-            elif data["contest_type"] == 0:
+            elif data["contest_type"] == GROUP_CONTEST:
                 if request.user.admin_type == SUPER_ADMIN:
                     groups = Group.objects.filter(id__in=data["groups"])
                 else:
@@ -256,7 +258,7 @@ class ContestPasswordVerifyAPIView(APIView):
         if serializer.is_valid():
             data = request.data
             try:
-                contest = Contest.objects.get(id=data["contest_id"], contest_type=2)
+                contest = Contest.objects.get(id=data["contest_id"], contest_type=PASSWORD_PUBLIC_CONTEST)
             except Contest.DoesNotExist:
                 return error_response(u"比赛不存在")
 
@@ -333,10 +335,7 @@ def contest_problems_list_page(request, contest_id):
                 item.state = 2
         else:
             item.state = 0
-    # 右侧的公告列表
-    announcements = Announcement.objects.filter(is_global=True, visible=True).order_by("-create_time")
     return render(request, "oj/contest/contest_problems_list.html", {"contest_problems": contest_problems,
-                                                                     "announcements": announcements,
                                                                      "contest": {"id": contest_id}})
 
 
@@ -355,7 +354,7 @@ def contest_list_page(request, page=1):
     # 筛选我能参加的比赛
     join = request.GET.get("join", None)
     if join:
-        contests = contests.filter(Q(contest_type__in=[1, 2]) | Q(groups__in=request.user.group_set.all())). \
+        contests = contests.filter(Q(contest_type__in=[PUBLIC_CONTEST, PASSWORD_PUBLIC_CONTEST]) | Q(groups__in=request.user.group_set.all())). \
             filter(end_time__gt=datetime.datetime.now(), start_time__lt=datetime.datetime.now())
 
     paginator = Paginator(contests, 20)
@@ -376,14 +375,10 @@ def contest_list_page(request, page=1):
     except Exception:
         pass
 
-    # 右侧的公告列表
-    announcements = Announcement.objects.filter(is_global=True, visible=True).order_by("-create_time")
-
     return render(request, "oj/contest/contest_list.html",
                   {"contests": current_page, "page": int(page),
                    "previous_page": previous_page, "next_page": next_page,
-                   "keyword": keyword, "announcements": announcements,
-                   "join": join})
+                   "keyword": keyword, "join": join})
 
 
 def _cmp(x, y):
