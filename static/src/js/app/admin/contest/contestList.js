@@ -3,21 +3,39 @@ require(["jquery", "avalon", "csrfToken", "bsAlert", "editor", "datetimePicker",
     avalon.ready(function () {
 
         $("#edit-contest-form").validator().on('submit', function (e) {
-            if (!e.isDefaultPrevented()){
+            if (!e.isDefaultPrevented()) {
                 e.preventDefault();
                 var ajaxData = {
-                    id:                   vm.contestList[vm.editingContestId-1].id,
-                    title:                vm.editTitle,
-                    description:          vm.editDescription,
-                    mode:                 vm.editMode,
-                    contest_type:         0,
-                    hide_rank:            vm.editHideRank,
+                    id: vm.contestList[vm.editingContestId - 1].id,
+                    title: vm.editTitle,
+                    description: vm.editDescription,
+                    mode: vm.editMode,
+                    contest_type: 0,
+                    hide_rank: vm.editHideRank,
                     show_user_submission: vm.editShowSubmission,
-                    start_time:           vm.editStartTime,
-                    end_time:             vm.editEndTime,
-                    visible:              vm.editVisible
+                    start_time: vm.editStartTime,
+                    end_time: vm.editEndTime,
+                    visible: vm.editVisible
                 };
-                if (vm.choseGroupList.length == 0) {
+
+                var selectedGroups = [];
+                if (!vm.isGlobal) {
+                    for (var i = 0; i < vm.allGroups.length; i++) {
+                        if (vm.allGroups[i].isSelected) {
+                            selectedGroups.push(vm.allGroups[i].id);
+                        }
+                    }
+                    ajaxData.groups = selectedGroups;
+                }
+                else {
+                    if (vm.password) {
+                        ajaxData.password = vm.editPassword;
+                        ajaxData.contest_type = 2;
+                    }
+                    else
+                        ajaxData.contest_type = 1;
+                }
+                if (!vm.isGlobal && !selectedGroups.length) {
                     bsAlert("你没有选择参赛用户!");
                     return false;
                 }
@@ -25,22 +43,8 @@ require(["jquery", "avalon", "csrfToken", "bsAlert", "editor", "datetimePicker",
                     bsAlert("比赛描述不能为空!");
                     return false;
                 }
-                if (vm.choseGroupList[0].id == 0) { //everyone | public contest
-                    if (vm.editPassword) {
-                        ajaxData.password = vm.editPassword;
-                        ajaxData.contest_type = 2;
-                    }
-                    else{
-                        ajaxData.contest_type = 1;
-                    }
-                }
-                else { // Add groups info
-                    ajaxData.groups = [];
-                    for (var i = 0; vm.choseGroupList[i]; i++)
-                        ajaxData.groups.push(parseInt(vm.choseGroupList[i].id))
-                }
 
-                $.ajax({                                  // Add contest
+                $.ajax({                                  // modify contest info
                     beforeSend: csrfTokenHeader,
                     url: "/api/admin/contest/",
                     dataType: "json",
@@ -52,7 +56,7 @@ require(["jquery", "avalon", "csrfToken", "bsAlert", "editor", "datetimePicker",
                         if (!data.code) {
                             bsAlert("修改成功!");
                             vm.editingContestId = 0; // Hide the editor
-							vm.getPage(1);           // Refresh the contest list
+                            vm.getPage(1);           // Refresh the contest list
                         }
                         else {
                             bsAlert(data.data);
@@ -63,138 +67,124 @@ require(["jquery", "avalon", "csrfToken", "bsAlert", "editor", "datetimePicker",
             return false;
         });
 
-    if(avalon.vmodels.contestList){
-        // this page has been loaded before, so set the default value
-        var vm = avalon.vmodels.contestList;
-        vm.contestList= [];
-        vm.previousPage= 0;
-        vm.nextPage= 0;
-        vm.page= 1;
-        vm.totalPage= 1;
-        vm.group= "-1";
-        vm.groupList= [];
-        vm.choseGroupList= [];
-        vm.passwordUsable= false;
-        vm.keyword= "";
-        vm.editingContestId= 0;
-        vm.editTitle= "";
-        vm.editDescription= "";
-        vm.editProblemList= [];
-        vm.editPassword= "";
-        vm.editStartTime= "";
-        vm.editEndTime= "";
-        vm.editMode= "";
-        vm.editHideRank= 0;
-        vm.editShowSubmission= false;
-        vm.editProblemList= [];
-        vm.editVisible= false;
-        vm.editChoseGroupList= [];
-        vm.editingProblemContestIndex= 0;
-    }
-    else {
-        var vm = avalon.define({
-            $id: "contestList",
-            contestList: [],
-            previousPage: 0,
-            nextPage: 0,
-            page: 1,
-            totalPage: 1,
-            showVisibleOnly: false,
-            group: "-1",
-            groupList: [],
-            choseGroupList: [],
-            passwordUsable: false,
-            keyword: "",
-            editingContestId: 0,
-            editTitle: "",
-            editDescription: "",
-            editProblemList: [],
-            editPassword: "",
-            editStartTime: "",
-            editEndTime: "",
-            editMode: "",
-            editHideRank: false,
-            editShowSubmission: false,
-            editProblemList: [],
-            editVisible: false,
-            editChoseGroupList: [],
-            editingProblemContestIndex: 0,
-            getNext: function () {
-                if (!vm.nextPage)
-                    return;
-                getPageData(vm.page + 1);
-            },
-            getPrevious: function () {
-                if (!vm.previousPage)
-                    return;
-                getPageData(vm.page - 1);
-            },
-            getBtnClass: function (btn) {
-                if (btn == "next") {
-                    return vm.nextPage ? "btn btn-primary" : "btn btn-primary disabled";
-                }
-                else {
-                    return vm.previousPage ? "btn btn-primary" : "btn btn-primary disabled";
-                }
-            },
-            getPage: function (page_index) {
-                getPageData(page_index);
-            },
-            showEditContestArea: function (contestId) {
-                if (vm.editingContestId && !confirm("如果继续将丢失未保存的信息,是否继续?"))
-                    return;
-                if (contestId == vm.editingContestId)
-                    vm.editingContestId = 0;
-                else {
-                    vm.editingContestId = contestId;
-                    vm.editTitle     = vm.contestList[contestId-1].title;
-                    vm.editPassword  = vm.contestList[contestId-1].password;
-                    vm.editStartTime = vm.contestList[contestId-1].start_time.substring(0,16).replace("T"," ");
-                    vm.editEndTime   = vm.contestList[contestId-1].end_time.substring(0,16).replace("T"," ");
-                    vm.editMode      = vm.contestList[contestId-1].mode;
-                    vm.editVisible      = vm.contestList[contestId-1].visible;
-                    if (vm.contestList[contestId-1].contest_type == 0) { //contest type == 0, contest in group
-                        //Clear the choseGroupList
-                        while (vm.choseGroupList.length) {
-                            vm.removeGroup(0);
-                        }
+        if (avalon.vmodels.contestList) {
+            // this page has been loaded before, so set the default value
+            var vm = avalon.vmodels.contestList;
+            vm.contestList = [];
+            vm.previousPage = 0;
+            vm.nextPage = 0;
+            vm.page = 1;
+            vm.totalPage = 1;
+            vm.keyword = "";
+            vm.editingContestId = 0;
+            vm.editTitle = "";
+            vm.editDescription = "";
+            vm.editProblemList = [];
+            vm.editPassword = "";
+            vm.editStartTime = "";
+            vm.editEndTime = "";
+            vm.editMode = "";
+            vm.editHideRank = 0;
+            vm.editShowSubmission = false;
+            vm.editVisible = false;
+            vm.editingProblemContestIndex = 0;
+        }
+        else {
+            var vm = avalon.define({
+                $id: "contestList",
+                contestList: [],
+                previousPage: 0,
+                nextPage: 0,
+                page: 1,
+                totalPage: 1,
+                showVisibleOnly: false,
+                keyword: "",
+                editingContestId: 0,
+                editTitle: "",
+                editDescription: "",
+                editProblemList: [],
+                editPassword: "",
+                editStartTime: "",
+                editEndTime: "",
+                editMode: "",
+                editHideRank: false,
+                editShowSubmission: false,
+                editVisible: false,
+                editingProblemContestIndex: 0,
+                isGlobal: true,
+                allGroups: [],
+                showGlobalViewRadio: true,
 
-                        for (var i = 0; i < vm.contestList[contestId-1].groups.length; i++){
-                            var id = parseInt(vm.contestList[contestId-1].groups[i]);
-                            var index = 0;
-                            for (; vm.groupList[index]; index++) {
-                                if (vm.groupList[index].id == id)
-                                    break;
+                getNext: function () {
+                    if (!vm.nextPage)
+                        return;
+                    getPageData(vm.page + 1);
+                },
+                getPrevious: function () {
+                    if (!vm.previousPage)
+                        return;
+                    getPageData(vm.page - 1);
+                },
+                getBtnClass: function (btn) {
+                    if (btn == "next") {
+                        return vm.nextPage ? "btn btn-primary" : "btn btn-primary disabled";
+                    }
+                    else {
+                        return vm.previousPage ? "btn btn-primary" : "btn btn-primary disabled";
+                    }
+                },
+                getPage: function (page_index) {
+                    getPageData(page_index);
+                },
+                showEditContestArea: function (contestId) {
+                    if (vm.editingContestId && !confirm("如果继续将丢失未保存的信息,是否继续?"))
+                        return;
+                    if (contestId == vm.editingContestId)
+                        vm.editingContestId = 0;
+                    else {
+                        vm.editingContestId = contestId;
+                        vm.editTitle = vm.contestList[contestId - 1].title;
+                        vm.editPassword = vm.contestList[contestId - 1].password;
+                        vm.editStartTime = vm.contestList[contestId - 1].start_time.substring(0, 16).replace("T", " ");
+                        vm.editEndTime = vm.contestList[contestId - 1].end_time.substring(0, 16).replace("T", " ");
+                        vm.editMode = vm.contestList[contestId - 1].mode;
+                        vm.editVisible = vm.contestList[contestId - 1].visible;
+                        if (vm.contestList[contestId - 1].contest_type == 0) { //contest type == 0, contest in group
+                            vm.isGlobal = false;
+                            for (var i = 0; i < vm.allGroups.length; i++) {
+                                vm.allGroups[i].isSelected = false;
                             }
-                            vm.groupList[index].chose = true;
-                            vm.choseGroupList.push({
-                                name:vm.groupList[index].name,
-                                index:index,
-                                id:id
-                            });
+                            for (var i = 0; i < vm.contestList[contestId - 1].groups.length; i++) {
+                                var id = parseInt(vm.contestList[contestId - 1].groups[i]);
+
+                                for (var index = 0; vm.allGroups[index]; index++) {
+                                    if (vm.allGroups[index].id == id) {
+                                        vm.allGroups[index].isSelected = true;
+                                        break;
+                                    }
+                                }
+                            }
                         }
+                        else {
+                            vm.isGlobal = true;
+                        }
+                        vm.editHideRank = vm.contestList[contestId - 1].Hide_rank;
+                        vm.editShowSubmission = vm.contestList[contestId - 1].show_user_submission;
+                        editor("#editor").setValue(vm.contestList[contestId - 1].description);
+                        vm.editingProblemContestIndex = 0;
                     }
-                    else{
-                        vm.group = "0";
-                        vm.addGroup()//vm.editChoseGroupList = [0]; id 0 is for the group of everyone~
+                },
+                showEditProblemArea: function (contestId) {
+                    if (vm.editingProblemContestIndex == contestId) {
+                        vm.editingProblemContestIndex = 0;
+                        return;
                     }
-                    vm.editHideRank = vm.contestList[contestId-1].Hide_rank;
-                    vm.editShowSubmission = vm.contestList[contestId-1].show_user_submission;
-                    editor("#editor").setValue(vm.contestList[contestId-1].description);
-                    vm.editingProblemContestIndex = 0;
-                }
-            },
-            showEditProblemArea: function(contestId) {
-                if (vm.editingProblemContestIndex == contestId) {
-                    vm.editingProblemContestIndex = 0;
-                    return;
-                }
-                if (vm.editingContestId&&!confirm("如果继续将丢失未保存的信息,是否继续?")){
-                    return;
-                }
-                $.ajax({      // Get the problem list of current contest
+                    if (vm.editingContestId && !confirm("如果继续将丢失未保存的信息,是否继续?")) {
+                        return;
+                    }
+                    $.ajax({      // Get the problem list of current contest
                         beforeSend: csrfTokenHeader,
-                        url: "/api/admin/contest_problem/?contest_id=" + vm.contestList[contestId-1].id,
+                        url: "/api/admin/contest_problem/?contest_id=" + vm.contestList[contestId - 1].id,
                         method: "get",
                         dataType: "json",
                         success: function (data) {
@@ -206,51 +196,27 @@ require(["jquery", "avalon", "csrfToken", "bsAlert", "editor", "datetimePicker",
                             }
                         }
                     });
-                vm.editingContestId = 0;
-                vm.editingProblemContestIndex = contestId;
-                vm.editMode = vm.contestList[contestId-1].mode;
-            },
-            addGroup: function() {
-                    if (vm.group == -1) return;
-                    if (vm.groupList[vm.group].id == 0){
-                        vm.passwordUsable = true;
-                        vm.choseGroupList = [];
-                        for (var i = 0; i < vm.groupList.length; i++) {
-                            vm.groupList[i].chose = true;
-                        }
-                    }
-                    vm.groupList[vm.group]. chose = true;
-                    // index of the group is relative. It is related to user
-                    vm.choseGroupList.push({name:vm.groupList[vm.group].name, index:vm.group, id:vm.groupList[vm.group].id});
-                    vm.group = -1;
-            },
-            removeGroup: function(groupIndex){
-                    if (vm.groupList[vm.choseGroupList[groupIndex].index].id == 0){
-                        vm.passwordUsable = false;
-                        for (var i = 0; i < vm.groupList.length; i++) {
-                            vm.groupList[i].chose = false;
-                        }
-                    }
-                    vm.groupList[vm.choseGroupList[groupIndex].index].chose = false;
-                    vm.choseGroupList.remove(vm.choseGroupList[groupIndex]);
+                    vm.editingContestId = 0;
+                    vm.editingProblemContestIndex = contestId;
+                    vm.editMode = vm.contestList[contestId - 1].mode;
                 },
-            addProblem: function () {
-                vm.$fire("up!showContestProblemPage", 0, vm.contestList[vm.editingProblemContestIndex-1].id, vm.editMode);
-            },
-            showProblemEditPage: function(el) {
-                vm.$fire("up!showContestProblemPage", el.id, vm.contestList[vm.editingProblemContestIndex-1].id, vm.editMode);
-            },
-            showSubmissionPage: function(el) {
-                var problemId = 0
-                if (el)
-                    problemId = el.id;
-                vm.$fire("up!showContestSubmissionPage", problemId, vm.contestList[vm.editingProblemContestIndex-1].id, vm.editMode);
-            }
-        });
-        vm.$watch("showVisibleOnly", function() {
-            getPageData(1);
-        })
-    }
+                addProblem: function () {
+                    vm.$fire("up!showContestProblemPage", 0, vm.contestList[vm.editingProblemContestIndex - 1].id, vm.editMode);
+                },
+                showProblemEditPage: function (el) {
+                    vm.$fire("up!showContestProblemPage", el.id, vm.contestList[vm.editingProblemContestIndex - 1].id, vm.editMode);
+                },
+                showSubmissionPage: function (el) {
+                    var problemId = 0
+                    if (el)
+                        problemId = el.id;
+                    vm.$fire("up!showContestSubmissionPage", problemId, vm.contestList[vm.editingProblemContestIndex - 1].id, vm.editMode);
+                }
+            });
+            vm.$watch("showVisibleOnly", function () {
+                getPageData(1);
+            })
+        }
         getPageData(1);
 
         //init time picker
@@ -293,39 +259,40 @@ require(["jquery", "avalon", "csrfToken", "bsAlert", "editor", "datetimePicker",
         }
 
         // Get group list
-        $.ajax({  // Get current user type
+        $.ajax({
             url: "/api/user/",
             method: "get",
             dataType: "json",
             success: function (data) {
                 if (!data.code) {
-                    if (data.data.admin_type == 2) { // Is super user
-                        vm.isGlobal = true;
-						vm.groupList.push({id:0,name:"所有人",chose:false});
+                    var admin_type = data.data.admin_type;
+                    if (data.data.admin_type == 1) {
+                        vm.isGlobal = false;
+                        vm.showGlobalViewRadio = false;
                     }
-                    $.ajax({      // Get the group list of current user
-                        beforeSend: csrfTokenHeader,
-                        url: "/api/admin/group/",
-                        method: "get",
-                        dataType: "json",
-                        success: function (data) {
-                            if (!data.code) {
-                                if (!data.data.length) {
-                                    //this user have no group can use
-                                    return;
-                                }
-                                for (var i = 0; i < data.data.length; i++) {
-                                    var item = data.data[i];
-                                    item["chose"] = false;
-                                    vm.groupList.push(item);
-                                }
+                }
+                $.ajax({
+                    url: "/api/admin/group/",
+                    method: "get",
+                    dataType: "json",
+                    success: function (data) {
+                        if (!data.code) {
+                            if (!data.data.length) {
+                                if (admin_type != 2)
+                                    bsAlert("您的用户权限只能创建小组内比赛，但是您还没有创建过小组");
+                                return;
                             }
-                            else {
-                                bsAlert(data.data);
+                            for (var i = 0; i < data.data.length; i++) {
+                                var item = data.data[i];
+                                item["isSelected"] = false;
+                                vm.allGroups.push(item);
                             }
                         }
-                    });
-                }
+                        else {
+                            bsAlert(data.data);
+                        }
+                    }
+                });
             }
         });
 

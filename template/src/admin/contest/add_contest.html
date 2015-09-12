@@ -45,22 +45,37 @@
                 </div>
             </div>
             <div class="col-md-6">
-                <label>允许参加的用户</label>
                 <div class="form-group">
-                    <select class="form-control" ms-duplex="group" ms-change="addGroup" value="-1">
-                        <option value="-1">请选择</option>
-                        <option ms-repeat="groupList" ms-attr-value="$index" ms-visible="!el.chose">{{el.name}}</option>
-                    </select>
+                    <label>可见范围</label>
+
+                    <div>
+                <span ms-if="showGlobalViewRadio">
+                    <label>
+                        <small><input type="radio" value="true" name="isGlobal" ms-duplex-boolean="isGlobal">全局可见
+                        </small>
+                    </label>
+                </span>
+                <span>
+                    <label>
+                        <small><input type="radio" value="false" name="isGlobal" ms-duplex-boolean="isGlobal">小组内可见
+                        </small>
+                    </label>
+                </span>
+                    </div>
+
                 </div>
             </div>
-            <div class="col-md-6" ms-visible="passwordUsable">
+            <div class="col-md-6" ms-visible="isGlobal">
                 <label>密码保护</label>
                 <div class="form-group">
                     <input type="text" class="form-control" name="password" placeholder="留空就是公开赛" ms-duplex="password">
                 </div>
             </div>
-            <div class="col-md-12">
-                <div ms-repeat="choseGroupList" class="group-tag" ms-click="removeGroup($index)">{{el.name}}</div>
+            <div class="form-group col-md-12" ms-visible="!isGlobal">
+                <!-- radio 的value 没有用 但是没有的话，表单验证会出错-->
+                <div ms-repeat="allGroups" class="col-md-4">
+                    <input type="checkbox" value="group_id" ms-duplex-checked="el.isSelected">&nbsp;&nbsp;{{ el.name }}
+                </div>
             </div>
             <div class="col-md-3">
                 <label>排名方式</label>
