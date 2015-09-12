@@ -17,8 +17,8 @@ class Contest(models.Model):
     description = models.TextField()
     # 比赛模式：0 即为是acm模式，1 即为是按照总的 ac 题目数量排名模式
     mode = models.IntegerField()
-    # 是否显示排名结果
-    show_rank = models.BooleanField()
+    # 是否显示实时排名结果
+    real_time_rank = models.BooleanField()
     # 是否显示别人的提交记录
     show_user_submission = models.BooleanField()
     # 只能超级管理员创建公开赛，管理员只能创建小组内部的比赛

@@ -1,8 +1,9 @@
 ({
 	// RequireJS 通过一个相对的路径 baseUrl来加载所有代码。baseUrl通常被设置成data-main属性指定脚本的同级目录。
-	baseUrl: "js/",
+	baseUrl: "/static/js/",
 	// 第三方脚本模块的别名,jquery比libs/jquery-1.11.1.min.js简洁明了；
     paths: {
+
         jquery: "lib/jquery/jquery",
         avalon: "lib/avalon/avalon",
         editor: "utils/editor",
@@ -37,12 +38,12 @@
         webUploader: "lib/webuploader/webuploader",
 
         "_datetimePicker": "lib/datetime_picker/bootstrap-datetimepicker"
-
     },
     shim: {
-        "bootstrap": {"deps": ['jquery']},
-        "_datetimepicker": {"deps": ["jquery"]},
-        "datetimepicker": {"deps": ["_datetimepicker"]}
+        bootstrap: {deps: ["jquery"]},
+        _datetimePicker: {dep: ["jquery"]},
+        datetimePicker: {deps: ["_datetimePicker"]},
+        validator: ["jquery"]
     },
     findNestedDependencies: true,
     appDir: "../",

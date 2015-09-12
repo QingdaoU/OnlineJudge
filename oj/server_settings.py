@@ -29,9 +29,17 @@ DATABASES = {
     }
 }
 
+REDIS_CACHE = {
+    "host": "127.0.0.1",
+    "port": 6379,
+    "db": 1
+}
+
 DEBUG = True
 
 # 同理 这是 web 服务器的上传路径
 TEST_CASE_DIR = '/root/test_case/'
 
 ALLOWED_HOSTS = ['*']
+
+IMAGE_UPLOAD_DIR = '/var/mnt/source/OnlineJudge/static/src/upload_image/'

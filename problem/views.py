@@ -147,9 +147,12 @@ class TestCaseUploadAPIView(APIView):
         f = request.FILES["file"]
 
         tmp_zip = "/tmp/" + rand_str() + ".zip"
-        with open(tmp_zip, "wb") as test_case_zip:
-            for chunk in f:
-                test_case_zip.write(chunk)
+        try:
+            with open(tmp_zip, "wb") as test_case_zip:
+                for chunk in f:
+                    test_case_zip.write(chunk)
+        except IOError:
+            return error_response(u"上传错误，写入临时目录失败")
 
         test_case_file = zipfile.ZipFile(tmp_zip, 'r')
         name_list = test_case_file.namelist()
@@ -254,7 +257,7 @@ def problem_list_page(request, page=1):
             tag = ProblemTag.objects.get(name=tag_text)
         except ProblemTag.DoesNotExist:
             return error_page(request, u"标签不存在")
-        problems = tag.problem_set.all()
+        problems = tag.problem_set.all().filter(visible=True)
 
     paginator = Paginator(problems, 20)
     try:
