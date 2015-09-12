@@ -228,6 +228,19 @@ def problem_list_page(request, page=1):
     if keyword:
         problems = problems.filter(Q(title__contains=keyword) | Q(description__contains=keyword))
 
+    difficulty_order = request.GET.get("order_by", None)
+    if difficulty_order:
+        if difficulty_order[0] == "-":
+            problems = problems.order_by("-difficulty")
+            difficulty_order = "difficulty"
+        else:
+            problems = problems.order_by("difficulty")
+            difficulty_order = "-difficulty"
+    else:
+        difficulty_order = "difficulty"
+
+
+
     # 按照标签筛选
     tag_text = request.GET.get("tag", None)
     if tag_text:
@@ -255,8 +268,6 @@ def problem_list_page(request, page=1):
     except Exception:
         pass
 
-    # 右侧的公告列表
-    announcements = Announcement.objects.filter(is_global=True, visible=True).order_by("-create_time")
     # 右侧标签列表 按照关联的题目的数量排序 排除题目数量为0的
     tags = ProblemTag.objects.annotate(problem_number=Count("problem")).filter(problem_number__gt=0).order_by("-problem_number")
 
@@ -264,4 +275,4 @@ def problem_list_page(request, page=1):
                   {"problems": current_page, "page": int(page),
                    "previous_page": previous_page, "next_page": next_page,
                    "keyword": keyword, "tag": tag_text,
-                   "announcements": announcements, "tags": tags})
+                   "tags": tags, "difficulty_order": difficulty_order})

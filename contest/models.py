@@ -7,6 +7,11 @@ from problem.models import AbstractProblem
 from group.models import Group
 
 
+GROUP_CONTEST = 0
+PUBLIC_CONTEST = 1
+PASSWORD_PUBLIC_CONTEST = 2
+
+
 class Contest(models.Model):
     title = models.CharField(max_length=40, unique=True)
     description = models.TextField()
@@ -19,7 +24,8 @@ class Contest(models.Model):
     # 只能超级管理员创建公开赛，管理员只能创建小组内部的比赛
     # 如果这一项不为空，即为有密码的公开赛，没有密码的可以为小组赛或者是公开赛（此时用比赛的类型来表示）
     password = models.CharField(max_length=30, blank=True, null=True)
-    # 比赛的类型： 0 即为是小组赛，1 即为是无密码的公开赛，2 即为是有密码的公开赛
+    # 比赛的类型： 0 即为是小组赛(GROUP_CONTEST)，1 即为是无密码的公开赛(PUBLIC_CONTEST)，
+    # 2 即为是有密码的公开赛(PASSWORD_PUBLIC_CONTEST)
     contest_type = models.IntegerField()
     # 开始时间
     start_time = models.DateTimeField()

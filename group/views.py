@@ -254,9 +254,6 @@ class JoinGroupRequestAdminAPIView(APIView, GroupAPIViewBase):
 
 @login_required
 def group_list_page(request, page=1):
-    # 右侧的公告列表
-    announcements = Announcement.objects.filter(is_global=True, visible=True).order_by("-create_time")
-
     groups = Group.objects.filter(visible=True, join_group_setting__lte=2)
     # 搜索的情况
     keyword = request.GET.get("keyword", None)
@@ -282,10 +279,10 @@ def group_list_page(request, page=1):
         pass
 
     return render(request, "oj/group/group_list.html", {
-        "groups": groups, "announcements": announcements,
+        "groups": groups,
         "contests": current_page, "page": int(page),
         "previous_page": previous_page, "next_page": next_page,
-        "keyword": keyword, "announcements": announcements,
+        "keyword": keyword
     })
 
 

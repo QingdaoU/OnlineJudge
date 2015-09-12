@@ -165,6 +165,16 @@ def my_submission_list_page(request, page=1):
     if result:
         submissions = submissions.filter(result=int(result))
         filter = {"name": "result", "content": result}
+
+    # 为 submission 查询题目 因为提交页面经常会有重复的题目，缓存一下查询结果
+    cache_result = {}
+    for item in submissions:
+        problem_id = item["problem_id"]
+        if problem_id not in cache_result:
+            problem = Problem.objects.get(id=problem_id)
+            cache_result[problem_id] = problem.title
+        item["title"] = cache_result[problem_id]
+
     paginator = Paginator(submissions, 20)
     try:
         current_page = paginator.page(int(page))
