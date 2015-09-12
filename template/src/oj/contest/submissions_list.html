@@ -67,7 +67,8 @@
                 <tbody>
                 {% for item in submissions %}
                     <tr>
-                        {% ifequal item.user_id request.user.id %}
+
+                        {% if item.user_id == request.user.id and request.user.admin_type == 2%}
                             <th scope="row"><a href="/submission/{{ item.id }}/">
                                 {{ forloop.counter |add:start_id }}</a></th>
                         {% else %}

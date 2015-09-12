@@ -24,6 +24,8 @@ from .serializers import (CreateContestSerializer, ContestSerializer, EditContes
                           CreateContestProblemSerializer, ContestProblemSerializer,
                           EditContestProblemSerializer, ContestPasswordVerifySerializer,
                           EditContestProblemSerializer)
+from oj.settings import REDIS_CACHE
+import redis
 
 
 class ContestAdminAPIView(APIView):
@@ -61,7 +63,7 @@ class ContestAdminAPIView(APIView):
             try:
                 contest = Contest.objects.create(title=data["title"], description=data["description"],
                                                  mode=data["mode"], contest_type=data["contest_type"],
-                                                 show_rank=data["show_rank"], password=data["password"],
+                                                 real_time_rank=data["real_time_rank"], password=data["password"],
                                                  show_user_submission=data["show_user_submission"],
                                                  start_time=dateparse.parse_datetime(data["start_time"]),
                                                  end_time=dateparse.parse_datetime(data["end_time"]),
@@ -115,7 +117,7 @@ class ContestAdminAPIView(APIView):
             contest.description = data["description"]
             contest.mode = data["mode"]
             contest.contest_type = data["contest_type"]
-            contest.show_rank = data["show_rank"]
+            contest.real_time_rank = data["real_time_rank"]
             contest.show_user_submission = data["show_user_submission"]
             contest.start_time = dateparse.parse_datetime(data["start_time"])
             contest.end_time = dateparse.parse_datetime(data["end_time"])
@@ -397,19 +399,33 @@ def _cmp(x, y):
 def contest_rank_page(request, contest_id):
     contest = Contest.objects.get(id=contest_id)
     contest_problems = ContestProblem.objects.filter(contest=contest).order_by("sort_index")
-    result = ContestSubmission.objects.filter(contest=contest).values("user_id").\
-        annotate(total_submit=Sum("total_submission_number"))
-    for i in range(0, len(result)):
-        # 这个人所有的提交
-        submissions = ContestSubmission.objects.filter(user_id=result[i]["user_id"], contest_id=contest_id)
-        result[i]["submissions"] = {}
-        for item in submissions:
-            result[i]["submissions"][item.problem_id] = item
-        result[i]["total_ac"] = submissions.filter(ac=True).count()
-        result[i]["user"] = User.objects.get(id=result[i]["user_id"])
-        result[i]["total_time"] = submissions.filter(ac=True).aggregate(total_time=Sum("total_time"))["total_time"]
+
+    r = redis.Redis(host=REDIS_CACHE["host"], port=REDIS_CACHE["port"], db=REDIS_CACHE["db"])
+    if contest.real_time_rank:
+        # 更新rank
+        result = ContestSubmission.objects.filter(contest=contest).values("user_id"). \
+            annotate(total_submit=Sum("total_submission_number"))
+        for i in range(0, len(result)):
+            # 这个人所有的提交
+            submissions = ContestSubmission.objects.filter(user_id=result[i]["user_id"], contest_id=contest_id)
+            result[i]["submissions"] = {}
+            for item in submissions:
+                result[i]["submissions"][item.problem_id] = item
+            result[i]["total_ac"] = submissions.filter(ac=True).count()
+            result[i]["user"] = User.objects.get(id=result[i]["user_id"])
+            result[i]["total_time"] = submissions.filter(ac=True).aggregate(total_time=Sum("total_time"))["total_time"]
+            result = sorted(result, cmp=_cmp, reverse=True)
+        r.set("contest_rank_" + contest_id, json.dumps(list(result)))
+    else:
+        # 从缓存读取排名信息
+        result = r.get("contest_rank_" + contest_id)
+        if result:
+            result = json.loads(result)
+        else:
+            result = []
 
     return render(request, "oj/contest/contest_rank.html",
                   {"contest": contest, "contest_problems": contest_problems,
-                   "result": sorted(result, cmp=_cmp, reverse=True),
-                   "auto_refresh": request.GET.get("auto_refresh", None) == "true"})
+                   "result": result,
+                   "auto_refresh": request.GET.get("auto_refresh", None) == "true",
+                   "real_time_rank": contest.real_time_rank})
