@@ -1,4 +1,5 @@
 # coding=utf-8
+import os
 import json
 import commands
 import hashlib
@@ -94,7 +95,8 @@ class JudgeClient(object):
         return error, parse_lrun_output(output)
 
     def _compare_output(self, test_case_id):
-        test_case_md5 = self._test_case_info["test_cases"][str(test_case_id)]["output_md5"]
+        test_case_config = self._test_case_info["test_cases"][str(test_case_id)]
+        test_case_md5 = test_case_config["output_md5"]
         output_path = judger_workspace + str(test_case_id) + ".out"
 
         try:
@@ -104,6 +106,7 @@ class JudgeClient(object):
             return False
 
         # 计算输出文件的md5 和之前测试用例文件的md5进行比较
+        # 现在比较的是完整的文件
         md5 = hashlib.md5()
         while True:
             data = f.read(2 ** 8)
@@ -111,9 +114,18 @@ class JudgeClient(object):
                 break
             md5.update(data)
 
-        # 对比文件是否一致
-        # todo 去除最后的空行
-        return md5.hexdigest() == test_case_md5
+        if md5.hexdigest() == test_case_md5:
+            return True
+        else:
+            # 这时候需要去除用户输出最后的空格和换行 再去比较md5
+            # 兼容之前没有striped_output_md5的测试用例
+            if "striped_output_md5" not in test_case_config:
+                return False
+            f.seek(0)
+            striped_md5 = hashlib.md5()
+            # 比较和返回去除空格后的md5比较结果
+            striped_md5.update(f.read().rstrip())
+            return striped_md5.hexdigest() == test_case_config["striped_output_md5"]
 
     def _judge_one(self, test_case_id):
         # 运行lrun程序 接收返回值

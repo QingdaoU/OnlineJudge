@@ -198,16 +198,24 @@ class TestCaseUploadAPIView(APIView):
             # 计算输出文件的md5
             for i in range(len(l) / 2):
                 md5 = hashlib.md5()
+                striped_md5 = hashlib.md5()
                 f = open(test_case_dir + str(i + 1) + ".out", "r")
+                # 完整文件的md5
                 while True:
-                    data = f.read(2 ** 8)
+                    data = f.read()
                     if not data:
                         break
                     md5.update(data)
 
+                # 删除标准输出最后的空格和换行
+                # 这时只能一次全部读入了，分块读的话，没办法确定文件结尾
+                f.seek(0)
+                striped_md5.update(f.read().rstrip())
+
                 file_info["test_cases"][str(i + 1)] = {"input_name": str(i + 1) + ".in",
                                                        "output_name": str(i + 1) + ".out",
                                                        "output_md5": md5.hexdigest(),
+                                                       "striped_output_md5": striped_md5.hexdigest(),
                                                        "output_size": os.path.getsize(test_case_dir + str(i + 1) + ".out")}
                 # 写入配置文件
                 open(test_case_dir + "info", "w").write(json.dumps(file_info))
@@ -238,8 +246,6 @@ def problem_list_page(request, page=1):
             difficulty_order = "-difficulty"
     else:
         difficulty_order = "difficulty"
-
-
 
     # 按照标签筛选
     tag_text = request.GET.get("tag", None)
