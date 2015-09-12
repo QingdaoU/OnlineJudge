@@ -5,7 +5,6 @@ import MySQLdb
 import subprocess
 from ..judger.result import result
 from ..judger_controller.celery import app
-from logger import logger
 from settings import docker_config, source_code_dir, test_case_dir, log_dir, submission_db, redis_config
 
 
@@ -27,7 +26,6 @@ def judge(submission_id, time_limit, memory_limit, test_case_id):
                    submission_id, str(time_limit), str(memory_limit), test_case_id)
         subprocess.call(command, shell=docker_config["shell"])
     except Exception as e:
-        logger.error(e)
         conn = MySQLdb.connect(db=submission_db["db"],
                                user=submission_db["user"],
                                passwd=submission_db["password"],
