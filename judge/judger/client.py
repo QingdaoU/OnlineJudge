@@ -7,9 +7,9 @@ from multiprocessing import Pool
 from settings import max_running_number, lrun_gid, lrun_uid, judger_workspace
 from language import languages
 from result import result
-from compiler import compile_
-from judge_exceptions import JudgeClientError, CompileError
+from judge_exceptions import JudgeClientError
 from utils import parse_lrun_output
+from logger import logger
 
 
 # 下面这个函数作为代理访问实例变量，否则Python2会报错，是Python2的已知问题
@@ -82,6 +82,8 @@ class JudgeClient(object):
         # 倒序找到MEMORY的位置
         output_start = output.rfind("MEMORY")
         if output_start == -1:
+            logger.error("Lrun result parse error")
+            logger.error(output)
             raise JudgeClientError("Lrun result parse error")
         # 如果不是0，说明lrun输出前面有输出，也就是程序的stderr有内容
         if output_start != 0:
@@ -123,19 +125,21 @@ class JudgeClient(object):
 
         run_result["test_case_id"] = test_case_id
 
-        # 如果返回值非0 或者信号量不是0 或者程序的stderr有输出 代表非正常结束
-        if run_result["exit_code"] or run_result["term_sig"] or run_result["siginaled"] or error:
-            run_result["result"] = result["runtime_error"]
-            return run_result
-
-        # 代表内存或者时间超过限制了
+        # 代表内存或者时间超过限制了 程序被终止掉 要在runtime error 之前判断
         if run_result["exceed"]:
             if run_result["exceed"] == "memory":
                 run_result["result"] = result["memory_limit_exceeded"]
             elif run_result["exceed"] in ["cpu_time", "real_time"]:
                 run_result["result"] = result["time_limit_exceeded"]
             else:
+                logger.error("Error exceeded type: " + run_result["exceed"])
+                logger.error(output)
                 raise JudgeClientError("Error exceeded type: " + run_result["exceed"])
+            return run_result
+
+        # 如果返回值非0 或者信号量不是0 或者程序的stderr有输出 代表非正常结束
+        if run_result["exit_code"] or run_result["term_sig"] or run_result["siginaled"] or error:
+            run_result["result"] = result["runtime_error"]
             return run_result
 
         # 下面就是代码正常运行了 需要判断代码的输出是否正确
@@ -160,8 +164,8 @@ class JudgeClient(object):
             try:
                 results.append(item.get())
             except Exception as e:
-                # todo logging
-                print e
+                logger.error("system error")
+                logger.error(e)
                 results.append({"result": result["system_error"]})
         return results
 

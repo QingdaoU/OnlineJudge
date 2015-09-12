@@ -4,6 +4,7 @@ import commands
 from settings import lrun_uid, lrun_gid
 from judge_exceptions import CompileError, JudgeClientError
 from utils import parse_lrun_output
+from logger import logger
 
 
 def compile_(language_item, src_path, exe_path):
@@ -22,6 +23,8 @@ def compile_(language_item, src_path, exe_path):
     output_start = output.rfind("MEMORY")
 
     if output_start == -1:
+        logger.error("Compiler error")
+        logger.error(output)
         raise JudgeClientError("Error running compiler in lrun")
 
     # 返回值不为 0 或者 stderr 中 lrun 的输出之前有 erro r字符串
@@ -33,5 +36,7 @@ def compile_(language_item, src_path, exe_path):
     parse_result = parse_lrun_output(output[output_start:])
 
     if parse_result["exit_code"] or parse_result["term_sig"] or parse_result["siginaled"] or parse_result["exceed"]:
+        logger.error("Compiler error")
+        logger.error(output)
         raise CompileError("Compile error")
     return exe_path
