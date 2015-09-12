@@ -11,7 +11,7 @@ require(["jquery", "avalon", "csrfToken", "bsAlert", "editor", "datetimePicker",
                     description: vm.editDescription,
                     mode: vm.editMode,
                     contest_type: 0,
-                    hide_rank: vm.editHideRank,
+                    real_time_rank: vm.editRealTimeRank,
                     show_user_submission: vm.editShowSubmission,
                     start_time: vm.editStartTime,
                     end_time: vm.editEndTime,
@@ -84,10 +84,10 @@ require(["jquery", "avalon", "csrfToken", "bsAlert", "editor", "datetimePicker",
             vm.editStartTime = "";
             vm.editEndTime = "";
             vm.editMode = "";
-            vm.editHideRank = 0;
             vm.editShowSubmission = false;
             vm.editVisible = false;
             vm.editingProblemContestIndex = 0;
+            vm.editRealTimeRank = true;
         }
         else {
             var vm = avalon.define({
@@ -107,9 +107,9 @@ require(["jquery", "avalon", "csrfToken", "bsAlert", "editor", "datetimePicker",
                 editStartTime: "",
                 editEndTime: "",
                 editMode: "",
-                editHideRank: false,
                 editShowSubmission: false,
                 editVisible: false,
+                editRealTimeRank: true,
                 editingProblemContestIndex: 0,
                 isGlobal: true,
                 allGroups: [],
@@ -149,6 +149,7 @@ require(["jquery", "avalon", "csrfToken", "bsAlert", "editor", "datetimePicker",
                         vm.editEndTime = vm.contestList[contestId - 1].end_time.substring(0, 16).replace("T", " ");
                         vm.editMode = vm.contestList[contestId - 1].mode;
                         vm.editVisible = vm.contestList[contestId - 1].visible;
+                        vm.editRealTimeRank = vm.contestList[contestId - 1].real_time_rank;
                         if (vm.contestList[contestId - 1].contest_type == 0) { //contest type == 0, contest in group
                             vm.isGlobal = false;
                             for (var i = 0; i < vm.allGroups.length; i++) {
@@ -168,7 +169,6 @@ require(["jquery", "avalon", "csrfToken", "bsAlert", "editor", "datetimePicker",
                         else {
                             vm.isGlobal = true;
                         }
-                        vm.editHideRank = vm.contestList[contestId - 1].Hide_rank;
                         vm.editShowSubmission = vm.contestList[contestId - 1].show_user_submission;
                         editor("#editor").setValue(vm.contestList[contestId - 1].description);
                         vm.editingProblemContestIndex = 0;

@@ -10,7 +10,7 @@ require(["jquery", "avalon", "editor", "uploader", "bsAlert", "csrfToken", "date
                     description: vm.description,
                     mode: vm.mode,
                     contest_type: 0,
-                    hide_rank: vm.hideRank,
+                    real_time_rank: vm.realTimeRank,
                     show_user_submission: vm.showSubmission,
                     start_time: vm.startTime,
                     end_time: vm.endTime,
@@ -57,9 +57,8 @@ require(["jquery", "avalon", "editor", "uploader", "bsAlert", "csrfToken", "date
                             vm.startTime = "";
                             vm.endTime = "";
                             vm.password = "";
-                            vm.mode = "";
-                            vm.hideRank = 0;
-                            vm.showSubmission = false;
+                            vm.mode = "0";
+                            vm.showSubmission = true;
                             location.hash = "#contest/contest_list";
                             vm.isGlobal = true;
                             vm.allGroups = [];
@@ -85,12 +84,12 @@ require(["jquery", "avalon", "editor", "uploader", "bsAlert", "csrfToken", "date
                 startTime: "",
                 endTime: "",
                 password: "",
-                mode: "",
-                hideRank: 0,
-                showSubmission: false,
+                mode: "0",
+                showSubmission: true,
                 isGlobal: true,
                 allGroups: [],
-                showGlobalViewRadio: true
+                showGlobalViewRadio: true,
+                realTimeRank: true
             });
 
         $.ajax({

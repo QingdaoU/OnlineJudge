@@ -21,7 +21,7 @@
                     <p class="error-info" ms-visible="description==''">请填写比赛描述</p>
                 </div>
             </div>
-            <div class="col-md-4">
+            <div class="col-md-6">
                 <label>开始时间</label>
                 <div class="form-group">
                     <input type="text" class="form-control" name="start_time" id="contest_start_time"
@@ -29,18 +29,11 @@
                     <div class="help-block with-errors"></div>
                 </div>
             </div>
-            <div class="col-md-4">
+            <div class="col-md-6">
                 <label>结束时间</label>
                 <div class="form-group">
                     <input type="text" class="form-control" name="end_time" id="contest_end_time"
                            ms-duplex="endTime" data-error="请填写比赛结束时间" required>
-                    <div class="help-block with-errors"></div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <label>封榜时间(结束前/min)</label>
-                <div class="form-group">
-                    <input class="form-control" type="text" ms-duplex="hideRank" data-error="请填写封榜时间" required>
                     <div class="help-block with-errors"></div>
                 </div>
             </div>
@@ -88,11 +81,19 @@
                     </label>
                 </div>
             </div>
-            <div class="col-md-6">
-                <label>是否公开提交记录</label>
+            <div class="col-md-3">
+                <label>公开提交记录</label>
                 <div class="form-group">
                     <label class="text"><input type="checkbox" ms-duplex-checked="showSubmission">
-                        <small>允许查看提交记录</small>
+                        <small>公开</small>
+                    </label>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <label>实时排名</label>
+                <div class="form-group">
+                    <label class="text"><input type="checkbox" ms-duplex-checked="realTimeRank">
+                        <small>是</small>
                     </label>
                 </div>
             </div>
