@@ -24,11 +24,13 @@ def compile_(language_item, src_path, exe_path):
     if output_start == -1:
         raise JudgeClientError("Error running compiler in lrun")
 
-    # 返回值不为0 或者 stderr中lrun的输出之前有东西
-    if status or output_start:
+    # 返回值不为 0 或者 stderr 中 lrun 的输出之前有 erro r字符串
+    # 判断 error 字符串的原因是链接的时候可能会有一些不推荐使用的函数的的警告，
+    # 但是 -w 参数并不能关闭链接时的警告
+    if status or "error" in output[0:output_start]:
         raise CompileError(output[0:output_start])
 
-    parse_result = parse_lrun_output(output)
+    parse_result = parse_lrun_output(output[output_start:])
 
     if parse_result["exit_code"] or parse_result["term_sig"] or parse_result["siginaled"] or parse_result["exceed"]:
         raise CompileError("Compile error")
