@@ -147,9 +147,12 @@ class TestCaseUploadAPIView(APIView):
         f = request.FILES["file"]
 
         tmp_zip = "/tmp/" + rand_str() + ".zip"
-        with open(tmp_zip, "wb") as test_case_zip:
-            for chunk in f:
-                test_case_zip.write(chunk)
+        try:
+            with open(tmp_zip, "wb") as test_case_zip:
+                for chunk in f:
+                    test_case_zip.write(chunk)
+        except IOError:
+            return error_response(u"上传错误，写入临时目录失败")
 
         test_case_file = zipfile.ZipFile(tmp_zip, 'r')
         name_list = test_case_file.namelist()

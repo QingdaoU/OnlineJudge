@@ -18,10 +18,16 @@ class SimditorImageUploadAPIView(APIView):
 
         image_name = rand_str() + '.' + str(request.FILES["image"].name.split('.')[-1])
         image_dir = settings.IMAGE_UPLOAD_DIR + image_name
-        with open(image_dir, "wb") as imageFile:
-            for chunk in img:
-                imageFile.write(chunk)
+        try:
+            with open(image_dir, "wb") as imageFile:
+                for chunk in img:
+                    imageFile.write(chunk)
+        except IOError:
+            return Response(data={
+                "success": True,
+                "msg": "上传错误",
+                "file_path": "/static/upload_image/" + image_name})
         return Response(data={
             "success": True,
-            "msg": "error message",
+            "msg": "",
             "file_path": "/static/upload_image/" + image_name})
