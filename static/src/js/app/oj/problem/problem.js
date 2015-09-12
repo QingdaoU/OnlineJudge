@@ -1,14 +1,31 @@
 require(["jquery", "codeMirror", "csrfToken", "bsAlert", "ZeroClipboard"],
     function ($, codeMirror, csrfTokenHeader, bsAlert, ZeroClipboard) {
+        // 复制样例需要 Flash 的支持 检测浏览器是否安装了 Flash
+        function detect_flash() {
+            var ie_flash;
+            try {
+                ie_flash = (window.ActiveXObject && (new ActiveXObject("ShockwaveFlash.ShockwaveFlash")) !== false)
+            } catch (err) {
+                ie_flash = false;
+            }
+            var _flash_installed = ((typeof navigator.plugins != "undefined" && typeof navigator.plugins["Shockwave Flash"] == "object") || ie_flash);
+            return _flash_installed;
+        }
+
+        if(detect_flash()) {
+            // 提供点击复制到剪切板的功能
+            ZeroClipboard.config({swfPath: "/static/img/ZeroClipboard.swf"});
+            new ZeroClipboard($(".copy-sample"));
+        }
+        else{
+            $(".copy-sample").hide();
+        }
+
         var codeEditorSelector = $("#code-editor")[0];
         // 部分界面逻辑会隐藏代码输入框，先判断有没有。
         if (codeEditorSelector == undefined) {
             return;
         }
-
-        // 提供点击复制到剪切板的功能
-        ZeroClipboard.config({swfPath: "/static/img/ZeroClipboard.swf"});
-        new ZeroClipboard($(".copy-sample"));
 
         var codeEditor = codeMirror(codeEditorSelector, "text/x-csrc");
         var language = $("input[name='language'][checked]").val();
