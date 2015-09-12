@@ -8,7 +8,7 @@ define("editor", ["simditor"], function(Simditor){
             toolbarFloat: false,
             defaultImage: null,
             upload: {
-                url: "/api/admin/up_load_image/",
+                url: "/api/admin/upload_image/",
                 params: null,
                 fileKey: "image",
                 connectionCount: 3,
