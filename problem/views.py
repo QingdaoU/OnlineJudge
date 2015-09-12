@@ -202,7 +202,7 @@ class TestCaseUploadAPIView(APIView):
                 f = open(test_case_dir + str(i + 1) + ".out", "r")
                 # 完整文件的md5
                 while True:
-                    data = f.read()
+                    data = f.read(2 ** 8)
                     if not data:
                         break
                     md5.update(data)
