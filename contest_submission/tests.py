@@ -1,13 +1,14 @@
 # coding=utf-8
 import json
+
 from django.test import TestCase, Client
 from django.core.urlresolvers import reverse
-from account.models import User, REGULAR_USER, ADMIN, SUPER_ADMIN
-from problem.models import Problem
-from contest.models import Contest, ContestProblem
-from contest.models import GROUP_CONTEST, PUBLIC_CONTEST, PASSWORD_PUBLIC_CONTEST
-from submission.models import Submission
 from rest_framework.test import APITestCase, APIClient
+
+from account.models import User, REGULAR_USER, ADMIN, SUPER_ADMIN
+from contest.models import Contest, ContestProblem
+from contest.models import PUBLIC_CONTEST, PASSWORD_PROTECTED_CONTEST
+from submission.models import Submission
 
 
 class ContestSubmissionAPITest(APITestCase):
@@ -107,7 +108,7 @@ class SubmissionAPITest(APITestCase):
         self.userS.set_password("testbb")
         self.userS.save()
         self.global_contest = Contest.objects.create(title="titlex", description="descriptionx", mode=1,
-                                                     contest_type=PASSWORD_PUBLIC_CONTEST, show_rank=True,
+                                                     contest_type=PASSWORD_PROTECTED_CONTEST, show_rank=True,
                                                      show_user_submission=True,
                                                      start_time="2015-08-15T10:00:00.000Z",
                                                      end_time="2015-08-15T12:00:00.000Z",
