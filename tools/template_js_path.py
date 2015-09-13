@@ -15,10 +15,9 @@ for root, dirs, files in os.walk(template_src_path):
     for name in files:
         html_path = os.path.join(root, name)
         html_content = open(html_path, "r").read()
-        r = re.search(re.compile('<script src="(.*)"></script>'), html_content)
-
+        r = re.findall(re.compile('<script src="(.*)"></script>'), html_content)
         if r:
-            for item in r.groups():
+            for item in r:
                 if item and "app" in item:
                     total_file.append(item)
 
