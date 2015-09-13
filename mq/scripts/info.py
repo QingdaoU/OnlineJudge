@@ -62,7 +62,7 @@ class MessageQueue(object):
                         # logger.debug(submission.create_time)
                         # logger.debug((submission.create_time - contest.start_time).total_seconds())
                         # logger.debug(int((submission.create_time - contest.start_time).total_seconds() / 60))
-                        contest_submission.ac_time = int((submission.create_time - contest.start_time).total_seconds() / 60)
+                        contest_submission.ac_time = int((submission.create_time - contest.start_time).total_seconds())
                         contest_submission.total_time += contest_submission.ac_time
                         contest_submission.total_submission_number += 1
                     # 标记为已经通过
