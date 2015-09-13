@@ -16,9 +16,9 @@ shutil.rmtree(template_release_path)
 shutil.copytree(template_src_path, template_release_path)
 
 # 删除静态文件的 release 文件夹
-shutil.rmtree(static_release_path)
+# shutil.rmtree(static_release_path)
 # 复制一份静态文件文件夹到 release
-shutil.copytree(static_src_path, static_release_path)
+# shutil.copytree(static_src_path, static_release_path)
 
 js_re = re.compile(r'<script src="(.+)"></script>')
 css_re = re.compile(r'<link href="(.+)" rel="stylesheet">')

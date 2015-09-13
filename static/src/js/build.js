@@ -1,9 +1,8 @@
 ({
 	// RequireJS 通过一个相对的路径 baseUrl来加载所有代码。baseUrl通常被设置成data-main属性指定脚本的同级目录。
-	baseUrl: "/static/js/",
+	baseUrl: "./js",
 	// 第三方脚本模块的别名,jquery比libs/jquery-1.11.1.min.js简洁明了；
     paths: {
-
         jquery: "lib/jquery/jquery",
         avalon: "lib/avalon/avalon",
         editor: "utils/editor",
@@ -21,6 +20,7 @@
         bootstrap: "lib/bootstrap/bootstrap",
         datetimePicker: "lib/datetime_picker/bootstrap-datetimepicker.zh-CN",
         validator: "lib/validator/validator",
+        ZeroClipboard: "lib/ZeroClipboard/ZeroClipboard",
 
 
         // ------ 下面写的都不要直接用，而是使用上面的封装版本 ------
@@ -37,7 +37,29 @@
         //百度webuploader -> uploader
         webUploader: "lib/webuploader/webuploader",
 
-        "_datetimePicker": "lib/datetime_picker/bootstrap-datetimepicker"
+        "_datetimePicker": "lib/datetime_picker/bootstrap-datetimepicker",
+
+        //以下都是页面 script 标签引用的js
+        addProblem_0_pack: "app/admin/problem/addProblem",
+        addContest_1_pack: "app/admin/contest/addContest",
+        problem_2_pack: "app/admin/problem/problem",
+        register_3_pack: "app/oj/account/register",
+        contestList_4_pack: "app/admin/contest/contestList",
+        group_5_pack: "app/oj/group/group",
+        editProblem_6_pack: "app/admin/problem/editProblem",
+        announcement_7_pack: "app/admin/announcement/announcement",
+        monitor_8_pack: "app/admin/monitor/monitor",
+        groupDetail_9_pack: "app/admin/group/groupDetail",
+        problem_10_pack: "app/oj/problem/problem",
+        submissionList_11_pack: "app/admin/problem/submissionList",
+        editProblem_12_pack: "app/admin/contest/editProblem",
+        joinGroupRequestList_13_pack: "app/admin/group/joinGroupRequestList",
+        changePassword_14_pack: "app/oj/account/changePassword",
+        group_15_pack: "app/admin/group/group",
+        submissionList_16_pack: "app/admin/contest/submissionList",
+        login_17_pack: "app/oj/account/login",
+        contestPassword_18_pack: "app/oj/contest/contestPassword",
+        userList_19_pack: "app/admin/user/userList",
     },
     shim: {
         bootstrap: {deps: ["jquery"]},
@@ -50,19 +72,64 @@
     dir: "../../release/",
     modules: [
         {
-            name: "submit_code"
+            name: "addProblem_0_pack"
         },
         {
-            name: "validation"
+            name: "addContest_1_pack"
         },
         {
-            name: "editor"
+            name: "problem_2_pack"
         },
         {
-            name: "code_mirror"
+            name: "register_3_pack"
         },
         {
-            name: "datetimepicker"
+            name: "contestList_4_pack"
+        },
+        {
+            name: "group_5_pack"
+        },
+        {
+            name: "editProblem_6_pack"
+        },
+        {
+            name: "announcement_7_pack"
+        },
+        {
+            name: "monitor_8_pack"
+        },
+        {
+            name: "groupDetail_9_pack"
+        },
+        {
+            name: "problem_10_pack"
+        },
+        {
+            name: "submissionList_11_pack"
+        },
+        {
+            name: "editProblem_12_pack"
+        },
+        {
+            name: "joinGroupRequestList_13_pack"
+        },
+        {
+            name: "changePassword_14_pack"
+        },
+        {
+            name: "group_15_pack"
+        },
+        {
+            name: "submissionList_16_pack"
+        },
+        {
+            name: "login_17_pack"
+        },
+        {
+            name: "contestPassword_18_pack"
+        },
+        {
+            name: "userList_19_pack"
         }
     ]
 })
