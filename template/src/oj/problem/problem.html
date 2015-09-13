@@ -16,7 +16,7 @@
             <div class="problem-section">
                 <label class="problem-label">描述</label>
 
-                <p class="problem-detail">{{ problem.description|safe }}</p>
+                <div class="problem-detail">{{ problem.description|safe }}</div>
             </div>
             <div class="problem-section">
                 <label class="problem-label">输入</label>
@@ -48,7 +48,7 @@
             {% if problem.hint %}
                 <div class="problem-section hide">
                     <label class="problem-label">提示</label>
-                    <p class="problem-detail">{{ problem.hint|safe }}</p>
+                    <div class="problem-detail">{{ problem.hint|safe }}</div>
                 </div>
             {% endif %}
             <div class="problem-section hide">

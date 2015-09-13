@@ -335,10 +335,7 @@ def contest_problems_list_page(request, contest_id):
                 item.state = 2
         else:
             item.state = 0
-    # 右侧的公告列表
-    announcements = Announcement.objects.filter(is_global=True, visible=True).order_by("-create_time")
     return render(request, "oj/contest/contest_problems_list.html", {"contest_problems": contest_problems,
-                                                                     "announcements": announcements,
                                                                      "contest": {"id": contest_id}})
 
 
@@ -356,8 +353,8 @@ def contest_list_page(request, page=1):
 
     # 筛选我能参加的比赛
     join = request.GET.get("join", None)
-    if join:
-        contests = contests.filter(Q(contest_type__in=[PUBLIC_CONTEST, PASSWORD_PUBLIC_CONTEST]) | Q(groups__in=request.user.group_set.all())). \
+    if request.user.is_authenticated and join:
+        contests = contests.filter(Q(contest_type__in=[1, 2]) | Q(groups__in=request.user.group_set.all())). \
             filter(end_time__gt=datetime.datetime.now(), start_time__lt=datetime.datetime.now())
 
     paginator = Paginator(contests, 20)
@@ -378,14 +375,10 @@ def contest_list_page(request, page=1):
     except Exception:
         pass
 
-    # 右侧的公告列表
-    announcements = Announcement.objects.filter(is_global=True, visible=True).order_by("-create_time")
-
     return render(request, "oj/contest/contest_list.html",
                   {"contests": current_page, "page": int(page),
                    "previous_page": previous_page, "next_page": next_page,
-                   "keyword": keyword, "announcements": announcements,
-                   "join": join})
+                   "keyword": keyword, "join": join})
 
 
 def _cmp(x, y):

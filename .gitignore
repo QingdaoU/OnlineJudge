@@ -58,6 +58,7 @@ log/
 static/release/css
 static/release/js
 static/release/img
+static/src/upload_image/*
 build.txt
 tmp/
 test_case/

@@ -21,8 +21,8 @@
                             <th></th>
                             <th>#</th>
                             <th>题目</th>
-                            <th><a href="/problems/?order_by=difficulty">难度</a></th>
-                            <th><a href="/problems/?order_by=acceptance">通过率</a></th>
+                            <th><a href="/problems/?order_by={{ difficulty_order }}">难度</a></th>
+                            <th>通过率</th>
                         </tr>
                         </thead>
                         <tbody>
@@ -31,7 +31,16 @@
                                 <th><span class="glyphicon glyphicon-ok ac-flag"></span></th>
                                 <th scope="row"><a href="/problem/{{ item.id }}/">{{ item.id }}</a></th>
                                 <td><a href="/problem/{{ item.id }}/">{{ item.title }}</a></td>
-                                <td>{{ item.difficulty }}</td>
+                                <td>
+                                    {% ifequal item.difficulty 1 %}
+                                        简单
+                                    {% else %}
+                                        {% ifequal item.difficulty 2 %}
+                                            中等
+                                        {% else %}
+                                            难
+                                        {% endifequal %}
+                                    {% endifequal %}</td>
                                 <td>{{ item|accepted_radio }}</td>
                             </tr>
                         {% endfor %}
@@ -65,10 +74,11 @@
                     </div>
                     <ul class="list-group">
                         {% for item in tags %}
-                        <li class="list-group-item problem-tag" onclick="location.href='/problems/?tag={{ item.name }}'">
-                            <span class="badge">{{ item.problem_number }}</span>
-                            {{ item.name }}
-                        </li>
+                            <li class="list-group-item problem-tag"
+                                onclick="location.href='/problems/?tag={{ item.name }}'">
+                                <span class="badge">{{ item.problem_number }}</span>
+                                {{ item.name }}
+                            </li>
                         {% endfor %}
                     </ul>
                 </div>

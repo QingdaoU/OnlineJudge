@@ -2,40 +2,46 @@ require(["jquery", "avalon", "editor", "uploader", "bsAlert", "csrfToken", "date
         "validator"],
     function ($, avalon, editor, uploader, bsAlert, csrfTokenHeader) {
 
-        //avalon.vmodels.add_contest = null;
         $("#add-contest-form").validator().on('submit', function (e) {
-            if (!e.isDefaultPrevented()){
+            if (!e.isDefaultPrevented()) {
                 e.preventDefault();
                 var ajaxData = {
                     title: vm.title,
                     description: vm.description,
                     mode: vm.mode,
                     contest_type: 0,
-                    show_rank: vm.showRank,
+                    real_time_rank: vm.realTimeRank,
                     show_user_submission: vm.showSubmission,
                     start_time: vm.startTime,
                     end_time: vm.endTime,
                     visible: false
                 };
-                if (vm.choseGroupList.length == 0) {
-                   bsAlert("你没有选择参赛用户!");
-                   return false;
+
+                var selectedGroups = [];
+                if (!vm.isGlobal) {
+                    for (var i = 0; i < vm.allGroups.length; i++) {
+                        if (vm.allGroups[i].isSelected) {
+                            selectedGroups.push(vm.allGroups[i].id);
+                        }
+                    }
+                    ajaxData.groups = selectedGroups;
                 }
-                if (vm.choseGroupList[0].id == 0) { //everyone | public contest
+                else {
                     if (vm.password) {
                         ajaxData.password = vm.password;
                         ajaxData.contest_type = 2;
                     }
-                    else{
+                    else
                         ajaxData.contest_type = 1;
-                    }
                 }
-                else { // Add groups info
-                    ajaxData.groups = [];
-                    for (var i = 0; vm.choseGroupList[i]; i++)
-                        ajaxData.groups.push(parseInt(vm.choseGroupList[i].id))
+                if (!vm.isGlobal && !selectedGroups.length) {
+                    bsAlert("你没有选择参赛用户!");
+                    return false;
                 }
-
+                if (vm.editDescription == "") {
+                    bsAlert("比赛描述不能为空!");
+                    return false;
+                }
                 $.ajax({                                  // Add contest
                     beforeSend: csrfTokenHeader,
                     url: "/api/admin/contest/",
@@ -45,20 +51,18 @@ require(["jquery", "avalon", "editor", "uploader", "bsAlert", "csrfToken", "date
                     method: "post",
                     success: function (data) {
                         if (!data.code) {
-                                bsAlert("添加成功！将转到比赛列表页以便为比赛添加问题(注意比赛当前状态为:隐藏)");
-                                vm.title          = "";
-                                vm.description    = "";
-                                vm.startTime      = "";
-                                vm.endTime        = "";
-                                vm.password       = "";
-                                vm.mode           = "";
-                                vm.showRank       = false;
-                                vm.showSubmission = false;
-                                vm.group          = "-1";
-                                vm.groupList      = [];
-                                vm.choseGroupList = [];
-                                vm.passwordUsable = false;
-                                location.hash = "#contest/contest_list";
+                            bsAlert("添加成功！将转到比赛列表页以便为比赛添加问题(注意比赛当前状态为:隐藏)");
+                            vm.title = "";
+                            vm.description = "";
+                            vm.startTime = "";
+                            vm.endTime = "";
+                            vm.password = "";
+                            vm.mode = "0";
+                            vm.showSubmission = true;
+                            location.hash = "#contest/contest_list";
+                            vm.isGlobal = true;
+                            vm.allGroups = [];
+                            vm.showGlobalViewRadio = true;
                         }
                         else {
                             bsAlert(data.data);
@@ -70,80 +74,59 @@ require(["jquery", "avalon", "editor", "uploader", "bsAlert", "csrfToken", "date
         });
 
         editor("#editor");
-    if (avalon.vmodels.add_contest)
-        var vm = avalon.vmodels.add_contest;
-    else
-        var vm = avalon.define({
-            $id: "add_contest",
-            title: "",
-            description: "",
-            startTime: "",
-            endTime: "",
-            password: "",
-            mode: "",
-            showRank: false,
-            showSubmission: false,
-            group: "-1",
-            groupList: [],
-            choseGroupList: [],
-            passwordUsable: false,
-            addGroup: function() {
-                if (vm.group == -1) return;
-                if (vm.groupList[vm.group].id == 0){
-                    vm.passwordUsable = true;
-                    vm.choseGroupList = [];
-                    for (var key in vm.groupList){
-                        vm.groupList[key].chose = true;
-                    }
-                }
-                vm.groupList[vm.group]. chose = true;
-                vm.choseGroupList.push({name:vm.groupList[vm.group].name, index:vm.group, id:vm.groupList[vm.group].id});
-                vm.group = -1;
-            },
-            removeGroup: function(groupIndex){
-                if (vm.groupList[vm.choseGroupList[groupIndex].index].id == 0){
-                    vm.passwordUsable = false;
-                    for (key in vm.groupList){
-                        vm.groupList[key].chose = false;
-                    }
-                }
-                vm.groupList[vm.choseGroupList[groupIndex].index].chose = false;
-                vm.choseGroupList.remove(vm.choseGroupList[groupIndex]);
-            }
-        });
+        if (avalon.vmodels.add_contest)
+            var vm = avalon.vmodels.add_contest;
+        else
+            var vm = avalon.define({
+                $id: "add_contest",
+                title: "",
+                description: "",
+                startTime: "",
+                endTime: "",
+                password: "",
+                mode: "0",
+                showSubmission: true,
+                isGlobal: true,
+                allGroups: [],
+                showGlobalViewRadio: true,
+                realTimeRank: true
+            });
 
-        $.ajax({  // Get current user type
+        $.ajax({
             url: "/api/user/",
             method: "get",
             dataType: "json",
             success: function (data) {
                 if (!data.code) {
-                    if (data.data.admin_type == 2) { // Is super user
-                        vm.isGlobal = true;
-                        vm.groupList.push({id:0,name:"所有人",chose:false});
+                    var admin_type = data.data.admin_type;
+                    if (data.data.admin_type == 1) {
+                        vm.isGlobal = false;
+                        vm.showGlobalViewRadio = false;
+
                     }
-                    $.ajax({      // Get the group list of current user
-                        beforeSend: csrfTokenHeader,
-                        url: "/api/admin/group/",
-                        method: "get",
-                        dataType: "json",
-                        success: function (data) {
-                            if (!data.code) {
-                                if (!data.data.length) {
-                                    return;
-                                }
-                                for (var i = 0; i < data.data.length; i++) {
-                                    var item = data.data[i];
-                                    item["chose"] = false;
-                                    vm.groupList.push(item);
-                                }
+                }
+                $.ajax({
+                    url: "/api/admin/group/",
+                    method: "get",
+                    dataType: "json",
+                    success: function (data) {
+                        if (!data.code) {
+                            if (!data.data.length) {
+                                if (admin_type != 2)
+                                    bsAlert("您的用户权限只能创建小组内比赛，但是您还没有创建过小组");
+                                return;
                             }
-                            else {
-                                bsAlert(data.data);
+                            for (var i = 0; i < data.data.length; i++) {
+                                var item = data.data[i];
+                                item["isSelected"] = false;
+                                vm.allGroups.push(item);
                             }
                         }
-                    });
-                }
+                        else {
+                            bsAlert(data.data);
+                        }
+                    }
+                });
             }
         });
 
