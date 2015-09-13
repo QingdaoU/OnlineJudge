@@ -1,28 +1,25 @@
 # coding=utf-8
 import json
 import datetime
-from functools import wraps
-from django.utils.timezone import now
+
 from django.shortcuts import render
 from django.db import IntegrityError
 from django.utils import dateparse
-from django.db.models import Q, Count, Sum
+from django.db.models import Q, Sum
 from django.core.paginator import Paginator
 from rest_framework.views import APIView
-from utils.shortcuts import (serializer_invalid_response, error_response,
-                             success_response, paginate, rand_str, error_page)
 
-from account.models import REGULAR_USER, ADMIN, SUPER_ADMIN, User
+from utils.shortcuts import (serializer_invalid_response, error_response,
+                             success_response, paginate, error_page)
+from account.models import SUPER_ADMIN, User
 from account.decorators import login_required
 from group.models import Group
-from announcement.models import Announcement
-
 from .models import Contest, ContestProblem, ContestSubmission
-from .models import GROUP_CONTEST, PUBLIC_CONTEST, PASSWORD_PUBLIC_CONTEST
+from .models import GROUP_CONTEST, PUBLIC_CONTEST, PASSWORD_PROTECTED_CONTEST
 from .decorators import check_user_contest_permission
 from .serializers import (CreateContestSerializer, ContestSerializer, EditContestSerializer,
                           CreateContestProblemSerializer, ContestProblemSerializer,
-                          EditContestProblemSerializer, ContestPasswordVerifySerializer,
+                          ContestPasswordVerifySerializer,
                           EditContestProblemSerializer)
 
 
@@ -41,10 +38,10 @@ class ContestAdminAPIView(APIView):
             # 首先判断比赛的类型： 0 即为是小组赛(GROUP_CONTEST)，1 即为是无密码的公开赛(PUBLIC_CONTEST)，
             # 2 即为是有密码的公开赛(PASSWORD_PUBLIC_CONTEST)
             # 此时为有密码的公开赛，并且此时只能超级管理员才有权限此创建比赛
-            if data["contest_type"] in [PUBLIC_CONTEST, PASSWORD_PUBLIC_CONTEST]:
+            if data["contest_type"] in [PUBLIC_CONTEST, PASSWORD_PROTECTED_CONTEST]:
                 if request.user.admin_type != SUPER_ADMIN:
                     return error_response(u"只有超级管理员才可创建公开赛")
-            if data["contest_type"] == PASSWORD_PUBLIC_CONTEST:
+            if data["contest_type"] == PASSWORD_PROTECTED_CONTEST:
                 if not data["password"]:
                     return error_response(u"此比赛为有密码的公开赛，密码不可为空")
 
@@ -94,10 +91,10 @@ class ContestAdminAPIView(APIView):
                     return error_response(u"该比赛名称已经存在")
             except Contest.DoesNotExist:
                 pass
-            if data["contest_type"] in [PUBLIC_CONTEST, PASSWORD_PUBLIC_CONTEST]:
+            if data["contest_type"] in [PUBLIC_CONTEST, PASSWORD_PROTECTED_CONTEST]:
                 if request.user.admin_type != SUPER_ADMIN:
                     return error_response(u"只有超级管理员才可创建公开赛")
-            if data["contest_type"] == PASSWORD_PUBLIC_CONTEST:
+            if data["contest_type"] == PASSWORD_PROTECTED_CONTEST:
                 if not data["password"]:
                     return error_response(u"此比赛为有密码的公开赛，密码不可为空")
             elif data["contest_type"] == GROUP_CONTEST:
@@ -258,7 +255,7 @@ class ContestPasswordVerifyAPIView(APIView):
         if serializer.is_valid():
             data = request.data
             try:
-                contest = Contest.objects.get(id=data["contest_id"], contest_type=PASSWORD_PUBLIC_CONTEST)
+                contest = Contest.objects.get(id=data["contest_id"], contest_type=PASSWORD_PROTECTED_CONTEST)
             except Contest.DoesNotExist:
                 return error_response(u"比赛不存在")
 
