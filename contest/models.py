@@ -94,6 +94,8 @@ class ContestSubmission(models.Model):
     ac_time = models.IntegerField(default=0)
     # 总的时间，用于acm 类型的，也需要保存罚时
     total_time = models.IntegerField(default=0)
+    # 第一个解出此题目
+    first_achieved = models.BooleanField()
 
     class Meta:
         db_table = "contest_submission"
