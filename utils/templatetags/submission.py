@@ -29,33 +29,7 @@ def translate_result_class(value):
     return "danger"
 
 
-def get_contest_submission_problem_detail(contest_problem, my_submission):
-    if contest_problem.id in my_submission:
-        submission = my_submission[contest_problem.id]
-        if submission.ac:
-            # 只提交了一次就AC
-            if submission.total_submission_number == 1:
-                return str(submission.ac_time) + " min"
-            else:
-                return "20 min × " + str(submission.total_submission_number - 1) + " WA + " + str(submission.ac_time) + " min"
-        return str(submission.total_submission_number) + " WA"
-    else:
-        return ""
-
-
-def get_submission_problem_result_class(contest_problem, my_submission):
-    if contest_problem.id in my_submission:
-        submission = my_submission[contest_problem.id]
-        if submission.ac:
-            return "success"
-        else:
-            return "danger"
-    else:
-        return ""
-
 register = template.Library()
 register.filter("translate_result", translate_result)
 register.filter("translate_language", translate_language)
 register.filter("translate_result_class", translate_result_class)
-register.simple_tag(get_contest_submission_problem_detail, name="submission_problem")
-register.simple_tag(get_submission_problem_result_class, name="submission_problem_result_class")
