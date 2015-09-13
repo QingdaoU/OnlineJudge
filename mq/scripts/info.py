@@ -8,7 +8,7 @@ from judge.judger.result import result
 from submission.models import Submission
 from problem.models import Problem
 from contest.models import ContestProblem, Contest, ContestSubmission
-
+from account.models import User
 logger = logging.getLogger("app_info")
 
 
@@ -53,10 +53,8 @@ class MessageQueue(object):
                 contest_submission = ContestSubmission.objects.get(user_id=submission.user_id, contest=contest,
                                                                    problem_id=contest_problem.id)
                 # 提交次数加1
-                contest_submission.total_submission_number += 1
 
                 if submission.result == result["accepted"]:
-
                     # 避免这道题已经 ac 了，但是又重新提交了一遍
                     if not contest_submission.ac:
                         # 这种情况是这个题目前处于错误状态，就使用已经存储了的罚时加上这道题的实际用时
@@ -66,6 +64,7 @@ class MessageQueue(object):
                         # logger.debug(int((submission.create_time - contest.start_time).total_seconds() / 60))
                         contest_submission.ac_time = int((submission.create_time - contest.start_time).total_seconds() / 60)
                         contest_submission.total_time += contest_submission.ac_time
+                        contest_submission.total_submission_number += 1
                     # 标记为已经通过
                     contest_submission.ac = True
                     # contest problem ac 计数器加1
@@ -73,6 +72,7 @@ class MessageQueue(object):
                 else:
                     # 如果这个提交是错误的，就罚时20分钟
                     contest_submission.total_time += 20
+                    contest_submission.total_submission_number += 1
                 contest_submission.save()
                 contest_problem.save()
             except ContestSubmission.DoesNotExist:
