@@ -71,7 +71,7 @@ class MessageQueue(object):
                     contest_problem.total_accepted_number += 1
                 else:
                     # 如果这个提交是错误的，就罚时20分钟
-                    contest_submission.total_time += 20
+                    contest_submission.total_time += 1200
                     contest_submission.total_submission_number += 1
                 contest_submission.save()
                 contest_problem.save()
@@ -79,13 +79,13 @@ class MessageQueue(object):
                 # 第一次提交
                 is_ac = submission.result == result["accepted"]
                 if is_ac:
-                    total_time = int((submission.create_time - contest.start_time).total_seconds() / 60)
+                    total_time = int((submission.create_time - contest.start_time).total_seconds())
                     # 增加题目总的ac数计数器
                     contest_problem.total_accepted_number += 1
                     contest_problem.save()
                 else:
                     # 没过罚时20分钟
-                    total_time = 20
+                    total_time = 1200
                 ContestSubmission.objects.create(user_id=submission.user_id, contest=contest, problem=contest_problem,
                                                  ac=is_ac, total_time=total_time)
 
