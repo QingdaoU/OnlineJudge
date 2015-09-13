@@ -41,16 +41,33 @@
                         {% endfor %}
                     </tr>
                     </thead>
-                    <tbody>
+                    <tbody class="rank">
                     {% for item in result %}
                         <tr>
                             <th scope="row">{{ forloop.counter }}</th>
-                            <td>{{ item.user.username }}</td>
+                            <td>{{ item.username }}</td>
                             <td>{{ item.total_ac }} / {{ item.total_submit }}</td>
                             <td>{% if item.total_time %}{{ item.total_time }} min{% else %}--{% endif %}</td>
-                            {% for problem in contest_problems %}
-                                <td class="{% submission_problem_result_class problem item.submissions %}">
-                                    {% submission_problem problem item.submissions %}
+                            {% for problem in item.problem %}
+                                <td class="
+                                {% if problem %}
+                                    {% if problem.ac %}
+                                        {% if problem.first_achieve %}
+                                            first-achieved
+                                        {% else %}
+                                            ac
+                                        {% endif %}
+                                    {% else %}
+                                        failed
+                                    {% endif %}
+                                {% endif %}
+                                ">
+                                    {% if problem.ac %}
+                                        {{ problem.ac_time }}min
+                                    {% endif %}
+                                    {% if problem.failed_number %}
+                                        (-{{ problem.failed_number }})
+                                    {% endif %}
                                 </td>
                             {% endfor %}
                         </tr>

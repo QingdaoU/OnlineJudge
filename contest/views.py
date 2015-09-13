@@ -356,7 +356,6 @@ def contest_list_page(request, page=1):
     if request.user.is_authenticated and join:
         contests = contests.filter(Q(contest_type__in=[1, 2]) | Q(groups__in=request.user.group_set.all())). \
             filter(end_time__gt=datetime.datetime.now(), start_time__lt=datetime.datetime.now())
-
     paginator = Paginator(contests, 20)
     try:
         current_page = paginator.page(int(page))
@@ -407,10 +406,21 @@ def contest_rank_page(request, contest_id):
             # 这个人所有的提交
             submissions = ContestSubmission.objects.filter(user_id=result[i]["user_id"], contest_id=contest_id)
             result[i]["submissions"] = {}
-            for item in submissions:
-                result[i]["submissions"][item.problem_id] = item
+            result[i]["problems"] = []
+            for problem in contest_problems:
+                try:
+                    status = submissions.get(problem=problem)
+                    result[i]["problems"].append({
+                        "first_achieved":status.first_achivevd,
+                        "ac": status.ac,
+                        "failed_number": status.total_submission_number,
+                        "ac_time": status.ac_time})
+                    if status.ac:
+                        result[i]["problem"][-1].failed_number -= 1
+                except ContestSubmission.DoesNotExist:
+                    result[i]["problems"].append({})
             result[i]["total_ac"] = submissions.filter(ac=True).count()
-            result[i]["user"] = User.objects.get(id=result[i]["user_id"])
+            result[i]["username"] = User.objects.get(id=result[i]["user_id"]).username
             result[i]["total_time"] = submissions.filter(ac=True).aggregate(total_time=Sum("total_time"))["total_time"]
         result = sorted(result, cmp=_cmp, reverse=True)
         r.set("contest_rank_" + contest_id, json.dumps(list(result)))
