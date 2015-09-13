@@ -24,7 +24,7 @@
         <div class="col-md-3">
             <div class="form-group"><label>时间限制(ms)</label>
                 <input type="number" name="timeLimit" class="form-control" ms-duplex="timeLimit"
-                       data-error="请输入时间限制(保证是一个1000-5000的合法整数)" required>
+                       data-error="请输入时间限制(保证是一个100-5000的合法整数)" required>
                 <div class="help-block with-errors"></div>
             </div>
         </div>
@@ -37,8 +37,12 @@
         </div>
         <div class="col-md-3">
             <div class="form-group"><label>难度</label>
-                <input type="number" name="difficulty" class="form-control" ms-duplex="difficulty"
-                       data-error="请输入难度(保证是一个合法整数)" required>
+                <select name="difficulty" class="form-control" ms-duplex="difficulty"
+                       data-error="请选择难度" required>
+                    <option value="1">简单</option>
+                    <option value="2">中等</option>
+                    <option value="3">难</option>
+                </select>
                 <div class="help-block with-errors"></div>
             </div>
         </div>

@@ -19,6 +19,8 @@ docker_config = {
 test_case_dir = "/var/mnt/source/test_case/"
 # 源代码路径，也就是 manage.py 所在的实际路径
 source_code_dir = "/var/mnt/source/OnlineJudge/"
+# 日志文件夹路径
+log_dir = "/var/log/"
 
 
 # 存储提交信息的数据库，是 celery 使用的，与 oj.settings/local_settings 等区分，那是 web 服务器访问的地址
