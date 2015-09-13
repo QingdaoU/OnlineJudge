@@ -110,16 +110,6 @@ li.list-group-item {
 }
 
 .rank .first-achieved{
-    background: #43CD80;
-    color: white;
+    background: #33CC99;
 }
 
-.rank .ac{
-    background: #3c763d;
-    color: white;
-}
-
-.rank .failed{
-    background: #a94442;
-    color: white;
-}

@@ -396,7 +396,6 @@ def _cmp(x, y):
 def contest_rank_page(request, contest_id):
     contest = Contest.objects.get(id=contest_id)
     contest_problems = ContestProblem.objects.filter(contest=contest).order_by("sort_index")
-
     r = redis.Redis(host=REDIS_CACHE["host"], port=REDIS_CACHE["port"], db=REDIS_CACHE["db"])
     if contest.real_time_rank:
         # 更新rank
@@ -411,12 +410,12 @@ def contest_rank_page(request, contest_id):
                 try:
                     status = submissions.get(problem=problem)
                     result[i]["problems"].append({
-                        "first_achieved":status.first_achivevd,
+                        "first_achieved":status.first_achieved,
                         "ac": status.ac,
                         "failed_number": status.total_submission_number,
                         "ac_time": status.ac_time})
                     if status.ac:
-                        result[i]["problem"][-1].failed_number -= 1
+                        result[i]["problems"][-1]["failed_number"] -= 1
                 except ContestSubmission.DoesNotExist:
                     result[i]["problems"].append({})
             result[i]["total_ac"] = submissions.filter(ac=True).count()

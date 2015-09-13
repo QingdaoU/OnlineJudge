@@ -25,18 +25,18 @@
                     实时
                     {% else %}
                     已封榜
-                    {% endif %})
-                </h2>
-                {% if result %}
-                <table class="table table-bordered">
+                {% endif %})
+            </h2>
+            {% if result %}
+                <table class="table table-bordered text-center">
                     <thead>
                     <tr>
                         <th>#</th>
-                        <th>用户名</th>
-                        <th>AC / 总提交</th>
-                        <th>用时 + 罚时</th>
+                        <th class="text-center">用户名</th>
+                        <th class="text-center">AC / 总提交</th>
+                        <th class="text-center">用时 + 罚时</th>
                         {% for item in contest_problems %}
-                            <th><a href="/contest/{{ contest.id }}/problem/{{ item.id }}/">{{ item.sort_index }}</a>
+                            <th class="text-center"><a href="/contest/{{ contest.id }}/problem/{{ item.id }}/">{{ item.sort_index }}</a>
                             </th>
                         {% endfor %}
                     </tr>
@@ -48,20 +48,8 @@
                             <td>{{ item.username }}</td>
                             <td>{{ item.total_ac }} / {{ item.total_submit }}</td>
                             <td>{% if item.total_time %}{{ item.total_time }} min{% else %}--{% endif %}</td>
-                            {% for problem in item.problem %}
-                                <td class="
-                                {% if problem %}
-                                    {% if problem.ac %}
-                                        {% if problem.first_achieve %}
-                                            first-achieved
-                                        {% else %}
-                                            ac
-                                        {% endif %}
-                                    {% else %}
-                                        failed
-                                    {% endif %}
-                                {% endif %}
-                                ">
+                            {% for problem in item.problems %}
+                                <td class="{% if problem %}{% if problem.ac %}{% if problem.first_achieve %}first-achieved{% else %}alert-success{% endif %}{% else %}alert-danger{% endif %}{% endif %}">
                                     {% if problem.ac %}
                                         {{ problem.ac_time }}min
                                     {% endif %}
