@@ -5,7 +5,7 @@ import MySQLdb
 import subprocess
 from ..judger.result import result
 from ..judger_controller.celery import app
-from settings import docker_config, source_code_dir, test_case_dir, submission_db, redis_config
+from settings import docker_config, source_code_dir, test_case_dir, log_dir, submission_db, redis_config
 
 
 @app.task
@@ -14,17 +14,18 @@ def judge(submission_id, time_limit, memory_limit, test_case_id):
         command = "%s run -t -i --privileged --rm=true " \
                   "-v %s:/var/judger/test_case/ " \
                   "-v %s:/var/judger/code/ " \
+                  "-v %s:/var/judger/code/log/ " \
                   "%s " \
                   "python judge/judger/run.py " \
                   "--solution_id %s --time_limit %s --memory_limit %s --test_case_id %s" % \
                   (docker_config["docker_path"],
                    test_case_dir,
                    source_code_dir,
+                   log_dir,
                    docker_config["image_name"],
                    submission_id, str(time_limit), str(memory_limit), test_case_id)
         subprocess.call(command, shell=docker_config["shell"])
     except Exception as e:
-        print e
         conn = MySQLdb.connect(db=submission_db["db"],
                                user=submission_db["user"],
                                passwd=submission_db["password"],
