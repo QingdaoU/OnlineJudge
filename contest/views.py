@@ -1,8 +1,6 @@
 # coding=utf-8
 import json
 import datetime
-from functools import wraps
-from django.utils.timezone import now
 from django.shortcuts import render
 from django.db import IntegrityError
 from django.utils import dateparse
@@ -414,7 +412,7 @@ def contest_rank_page(request, contest_id):
             result[i]["total_ac"] = submissions.filter(ac=True).count()
             result[i]["user"] = User.objects.get(id=result[i]["user_id"])
             result[i]["total_time"] = submissions.filter(ac=True).aggregate(total_time=Sum("total_time"))["total_time"]
-            result = sorted(result, cmp=_cmp, reverse=True)
+        result = sorted(result, cmp=_cmp, reverse=True)
         r.set("contest_rank_" + contest_id, json.dumps(list(result)))
     else:
         # 从缓存读取排名信息
