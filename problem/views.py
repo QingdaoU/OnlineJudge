@@ -13,13 +13,16 @@ from rest_framework.views import APIView
 
 from django.conf import settings
 
+
 from announcement.models import Announcement
 from utils.shortcuts import (serializer_invalid_response, error_response,
                              success_response, paginate, rand_str, error_page)
 from .serizalizers import (CreateProblemSerializer, EditProblemSerializer, ProblemSerializer,
                            ProblemTagSerializer, CreateProblemTagSerializer)
 from .models import Problem, ProblemTag
+import logging
 
+logger = logging.getLogger("app_info")
 
 def problem_page(request, problem_id):
     try:
@@ -151,8 +154,9 @@ class TestCaseUploadAPIView(APIView):
             with open(tmp_zip, "wb") as test_case_zip:
                 for chunk in f:
                     test_case_zip.write(chunk)
-        except IOError:
-            return error_response(u"上传错误，写入临时目录失败")
+        except IOError as e:
+            logger.error(e)
+            return error_response(u"上传失败")
 
         test_case_file = zipfile.ZipFile(tmp_zip, 'r')
         name_list = test_case_file.namelist()
