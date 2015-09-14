@@ -49,7 +49,7 @@
                             <td>{{ item.total_ac }} / {{ item.total_submit }}</td>
                             <td>{% if item.total_time %}{{ item.total_time }}{% else %}--{% endif %}</td>
                             {% for problem in item.problems %}
-                                <td class="{% if problem %}{% if problem.ac %}{% if problem.first_achieve %}first-achieved{% else %}alert-success{% endif %}{% else %}alert-danger{% endif %}{% endif %}">
+                                <td class="{% if problem %}{% if problem.ac %}{% if problem.first_achieved %}first-achieved{% else %}alert-success{% endif %}{% else %}alert-danger{% endif %}{% endif %}">
                                     {% if problem.ac %}{{ problem.ac_time }}{% endif %}
                                     {% if problem.failed_number %}
                                         (-{{ problem.failed_number }})
