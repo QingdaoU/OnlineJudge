@@ -17,7 +17,7 @@ var require = {
         tagEditor: "lib/tagEditor/jquery.tag-editor.min",
         jqueryUI: "lib/jqueryUI/jquery-ui",
         bootstrap: "lib/bootstrap/bootstrap",
-        datetimePicker: "lib/datetime_picker/bootstrap-datetimepicker.zh-CN",
+        datetimePicker: "lib/datetime_picker/bootstrap-datetimepicker",
         validator: "lib/validator/validator",
         ZeroClipboard: "lib/ZeroClipboard/ZeroClipboard",
 
@@ -33,10 +33,15 @@ var require = {
         _codeMirror: "lib/codeMirror/codemirror",
         codeMirrorClang: "lib/codeMirror/language/clike",
 
+        // bootstrap组件
+        modal: "lib/bootstrap/modal",
+        dropdown: "lib/bootstrap/dropdown",
+        transition: "lib/bootstrap/transition",
+
         //百度webuploader -> uploader
         webUploader: "lib/webuploader/webuploader",
 
-        "_datetimePicker": "lib/datetime_picker/bootstrap-datetimepicker",
+        // "_datetimePicker": "lib/datetime_picker/bootstrap-datetimepicker",
 
         //以下都是页面 script 标签引用的js
         addProblem_0_pack: "app/admin/problem/addProblem",
@@ -49,21 +54,16 @@ var require = {
         announcement_7_pack: "app/admin/announcement/announcement",
         monitor_8_pack: "app/admin/monitor/monitor",
         groupDetail_9_pack: "app/admin/group/groupDetail",
-        problem_10_pack: "app/oj/problem/problem",
-        submissionList_11_pack: "app/admin/problem/submissionList",
-        editProblem_12_pack: "app/admin/contest/editProblem",
-        joinGroupRequestList_13_pack: "app/admin/group/joinGroupRequestList",
-        changePassword_14_pack: "app/oj/account/changePassword",
-        group_15_pack: "app/admin/group/group",
-        submissionList_16_pack: "app/admin/contest/submissionList",
-        login_17_pack: "app/oj/account/login",
-        contestPassword_18_pack: "app/oj/contest/contestPassword",
-        userList_19_pack: "app/admin/user/userList"
-    },
-    shim: {
-        bootstrap: {deps: ["jquery"]},
-        _datetimePicker: {dep: ["jquery"]},
-        datetimePicker: {deps: ["_datetimePicker"]},
-        validator: ["jquery"]
+        admin_10_pack: "app/admin/admin",
+        problem_11_pack: "app/oj/problem/problem",
+        submissionList_12_pack: "app/admin/problem/submissionList",
+        editProblem_13_pack: "app/admin/contest/editProblem",
+        joinGroupRequestList_14_pack: "app/admin/group/joinGroupRequestList",
+        changePassword_15_pack: "app/oj/account/changePassword",
+        group_16_pack: "app/admin/group/group",
+        submissionList_17_pack: "app/admin/contest/submissionList",
+        login_18_pack: "app/oj/account/login",
+        contestPassword_19_pack: "app/oj/contest/contestPassword",
+        userList_20_pack: "app/admin/user/userList"
     }
 };
