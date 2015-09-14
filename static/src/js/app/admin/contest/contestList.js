@@ -28,7 +28,7 @@ require(["jquery", "avalon", "csrfToken", "bsAlert", "editor", "datetimePicker",
                     ajaxData.groups = selectedGroups;
                 }
                 else {
-                    if (vm.password) {
+                    if (vm.editPassword) {
                         ajaxData.password = vm.editPassword;
                         ajaxData.contest_type = 2;
                     }
