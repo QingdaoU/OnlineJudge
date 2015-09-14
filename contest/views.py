@@ -393,6 +393,8 @@ def _cmp(x, y):
 
 
 def get_the_time_format(seconds):
+    if not seconds:
+        return ""
     result = str(seconds % 60)
     if seconds % 60 < 10:
         result = "0" + result
