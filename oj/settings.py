@@ -89,7 +89,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'oj.wsgi.application'
 
-
 # Internationalization
 # https://docs.djangoproject.com/en/1.8/topics/i18n/
 
@@ -110,6 +109,9 @@ USE_TZ = True
 STATIC_URL = '/static/'
 
 AUTH_USER_MODEL = 'account.User'
+
+LOG_PATH = "log/"
+
 
 LOGGING = {
     'version': 1,
@@ -163,3 +165,7 @@ REST_FRAMEWORK = {
 }
 
 DATABASE_ROUTERS = ['oj.db_router.DBRouter']
+
+TEST_CASE_DIR = os.path.join(BASE_DIR, 'test_case/')
+
+IMAGE_UPLOAD_DIR = os.path.join(BASE_DIR, 'upload/')

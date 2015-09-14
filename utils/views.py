@@ -26,8 +26,8 @@ class SimditorImageUploadAPIView(APIView):
             return Response(data={
                 "success": True,
                 "msg": "上传错误",
-                "file_path": "/static/upload_image/" + image_name})
+                "file_path": "/static/upload/" + image_name})
         return Response(data={
             "success": True,
             "msg": "",
-            "file_path": "/static/upload_image/" + image_name})
+            "file_path": "/static/upload/" + image_name})
