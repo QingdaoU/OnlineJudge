@@ -6,10 +6,9 @@ from account.models import User
 from problem.models import AbstractProblem
 from group.models import Group
 
-
 GROUP_CONTEST = 0
 PUBLIC_CONTEST = 1
-PASSWORD_PUBLIC_CONTEST = 2
+PASSWORD_PROTECTED_CONTEST = 2
 
 
 class Contest(models.Model):

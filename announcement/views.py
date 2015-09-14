@@ -16,8 +16,21 @@ def announcement_page(request, announcement_id):
     try:
         announcement = Announcement.objects.get(id=announcement_id, visible=True)
     except Announcement.DoesNotExist:
-        return error_page(request, u"模板不存在")
-    return render(request, "oj/announcement/announcement.html", {"announcement": announcement})
+        return error_page(request, u"公告不存在")
+    # 公开的公告
+    if announcement.is_global == 0:
+        return render(request, "oj/announcement/announcement.html", {"announcement": announcement})
+    else:
+        if not request.user.is_authenticated():
+            return error_page(request, u"公告不存在")
+        # 判断是不是在组里面
+        if request.user.admin_type == SUPER_ADMIN or request.user == announcement.created_by:
+            return render(request, "oj/announcement/announcement.html", {"announcement": announcement})
+        else:
+            if request.user.groups.filter(id__in=[item.id for item in announcement.groups.all()]).exists():
+                return render(request, "oj/announcement/announcement.html", {"announcement": announcement})
+            else:
+                return error_page(request, u"公告不存在")
 
 
 class AnnouncementAdminAPIView(APIView):

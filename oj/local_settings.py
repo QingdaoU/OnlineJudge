@@ -34,7 +34,7 @@ REDIS_CACHE = {
 DEBUG = True
 
 # 同理 这是 web 服务器的上传路径
-TEST_CASE_DIR =    os.path.join(BASE_DIR, 'test_case/')
+TEST_CASE_DIR = os.path.join(BASE_DIR, 'test_case/')
 
 ALLOWED_HOSTS = []
 

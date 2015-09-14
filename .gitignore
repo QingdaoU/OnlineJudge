@@ -62,3 +62,4 @@ static/src/upload_image/*
 build.txt
 tmp/
 test_case/
+release/
