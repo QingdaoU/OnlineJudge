@@ -1,10 +1,9 @@
 ({
 	// RequireJS 通过一个相对的路径 baseUrl来加载所有代码。baseUrl通常被设置成data-main属性指定脚本的同级目录。
-	baseUrl: "/static/js/",
+	baseUrl: "./js",
 	// 第三方脚本模块的别名,jquery比libs/jquery-1.11.1.min.js简洁明了；
     paths: {
-
-        jquery: "lib/jquery/jquery",
+        jquery: "empty:",
         avalon: "lib/avalon/avalon",
         editor: "utils/editor",
         uploader: "utils/uploader",
@@ -19,9 +18,9 @@
         tagEditor: "lib/tagEditor/jquery.tag-editor.min",
         jqueryUI: "lib/jqueryUI/jquery-ui",
         bootstrap: "lib/bootstrap/bootstrap",
-        datetimePicker: "lib/datetime_picker/bootstrap-datetimepicker.zh-CN",
+        datetimePicker: "lib/datetime_picker/bootstrap-datetimepicker",
         validator: "lib/validator/validator",
-
+        ZeroClipboard: "lib/ZeroClipboard/ZeroClipboard",
 
         // ------ 下面写的都不要直接用，而是使用上面的封装版本 ------
         //富文本编辑器simditor -> editor
@@ -34,35 +33,47 @@
         _codeMirror: "lib/codeMirror/codemirror",
         codeMirrorClang: "lib/codeMirror/language/clike",
 
+        // bootstrap组件
+        modal: "lib/bootstrap/modal",
+        dropdown: "lib/bootstrap/dropdown",
+        transition: "lib/bootstrap/transition",
+
         //百度webuploader -> uploader
         webUploader: "lib/webuploader/webuploader",
 
-        "_datetimePicker": "lib/datetime_picker/bootstrap-datetimepicker"
-    },
-    shim: {
-        bootstrap: {deps: ["jquery"]},
-        _datetimePicker: {dep: ["jquery"]},
-        datetimePicker: {deps: ["_datetimePicker"]},
-        validator: ["jquery"]
+        //"_datetimePicker": "lib/datetime_picker/bootstrap-datetimepicker",
+
+        //以下都是页面 script 标签引用的js
+        addProblem_0_pack: "app/admin/problem/addProblem",
+        addContest_1_pack: "app/admin/contest/addContest",
+        problem_2_pack: "app/admin/problem/problem",
+        register_3_pack: "app/oj/account/register",
+        contestList_4_pack: "app/admin/contest/contestList",
+        group_5_pack: "app/oj/group/group",
+        editProblem_6_pack: "app/admin/problem/editProblem",
+        announcement_7_pack: "app/admin/announcement/announcement",
+        monitor_8_pack: "app/admin/monitor/monitor",
+        groupDetail_9_pack: "app/admin/group/groupDetail",
+        admin_10_pack: "app/admin/admin",
+        problem_11_pack: "app/oj/problem/problem",
+        submissionList_12_pack: "app/admin/problem/submissionList",
+        editProblem_13_pack: "app/admin/contest/editProblem",
+        joinGroupRequestList_14_pack: "app/admin/group/joinGroupRequestList",
+        changePassword_15_pack: "app/oj/account/changePassword",
+        group_16_pack: "app/admin/group/group",
+        submissionList_17_pack: "app/admin/contest/submissionList",
+        login_18_pack: "app/oj/account/login",
+        contestPassword_19_pack: "app/oj/contest/contestPassword",
+        userList_20_pack: "app/admin/user/userList"
     },
     findNestedDependencies: true,
     appDir: "../",
     dir: "../../release/",
     modules: [
+
         {
-            name: "submit_code"
-        },
-        {
-            name: "validation"
-        },
-        {
-            name: "editor"
-        },
-        {
-            name: "code_mirror"
-        },
-        {
-            name: "datetimepicker"
+            name: "addContest_1_pack"
         }
-    ]
+    ],
+    optimizeCss: "standard",
 })

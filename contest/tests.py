@@ -1,19 +1,16 @@
 # coding=utf-8
 import json
+
 from django.core.urlresolvers import reverse
 from django.test import TestCase, Client
-from django.http import HttpResponse
-
 from rest_framework.test import APITestCase, APIClient
 
 from account.models import User
 from group.models import Group
 from contest.models import Contest, ContestProblem
 from .models import ContestSubmission
-from .models import GROUP_CONTEST, PUBLIC_CONTEST, PASSWORD_PUBLIC_CONTEST
-from announcement.models import Announcement
+from .models import GROUP_CONTEST, PASSWORD_PROTECTED_CONTEST
 from account.models import REGULAR_USER, ADMIN, SUPER_ADMIN
-from decorators import check_user_contest_permission
 
 
 class ContestAdminAPITest(APITestCase):
@@ -36,13 +33,13 @@ class ContestAdminAPITest(APITestCase):
                                            join_group_setting=0, visible=True,
                                            admin=user1)
         self.global_contest = Contest.objects.create(title="titlex", description="descriptionx", mode=1,
-                                                     contest_type=PASSWORD_PUBLIC_CONTEST, show_rank=True,
+                                                     contest_type=PASSWORD_PROTECTED_CONTEST, show_rank=True,
                                                      show_user_submission=True,
                                                      start_time="2015-08-15T10:00:00.000Z",
                                                      end_time="2015-08-15T12:00:00.000Z",
                                                      password="aacc", created_by=User.objects.get(username="test1"))
         self.group_contest = Contest.objects.create(title="titley", description="descriptiony", mode=1,
-                                                    contest_type=PASSWORD_PUBLIC_CONTEST, show_rank=True,
+                                                    contest_type=PASSWORD_PROTECTED_CONTEST, show_rank=True,
                                                     show_user_submission=True,
                                                     start_time="2015-08-15T10:00:00.000Z",
                                                     end_time="2015-08-15T12:00:00.000Z",
@@ -57,7 +54,7 @@ class ContestAdminAPITest(APITestCase):
 
     def test_global_contest_does_not_has_privileges(self):
         self.client.login(username="test2", password="testbb")
-        data = {"title": "title0", "description": "description0", "mode": 1, "contest_type": PASSWORD_PUBLIC_CONTEST,
+        data = {"title": "title0", "description": "description0", "mode": 1, "contest_type": PASSWORD_PROTECTED_CONTEST,
                 "show_rank": True, "show_user_submission": True, "start_time": "2015-08-15T10:00:00.000Z",
                 "end_time": "2015-08-15T12:00:00.000Z", "password": "aabb", "visible": True}
         response = self.client.post(self.url, data=data)
@@ -65,7 +62,7 @@ class ContestAdminAPITest(APITestCase):
 
     def test_global_contest_password_exists(self):
         self.client.login(username="test1", password="testaa")
-        data = {"title": "title0", "description": "description0", "mode": 1, "contest_type": PASSWORD_PUBLIC_CONTEST,
+        data = {"title": "title0", "description": "description0", "mode": 1, "contest_type": PASSWORD_PROTECTED_CONTEST,
                 "show_rank": True, "show_user_submission": True, "start_time": "2015-08-15T10:00:00.000Z",
                 "end_time": "2015-08-15T12:00:00.000Z", "visible": True}
         response = self.client.post(self.url, data=data)
@@ -81,7 +78,7 @@ class ContestAdminAPITest(APITestCase):
 
     def test_global_contest_successfully(self):
         self.client.login(username="test1", password="testaa")
-        data = {"title": "title1", "description": "description1", "mode": 1, "contest_type": PASSWORD_PUBLIC_CONTEST,
+        data = {"title": "title1", "description": "description1", "mode": 1, "contest_type": PASSWORD_PROTECTED_CONTEST,
                 "show_rank": True, "show_user_submission": True, "start_time": "2015-08-15T10:00:00.000Z",
                 "end_time": "2015-08-15T12:00:00.000Z", "password": "aabb", "visible": True}
         response = self.client.post(self.url, data=data)
@@ -105,7 +102,7 @@ class ContestAdminAPITest(APITestCase):
 
     def test_time_error(self):
         self.client.login(username="test1", password="testaa")
-        data = {"title": "title2", "description": "description2", "mode": 1, "contest_type": PASSWORD_PUBLIC_CONTEST,
+        data = {"title": "title2", "description": "description2", "mode": 1, "contest_type": PASSWORD_PROTECTED_CONTEST,
                 "show_rank": True, "show_user_submission": True, "start_time": "2015-08-15T12:00:00.000Z",
                 "end_time": "2015-08-15T10:00:00.000Z", "password": "aabb", "visible": True}
         response = self.client.post(self.url, data=data)
@@ -113,7 +110,7 @@ class ContestAdminAPITest(APITestCase):
 
     def test_contest_has_exists(self):
         self.client.login(username="test1", password="testaa")
-        data = {"title": "titlex", "description": "descriptionx", "mode": 1, "contest_type": PASSWORD_PUBLIC_CONTEST,
+        data = {"title": "titlex", "description": "descriptionx", "mode": 1, "contest_type": PASSWORD_PROTECTED_CONTEST,
                 "show_rank": True, "show_user_submission": True, "start_time": "2015-08-15T10:00:00.000Z",
                 "end_time": "2015-08-15T12:00:00.000Z", "password": "aabb", "visible": True}
         response = self.client.post(self.url, data=data)
@@ -129,7 +126,7 @@ class ContestAdminAPITest(APITestCase):
     def test_contest_does_not_exist(self):
         self.client.login(username="test1", password="testaa")
         data = {"id": self.global_contest.id + 10, "title": "title2", "description": "description2", "mode": 1,
-                "contest_type": PASSWORD_PUBLIC_CONTEST, "show_rank": True, "show_user_submission": True,
+                "contest_type": PASSWORD_PROTECTED_CONTEST, "show_rank": True, "show_user_submission": True,
                 "start_time": "2015-08-15T10:00:00.000Z", "end_time": "2015-08-15T12:00:00.000Z", "password": "aabb",
                 "visible": True}
         response = self.client.put(self.url, data=data)
@@ -138,7 +135,7 @@ class ContestAdminAPITest(APITestCase):
     def test_edit_global_contest_successfully(self):
         self.client.login(username="test1", password="testaa")
         data = {"id": self.global_contest.id, "title": "titlez", "description": "descriptionz", "mode": 1,
-                "contest_type": PASSWORD_PUBLIC_CONTEST, "show_rank": True, "show_user_submission": True,
+                "contest_type": PASSWORD_PROTECTED_CONTEST, "show_rank": True, "show_user_submission": True,
                 "start_time": "2015-08-15T10:00:00.000Z", "end_time": "2015-08-15T13:00:00.000Z", "password": "aabb",
                 "visible": True}
         response = self.client.put(self.url, data=data)
@@ -178,7 +175,7 @@ class ContestAdminAPITest(APITestCase):
     def test_edit_contest_has_exists(self):
         self.client.login(username="test1", password="testaa")
         data = {"id": self.global_contest.id, "title": "titley", "description": "descriptiony", "mode": 1,
-                "contest_type": PASSWORD_PUBLIC_CONTEST, "show_rank": True, "show_user_submission": True,
+                "contest_type": PASSWORD_PROTECTED_CONTEST, "show_rank": True, "show_user_submission": True,
                 "start_time": "2015-08-15T10:00:00.000Z", "end_time": "2015-08-15T12:00:00.000Z", "password": "aabb",
                 "visible": True}
         response = self.client.put(self.url, data=data)
@@ -187,7 +184,7 @@ class ContestAdminAPITest(APITestCase):
     def test_edit_global_contest_does_not_has_privileges(self):
         self.client.login(username="test2", password="testbb")
         data = {"id": self.global_contest.id, "title": "titlexxxxxxxxx", "description": "descriptionxxxxxx", "mode": 1,
-                "contest_type": PASSWORD_PUBLIC_CONTEST, "show_rank": True, "show_user_submission": True,
+                "contest_type": PASSWORD_PROTECTED_CONTEST, "show_rank": True, "show_user_submission": True,
                 "start_time": "2015-08-15T10:00:00.000Z", "end_time": "2015-08-15T12:00:00.000Z", "password": "aabb",
                 "visible": True}
         response = self.client.put(self.url, data=data)
@@ -196,7 +193,7 @@ class ContestAdminAPITest(APITestCase):
     def test_edit_global_contest_password_exists(self):
         self.client.login(username="test1", password="testaa")
         data = {"id": self.global_contest.id, "title": "title0", "description": "description0", "mode": 1,
-                "contest_type": PASSWORD_PUBLIC_CONTEST, "show_rank": True, "show_user_submission": True, "start_time": "2015-08-15T10:00:00.000Z",
+                "contest_type": PASSWORD_PROTECTED_CONTEST, "show_rank": True, "show_user_submission": True, "start_time": "2015-08-15T10:00:00.000Z",
                 "end_time": "2015-08-15T12:00:00.000Z", "visible": True}
         response = self.client.put(self.url, data=data)
         self.assertEqual(response.data, {"code": 1, "data": u"此比赛为有密码的公开赛，密码不可为空"})
@@ -204,7 +201,7 @@ class ContestAdminAPITest(APITestCase):
     def test_edit_time_error(self):
         self.client.login(username="test1", password="testaa")
         data = {"id": self.global_contest.id, "title": "titleaaaa", "description": "descriptionaaaaa", "mode": 1,
-                "contest_type": PASSWORD_PUBLIC_CONTEST, "show_rank": True, "show_user_submission": True,
+                "contest_type": PASSWORD_PROTECTED_CONTEST, "show_rank": True, "show_user_submission": True,
                 "start_time": "2015-08-15T12:00:00.000Z", "end_time": "2015-08-15T10:00:00.000Z", "password": "aabb",
                 "visible": True}
         response = self.client.put(self.url, data=data)
@@ -247,7 +244,7 @@ class ContestProblemAdminAPItEST(APITestCase):
         self.user3.save()
         self.client.login(username="test1", password="testaa")
         self.global_contest = Contest.objects.create(title="titlex", description="descriptionx", mode=1,
-                                                     contest_type=PASSWORD_PUBLIC_CONTEST, show_rank=True,
+                                                     contest_type=PASSWORD_PROTECTED_CONTEST, show_rank=True,
                                                      show_user_submission=True,
                                                      start_time="2015-08-15T10:00:00.000Z",
                                                      end_time="2015-08-15T12:00:00.000Z",
@@ -417,7 +414,7 @@ class ContestPasswordVerifyAPITest(APITestCase):
         self.user2.save()
         self.client.login(username="test1", password="testaa")
         self.global_contest = Contest.objects.create(title="titlex", description="descriptionx", mode=1,
-                                                     contest_type=PASSWORD_PUBLIC_CONTEST, show_rank=True,
+                                                     contest_type=PASSWORD_PROTECTED_CONTEST, show_rank=True,
                                                      show_user_submission=True,
                                                      start_time="2015-08-15T10:00:00.000Z",
                                                      end_time="2015-08-15T12:00:00.000Z",
@@ -457,7 +454,7 @@ class ContestPageTest(TestCase):
         self.user1.save()
         self.client.login(username="test1", password="testaa")
         self.global_contest = Contest.objects.create(title="titlex", description="descriptionx", mode=1,
-                                                     contest_type=PASSWORD_PUBLIC_CONTEST, show_rank=True,
+                                                     contest_type=PASSWORD_PROTECTED_CONTEST, show_rank=True,
                                                      show_user_submission=True,
                                                      start_time="2015-08-15T10:00:00.000Z",
                                                      end_time="2015-08-15T12:00:00.000Z",
@@ -481,7 +478,7 @@ class ContestProblemPageTest(TestCase):
         self.user1.save()
         self.client.login(username="test1", password="testaa")
         self.global_contest = Contest.objects.create(title="titlex", description="descriptionx", mode=1,
-                                                     contest_type=PASSWORD_PUBLIC_CONTEST, show_rank=True,
+                                                     contest_type=PASSWORD_PROTECTED_CONTEST, show_rank=True,
                                                      show_user_submission=True,
                                                      start_time="2015-08-15T10:00:00.000Z",
                                                      end_time="2015-08-15T12:00:00.000Z",
@@ -525,7 +522,7 @@ class ContestProblemListPageTest(TestCase):
         self.user1.save()
         self.client.login(username="test1", password="testaa")
         self.global_contest = Contest.objects.create(title="titlex", description="descriptionx", mode=1,
-                                                     contest_type=PASSWORD_PUBLIC_CONTEST, show_rank=True,
+                                                     contest_type=PASSWORD_PROTECTED_CONTEST, show_rank=True,
                                                      show_user_submission=True,
                                                      start_time="2015-08-15T10:00:00.000Z",
                                                      end_time="2015-08-15T12:00:00.000Z",
@@ -562,7 +559,7 @@ class ContestListPageTest(TestCase):
         self.url = reverse('contest_list_page')
         self.client.login(username="test1", password="testaa")
         self.global_contest = Contest.objects.create(title="titlex", description="descriptionx", mode=1,
-                                                     contest_type=PASSWORD_PUBLIC_CONTEST, show_rank=True,
+                                                     contest_type=PASSWORD_PROTECTED_CONTEST, show_rank=True,
                                                      show_user_submission=True,
                                                      start_time="2015-08-15T10:00:00.000Z",
                                                      end_time="2015-08-15T12:00:00.000Z",

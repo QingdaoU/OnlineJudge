@@ -114,9 +114,6 @@ def my_submission(request, submission_id):
     except Submission.DoesNotExist:
         return error_page(request, u"提交不存在")
 
-    if submission.user_id != request.user.id and not submission.shared:
-        return error_page(request, u"提交不存在")
-
     if submission.contest_id:
         try:
             problem = ContestProblem.objects.get(id=submission.problem_id,
