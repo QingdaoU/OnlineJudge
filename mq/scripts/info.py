@@ -80,10 +80,12 @@ class MessageQueue(object):
             except ContestSubmission.DoesNotExist:
                 # 第一次提交
                 is_ac = submission.result == result["accepted"]
+                first_achieved = False
+                ac_time = 0
                 if is_ac:
+                    ac_time = int((submission.create_time - contest.start_time).total_seconds())
                     total_time = int((submission.create_time - contest.start_time).total_seconds())
                     # 增加题目总的ac数计数器
-                    first_achieved = False
                     if contest_problem.total_accepted_number == 0:
                         first_achieved = True
                     contest_problem.total_accepted_number += 1
@@ -92,7 +94,8 @@ class MessageQueue(object):
                     # 没过罚时20分钟
                     total_time = 1200
                 ContestSubmission.objects.create(user_id=submission.user_id, contest=contest, problem=contest_problem,
-                                                 ac=is_ac, total_time=total_time, first_achieved=first_achieved)
+                                                 ac=is_ac, total_time=total_time, first_achieved=first_achieved,
+                                                 ac_time=ac_time)
 
 
 logger.debug("Start message queue")
