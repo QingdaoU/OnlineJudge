@@ -39,3 +39,7 @@ TEST_CASE_DIR = os.path.join(BASE_DIR, 'test_case/')
 ALLOWED_HOSTS = []
 
 IMAGE_UPLOAD_DIR = os.path.join(BASE_DIR, 'static/src/upload_image/')
+
+STATICFILES_DIRS = [os.path.join(BASE_DIR, "static/src/")]
+
+TEMPLATE_DIRS = [os.path.join(BASE_DIR, 'template/src/')]

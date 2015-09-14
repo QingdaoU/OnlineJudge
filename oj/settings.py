@@ -32,8 +32,6 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = 'hzfp^8mbgapc&x%$#xv)0=t8s7_ilingw(q3!@h&2fty6v6fxz'
 
 
-
-
 # Application definition
 
 INSTALLED_APPS = (
@@ -76,7 +74,7 @@ ROOT_URLCONF = 'oj.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR, 'template/src')],
+        'DIRS': TEMPLATE_DIRS,
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -110,8 +108,6 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.8/howto/static-files/
 
 STATIC_URL = '/static/'
-
-STATICFILES_DIRS = (os.path.join(BASE_DIR, "static/src/"),)
 
 AUTH_USER_MODEL = 'account.User'
 
