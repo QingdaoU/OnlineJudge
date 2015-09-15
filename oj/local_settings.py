@@ -3,10 +3,6 @@ import os
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-
-# 下面是需要自己修改的
-LOG_PATH = "log/"
-
 # 注意这是web 服务器访问的地址，判题端访问的地址不一定一样，因为可能不在一台机器上
 DATABASES = {
     'default': {
@@ -17,11 +13,11 @@ DATABASES = {
     'submission': {
         'NAME': 'oj_submission',
         'ENGINE': 'django.db.backends.mysql',
-        'HOST': "121.42.32.129",
+        'CONN_MAX_AGE': 0.1,
+        'HOST': "127.0.0.1",
         'PORT': 3306,
         'USER': 'root',
-        'PASSWORD': 'mypwd',
-        'CONN_MAX_AGE': 0.1,
+        'PASSWORD': 'root',
     }
 }
 
@@ -33,9 +29,11 @@ REDIS_CACHE = {
 
 DEBUG = True
 
-# 同理 这是 web 服务器的上传路径
-TEST_CASE_DIR = os.path.join(BASE_DIR, 'test_case/')
-
 ALLOWED_HOSTS = []
 
-IMAGE_UPLOAD_DIR = os.path.join(BASE_DIR, 'static/src/upload_image/')
+# 在 debug 关闭的情况下，静态文件不是有 django runserver 来处理的，应该由 nginx 返回
+# 在 debug 开启的情况下，django 会在下面两个文件夹中寻找对应的静态文件。
+STATICFILES_DIRS = [os.path.join(BASE_DIR, "static/src/"), BASE_DIR]
+
+# 模板文件夹
+TEMPLATE_DIRS = [os.path.join(BASE_DIR, 'template/src/')]
