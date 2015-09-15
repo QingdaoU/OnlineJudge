@@ -59,7 +59,8 @@ class ProblemAdminAPIView(APIView):
                                              memory_limit=data["memory_limit"],
                                              difficulty=data["difficulty"],
                                              created_by=request.user,
-                                             hint=data["hint"])
+                                             hint=data["hint"],
+                                             visible=data["visible"])
             for tag in data["tags"]:
                 try:
                     tag = ProblemTag.objects.get(name=tag)
