@@ -9,9 +9,11 @@ template_release_path = "template/release/"
 
 static_src_path = "static/src/"
 static_release_path = "static/release/"
-
-# 删除模板的 release 文件夹
-shutil.rmtree(template_release_path)
+try:
+    # 删除模板的 release 文件夹
+    shutil.rmtree(template_release_path)
+except Exception:
+    pass
 # 复制一份模板文件夹到 release
 shutil.copytree(template_src_path, template_release_path)
 

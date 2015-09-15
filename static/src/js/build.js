@@ -70,7 +70,10 @@
     appDir: "../",
     dir: "../../release/",
     modules: [
-         {
+        {
+            name: "bootstrap",
+        },
+        {
             name: "addProblem_0_pack"
         },
         {
