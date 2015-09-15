@@ -5,7 +5,9 @@ from rest_framework.response import Response
 from django.conf import settings
 
 from utils.shortcuts import rand_str
+import logging
 
+logger = logging.getLogger("app_info")
 
 class SimditorImageUploadAPIView(APIView):
     def post(self, request):
@@ -22,7 +24,8 @@ class SimditorImageUploadAPIView(APIView):
             with open(image_dir, "wb") as imageFile:
                 for chunk in img:
                     imageFile.write(chunk)
-        except IOError:
+        except IOError as e:
+            logger.error(e)
             return Response(data={
                 "success": True,
                 "msg": "上传错误",
