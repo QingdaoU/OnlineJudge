@@ -21,7 +21,6 @@ from .models import Submission
 from .serializers import CreateSubmissionSerializer, SubmissionSerializer, SubmissionhareSerializer
 
 
-
 class SubmissionAPIView(APIView):
     @login_required
     def post(self, request):
@@ -81,7 +80,8 @@ def problem_my_submissions_list_page(request, problem_id):
     except Problem.DoesNotExist:
         return error_page(request, u"问题不存在")
 
-    submissions = Submission.objects.filter(user_id=request.user.id, problem_id=problem.id, contest_id__isnull=True).order_by("-create_time"). \
+    submissions = Submission.objects.filter(user_id=request.user.id, problem_id=problem.id,
+                                            contest_id__isnull=True).order_by("-create_time"). \
         values("id", "result", "create_time", "accepted_answer_time", "language")
 
     return render(request, "oj/problem/my_submissions_list.html",
@@ -193,7 +193,7 @@ def my_submission_list_page(request, page=1):
     return render(request, "oj/submission/my_submissions_list.html",
                   {"submissions": current_page, "page": int(page),
                    "previous_page": previous_page, "next_page": next_page, "start_id": int(page) * 20 - 20,
-                   "announcements": announcements, "filter":filter})
+                   "announcements": announcements, "filter": filter})
 
 
 class SubmissionShareAPIView(APIView):

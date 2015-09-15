@@ -4,7 +4,7 @@
 	// 第三方脚本模块的别名,jquery比libs/jquery-1.11.1.min.js简洁明了；
     paths: {
         jquery: "empty:",
-        avalon: "lib/avalon/avalon",
+        avalon: "empty:",
         editor: "utils/editor",
         uploader: "utils/uploader",
         formValidation: "utils/formValidation",
@@ -70,9 +70,71 @@
     appDir: "../",
     dir: "../../release/",
     modules: [
-
+        {
+            name: "bootstrap",
+        },
+        {
+            name: "addProblem_0_pack"
+        },
         {
             name: "addContest_1_pack"
+        },
+        {
+            name: "problem_2_pack"
+        },
+        {
+            name: "register_3_pack"
+        },
+        {
+            name: "contestList_4_pack"
+        },
+        {
+            name: "group_5_pack"
+        },
+        {
+            name: "editProblem_6_pack"
+        },
+        {
+            name: "announcement_7_pack"
+        },
+        {
+            name: "monitor_8_pack"
+        },
+        {
+            name: "groupDetail_9_pack"
+        },
+        {
+            name: "admin_10_pack"
+        },
+        {
+            name: "problem_11_pack"
+        },
+        {
+            name: "submissionList_12_pack"
+        },
+        {
+            name: "editProblem_13_pack"
+        },
+        {
+            name: "joinGroupRequestList_14_pack"
+        },
+        {
+            name: "changePassword_15_pack"
+        },
+        {
+            name: "group_16_pack"
+        },
+        {
+            name: "submissionList_17_pack"
+        },
+        {
+            name: "login_18_pack"
+        },
+        {
+            name: "contestPassword_19_pack"
+        },
+        {
+            name: "userList_20_pack"
         }
     ],
     optimizeCss: "standard",
