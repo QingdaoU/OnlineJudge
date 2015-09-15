@@ -282,7 +282,7 @@ def problem_list_page(request, page=1):
     except Exception:
         pass
 
-    if request.user.is_authenticated() and request.user.problems_status:
+    if request.user.is_authenticated():
         problems_status = json.loads(request.user.problems_status)
     else:
         problems_status = {}

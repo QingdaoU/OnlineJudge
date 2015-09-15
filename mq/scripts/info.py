@@ -43,10 +43,7 @@ class MessageQueue(object):
                 except User.DoesNotExist:
                     logger.warning("Submission user does not exist, submission_id: " + submission_id)
                     continue
-                if user.problems_status:
-                    problems_status = json.loads(user.problems_status)
-                else:
-                    problems_status = {}
+                problems_status = json.loads(user.problems_status)
                 problems_status[str(problem.id)] = 1
                 user.problems_status = json.dumps(problems_status)
                 user.save()
