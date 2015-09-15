@@ -1,6 +1,5 @@
 {% extends "oj_base.html" %}
 {% block body %}
-    {% load submission %}
     <div class="container main">
 
         <ul class="nav nav-tabs nav-tabs-google contest-tab">
@@ -19,44 +18,57 @@
         </ul>
 
         <div class="row">
-
-            {% if result %}
-                <table class="table table-bordered">
-                    <thead>
-                    <tr>
-                        <th>#</th>
-                        <th>用户名</th>
-                        <th>AC / 总提交</th>
-                        <th>用时 + 罚时</th>
-                        {% for item in contest_problems %}
-                            <th><a href="/contest/{{ contest.id }}/problem/{{ item.id }}/">{{ item.sort_index }}</a>
-                            </th>
-                        {% endfor %}
-                    </tr>
-                    </thead>
-                    <tbody>
-                    {% for item in result %}
+            <div class="col-lg-12">
+                <h2 class="text-center">排名(
+                    {% if real_time_rank %}
+                        实时
+                    {% else %}
+                        已封榜
+                    {% endif %})
+                </h2>
+                {% if result %}
+                    <table class="table table-bordered text-center">
+                        <thead>
                         <tr>
-                            <th scope="row">{{ forloop.counter }}</th>
-                            <td>{{ item.user.username }}</td>
-                            <td>{{ item.total_ac }} / {{ item.total_submit }}</td>
-                            <td>{% if item.total_time %}{{ item.total_time }} min{% else %}--{% endif %}</td>
-                            {% for problem in contest_problems %}
-                                <td class="{% submission_problem_result_class problem item.submissions %}">
-                                    {% submission_problem problem item.submissions %}
-                                </td>
+                            <th>#</th>
+                            <th class="text-center">用户名</th>
+                            <th class="text-center">AC / 总提交</th>
+                            <th class="text-center">用时 + 罚时</th>
+                            {% for item in contest_problems %}
+                                <th class="text-center"><a
+                                        href="/contest/{{ contest.id }}/problem/{{ item.id }}/">{{ item.sort_index }}</a>
+                                </th>
                             {% endfor %}
                         </tr>
-                    {% endfor %}
-                    </tbody>
-                </table>
-                <input type="checkbox" id="auto-refresh" {% if auto_refresh %}checked{% endif %}
-                       onchange="if(this.checked){location.href='?auto_refresh=true'}else{location.href=location.href.split('?')[0]}">
-                自动刷新
-            {% else %}
-                <p>还没有结果</p>
-            {% endif %}
+                        </thead>
+                        <tbody class="rank">
+                        {% for item in result %}
+                            <tr>
+                                <th scope="row">{{ forloop.counter }}</th>
+                                <td>{{ item.username }}</td>
+                                <td>{{ item.total_ac }} / {{ item.total_submit }}</td>
+                                <td>{% if item.total_time %}{{ item.total_time }}{% else %}--{% endif %}</td>
+                                {% for problem in item.problems %}
+                                    <td class="
+                                            {% if problem %}{% if problem.ac %}{% if problem.first_achieved %}first-achieved{% else %}alert-success{% endif %}{% else %}alert-danger{% endif %}{% endif %}">
+                                        {% if problem.ac %}{{ problem.ac_time }}{% endif %}
+                                        {% if problem.failed_number %}
+                                            (-{{ problem.failed_number }})
+                                        {% endif %}
+                                    </td>
+                                {% endfor %}
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                    <input type="checkbox" id="auto-refresh" {% if auto_refresh %}checked{% endif %}
+                           onchange="if(this.checked){location.href='?auto_refresh=true'}else{location.href=location.href.split('?')[0]}">
+                    自动刷新
+                {% else %}
+                    <p>还没有结果</p>
+                {% endif %}
 
+            </div>
         </div>
     </div>
 {% endblock %}
