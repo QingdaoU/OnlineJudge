@@ -2,6 +2,7 @@
 import logging
 
 import redis
+import json
 
 from judge.judger_controller.settings import redis_config
 from judge.judger.result import result
@@ -9,6 +10,7 @@ from submission.models import Submission
 from problem.models import Problem
 from contest.models import ContestProblem, Contest, ContestSubmission
 from account.models import User
+
 logger = logging.getLogger("app_info")
 
 
@@ -35,6 +37,20 @@ class MessageQueue(object):
                     problem.save()
                 except Problem.DoesNotExist:
                     logger.warning("Submission problem does not exist, submission_id: " + submission_id)
+                # 更新该用户的解题状态
+                try:
+                    user = User.objects.get(pk=submission.user_id)
+                except User.DoesNotExist:
+                    logger.warning("Submission user does not exist, submission_id: " + submission_id)
+                    continue
+                if user.problems_status:
+                    problems_status = json.loads(user.problems_status)
+                else:
+                    problems_status = {}
+                problems_status[str(problem.id)] = 1
+                user.problems_status = json.dumps(problems_status)
+                user.save()
+
                 # 普通题目的话，到这里就结束了
                 continue
 
