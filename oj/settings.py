@@ -32,8 +32,6 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = 'hzfp^8mbgapc&x%$#xv)0=t8s7_ilingw(q3!@h&2fty6v6fxz'
 
 
-
-
 # Application definition
 
 INSTALLED_APPS = (
@@ -76,7 +74,7 @@ ROOT_URLCONF = 'oj.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR, 'template/src')],
+        'DIRS': TEMPLATE_DIRS,
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -90,7 +88,6 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'oj.wsgi.application'
-
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.8/topics/i18n/
@@ -111,9 +108,10 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
-STATICFILES_DIRS = (os.path.join(BASE_DIR, "static/src/"),)
-
 AUTH_USER_MODEL = 'account.User'
+
+LOG_PATH = "log/"
+
 
 LOGGING = {
     'version': 1,
@@ -167,3 +165,7 @@ REST_FRAMEWORK = {
 }
 
 DATABASE_ROUTERS = ['oj.db_router.DBRouter']
+
+TEST_CASE_DIR = os.path.join(BASE_DIR, 'test_case/')
+
+IMAGE_UPLOAD_DIR = os.path.join(BASE_DIR, 'upload/')

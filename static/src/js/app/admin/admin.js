@@ -1,4 +1,4 @@
-define("admin", ["jquery", "avalon"], function ($, avalon) {
+require(["jquery", "avalon", "bootstrap"], function ($, avalon) {
 
     avalon.ready(function () {
 

@@ -62,7 +62,6 @@
         <div id="code-field">
             <textarea id="code-editor">{{ submission.code }}</textarea>
         </div>
-    {% ifequal request.user.id submission.user_id %}
 
         <div id="share-code" class="col-lg-6 col-md-6">
             {% if submission.shared %}
@@ -74,7 +73,7 @@
                       {% if not submission.shared %}style="display: none" {% endif %}>{{ problem.title }}
 {{ request.build_absolute_uri }}</textarea>
         </div>
-    {% endifequal %}
+
 
     </div>
 

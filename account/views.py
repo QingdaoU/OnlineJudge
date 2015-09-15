@@ -36,10 +36,23 @@ class UserLoginAPIView(APIView):
         else:
             return serializer_invalid_response(serializer)
 
+
 @login_required
 def logout(request):
     auth.logout(request)
     return http.HttpResponseRedirect("/")
+
+
+def page_jump(request):
+    if not request.user.is_authenticated():
+        return render(request, "oj/index.html")
+
+    try:
+        if request.META['HTTP_REFERER']:
+            return render(request, "oj/index.html")
+    except KeyError:
+        return http.HttpResponseRedirect('/problems/')
+
 
 class UserRegisterAPIView(APIView):
     def post(self, request):

@@ -120,12 +120,13 @@ def contest_problem_submissions_list_page(request, contest_id, page=1):
     except Exception:
         pass
 
-    # 如果该用户是超级管理员那么他可以查看所有的提交记录详情
-    if request.user.admin_type > 1:
-        return render(request, "oj/contest/submissions_list_admin.html",
-                      {"submissions": current_page, "page": int(page),
-                       "previous_page": previous_page, "next_page": next_page, "start_id": int(page) * 20 - 20,
-                       "contest": contest})
+    for item in current_page:
+        # 自己提交的 管理员和创建比赛的可以看到所有的提交链接
+        if item["user_id"] == request.user.id or request.user.admin_type == SUPER_ADMIN or \
+                        request.user == contest.created_by:
+            item["show_link"] = True
+        else:
+            item["show_link"] = False
 
     return render(request, "oj/contest/submissions_list.html",
                   {"submissions": current_page, "page": int(page),

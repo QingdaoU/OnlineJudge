@@ -3,6 +3,8 @@ MAINTAINER virusdefender<qduliyang@outlook.com>
 RUN mkdir /var/install/
 WORKDIR /var/install/
 ENV DEBIAN_FRONTEND noninteractive
+RUN rm /etc/apt/sources.list
+COPY sources.list /etc/apt/
 RUN apt-get update
 RUN apt-get -y install software-properties-common python-software-properties
 RUN add-apt-repository -y ppa:webupd8team/java
