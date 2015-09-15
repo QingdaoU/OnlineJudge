@@ -28,7 +28,7 @@ require(["jquery", "avalon", "csrfToken", "bsAlert", "editor", "datetimePicker",
                     ajaxData.groups = selectedGroups;
                 }
                 else {
-                    if (vm.password) {
+                    if (vm.editPassword) {
                         ajaxData.password = vm.editPassword;
                         ajaxData.contest_type = 2;
                     }
@@ -114,7 +114,7 @@ require(["jquery", "avalon", "csrfToken", "bsAlert", "editor", "datetimePicker",
                 isGlobal: true,
                 allGroups: [],
                 showGlobalViewRadio: true,
-
+                admin_type: 1,
                 getNext: function () {
                     if (!vm.nextPage)
                         return;
@@ -211,6 +211,39 @@ require(["jquery", "avalon", "csrfToken", "bsAlert", "editor", "datetimePicker",
                     if (el)
                         problemId = el.id;
                     vm.$fire("up!showContestSubmissionPage", problemId, vm.contestList[vm.editingProblemContestIndex - 1].id, vm.editMode);
+                },
+                addToProblemList: function (problem) {
+                    var ajaxData = {
+                        title: problem.title,
+                        description: problem.description,
+                        time_limit: problem.time_limit,
+                        memory_limit: problem.memory_limit,
+                        samples: problem.samples,
+                        test_case_id: problem.test_case_id,
+                        hint: problem.hint,
+                        source: problem.contest.title,
+                        visible: false,
+                        tags: [],
+                        input_description: problem.input_description,
+                        output_description: problem.output_description,
+                        difficulty: 0
+                    };
+                    $.ajax({
+                        beforeSend: csrfTokenHeader,
+                        url: "/api/admin/problem/",
+                        dataType: "json",
+                        data: JSON.stringify(ajaxData),
+                        method: "post",
+                        contentType: "application/json",
+                        success: function (data) {
+                            if (!data.code) {
+                                bsAlert("题目添加成功！题目现在处于隐藏状态，请到题目列表手动修改，并添加分类和难度信息！");
+                            }
+                            else {
+                                bsAlert(data.data);
+                            }
+                        }
+                    });
                 }
             });
             vm.$watch("showVisibleOnly", function () {
@@ -266,6 +299,7 @@ require(["jquery", "avalon", "csrfToken", "bsAlert", "editor", "datetimePicker",
             success: function (data) {
                 if (!data.code) {
                     var admin_type = data.data.admin_type;
+                    vm.admin_type = admin_type;
                     if (data.data.admin_type == 1) {
                         vm.isGlobal = false;
                         vm.showGlobalViewRadio = false;
@@ -278,6 +312,7 @@ require(["jquery", "avalon", "csrfToken", "bsAlert", "editor", "datetimePicker",
                     success: function (data) {
                         if (!data.code) {
                             if (!data.data.length) {
+
                                 if (admin_type != 2)
                                     bsAlert("您的用户权限只能创建小组内比赛，但是您还没有创建过小组");
                                 return;
