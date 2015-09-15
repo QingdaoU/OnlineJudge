@@ -117,10 +117,13 @@ require(["jquery", "codeMirror", "csrfToken", "bsAlert", "ZeroClipboard"],
 
         function guessLanguage(code) {
             //cpp
-            if (code.indexOf("using namespace std") > -1) {
+            if (code.indexOf("using namespace std") > -1||code.indexOf("<cstdio>") > -1) {
                 return "2";
             }
-
+            if (code.indexOf("printf"))
+            {
+                return "1";
+            }
             //java
             if (code.indexOf("public class Main")) {
                 return "3";
@@ -145,12 +148,12 @@ require(["jquery", "codeMirror", "csrfToken", "bsAlert", "ZeroClipboard"],
 
             if (language < 3) {
                 if (code.indexOf("__int64") > -1) {
-                    if (!confirm("您是否在尝试使用'__int64'类型? 这不是 c/c++ 标准并将引发编译错误可以使用 'long long' 代替(详见关于->帮助)，是否仍然提交？")) {
+                    if (!confirm("您是否在尝试使用'__int64'类型? 这不是 c/c++ 标准并将引发编译错误可以使用 'long long' 代替(详见 关于->帮助)，是否仍然提交？")) {
                         return;
                     }
                 }
-                if (code.indexOf("__int64") > -1) {
-                    if (!confirm("您是否在尝试用'%I64d'做long long类型的I/O? 这不是 c/c++ 标准并将引发编译错误可以使用 '%lld' 代替(详见关于->帮助)，是否仍然提交？")) {
+                if (code.indexOf("%I64d") > -1) {
+                    if (!confirm("您是否在尝试将'%I64d'用于long long类型的I/O? 这不被支持，并可能会导致程序输出异常，可以使用 '%lld' 代替(详见 关于->帮助)，是否仍然提交？")) {
                         return;
                     }
                 }
