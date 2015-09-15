@@ -286,7 +286,6 @@ def problem_list_page(request, page=1):
         problems_status = json.loads(request.user.problems_status)
     else:
         problems_status = {}
-    print problems_status
     # 右侧标签列表 按照关联的题目的数量排序 排除题目数量为0的
     tags = ProblemTag.objects.annotate(problem_number=Count("problem")).filter(problem_number__gt=0).order_by("-problem_number")
 
