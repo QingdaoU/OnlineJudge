@@ -20,6 +20,8 @@ from utils.shortcuts import serializer_invalid_response, error_response, success
 from submission.models import Submission
 from .serializers import CreateContestSubmissionSerializer
 from submission.serializers import SubmissionSerializer
+from oj.settings import REDIS_CACHE
+import redis
 
 
 class ContestSubmissionAPIView(APIView):
@@ -85,8 +87,25 @@ def contest_problem_submissions_list_page(request, contest_id, page=1):
     except Contest.DoesNotExist:
         return error_page(request, u"比赛不存在")
     # 以下是本场比赛中所有的提交
-    submissions = Submission.objects.filter(contest_id=contest_id). \
-        values("id", "contest_id", "problem_id", "result", "create_time", "accepted_answer_time", "language", "user_id").order_by("-create_time")
+    r = redis.Redis(host=REDIS_CACHE["host"], port=REDIS_CACHE["port"], db=REDIS_CACHE["db"])
+    if contest.real_time_rank:
+        # 更新submissions缓存
+        submissions = Submission.objects.filter(contest_id=contest_id). \
+            values("id", "contest_id", "problem_id", "result", "create_time", "accepted_answer_time", "language",
+                   "user_id").order_by("-create_time")
+        r.set("contest_submissions_" + contest_id, json.dumps(list(submissions)))
+    else:
+        # 已封榜
+        submissions = r.get("contest_submissions_" + contest_id)
+        if submissions:
+            submissions = json.loads(submissions)
+        else:
+            submissions = []
+        # 除了缓存里的还要加上封榜以后自己的提交
+        submissions += Submission.objects.filter(contest_id=contest_id, user_id=request.user, cerate_time__gte=time). \
+            values("id", "contest_id", "problem_id", "result", "create_time", "accepted_answer_time", "language",
+                   "user_id").order_by("-create_time")
+
     language = request.GET.get("language", None)
     filter = None
     if language:
@@ -131,7 +150,7 @@ def contest_problem_submissions_list_page(request, contest_id, page=1):
     return render(request, "oj/contest/submissions_list.html",
                   {"submissions": current_page, "page": int(page),
                    "previous_page": previous_page, "next_page": next_page, "start_id": int(page) * 20 - 20,
-                   "contest": contest, "filter":filter})
+                   "contest": contest, "filter": filter})
 
 
 class ContestSubmissionAdminAPIView(APIView):
