@@ -59,6 +59,12 @@
                     {% endfor %}
                 </p>
             </div>
+            {% if problem.source %}
+                <div class="problem-section hide">
+                    <label class="problem-label">来源</label>
+                    <div class="problem-detail">{{ problem.source }}</div>
+                </div>
+            {% endif %}
             <div>
                 <label>选择语言</label>
                 <div>
