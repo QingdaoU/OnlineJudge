@@ -1,9 +1,11 @@
 # coding=utf-8
 import json
+from datetime import datetime
 import redis
+import pytz
 from django.shortcuts import render
 from django.core.paginator import Paginator
-
+from django.utils import timezone
 from rest_framework.views import APIView
 
 from judge.judger_controller.tasks import judge
@@ -21,7 +23,6 @@ from submission.models import Submission
 from .serializers import CreateContestSubmissionSerializer
 from submission.serializers import SubmissionSerializer
 from oj.settings import REDIS_CACHE
-import redis
 
 
 class ContestSubmissionAPIView(APIView):
@@ -77,6 +78,20 @@ def contest_problem_my_submissions_list_page(request, contest_id, contest_proble
                   {"submissions": submissions, "problem": contest_problem})
 
 
+def get_formatted_datetime(date_time):
+    date_time = timezone.localtime(date_time)
+    result = str(date_time.minute)
+    if date_time.minute < 10:
+        result = "0" + result
+    result = str(date_time.hour) + ":" + result
+    if date_time.hour < 10:
+        result = "0" + result
+    result = str(date_time.day) + u"日 " + result
+    result = str(date_time.month) + u"月" + result
+    result = str(date_time.year) + u"年" + result
+    return result
+
+
 @login_required
 def contest_problem_submissions_list_page(request, contest_id, page=1):
     """
@@ -93,18 +108,26 @@ def contest_problem_submissions_list_page(request, contest_id, page=1):
         submissions = Submission.objects.filter(contest_id=contest_id). \
             values("id", "contest_id", "problem_id", "result", "create_time", "accepted_answer_time", "language",
                    "user_id").order_by("-create_time")
+        # 把datetime类型转换为string
+        for submission in submissions:
+            submission["create_time"] = get_formatted_datetime(submission["create_time"])
         r.set("contest_submissions_" + contest_id, json.dumps(list(submissions)))
     else:
         # 已封榜
         submissions = r.get("contest_submissions_" + contest_id)
         if submissions:
             submissions = json.loads(submissions)
+            time = datetime.strptime(submissions[0]["create_time"].encode("utf8"),
+                                     '%Y\xe5\xb9\xb4%m\xe6\x9c\x88%d\xe6\x97\xa5 %H:%M')
+            time = time.replace(tzinfo=pytz.timezone('Asia/Shanghai'))
         else:
             submissions = []
+            time = contest.start_time
         # 除了缓存里的还要加上封榜以后自己的提交
-        submissions += Submission.objects.filter(contest_id=contest_id, user_id=request.user, cerate_time__gte=time). \
+        self_submissions = Submission.objects.filter(contest_id=int(contest_id), user_id=request.user.id, create_time__gte=time). \
             values("id", "contest_id", "problem_id", "result", "create_time", "accepted_answer_time", "language",
                    "user_id").order_by("-create_time")
+        submissions = list(self_submissions) + submissions
 
     language = request.GET.get("language", None)
     filter = None
