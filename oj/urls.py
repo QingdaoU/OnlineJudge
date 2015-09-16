@@ -25,7 +25,6 @@ from contest_submission.views import contest_problem_my_submissions_list_page
 
 
 urlpatterns = [
-    url(r'^install/$', "install.views.install"),
     url("^$", "account.views.page_jump", name="page_jump_api"),
     url(r'^docs/', include('rest_framework_swagger.urls')),
     url(r'^admin/$', TemplateView.as_view(template_name="admin/admin.html"), name="admin_spa_page"),
