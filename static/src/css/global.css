@@ -1,13 +1,17 @@
-html{
+body, button, input, select, textarea, h1, h2, h3, h4, h5, h6 {
+    font-family: Georgia, STHeiti, "Microsoft Yahei";
+}
+
+html {
     height: 100%;
 }
 
-body{
-    height:100%; /*使内容高度和body一样*/
-    margin-bottom:-80px;/*向上缩减80像素，不至于footer超出屏幕可视范围*/
+body {
+    height: 100%; /*使内容高度和body一样*/
+    margin-bottom: -80px; /*向上缩减80像素，不至于footer超出屏幕可视范围*/
 }
 
-.main{
+.main {
     padding-bottom: 120px;
 }
 
@@ -30,10 +34,11 @@ label {
     display: none
 }
 
-.right{
+.right {
     float: right;
 }
 
-.CodeMirror pre {
-    font-family: "Consolas","Bitstream Vera Sans Mono","Courier New", Courier, monospace !important;
+
+pre {
+    font-family: "Consolas", "Bitstream Vera Sans Mono", "Courier New", Courier, monospace !important;
 }
