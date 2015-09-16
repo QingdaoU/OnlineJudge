@@ -36,7 +36,6 @@ name_map = {}
 
 def process(match):
     file_path = match.group(1).replace("/static/", "")
-    print "Processing: " + file_path
 
     if not os.path.exists(static_release_path + file_path):
         return match.group(0)
@@ -55,9 +54,11 @@ def process(match):
         return match.group(0)
 
 
+print "Begin to add md5 stamp in html"
 for root, dirs, files in os.walk(template_release_path):
     for name in files:
         html_path = os.path.join(root, name)
+        print "Processing: " + html_path
         html_content = open(html_path, "r").read()
         js_replaced_html_content = re.sub(js_re, process, html_content)
         css_replaced_html_content = re.sub(css_re, process, js_replaced_html_content)
