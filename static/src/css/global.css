@@ -1,5 +1,5 @@
 body, button, input, select, textarea, h1, h2, h3, h4, h5, h6 {
-    font-family: Georgia, STHeiti, "Microsoft Yahei";
+    font-family: Georgia, STHeiti, "Microsoft Yahei", SimSun, "Droid Sans";
 }
 
 html {
@@ -40,5 +40,5 @@ label {
 
 
 pre {
-    font-family: "Consolas", "Bitstream Vera Sans Mono", "Courier New", Courier, monospace !important;
+    font-family: "Consolas", "Bitstream Vera Sans Mono", "Courier New", Courier, monospace;
 }
