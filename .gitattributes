@@ -1,0 +1,3 @@
+static/src/js/lib/* linguist-vendored
+static/src/js/require.js linguist-vendored
+static/src/js/r.js linguist-vendored

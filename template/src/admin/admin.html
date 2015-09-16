@@ -54,13 +54,11 @@
 </nav>
 <!-- nav end -->
 
-<!--browser happy begin -->
-<!--[if lt IE 9]>
-<div class="alert alert-danger text-center" role="alert">
-    当前网页 <strong>不支持</strong> 你正在使用的浏览器. 为了正常的访问, 请 <a href="http://browsehappy.com/">升级你的浏览器</a>.
-</div>
-<![endif]-->
-<!-- browser happy end -->
+<script>
+    if(navigator.userAgent.indexOf("MSIE") > -1){
+        location.href = "/static/img/unsupported_browser.html";
+    }
+</script>
 
 <div class="container main">
     <div class="row">

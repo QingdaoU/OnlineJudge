@@ -45,7 +45,12 @@
                         {% for item in result %}
                             <tr>
                                 <th scope="row">{{ forloop.counter }}</th>
-                                <td>{{ item.username }}</td>
+                                <td>
+                                    {{ item.username }}
+                                    {% if show_real_name %}
+                                        （{{ item.real_name }}）
+                                    {% endif %}
+                                </td>
                                 <td>{{ item.total_ac }} / {{ item.total_submit }}</td>
                                 <td>{% if item.total_time %}{{ item.total_time }}{% else %}--{% endif %}</td>
                                 {% for problem in item.problems %}

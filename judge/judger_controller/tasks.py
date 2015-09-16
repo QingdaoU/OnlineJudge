@@ -11,7 +11,8 @@ from settings import docker_config, source_code_dir, test_case_dir, log_dir, sub
 @app.task
 def judge(submission_id, time_limit, memory_limit, test_case_id):
     try:
-        command = "%s run -t -i --privileged --rm=true " \
+        command = "%s run -t -i --privileged --rm " \
+                  "--link mysql " \
                   "-v %s:/var/judger/test_case/ " \
                   "-v %s:/var/judger/code/ " \
                   "-v %s:/var/judger/code/log/ " \
