@@ -22,7 +22,6 @@ from utils.shortcuts import serializer_invalid_response, error_response, success
 from submission.models import Submission
 from .serializers import CreateContestSubmissionSerializer
 from submission.serializers import SubmissionSerializer
-from oj.settings import REDIS_CACHE
 
 
 class ContestSubmissionAPIView(APIView):
@@ -78,21 +77,7 @@ def contest_problem_my_submissions_list_page(request, contest_id, contest_proble
                   {"submissions": submissions, "problem": contest_problem})
 
 
-def get_formatted_datetime(date_time):
-    date_time = timezone.localtime(date_time)
-    result = str(date_time.minute)
-    if date_time.minute < 10:
-        result = "0" + result
-    result = str(date_time.hour) + ":" + result
-    if date_time.hour < 10:
-        result = "0" + result
-    result = str(date_time.day) + u"日 " + result
-    result = str(date_time.month) + u"月" + result
-    result = str(date_time.year) + u"年" + result
-    return result
-
-
-@login_required
+@check_user_contest_permission
 def contest_problem_submissions_list_page(request, contest_id, page=1):
     """
     单个比赛中的所有提交（包含自己和别人，自己可查提交结果，其他人不可查）
@@ -101,33 +86,16 @@ def contest_problem_submissions_list_page(request, contest_id, page=1):
         contest = Contest.objects.get(id=contest_id)
     except Contest.DoesNotExist:
         return error_page(request, u"比赛不存在")
-    # 以下是本场比赛中所有的提交
-    r = redis.Redis(host=REDIS_CACHE["host"], port=REDIS_CACHE["port"], db=REDIS_CACHE["db"])
-    if contest.real_time_rank:
-        # 更新submissions缓存
-        submissions = Submission.objects.filter(contest_id=contest_id). \
-            values("id", "contest_id", "problem_id", "result", "create_time", "accepted_answer_time", "language",
-                   "user_id").order_by("-create_time")
-        # 把datetime类型转换为string
-        for submission in submissions:
-            submission["create_time"] = get_formatted_datetime(submission["create_time"])
-        r.set("contest_submissions_" + contest_id, json.dumps(list(submissions)))
-    else:
-        # 已封榜
-        submissions = r.get("contest_submissions_" + contest_id)
-        if submissions:
-            submissions = json.loads(submissions)
-            time = datetime.strptime(submissions[0]["create_time"].encode("utf8"),
-                                     '%Y\xe5\xb9\xb4%m\xe6\x9c\x88%d\xe6\x97\xa5 %H:%M')
-            time = time.replace(tzinfo=pytz.timezone('Asia/Shanghai'))
-        else:
-            submissions = []
-            time = contest.start_time
-        # 除了缓存里的还要加上封榜以后自己的提交
-        self_submissions = Submission.objects.filter(contest_id=int(contest_id), user_id=request.user.id, create_time__gte=time). \
-            values("id", "contest_id", "problem_id", "result", "create_time", "accepted_answer_time", "language",
-                   "user_id").order_by("-create_time")
-        submissions = list(self_submissions) + submissions
+
+    submissions = Submission.objects.filter(contest_id=contest_id).\
+        values("id", "contest_id", "problem_id", "result", "create_time",
+               "accepted_answer_time", "language", "user_id").order_by("-create_time")
+
+
+    # 封榜的时候只能看到自己的提交
+    if not contest.real_time_rank:
+        if not (request.user.admin_type == SUPER_ADMIN or request.user == contest.created_by):
+            submissions = submissions.filter(user_id=request.user.id)
 
     language = request.GET.get("language", None)
     filter = None

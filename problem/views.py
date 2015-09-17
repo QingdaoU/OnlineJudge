@@ -24,6 +24,7 @@ import logging
 
 logger = logging.getLogger("app_info")
 
+
 def problem_page(request, problem_id):
     try:
         problem = Problem.objects.get(id=problem_id, visible=True)
