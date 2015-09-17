@@ -58,6 +58,7 @@ class JudgeClient(object):
         """
         # todo 系统调用白名单 chroot等参数
         command = "lrun" + \
+                  " --isolate-process true" + \
                   " --max-cpu-time " + str(self._max_cpu_time / 1000.0) + \
                   " --max-real-time " + str(self._max_real_time / 1000.0 * 2) + \
                   " --max-memory " + str(self._max_memory * 1000 * 1000) + \
