@@ -7,7 +7,7 @@
 import os
 # 这个redis 是 celery 使用的，包括存储队列信息还有部分统计信息
 redis_config = {
-    "host": os.environ.get("celery_redis_host"),
+    "host": os.environ.get("REDIS_PORT_6379_TCP_ADDR"),
     "port": 6379,
     "db": 0
 }
