@@ -43,3 +43,8 @@ pre {
     font-family: "Consolas", "Bitstream Vera Sans Mono", "Courier New", Courier, monospace;
     background-color: white;
 }
+
+.CodeMirror-code{
+    font-family: "Consolas", "Bitstream Vera Sans Mono", "Courier New", Courier, monospace;
+    background-color: white;
+}
