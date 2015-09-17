@@ -62,7 +62,8 @@ class JudgeClient(object):
                   " --max-real-time " + str(self._max_real_time / 1000.0 * 2) + \
                   " --max-memory " + str(self._max_memory * 1000 * 1000) + \
                   " --network false" + \
-                  " --syscalls '!fork,execve,flock,ptrace,sync,fdatasync,fsync,msync,sync_file_range,syncfs,unshare,setns,clone[a&268435456==268435456],query_module,sysinfo,syslog,sysfs'" + \
+                  " --syscalls '!execve:k,flock:k,ptrace:k,sync:k,fdatasync:k,fsync:k,msync,sync_file_range:k,syncfs:k" \
+                  ",unshare:k,setns:k,clone:k,query_module:k,sysinfo:k,syslog:k,sysfs:k'" + \
                   " --uid " + str(lrun_uid) + \
                   " --gid " + str(lrun_gid)
 
