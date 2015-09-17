@@ -391,7 +391,7 @@ def _cmp(x, y):
             return -1
 
 
-def get_the_time_format(seconds):
+def get_the_formatted_time(seconds):
     if not seconds:
         return ""
     result = str(seconds % 60)
@@ -427,7 +427,7 @@ def contest_rank_page(request, contest_id):
                         "first_achieved": status.first_achieved,
                         "ac": status.ac,
                         "failed_number": status.total_submission_number,
-                        "ac_time": get_the_time_format(status.ac_time)})
+                        "ac_time": get_the_formatted_time(status.ac_time)})
                     if status.ac:
                         result[i]["problems"][-1]["failed_number"] -= 1
                 except ContestSubmission.DoesNotExist:
@@ -436,7 +436,8 @@ def contest_rank_page(request, contest_id):
             user= User.objects.get(id=result[i]["user_id"])
             result[i]["username"] = user.username
             result[i]["real_name"] = user.real_name
-            result[i]["total_time"] = get_the_time_format(submissions.filter(ac=True).aggregate(total_time=Sum("total_time"))["total_time"])
+            result[i]["total_time"] = get_the_formatted_time(submissions.filter(ac=True).aggregate(total_time=Sum("total_time"))["total_time"])
+
         result = sorted(result, cmp=_cmp, reverse=True)
         r.set("contest_rank_" + contest_id, json.dumps(list(result)))
     else:
@@ -451,5 +452,5 @@ def contest_rank_page(request, contest_id):
                   {"contest": contest, "contest_problems": contest_problems,
                    "result": result,
                    "auto_refresh": request.GET.get("auto_refresh", None) == "true",
-                   "show_real_name": result.GET.get("show_real_name", None) == "true",
+                   "show_real_name": request.GET.get("show_real_name", None) == "true",
                    "real_time_rank": contest.real_time_rank})
