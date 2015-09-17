@@ -4,7 +4,7 @@ from django.views.generic import TemplateView
 
 from account.views import (UserLoginAPIView, UsernameCheckAPIView, UserRegisterAPIView,
                            UserChangePasswordAPIView, EmailCheckAPIView,
-                           UserAdminAPIView, UserInfoAPIView)
+                           UserAdminAPIView, UserInfoAPIView, AccountSecurityAPIView)
 
 from announcement.views import AnnouncementAdminAPIView
 
@@ -25,7 +25,6 @@ from contest_submission.views import contest_problem_my_submissions_list_page
 
 
 urlpatterns = [
-    url(r'^install/$', "install.views.install"),
     url("^$", "account.views.page_jump", name="page_jump_api"),
     url(r'^docs/', include('rest_framework_swagger.urls')),
     url(r'^admin/$', TemplateView.as_view(template_name="admin/admin.html"), name="admin_spa_page"),
@@ -116,4 +115,5 @@ urlpatterns = [
     url(r'^api/submission/share/$', SubmissionShareAPIView.as_view(), name="submission_share_api"),
 
     url(r'^captcha/$', "utils.captcha.views.show_captcha", name="show_captcha"),
+    url(r'^api/account_security_check/$', AccountSecurityAPIView.as_view(), name="account_security_check"),
 ]

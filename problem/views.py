@@ -24,6 +24,7 @@ import logging
 
 logger = logging.getLogger("app_info")
 
+
 def problem_page(request, problem_id):
     try:
         problem = Problem.objects.get(id=problem_id, visible=True)
@@ -282,7 +283,7 @@ def problem_list_page(request, page=1):
     except Exception:
         pass
 
-    if request.user.is_authenticated() and request.user.problems_status:
+    if request.user.is_authenticated():
         problems_status = json.loads(request.user.problems_status)
     else:
         problems_status = {}
