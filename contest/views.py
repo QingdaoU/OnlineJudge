@@ -433,7 +433,9 @@ def contest_rank_page(request, contest_id):
                 except ContestSubmission.DoesNotExist:
                     result[i]["problems"].append({})
             result[i]["total_ac"] = submissions.filter(ac=True).count()
-            result[i]["username"] = User.objects.get(id=result[i]["user_id"]).username
+            user= User.objects.get(id=result[i]["user_id"])
+            result[i]["username"] = user.username
+            result[i]["real_name"] = user.real_name
             result[i]["total_time"] = get_the_formatted_time(submissions.filter(ac=True).aggregate(total_time=Sum("total_time"))["total_time"])
         result = sorted(result, cmp=_cmp, reverse=True)
         r.set("contest_rank_" + contest_id, json.dumps(list(result)))
@@ -449,4 +451,5 @@ def contest_rank_page(request, contest_id):
                   {"contest": contest, "contest_problems": contest_problems,
                    "result": result,
                    "auto_refresh": request.GET.get("auto_refresh", None) == "true",
+                   "show_real_name": result.GET.get("show_real_name", None) == "true",
                    "real_time_rank": contest.real_time_rank})
