@@ -87,7 +87,10 @@ def contest_problem_submissions_list_page(request, contest_id, page=1):
     except Contest.DoesNotExist:
         return error_page(request, u"比赛不存在")
 
-    submissions = Submission.objects.filter(contest_id=contest_id)
+    submissions = Submission.objects.filter(contest_id=contest_id).\
+        values("id", "contest_id", "problem_id", "result", "create_time",
+               "accepted_answer_time", "language", "user_id").order_by("-create_time")
+
 
     # 封榜的时候只能看到自己的提交
     if not contest.real_time_rank:
