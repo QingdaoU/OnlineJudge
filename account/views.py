@@ -26,6 +26,14 @@ class UserLoginAPIView(APIView):
         serializer = UserLoginSerializer(data=request.data)
         if serializer.is_valid():
             data = serializer.data
+            user = User.objects.get(username=data["username"])
+            # 只有管理员才适用验证码登录
+            if user.admin_type > 0:
+                if not "captcha" in data:
+                    return error_response(u"请填写验证码！")
+                captcha = Captcha(request)
+                if not captcha.check(data["captcha"]):
+                    return error_response(u"验证码错误")
             user = auth.authenticate(username=data["username"], password=data["password"])
             # 用户名或密码错误的话 返回None
             if user:
@@ -64,6 +72,9 @@ class UserRegisterAPIView(APIView):
         serializer = UserRegisterSerializer(data=request.data)
         if serializer.is_valid():
             data = serializer.data
+            captcha = Captcha(request)
+            if not captcha.check(data["captcha"]):
+                return error_response(u"验证码错误")
             try:
                 User.objects.get(username=data["username"])
                 return error_response(u"用户名已存在")
@@ -206,3 +217,19 @@ class UserInfoAPIView(APIView):
         response_serializer: UserSerializer
         """
         return success_response(UserSerializer(request.user).data)
+
+
+class AccountSecurityAPIView(APIView):
+    def get(self, request):
+        """
+        判断用户登录是否需要验证码
+        ---
+        """
+        username = request.GET.get("username", None)
+        if username:
+            try:
+                User.objects.get(username=username, admin_type__gt=0)
+            except User.DoesNotExist:
+                return success_response({"applied_captcha":False})
+            return success_response({"applied_captcha":True})
+        return success_response({"applied_captcha":False})
