@@ -58,11 +58,11 @@ class JudgeClient(object):
         """
         # todo 系统调用白名单 chroot等参数
         command = "lrun" + \
-                  " --isolate-process true" + \
                   " --max-cpu-time " + str(self._max_cpu_time / 1000.0) + \
                   " --max-real-time " + str(self._max_real_time / 1000.0 * 2) + \
                   " --max-memory " + str(self._max_memory * 1000 * 1000) + \
                   " --network false" + \
+                  " --syscalls '!fork,execve,flock,ptrace,sync,fdatasync,fsync,msync,sync_file_range,syncfs,unshare,setns,clone[a&268435456==268435456],query_module,sysinfo,syslog,sysfs'" + \
                   " --uid " + str(lrun_uid) + \
                   " --gid " + str(lrun_gid)
 
