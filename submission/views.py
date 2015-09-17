@@ -1,5 +1,6 @@
 # coding=utf-8
 import json
+import logging
 
 import redis
 from django.shortcuts import render
@@ -19,6 +20,9 @@ from utils.shortcuts import serializer_invalid_response, error_response, success
 
 from .models import Submission
 from .serializers import CreateSubmissionSerializer, SubmissionSerializer, SubmissionhareSerializer
+
+
+logger = logging.getLogger("app_info")
 
 
 class SubmissionAPIView(APIView):
@@ -44,13 +48,11 @@ class SubmissionAPIView(APIView):
 
             try:
                 judge.delay(submission.id, problem.time_limit, problem.memory_limit, problem.test_case_id)
-            except Exception:
+            except Exception as e:
+                logger.error(e)
                 return error_response(u"提交判题任务失败")
             # 修改用户解题状态
-            if request.user.problems_status:
-                problems_status = json.loads(request.user.problems_status)
-            else:
-                problems_status = {}
+            problems_status = json.loads(request.user.problems_status)
             problems_status[str(data["problem_id"])] = 2
             request.user.problems_status = json.dumps(problems_status)
             request.user.save()
