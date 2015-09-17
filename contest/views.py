@@ -451,5 +451,5 @@ def contest_rank_page(request, contest_id):
                   {"contest": contest, "contest_problems": contest_problems,
                    "result": result,
                    "auto_refresh": request.GET.get("auto_refresh", None) == "true",
-                   "show_real_name": result.GET.get("show_real_name", None) == "true",
+                   "show_real_name": request.GET.get("show_real_name", None) == "true",
                    "real_time_rank": contest.real_time_rank})
