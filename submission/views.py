@@ -52,10 +52,7 @@ class SubmissionAPIView(APIView):
                 logger.error(e)
                 return error_response(u"提交判题任务失败")
             # 修改用户解题状态
-            if request.user.problems_status:
-                problems_status = json.loads(request.user.problems_status)
-            else:
-                problems_status = {}
+            problems_status = json.loads(request.user.problems_status)
             problems_status[str(data["problem_id"])] = 2
             request.user.problems_status = json.dumps(problems_status)
             request.user.save()

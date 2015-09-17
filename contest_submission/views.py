@@ -1,9 +1,11 @@
 # coding=utf-8
 import json
+from datetime import datetime
 import redis
+import pytz
 from django.shortcuts import render
 from django.core.paginator import Paginator
-
+from django.utils import timezone
 from rest_framework.views import APIView
 
 from judge.judger_controller.tasks import judge
@@ -75,7 +77,7 @@ def contest_problem_my_submissions_list_page(request, contest_id, contest_proble
                   {"submissions": submissions, "problem": contest_problem})
 
 
-@login_required
+@check_user_contest_permission
 def contest_problem_submissions_list_page(request, contest_id, page=1):
     """
     单个比赛中的所有提交（包含自己和别人，自己可查提交结果，其他人不可查）
@@ -84,9 +86,14 @@ def contest_problem_submissions_list_page(request, contest_id, page=1):
         contest = Contest.objects.get(id=contest_id)
     except Contest.DoesNotExist:
         return error_page(request, u"比赛不存在")
-    # 以下是本场比赛中所有的提交
-    submissions = Submission.objects.filter(contest_id=contest_id). \
-        values("id", "contest_id", "problem_id", "result", "create_time", "accepted_answer_time", "language", "user_id").order_by("-create_time")
+
+    submissions = Submission.objects.filter(contest_id=contest_id)
+
+    # 封榜的时候只能看到自己的提交
+    if not contest.real_time_rank:
+        if not (request.user.admin_type == SUPER_ADMIN or request.user == contest.created_by):
+            submissions = submissions.filter(user_id=request.user.id)
+
     language = request.GET.get("language", None)
     filter = None
     if language:
@@ -131,7 +138,7 @@ def contest_problem_submissions_list_page(request, contest_id, page=1):
     return render(request, "oj/contest/submissions_list.html",
                   {"submissions": current_page, "page": int(page),
                    "previous_page": previous_page, "next_page": next_page, "start_id": int(page) * 20 - 20,
-                   "contest": contest, "filter":filter})
+                   "contest": contest, "filter": filter})
 
 
 class ContestSubmissionAdminAPIView(APIView):
