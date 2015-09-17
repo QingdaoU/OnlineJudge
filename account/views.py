@@ -51,7 +51,7 @@ def logout(request):
     return http.HttpResponseRedirect("/")
 
 
-def page_jump(request):
+def index_page(request):
     if not request.user.is_authenticated():
         return render(request, "oj/index.html")
 
