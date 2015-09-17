@@ -7,7 +7,7 @@
             <form id="register-form">
                 <div class="form-group">
                     <label for="username">用户名</label>
-                    <input type="text" class="form-control input-lg" id="username" name="username" placeholder="用户名" data-error="请填写用户名" required autofocus>
+                    <input type="text" class="form-control input-lg" id="username" name="username" placeholder="用户名" data-remote="/api/username_check/" data-remote-error="该用户名已被注册！" data-error="请填写用户名" required autofocus>
                     <div class="help-block with-errors"></div>
                 </div>
                 <div class="form-group">
@@ -17,7 +17,7 @@
                 </div>
                 <div class="form-group">
                     <label for="email">邮箱地址</label>
-                    <input type="email" class="form-control input-lg" id="email" name="email" placeholder="邮箱地址" data-error="请填写正确的邮箱地址" required>
+                    <input type="email" class="form-control input-lg" id="email" name="email" placeholder="邮箱地址" data-remote="/api/email_check/" data-remote-error="该邮箱已被注册！" data-error="请填写正确的邮箱地址" required>
                     <div class="help-block with-errors"></div>
                 </div>
                 <div class="form-group">

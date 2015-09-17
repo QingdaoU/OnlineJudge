@@ -5,15 +5,15 @@ from django.shortcuts import render
 from django.db.models import Q
 
 from rest_framework.views import APIView
-
+from rest_framework.response import Response
 from utils.shortcuts import serializer_invalid_response, error_response, success_response, paginate
 from utils.captcha import Captcha
 
 from .decorators import login_required
 from .models import User
 from .serializers import (UserLoginSerializer, UsernameCheckSerializer,
-                          UserRegisterSerializer,  UserChangePasswordSerializer,
-                          EmailCheckSerializer,  UserSerializer, EditUserSerializer)
+                          UserRegisterSerializer, UserChangePasswordSerializer,
+                          EmailCheckSerializer, UserSerializer, EditUserSerializer)
 
 
 class UserLoginAPIView(APIView):
@@ -120,39 +120,35 @@ class UserChangePasswordAPIView(APIView):
 
 
 class UsernameCheckAPIView(APIView):
-    def post(self, request):
+    def get(self, request):
         """
-        检测用户名是否存在，存在返回True，不存在返回False
+        检测用户名是否存在，存在返回状态码400，不存在返回200
         ---
-        request_serializer: UsernameCheckSerializer
         """
-        serializer = UsernameCheckSerializer(data=request.data)
-        if serializer.is_valid():
+        username = request.GET.get("username", None)
+        if username:
             try:
-                User.objects.get(username=serializer.data["username"])
-                return success_response(True)
+                User.objects.get(username=username)
+                return Response(status=400)
             except User.DoesNotExist:
-                return success_response(False)
-        else:
-            return serializer_invalid_response(serializer)
+                return Response(status=200)
+        return Response(status=200)
 
 
 class EmailCheckAPIView(APIView):
-    def post(self, request):
+    def get(self, request):
         """
-        检测邮箱是否存在，存在返回True，不存在返回False
+        检测邮箱是否存在，存在返回状态码400，不存在返回200
         ---
-        request_serializer: EmailCheckSerializer
         """
-        serializer = EmailCheckSerializer(data=request.data)
-        if serializer.is_valid():
+        email = request.GET.get("email", None)
+        if email:
             try:
-                User.objects.get(email=serializer.data["email"])
-                return success_response(True)
+                User.objects.get(email=email)
+                return Response(status=400)
             except User.DoesNotExist:
-                return success_response(False)
-        else:
-            return serializer_invalid_response(serializer)
+                return Response(status=200)
+        return Response(status=200)
 
 
 class UserAdminAPIView(APIView):
@@ -230,6 +226,6 @@ class AccountSecurityAPIView(APIView):
             try:
                 User.objects.get(username=username, admin_type__gt=0)
             except User.DoesNotExist:
-                return success_response({"applied_captcha":False})
-            return success_response({"applied_captcha":True})
-        return success_response({"applied_captcha":False})
+                return success_response({"applied_captcha": False})
+            return success_response({"applied_captcha": True})
+        return success_response({"applied_captcha": False})
