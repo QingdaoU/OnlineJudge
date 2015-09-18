@@ -21,7 +21,7 @@ languages = {
         "src_name": "Main.java",
         "code": 3,
         "compile_command": "javac {src_path} -d {exe_path}",
-        "execute_command": "java -cp {exe_path} Main"
+        "execute_command": "java -cp {exe_path} -Djava.security.manager -Djava.security.policy==policy Main"
     }
 }
 

@@ -64,6 +64,7 @@ class JudgeClient(object):
                   " --network false" + \
                   " --syscalls '!execve:k,flock:k,ptrace:k,sync:k,fdatasync:k,fsync:k,msync,sync_file_range:k,syncfs:k" \
                   ",unshare:k,setns:k,clone[a&268435456==268435456]:k,query_module:k,sysinfo:k,syslog:k,sysfs:k'" + \
+                  " --max-nprocess 20" + \
                   " --uid " + str(lrun_uid) + \
                   " --gid " + str(lrun_gid)
 
