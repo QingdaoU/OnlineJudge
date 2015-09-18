@@ -120,12 +120,12 @@ require(["jquery", "codeMirror", "csrfToken", "bsAlert", "ZeroClipboard"],
             if (code.indexOf("using namespace std") > -1||code.indexOf("<cstdio>") > -1) {
                 return "2";
             }
-            if (code.indexOf("printf"))
+            if (code.indexOf("printf") > -1)
             {
                 return "1";
             }
             //java
-            if (code.indexOf("public class Main")) {
+            if (code.indexOf("public class Main") > -1) {
                 return "3";
             }
         }
