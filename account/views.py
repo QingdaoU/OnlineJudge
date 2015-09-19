@@ -26,17 +26,15 @@ class UserLoginAPIView(APIView):
         serializer = UserLoginSerializer(data=request.data)
         if serializer.is_valid():
             data = serializer.data
-            user = User.objects.get(username=data["username"])
-            # 只有管理员才适用验证码登录
-            if user.admin_type > 0:
-                if not "captcha" in data:
-                    return error_response(u"请填写验证码！")
-                captcha = Captcha(request)
-                if not captcha.check(data["captcha"]):
-                    return error_response(u"验证码错误")
             user = auth.authenticate(username=data["username"], password=data["password"])
             # 用户名或密码错误的话 返回None
             if user:
+                if user.admin_type > 0:
+                    if "captcha" not in data:
+                        return error_response(u"请填写验证码！")
+                    captcha = Captcha(request)
+                    if not captcha.check(data["captcha"]):
+                        return error_response(u"验证码错误")
                 auth.login(request, user)
                 return success_response(u"登录成功")
             else:
