@@ -98,36 +98,34 @@ class JudgeClient(object):
 
     def _compare_output(self, test_case_id):
         test_case_config = self._test_case_info["test_cases"][str(test_case_id)]
-        test_case_md5 = test_case_config["output_md5"]
         output_path = judger_workspace + str(test_case_id) + ".out"
 
         try:
             f = open(output_path, "rb")
         except IOError:
             # 文件不存在等引发的异常 返回结果错误
-            return False
+            return "", False
 
-        # 计算输出文件的md5 和之前测试用例文件的md5进行比较
-        # 现在比较的是完整的文件
-        md5 = hashlib.md5()
-        while True:
-            data = f.read(2 ** 8)
-            if not data:
-                break
-            md5.update(data)
+        if "striped_output_md5" not in test_case_config:
+            # 计算输出文件的md5 和之前测试用例文件的md5进行比较
+            # 兼容之前没有striped_output_md5的测试用例
+            # 现在比较的是完整的文件
+            md5 = hashlib.md5()
+            while True:
+                data = f.read(2 ** 8)
+                if not data:
+                    break
+                md5.update(data)
+            output_md5 = md5.hexdigest()
 
-        if md5.hexdigest() == test_case_md5:
-            return True
+            return output_md5, output_md5 == test_case_config["output_md5"]
         else:
             # 这时候需要去除用户输出最后的空格和换行 再去比较md5
-            # 兼容之前没有striped_output_md5的测试用例
-            if "striped_output_md5" not in test_case_config:
-                return False
-            f.seek(0)
-            striped_md5 = hashlib.md5()
+            md5 = hashlib.md5()
             # 比较和返回去除空格后的md5比较结果
-            striped_md5.update(f.read().rstrip())
-            return striped_md5.hexdigest() == test_case_config["striped_output_md5"]
+            md5.update(f.read().rstrip())
+            output_md5 = md5.hexdigest()
+            return output_md5, output_md5 == test_case_config["striped_output_md5"]
 
     def _judge_one(self, test_case_id):
         # 运行lrun程序 接收返回值
@@ -157,10 +155,12 @@ class JudgeClient(object):
             return run_result
 
         # 下面就是代码正常运行了 需要判断代码的输出是否正确
-        if self._compare_output(test_case_id):
+        output_md5, r = self._compare_output(test_case_id)
+        if r:
             run_result["result"] = result["accepted"]
         else:
             run_result["result"] = result["wrong_answer"]
+        run_result["output_md5"] = output_md5
 
         return run_result
 
