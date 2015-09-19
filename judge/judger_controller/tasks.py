@@ -32,7 +32,7 @@ def judge(submission_id, time_limit, memory_limit, test_case_id):
                                passwd=submission_db["password"],
                                host=submission_db["host"],
                                port=submission_db["port"],
-                               character="utf8")
+                               charset="utf8")
 
         cur = conn.cursor()
         cur.execute("update submission set result=%s, info=%s where id=%s",
