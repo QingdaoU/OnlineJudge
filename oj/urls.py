@@ -8,7 +8,8 @@ from account.views import (UserLoginAPIView, UsernameCheckAPIView, UserRegisterA
 
 from announcement.views import AnnouncementAdminAPIView
 
-from contest.views import ContestAdminAPIView, ContestProblemAdminAPIView, ContestPasswordVerifyAPIView
+from contest.views import (ContestAdminAPIView, ContestProblemAdminAPIView,
+                           ContestPasswordVerifyAPIView, ContestTimeAPIView)
 
 from group.views import (GroupAdminAPIView, GroupMemberAdminAPIView,
                          JoinGroupAPIView, JoinGroupRequestAdminAPIView)
@@ -25,7 +26,6 @@ from contest_submission.views import contest_problem_my_submissions_list_page
 
 
 urlpatterns = [
-    url(r'^install/$', "install.views.install"),
     url("^$", "account.views.index_page", name="index_page"),
     url(r'^docs/', include('rest_framework_swagger.urls')),
     url(r'^admin/$', TemplateView.as_view(template_name="admin/admin.html"), name="admin_spa_page"),
@@ -117,4 +117,6 @@ urlpatterns = [
 
     url(r'^captcha/$', "utils.captcha.views.show_captcha", name="show_captcha"),
     url(r'^api/account_security_check/$', AccountSecurityAPIView.as_view(), name="account_security_check"),
+
+    url(r'^api/contest/time/$', ContestTimeAPIView.as_view(), name="contest_time_api_view"),
 ]

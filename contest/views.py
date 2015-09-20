@@ -7,6 +7,8 @@ from django.db import IntegrityError
 from django.utils import dateparse
 from django.db.models import Q, Sum
 from django.core.paginator import Paginator
+from django.utils.timezone import now
+
 from rest_framework.views import APIView
 
 from utils.shortcuts import (serializer_invalid_response, error_response,
@@ -454,3 +456,22 @@ def contest_rank_page(request, contest_id):
                    "auto_refresh": request.GET.get("auto_refresh", None) == "true",
                    "show_real_name": request.GET.get("show_real_name", None) == "true",
                    "real_time_rank": contest.real_time_rank})
+
+
+class ContestTimeAPIView(APIView):
+    """
+    获取比赛开始或者结束的倒计时，返回毫秒数字
+    """
+    def get(self, request):
+        t = request.GET.get("type", "start")
+        contest_id = request.GET.get("contest_id", -1)
+        try:
+            contest = Contest.objects.get(id=contest_id)
+        except Contest.DoesNotExist:
+            return error_response(u"比赛不存在")
+        if t == "start":
+            # 距离开始还有多长时间
+            return success_response(int((contest.start_time - now()).total_seconds() * 1000))
+        else:
+            # 距离结束还有多长时间
+            return success_response(int((contest.end_time - now()).total_seconds() * 1000))
