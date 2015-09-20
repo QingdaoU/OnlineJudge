@@ -153,16 +153,14 @@ require(["jquery", "codeMirror", "csrfToken", "bsAlert", "ZeroClipboard"],
         if(location.href.indexOf("contest") > -1) {
             setInterval(function () {
                 var time = getServerTime();
-                console.log(time);
                 var minutes = parseInt(time / (1000 * 60));
-                console.log(time);
                 if(minutes == 0){
                     bsAlert("比赛即将结束");
                 }
                 else if(minutes > 0 && minutes <= 5){
                     bsAlert("比赛还剩" + minutes.toString() + "分钟");
                 }
-            }, 1000 * 5);
+            }, 1000 * 60);
         }
 
         $("#submit-code-button").click(function () {
