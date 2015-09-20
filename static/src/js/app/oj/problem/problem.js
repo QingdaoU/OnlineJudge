@@ -86,7 +86,7 @@ require(["jquery", "codeMirror", "csrfToken", "bsAlert", "ZeroClipboard"],
         function getResult() {
             if (counter++ > 10) {
                 hideLoading();
-                bsAlert("抱歉，服务器可能出现了故障，请稍后到我的提交列表中查看");
+                bsAlert("抱歉，服务器正在紧张判题中，请稍后到我的提交列表中查看");
                 counter = 0;
                 return;
             }
@@ -128,6 +128,41 @@ require(["jquery", "codeMirror", "csrfToken", "bsAlert", "ZeroClipboard"],
             if (code.indexOf("public class Main") > -1) {
                 return "3";
             }
+        }
+
+        function getServerTime(){
+            var contestId = location.pathname.split("/")[2];
+            var time = 0;
+            $.ajax({
+                url: "/api/contest/time/?contest_id=" + contestId + "&type=end",
+                dataType: "json",
+                method: "get",
+                async: false,
+                success: function(data){
+                    if(!data.code){
+                        time = data.data;
+                    }
+                },
+                error: function(){
+                    time = new Date().getTime();
+                }
+            });
+            return time;
+        }
+
+        if(location.href.indexOf("contest") > -1) {
+            setInterval(function () {
+                var time = getServerTime();
+                console.log(time);
+                var minutes = parseInt(time / (1000 * 60));
+                console.log(time);
+                if(minutes == 0){
+                    bsAlert("比赛即将结束");
+                }
+                else if(minutes > 0 && minutes <= 5){
+                    bsAlert("比赛还剩" + minutes.toString() + "分钟");
+                }
+            }, 1000 * 5);
         }
 
         $("#submit-code-button").click(function () {
