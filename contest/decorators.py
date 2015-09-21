@@ -3,12 +3,12 @@ from functools import wraps
 
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
-from django.utils.timezone import now
 
 from utils.shortcuts import error_response, error_page
 
 from account.models import SUPER_ADMIN
-from .models import Contest
+from .models import (Contest, PASSWORD_PROTECTED_CONTEST, PUBLIC_CONTEST, GROUP_CONTEST,
+                     CONTEST_ENDED, CONTEST_NOT_START, CONTEST_UNDERWAY)
 
 
 def check_user_contest_permission(func):
@@ -55,7 +55,7 @@ def check_user_contest_permission(func):
             return func(*args, **kwargs)
 
         # 有密码的公开赛
-        if contest.contest_type == 2:
+        if contest.contest_type == PASSWORD_PROTECTED_CONTEST:
             # 没有输入过密码
             if contest.id not in request.session.get("contests", []):
                 if request.is_ajax():
@@ -65,7 +65,7 @@ def check_user_contest_permission(func):
                                   {"reason": "password_protect", "show_tab": False, "contest": contest})
 
         # 指定小组参加的
-        if contest.contest_type == 0:
+        if contest.contest_type == GROUP_CONTEST:
             if not contest.groups.filter(id__in=request.user.group_set.all()).exists():
                 if request.is_ajax():
                     return error_response(u"只有指定小组的可以参加这场比赛")
@@ -74,7 +74,7 @@ def check_user_contest_permission(func):
                                   {"reason": "group_limited", "show_tab": False, "contest": contest})
 
         # 比赛没有开始
-        if contest.status == 1:
+        if contest.status == CONTEST_NOT_START:
             if request.is_ajax():
                 return error_response(u"比赛还没有开始")
             else:
