@@ -5,14 +5,15 @@ from django.shortcuts import render
 from django.db.models import Q
 
 from rest_framework.views import APIView
-
+from rest_framework.response import Response
 from utils.shortcuts import serializer_invalid_response, error_response, success_response, paginate
+from utils.captcha import Captcha
 
 from .decorators import login_required
 from .models import User
 from .serializers import (UserLoginSerializer, UsernameCheckSerializer,
-                          UserRegisterSerializer,  UserChangePasswordSerializer,
-                          EmailCheckSerializer,  UserSerializer, EditUserSerializer)
+                          UserRegisterSerializer, UserChangePasswordSerializer,
+                          EmailCheckSerializer, UserSerializer, EditUserSerializer)
 
 
 class UserLoginAPIView(APIView):
@@ -28,6 +29,12 @@ class UserLoginAPIView(APIView):
             user = auth.authenticate(username=data["username"], password=data["password"])
             # 用户名或密码错误的话 返回None
             if user:
+                if user.admin_type > 0:
+                    if "captcha" not in data:
+                        return error_response(u"请填写验证码！")
+                    captcha = Captcha(request)
+                    if not captcha.check(data["captcha"]):
+                        return error_response(u"验证码错误")
                 auth.login(request, user)
                 return success_response(u"登录成功")
             else:
@@ -35,10 +42,23 @@ class UserLoginAPIView(APIView):
         else:
             return serializer_invalid_response(serializer)
 
+
 @login_required
 def logout(request):
     auth.logout(request)
     return http.HttpResponseRedirect("/")
+
+
+def index_page(request):
+    if not request.user.is_authenticated():
+        return render(request, "oj/index.html")
+
+    try:
+        if request.META['HTTP_REFERER']:
+            return render(request, "oj/index.html")
+    except KeyError:
+        return http.HttpResponseRedirect('/problems/')
+
 
 class UserRegisterAPIView(APIView):
     def post(self, request):
@@ -50,6 +70,9 @@ class UserRegisterAPIView(APIView):
         serializer = UserRegisterSerializer(data=request.data)
         if serializer.is_valid():
             data = serializer.data
+            captcha = Captcha(request)
+            if not captcha.check(data["captcha"]):
+                return error_response(u"验证码错误")
             try:
                 User.objects.get(username=data["username"])
                 return error_response(u"用户名已存在")
@@ -79,6 +102,9 @@ class UserChangePasswordAPIView(APIView):
         serializer = UserChangePasswordSerializer(data=request.data)
         if serializer.is_valid():
             data = serializer.data
+            captcha = Captcha(request)
+            if not captcha.check(data["captcha"]):
+                return error_response(u"验证码错误")
             username = request.user.username
             user = auth.authenticate(username=username, password=data["old_password"])
             if user:
@@ -92,39 +118,35 @@ class UserChangePasswordAPIView(APIView):
 
 
 class UsernameCheckAPIView(APIView):
-    def post(self, request):
+    def get(self, request):
         """
-        检测用户名是否存在，存在返回True，不存在返回False
+        检测用户名是否存在，存在返回状态码400，不存在返回200
         ---
-        request_serializer: UsernameCheckSerializer
         """
-        serializer = UsernameCheckSerializer(data=request.data)
-        if serializer.is_valid():
+        username = request.GET.get("username", None)
+        if username:
             try:
-                User.objects.get(username=serializer.data["username"])
-                return success_response(True)
+                User.objects.get(username=username)
+                return Response(status=400)
             except User.DoesNotExist:
-                return success_response(False)
-        else:
-            return serializer_invalid_response(serializer)
+                return Response(status=200)
+        return Response(status=200)
 
 
 class EmailCheckAPIView(APIView):
-    def post(self, request):
+    def get(self, request):
         """
-        检测邮箱是否存在，存在返回True，不存在返回False
+        检测邮箱是否存在，存在返回状态码400，不存在返回200
         ---
-        request_serializer: EmailCheckSerializer
         """
-        serializer = EmailCheckSerializer(data=request.data)
-        if serializer.is_valid():
+        email = request.GET.get("email", None)
+        if email:
             try:
-                User.objects.get(email=serializer.data["email"])
-                return success_response(True)
+                User.objects.get(email=email)
+                return Response(status=400)
             except User.DoesNotExist:
-                return success_response(False)
-        else:
-            return serializer_invalid_response(serializer)
+                return Response(status=200)
+        return Response(status=200)
 
 
 class UserAdminAPIView(APIView):
@@ -189,3 +211,19 @@ class UserInfoAPIView(APIView):
         response_serializer: UserSerializer
         """
         return success_response(UserSerializer(request.user).data)
+
+
+class AccountSecurityAPIView(APIView):
+    def get(self, request):
+        """
+        判断用户登录是否需要验证码
+        ---
+        """
+        username = request.GET.get("username", None)
+        if username:
+            try:
+                User.objects.get(username=username, admin_type__gt=0)
+            except User.DoesNotExist:
+                return success_response({"applied_captcha": False})
+            return success_response({"applied_captcha": True})
+        return success_response({"applied_captcha": False})

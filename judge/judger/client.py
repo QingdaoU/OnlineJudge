@@ -1,4 +1,5 @@
 # coding=utf-8
+import os
 import json
 import commands
 import hashlib
@@ -7,9 +8,9 @@ from multiprocessing import Pool
 from settings import max_running_number, lrun_gid, lrun_uid, judger_workspace
 from language import languages
 from result import result
-from compiler import compile_
-from judge_exceptions import JudgeClientError, CompileError
+from judge_exceptions import JudgeClientError
 from utils import parse_lrun_output
+from logger import logger
 
 
 # 下面这个函数作为代理访问实例变量，否则Python2会报错，是Python2的已知问题
@@ -61,6 +62,8 @@ class JudgeClient(object):
                   " --max-real-time " + str(self._max_real_time / 1000.0 * 2) + \
                   " --max-memory " + str(self._max_memory * 1000 * 1000) + \
                   " --network false" + \
+                  " --syscalls '" + self._language["syscalls"] + "'" + \
+                  " --max-nprocess 20" + \
                   " --uid " + str(lrun_uid) + \
                   " --gid " + str(lrun_gid)
 
@@ -82,6 +85,8 @@ class JudgeClient(object):
         # 倒序找到MEMORY的位置
         output_start = output.rfind("MEMORY")
         if output_start == -1:
+            logger.error("Lrun result parse error")
+            logger.error(output)
             raise JudgeClientError("Lrun result parse error")
         # 如果不是0，说明lrun输出前面有输出，也就是程序的stderr有内容
         if output_start != 0:
@@ -92,26 +97,35 @@ class JudgeClient(object):
         return error, parse_lrun_output(output)
 
     def _compare_output(self, test_case_id):
-        test_case_md5 = self._test_case_info["test_cases"][str(test_case_id)]["output_md5"]
+        test_case_config = self._test_case_info["test_cases"][str(test_case_id)]
         output_path = judger_workspace + str(test_case_id) + ".out"
 
         try:
             f = open(output_path, "rb")
         except IOError:
             # 文件不存在等引发的异常 返回结果错误
-            return False
+            return "", False
 
-        # 计算输出文件的md5 和之前测试用例文件的md5进行比较
-        md5 = hashlib.md5()
-        while True:
-            data = f.read(2 ** 8)
-            if not data:
-                break
-            md5.update(data)
+        if "striped_output_md5" not in test_case_config:
+            # 计算输出文件的md5 和之前测试用例文件的md5进行比较
+            # 兼容之前没有striped_output_md5的测试用例
+            # 现在比较的是完整的文件
+            md5 = hashlib.md5()
+            while True:
+                data = f.read(2 ** 8)
+                if not data:
+                    break
+                md5.update(data)
+            output_md5 = md5.hexdigest()
 
-        # 对比文件是否一致
-        # todo 去除最后的空行
-        return md5.hexdigest() == test_case_md5
+            return output_md5, output_md5 == test_case_config["output_md5"]
+        else:
+            # 这时候需要去除用户输出最后的空格和换行 再去比较md5
+            md5 = hashlib.md5()
+            # 比较和返回去除空格后的md5比较结果
+            md5.update(f.read().rstrip())
+            output_md5 = md5.hexdigest()
+            return output_md5, output_md5 == test_case_config["striped_output_md5"]
 
     def _judge_one(self, test_case_id):
         # 运行lrun程序 接收返回值
@@ -123,26 +137,30 @@ class JudgeClient(object):
 
         run_result["test_case_id"] = test_case_id
 
-        # 如果返回值非0 或者信号量不是0 或者程序的stderr有输出 代表非正常结束
-        if run_result["exit_code"] or run_result["term_sig"] or run_result["siginaled"] or error:
-            run_result["result"] = result["runtime_error"]
-            return run_result
-
-        # 代表内存或者时间超过限制了
+        # 代表内存或者时间超过限制了 程序被终止掉 要在runtime error 之前判断
         if run_result["exceed"]:
             if run_result["exceed"] == "memory":
                 run_result["result"] = result["memory_limit_exceeded"]
             elif run_result["exceed"] in ["cpu_time", "real_time"]:
                 run_result["result"] = result["time_limit_exceeded"]
             else:
+                logger.error("Error exceeded type: " + run_result["exceed"])
+                logger.error(output)
                 raise JudgeClientError("Error exceeded type: " + run_result["exceed"])
             return run_result
 
+        # 如果返回值非0 或者信号量不是0 或者程序的stderr有输出 代表非正常结束
+        if run_result["exit_code"] or run_result["term_sig"] or run_result["siginaled"] or error:
+            run_result["result"] = result["runtime_error"]
+            return run_result
+
         # 下面就是代码正常运行了 需要判断代码的输出是否正确
-        if self._compare_output(test_case_id):
+        output_md5, r = self._compare_output(test_case_id)
+        if r:
             run_result["result"] = result["accepted"]
         else:
             run_result["result"] = result["wrong_answer"]
+        run_result["output_md5"] = output_md5
 
         return run_result
 
@@ -160,8 +178,8 @@ class JudgeClient(object):
             try:
                 results.append(item.get())
             except Exception as e:
-                # todo logging
-                print e
+                logger.error("system error")
+                logger.error(e)
                 results.append({"result": result["system_error"]})
         return results
 

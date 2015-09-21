@@ -1,28 +1,30 @@
 # coding=utf-8
 import json
 import datetime
-from functools import wraps
-from django.utils.timezone import now
+
 from django.shortcuts import render
 from django.db import IntegrityError
 from django.utils import dateparse
-from django.db.models import Q, Count, Sum
+from django.db.models import Q, Sum
 from django.core.paginator import Paginator
-from rest_framework.views import APIView
-from utils.shortcuts import (serializer_invalid_response, error_response,
-                             success_response, paginate, rand_str, error_page)
+from django.utils.timezone import now
 
-from account.models import REGULAR_USER, ADMIN, SUPER_ADMIN, User
+from rest_framework.views import APIView
+
+from utils.shortcuts import (serializer_invalid_response, error_response,
+                             success_response, paginate, error_page)
+from account.models import SUPER_ADMIN, User
 from account.decorators import login_required
 from group.models import Group
-from announcement.models import Announcement
-
 from .models import Contest, ContestProblem, ContestSubmission
+from .models import GROUP_CONTEST, PUBLIC_CONTEST, PASSWORD_PROTECTED_CONTEST
 from .decorators import check_user_contest_permission
 from .serializers import (CreateContestSerializer, ContestSerializer, EditContestSerializer,
                           CreateContestProblemSerializer, ContestProblemSerializer,
-                          EditContestProblemSerializer, ContestPasswordVerifySerializer,
+                          ContestPasswordVerifySerializer,
                           EditContestProblemSerializer)
+from oj.settings import REDIS_CACHE
+import redis
 
 
 class ContestAdminAPIView(APIView):
@@ -37,17 +39,18 @@ class ContestAdminAPIView(APIView):
         if serializer.is_valid():
             data = serializer.data
             groups = []
-            # 首先判断比赛的类型： 0 即为是小组赛，1 即为是无密码的公开赛，2 即为是有密码的公开赛
+            # 首先判断比赛的类型： 0 即为是小组赛(GROUP_CONTEST)，1 即为是无密码的公开赛(PUBLIC_CONTEST)，
+            # 2 即为是有密码的公开赛(PASSWORD_PUBLIC_CONTEST)
             # 此时为有密码的公开赛，并且此时只能超级管理员才有权限此创建比赛
-            if data["contest_type"] in [1, 2]:
+            if data["contest_type"] in [PUBLIC_CONTEST, PASSWORD_PROTECTED_CONTEST]:
                 if request.user.admin_type != SUPER_ADMIN:
                     return error_response(u"只有超级管理员才可创建公开赛")
-            if data["contest_type"] == 2:
+            if data["contest_type"] == PASSWORD_PROTECTED_CONTEST:
                 if not data["password"]:
                     return error_response(u"此比赛为有密码的公开赛，密码不可为空")
 
             # 没有密码的公开赛 没有密码的小组赛
-            elif data["contest_type"] == 0:
+            elif data["contest_type"] == GROUP_CONTEST:
                 if request.user.admin_type == SUPER_ADMIN:
                     groups = Group.objects.filter(id__in=data["groups"])
                 else:
@@ -59,7 +62,7 @@ class ContestAdminAPIView(APIView):
             try:
                 contest = Contest.objects.create(title=data["title"], description=data["description"],
                                                  mode=data["mode"], contest_type=data["contest_type"],
-                                                 show_rank=data["show_rank"], password=data["password"],
+                                                 real_time_rank=data["real_time_rank"], password=data["password"],
                                                  show_user_submission=data["show_user_submission"],
                                                  start_time=dateparse.parse_datetime(data["start_time"]),
                                                  end_time=dateparse.parse_datetime(data["end_time"]),
@@ -92,13 +95,13 @@ class ContestAdminAPIView(APIView):
                     return error_response(u"该比赛名称已经存在")
             except Contest.DoesNotExist:
                 pass
-            if data["contest_type"] in [1, 2]:
+            if data["contest_type"] in [PUBLIC_CONTEST, PASSWORD_PROTECTED_CONTEST]:
                 if request.user.admin_type != SUPER_ADMIN:
                     return error_response(u"只有超级管理员才可创建公开赛")
-            if data["contest_type"] == 2:
+            if data["contest_type"] == PASSWORD_PROTECTED_CONTEST:
                 if not data["password"]:
                     return error_response(u"此比赛为有密码的公开赛，密码不可为空")
-            elif data["contest_type"] == 0:
+            elif data["contest_type"] == GROUP_CONTEST:
                 if request.user.admin_type == SUPER_ADMIN:
                     groups = Group.objects.filter(id__in=data["groups"])
                 else:
@@ -113,7 +116,7 @@ class ContestAdminAPIView(APIView):
             contest.description = data["description"]
             contest.mode = data["mode"]
             contest.contest_type = data["contest_type"]
-            contest.show_rank = data["show_rank"]
+            contest.real_time_rank = data["real_time_rank"]
             contest.show_user_submission = data["show_user_submission"]
             contest.start_time = dateparse.parse_datetime(data["start_time"])
             contest.end_time = dateparse.parse_datetime(data["end_time"])
@@ -256,7 +259,7 @@ class ContestPasswordVerifyAPIView(APIView):
         if serializer.is_valid():
             data = request.data
             try:
-                contest = Contest.objects.get(id=data["contest_id"], contest_type=2)
+                contest = Contest.objects.get(id=data["contest_id"], contest_type=PASSWORD_PROTECTED_CONTEST)
             except Contest.DoesNotExist:
                 return error_response(u"比赛不存在")
 
@@ -317,13 +320,23 @@ def contest_problems_list_page(request, contest_id):
     比赛所有题目的列表页
     """
     try:
-        contest_problems = ContestProblem.objects.filter(contest=Contest.objects.get(id=contest_id)).order_by("sort_index")
-    except ContestProblem.DoesNotExist:
-        return error_page(request, u"比赛题目不存在")
-    # 右侧的公告列表
-    announcements = Announcement.objects.filter(is_global=True, visible=True).order_by("-create_time")
+        contest = Contest.objects.get(id=contest_id)
+    except Contest.DoesNotExist:
+        return error_page(request, u"比赛不存在")
+    contest_problems = ContestProblem.objects.filter(contest=contest).order_by("sort_index")
+    submissions = ContestSubmission.objects.filter(user=request.user, contest=contest)
+    state = {}
+    for item in submissions:
+        state[item.problem_id] = item.ac
+    for item in contest_problems:
+        if item.id in state:
+            if state[item.id]:
+                item.state = 1
+            else:
+                item.state = 2
+        else:
+            item.state = 0
     return render(request, "oj/contest/contest_problems_list.html", {"contest_problems": contest_problems,
-                                                                     "announcements": announcements,
                                                                      "contest": {"id": contest_id}})
 
 
@@ -341,10 +354,9 @@ def contest_list_page(request, page=1):
 
     # 筛选我能参加的比赛
     join = request.GET.get("join", None)
-    if join:
-        contests = contests.filter(Q(contest_type__in=[1, 2]) | Q(groups__in=request.user.group_set.all())).\
+    if request.user.is_authenticated and join:
+        contests = contests.filter(Q(contest_type__in=[1, 2]) | Q(groups__in=request.user.group_set.all())). \
             filter(end_time__gt=datetime.datetime.now(), start_time__lt=datetime.datetime.now())
-
     paginator = Paginator(contests, 20)
     try:
         current_page = paginator.page(int(page))
@@ -363,15 +375,10 @@ def contest_list_page(request, page=1):
     except Exception:
         pass
 
-    # 右侧的公告列表
-    announcements = Announcement.objects.filter(is_global=True, visible=True).order_by("-create_time")
-
     return render(request, "oj/contest/contest_list.html",
                   {"contests": current_page, "page": int(page),
                    "previous_page": previous_page, "next_page": next_page,
-                   "keyword": keyword, "announcements": announcements,
-                   "join": join})
-
+                   "keyword": keyword, "join": join})
 
 
 def _cmp(x, y):
@@ -386,26 +393,85 @@ def _cmp(x, y):
             return -1
 
 
+def get_the_formatted_time(seconds):
+    if not seconds:
+        return ""
+    result = str(seconds % 60)
+    if seconds % 60 < 10:
+        result = "0" + result
+    result = str((seconds % 3600) / 60) + ":" + result
+    if (seconds % 3600) / 60 < 10:
+        result = "0" + result
+    result = str(seconds / 3600) + ":" + result
+    if seconds / 3600 < 10:
+        result = "0" + result
+    return result
+
+
 @check_user_contest_permission
 def contest_rank_page(request, contest_id):
     contest = Contest.objects.get(id=contest_id)
     contest_problems = ContestProblem.objects.filter(contest=contest).order_by("sort_index")
-    result = ContestSubmission.objects.filter(contest=contest).values("user_id").annotate(total_submit=Sum("total_submission_number"))
-    for i in range(0, len(result)):
-        # 这个人所有的提交
-        submissions = ContestSubmission.objects.filter(user_id=result[i]["user_id"], contest_id=contest_id)
-        result[i]["submissions"] = {}
-        for item in submissions:
-            result[i]["submissions"][item.problem_id] = item
-        result[i]["total_ac"] = submissions.filter(ac=True).count()
-        result[i]["user"] = User.objects.get(id=result[i]["user_id"])
-        result[i]["total_time"] = submissions.filter(ac=True).aggregate(total_time=Sum("total_time"))["total_time"]
+    r = redis.Redis(host=REDIS_CACHE["host"], port=REDIS_CACHE["port"], db=REDIS_CACHE["db"])
+    if contest.real_time_rank:
+        # 更新rank
+        result = ContestSubmission.objects.filter(contest=contest).values("user_id"). \
+            annotate(total_submit=Sum("total_submission_number"))
+        for i in range(0, len(result)):
+            # 这个人所有的提交
+            submissions = ContestSubmission.objects.filter(user_id=result[i]["user_id"], contest_id=contest_id)
+            result[i]["submissions"] = {}
+            result[i]["problems"] = []
+            for problem in contest_problems:
+                try:
+                    status = submissions.get(problem=problem)
+                    result[i]["problems"].append({
+                        "first_achieved": status.first_achieved,
+                        "ac": status.ac,
+                        "failed_number": status.total_submission_number,
+                        "ac_time": get_the_formatted_time(status.ac_time)})
+                    if status.ac:
+                        result[i]["problems"][-1]["failed_number"] -= 1
+                except ContestSubmission.DoesNotExist:
+                    result[i]["problems"].append({})
+            result[i]["total_ac"] = submissions.filter(ac=True).count()
+            user= User.objects.get(id=result[i]["user_id"])
+            result[i]["username"] = user.username
+            result[i]["real_name"] = user.real_name
+            result[i]["total_time"] = get_the_formatted_time(submissions.filter(ac=True).aggregate(total_time=Sum("total_time"))["total_time"])
 
+        result = sorted(result, cmp=_cmp, reverse=True)
+        r.set("contest_rank_" + contest_id, json.dumps(list(result)))
+    else:
+        # 从缓存读取排名信息
+        result = r.get("contest_rank_" + contest_id)
+        if result:
+            result = json.loads(result)
+        else:
+            result = []
 
     return render(request, "oj/contest/contest_rank.html",
-                  {"contest": contest, "contest_problems": contest_problems, "result": sorted(result, cmp=_cmp, reverse=True)})
+                  {"contest": contest, "contest_problems": contest_problems,
+                   "result": result,
+                   "auto_refresh": request.GET.get("auto_refresh", None) == "true",
+                   "show_real_name": request.GET.get("show_real_name", None) == "true",
+                   "real_time_rank": contest.real_time_rank})
 
 
-
-
-
+class ContestTimeAPIView(APIView):
+    """
+    获取比赛开始或者结束的倒计时，返回毫秒数字
+    """
+    def get(self, request):
+        t = request.GET.get("type", "start")
+        contest_id = request.GET.get("contest_id", -1)
+        try:
+            contest = Contest.objects.get(id=contest_id)
+        except Contest.DoesNotExist:
+            return error_response(u"比赛不存在")
+        if t == "start":
+            # 距离开始还有多长时间
+            return success_response(int((contest.start_time - now()).total_seconds() * 1000))
+        else:
+            # 距离结束还有多长时间
+            return success_response(int((contest.end_time - now()).total_seconds() * 1000))

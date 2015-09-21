@@ -7,9 +7,8 @@ from client import JudgeClient
 from language import languages
 from compiler import compile_
 from result import result
-from settings import judger_workspace
-
-from settings import submission_db
+from settings import judger_workspace, submission_db
+from logger import logger
 
 
 # 简单的解析命令行参数
@@ -60,7 +59,6 @@ except Exception as e:
     conn.commit()
     exit()
 
-print "Compile successfully"
 # 运行
 try:
     client = JudgeClient(language_code=language_code,
@@ -80,15 +78,12 @@ try:
         judge_result["accepted_answer_time"] = l[-1]["cpu_time"]
 
 except Exception as e:
-    print e
+    logger.error(e)
     conn = db_conn()
     cur = conn.cursor()
     cur.execute("update submission set result=%s, info=%s where id=%s", (result["system_error"], str(e), submission_id))
     conn.commit()
     exit()
-
-print "Run successfully"
-print judge_result
 
 conn = db_conn()
 cur = conn.cursor()

@@ -1,5 +1,7 @@
 {% extends 'oj_base.html' %}
-
+{% block title %}
+    比赛提交列表
+{% endblock %}
 {% block body %}
 
     {% load submission %}
@@ -21,28 +23,62 @@
                 </li>
             </ul>
         </div>
-        {% if submissions %}
-            <table class="table table-bordered">
-                <thead>
-                <tr class="" success>
-                    <th>#</th>
-                    <td>用户</td>
-                    <th>提交时间</th>
-                    <th>语言</th>
-                    <th>运行时间</th>
-                    <th>结果</th>
-                </tr>
-                </thead>
+        <table class="table table-bordered">
+            <thead>
+            <tr class="" success>
+                <th>#</th>
+                <th>题目名称</th>
+                <th>用户</th>
+                <th>提交时间</th>
+                <th>
+                    <div class="dropdown">
+                        <a href="#" class="dropdown-toggle" id="languageFilter" data-toggle="dropdown"
+                           aria-haspopup="true" aria-expanded="true">
+                            语言<span class="caret"></span>
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="languageFilter">
+                            <li><a href="/contest/{{ contest.id }}/submissions/?language=1">C</a></li>
+                            <li><a href="/contest/{{ contest.id }}/submissions/?language=2">C++</a></li>
+                            <li><a href="/contest/{{ contest.id }}/submissions/?language=3">Java</a></li>
+                            <li><a href="/contest/{{ contest.id }}/submissions/">取消筛选</a></li>
+                        </ul>
+                    </div>
+                </th>
+                <th>运行时间</th>
+                <th>
+                    <div class="dropdown">
+                        <a href="#" class="dropdown-toggle" id="resultFilter" data-toggle="dropdown"
+                           aria-haspopup="true" aria-expanded="true">
+                            结果<span class="caret"></span>
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="resultFilter">
+                            <li><a href="/contest/{{ contest.id }}/submissions/?result=0">Accepted</a></li>
+                            <li><a href="/contest/{{ contest.id }}/submissions/?result=6">Wrong Answer</a></li>
+                            <li><a href="/contest/{{ contest.id }}/submissions/?result=1">Runtime Error</a></li>
+                            <li><a href="/contest/{{ contest.id }}/submissions/?result=2">Time Limit Exceeded</a></li>
+                            <li><a href="/contest/{{ contest.id }}/submissions/?result=3">Memory Limit Exceeded</a></li>
+                            <li><a href="/contest/{{ contest.id }}/submissions/?result=4">Compile Error</a></li>
+                            <li><a href="/contest/{{ contest.id }}/submissions/?result=5">Format Error</a></li>
+                            <li><a href="/contest/{{ contest.id }}/submissions/">取消筛选</a></li>
+                        </ul>
+                    </div>
+                </th>
+            </tr>
+            </thead>
+            {% if submissions %}
                 <tbody>
                 {% for item in submissions %}
                     <tr>
-                        {% ifequal item.user_id request.user.id %}
-                            <th scope="row"><a href="/submission/{{ item.id }}/" id="id_{{ forloop.counter }}">
-                                {{ forloop.counter |add:start_id }}</a></th>
-                        {% else %}
-                            <th scope="row">{{ forloop.counter |add:start_id }}</th>
-                        {% endifequal %}
-
+                        <th scope="row">
+                            {% if item.show_link %}
+                                <a href="/submission/{{ item.id }}/">{{ forloop.counter |add:start_id }}</a>
+                            {% else %}
+                                {{ forloop.counter |add:start_id }}
+                            {% endif %}
+                        </th>
+                        <th scope="row">
+                            <a href="/contest/{{ item.contest_id }}/problem/{{ item.problem_id }}/">{{ item.title }}</a>
+                        </th>
                         <td>{{ item.user_id|get_username }}</td>
                         <td>{{ item.create_time }}</td>
                         <td>
@@ -60,23 +96,23 @@
                         </td>
                     </tr>
                 {% endfor %}
-
                 </tbody>
-            </table>
-        {% else %}
-            <p>你还没有提交记录!</p>
-        {% endif %}
+            {% else %}
+                <p>本场比赛还没有提交记录</p>
+            {% endif %}
+        </table>
+
         <nav>
             <ul class="pager">
                 {% if previous_page %}
                     <li class="previous"><a
-                            href="/contest/{{ contest.id }}/submissions/{{ previous_page }}/">
+                            href="/contest/{{ contest.id }}/submissions/{{ previous_page }}/{% if filter %}?{{ filter.name }}={{ filter.content }}{% endif %}">
                         <span aria-hidden="true">&larr;</span> 上一页</a></li>
                 {% endif %}
                 {% if next_page %}
                     <li class="next">
-                        <a href="/contest/{{ contest.id }}/submissions/{{ next_page }}/">下一页 <span
-                                aria-hidden="true">&rarr;</span></a></li>
+                        <a href="/contest/{{ contest.id }}/submissions/{{ next_page }}/{% if filter %}?{{ filter.name }}={{ filter.content }}{% endif %}">
+                            下一页 <span aria-hidden="true">&rarr;</span></a></li>
                 {% endif %}
             </ul>
         </nav>

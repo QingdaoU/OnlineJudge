@@ -1,8 +1,7 @@
-@import url("global.css");
 @import url("bootstrap/bootstrap.min.css");
 @import url("bootstrap/todc-bootstrap.min.css");
 @import url("codeMirror/codemirror.css");
-
+@import url("global.css");
 
 #language-selector {
     width: 130px;
@@ -73,6 +72,10 @@ li.list-group-item {
     color: green;
 }
 
+.dealing-flag {
+    color: #FF9933;
+}
+
 .CodeMirror{
     min-height: 250px;
     _height:250px;
@@ -92,3 +95,20 @@ li.list-group-item {
 .contest-tab{
     margin-bottom: 15px;
 }
+
+#share-code{
+    margin-top: 15px;
+}
+
+#share-code textarea {
+    margin-top: 15px;
+}
+
+#about-acm-logo{
+    width: 40%;
+}
+
+.rank .first-achieved{
+    background: #33CC99;
+}
+

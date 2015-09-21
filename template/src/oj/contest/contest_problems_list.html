@@ -1,4 +1,7 @@
 {% extends "oj_base.html" %}
+{% block title %}
+    比赛题目列表
+{% endblock %}
 {% block body %}
 {% load problem %}
 <div class="container main">
@@ -40,12 +43,27 @@
                     <tbody>
                     {% for item in contest_problems %}
                     <tr>
-                        <th><span class="glyphicon glyphicon-ok ac-flag"></span></th>
+                        <th>
+
+                            <span class="glyphicon
+                            {% if item.state %}
+                                {% ifequal item.state 1%}
+                                glyphicon-ok ac-flag
+                                {% else %}
+                                glyphicon-minus dealing-flag
+                                {% endifequal %}
+                            {% endif %}
+
+
+
+                             "></span>
+
+                        </th>
                         <th scope="row">
-                            <a href="/contest/{{ item.contest.id }}/problem/{{ item.id }}/" target="_blank">{{ item.sort_index }}</a>
+                            <a href="/contest/{{ item.contest.id }}/problem/{{ item.id }}/">{{ item.sort_index }}</a>
                         </th>
                         <td>
-                            <a href="/contest/{{ item.contest.id }}/problem/{{ item.id }}/" target="_blank">{{ item.title }}</a>
+                            <a href="/contest/{{ item.contest.id }}/problem/{{ item.id }}/">{{ item.title }}</a>
                         </td>
                         <td>{{ item|accepted_radio }}</td>
                     </tr>
@@ -63,5 +81,5 @@
 {% endblock %}
 
 {% block js_block %}
-<script src="/static/js/app/oj/problem/problem_list.js"></script>
+
 {% endblock %}

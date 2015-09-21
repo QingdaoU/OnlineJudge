@@ -6,20 +6,25 @@ from account.models import User
 from problem.models import AbstractProblem
 from group.models import Group
 
+GROUP_CONTEST = 0
+PUBLIC_CONTEST = 1
+PASSWORD_PROTECTED_CONTEST = 2
+
 
 class Contest(models.Model):
     title = models.CharField(max_length=40, unique=True)
     description = models.TextField()
     # 比赛模式：0 即为是acm模式，1 即为是按照总的 ac 题目数量排名模式
     mode = models.IntegerField()
-    # 是否显示排名结果
-    show_rank = models.BooleanField()
+    # 是否显示实时排名结果
+    real_time_rank = models.BooleanField()
     # 是否显示别人的提交记录
     show_user_submission = models.BooleanField()
     # 只能超级管理员创建公开赛，管理员只能创建小组内部的比赛
     # 如果这一项不为空，即为有密码的公开赛，没有密码的可以为小组赛或者是公开赛（此时用比赛的类型来表示）
     password = models.CharField(max_length=30, blank=True, null=True)
-    # 比赛的类型： 0 即为是小组赛，1 即为是无密码的公开赛，2 即为是有密码的公开赛
+    # 比赛的类型： 0 即为是小组赛(GROUP_CONTEST)，1 即为是无密码的公开赛(PUBLIC_CONTEST)，
+    # 2 即为是有密码的公开赛(PASSWORD_PUBLIC_CONTEST)
     contest_type = models.IntegerField()
     # 开始时间
     start_time = models.DateTimeField()
@@ -84,8 +89,12 @@ class ContestSubmission(models.Model):
     total_submission_number = models.IntegerField(default=1)
     # 这道题是 AC 还是没过
     ac = models.BooleanField()
+    # ac 用时以秒计
+    ac_time = models.IntegerField(default=0)
     # 总的时间，用于acm 类型的，也需要保存罚时
     total_time = models.IntegerField(default=0)
+    # 第一个解出此题目
+    first_achieved = models.BooleanField(default=False)
 
     class Meta:
         db_table = "contest_submission"

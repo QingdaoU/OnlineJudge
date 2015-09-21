@@ -24,7 +24,7 @@
         <tr ms-repeat="contestList">
             <td>{{ el.id }}</td>
             <td>{{ el.title }}</td>
-            <td ms-text="el.show_rank?'公开':'不公开'"></td>
+            <td ms-text="el.real_time_rank?'实时':'已封榜'"></td>
             <td>{{ el.create_time|date("yyyy-MM-dd HH:mm:ss")}}</td>
             <td>{{ el.created_by.username }}</td>
             <td ms-text="el.visible?'可见':'不可见'"></td>
@@ -63,7 +63,7 @@
                     <textarea id="editor" placeholder="这里输入内容" autofocus ms-duplex="editDescription"></textarea>
 
                     <div class="help-block with-errors"></div>
-                    <p class="error-info" ms-visible="editDescription==''" >请填写比赛描述</p>
+                    <p class="error-info" ms-visible="editDescription==''">请填写比赛描述</p>
                 </div>
             </div>
             <div class="col-md-6">
@@ -87,32 +87,33 @@
                 </div>
             </div>
             <div class="col-md-6">
-                <label>允许参加的用户</label>
-
                 <div class="form-group">
-                    <select class="form-control" ms-duplex="group" ms-change="addGroup" value="-1">
-                        <option value="-1">请选择</option>
-                        <option ms-repeat="groupList" ms-attr-value="$index" ms-visible="!el.chose">{{el.name}}</option>
-                    </select>
+                    <label>可见范围</label>
+                    <span ms-if="showGlobalViewRadio">
+                        <label>
+                            <small><input type="radio" value="true" name="isGlobal" ms-duplex-boolean="isGlobal">全局可见
+                            </small>
+                        </label>
+                    </span>
+                    <span>
+                        <label>
+                            <small><input type="radio" value="false" name="isGlobal" ms-duplex-boolean="isGlobal">小组内可见
+                            </small>
+                        </label>
+                    </span>
                 </div>
             </div>
-            <div class="col-md-6" ms-visible="passwordUsable">
+            <div class="col-md-6" ms-visible="isGlobal">
                 <label>密码保护</label>
                 <input type="text" class="form-control" name="password" placeholder="留空就是公开赛" ms-duplex="editPassword">
             </div>
-            <div class="col-md-12">
-                <div ms-repeat="choseGroupList" class="group-tag" ms-click="removeGroup($index)">{{el.name}}</div>
-            </div>
-            <div class="col-md-6">
-
-            </div>
-            <div class="col-md-3">
-
+            <div class="form-group col-md-12" ms-visible="!isGlobal">
+                <!-- radio 的value 没有用 但是没有的话，表单验证会出错-->
+                <div ms-repeat="allGroups" class="col-md-4">
+                    <input type="checkbox" value="group_id" ms-duplex-checked="el.isSelected">&nbsp;&nbsp;{{ el.name }}
+                </div>
             </div>
             <div class="col-md-3">
-
-            </div>
-            <div class="col-md-4">
                 <label>排名方式</label>
 
                 <div class="form-group">
@@ -120,34 +121,31 @@
                         <small>ACM</small>
                     </label>
                     <label><input type="radio" name="mode" ms-duplex-string="editMode" value="1">
-                        <small>AC数量</small>
-                    </label>
-                    <label><input type="radio" name="mode" ms-duplex-string="editMode" value="2">
                         <small>分数</small>
                     </label>
                 </div>
             </div>
             <div class="col-md-2">
-                <label>是否可见</label><br>
-                <label><input type="checkbox" ms-duplex-checked="editVisible">
-                    <small> 可见</small>
-                </label>
-            </div>
-            <div class="col-md-3">
-                <label>结束前是否开放排名</label>
-
                 <div class="form-group">
-                    <label class="text"><input type="checkbox" ms-duplex-checked="editShowRank">
-                        <small>开放排名</small>
+                    <label>是否可见</label>
+                    <label><input type="checkbox" ms-duplex-checked="editVisible">
+                        <small> 可见</small>
                     </label>
                 </div>
             </div>
             <div class="col-md-3">
-                <label>是否公开提交记录</label>
-
+                <label>公开提交记录</label>
                 <div class="form-group">
                     <label class="text"><input type="checkbox" ms-duplex-checked="editShowSubmission">
-                        <small>允许查看提交记录</small>
+                        <small>公开</small>
+                    </label>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <label>实时排名</label>
+                <div class="form-group">
+                    <label class="text"><input type="checkbox" ms-duplex-checked="editRealTimeRank">
+                        <small>是</small>
                     </label>
                 </div>
             </div>
@@ -172,7 +170,7 @@
             <tr ms-repeat="editProblemList">
                 <td>{{ el.sort_index }}</td>
                 <td>{{ el.title }}</td>
-                <td ms-visible="editMode=='2'">{{ el.score}}</td>
+                <td ms-visible="editMode=='2'">{{ el.score }}</td>
                 <td ms-text="el.visible?'可见':'不可见'"></td>
                 <td>{{ el.create_time|date("yyyy-MM-dd HH:mm:ss") }}</td>
                 <td>
@@ -180,6 +178,8 @@
                        ms-click="showProblemEditPage(el)">编辑</a>
                     <a href="javascript:void(0)" class="btn-sm btn-info"
                        ms-click="showSubmissionPage(el)">提交</a>
+                    <a href="javascript:void(0)" class="btn-sm btn-info"
+                       ms-click="addToProblemList(el)" ms-visible="admin_type=='2'">添加到前台</a>
                 </td>
             </tr>
         </table>

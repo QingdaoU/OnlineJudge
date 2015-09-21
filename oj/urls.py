@@ -4,11 +4,12 @@ from django.views.generic import TemplateView
 
 from account.views import (UserLoginAPIView, UsernameCheckAPIView, UserRegisterAPIView,
                            UserChangePasswordAPIView, EmailCheckAPIView,
-                           UserAdminAPIView, UserInfoAPIView)
+                           UserAdminAPIView, UserInfoAPIView, AccountSecurityAPIView)
 
 from announcement.views import AnnouncementAdminAPIView
 
-from contest.views import ContestAdminAPIView, ContestProblemAdminAPIView, ContestPasswordVerifyAPIView
+from contest.views import (ContestAdminAPIView, ContestProblemAdminAPIView,
+                           ContestPasswordVerifyAPIView, ContestTimeAPIView)
 
 from group.views import (GroupAdminAPIView, GroupMemberAdminAPIView,
                          JoinGroupAPIView, JoinGroupRequestAdminAPIView)
@@ -16,16 +17,16 @@ from group.views import (GroupAdminAPIView, GroupMemberAdminAPIView,
 from admin.views import AdminTemplateView
 
 from problem.views import TestCaseUploadAPIView, ProblemTagAdminAPIView, ProblemAdminAPIView
-from submission.views import SubmissionAPIView, SubmissionAdminAPIView
+from submission.views import SubmissionAPIView, SubmissionAdminAPIView, SubmissionShareAPIView
 from contest_submission.views import ContestSubmissionAPIView, ContestSubmissionAdminAPIView
 from monitor.views import QueueLengthMonitorAPIView
+from utils.views import SimditorImageUploadAPIView
 
 from contest_submission.views import contest_problem_my_submissions_list_page
 
 
 urlpatterns = [
-    url(r'^install/$', "install.views.install"),
-    url("^$", TemplateView.as_view(template_name="oj/index.html"), name="index_page"),
+    url("^$", "account.views.index_page", name="index_page"),
     url(r'^docs/', include('rest_framework_swagger.urls')),
     url(r'^admin/$', TemplateView.as_view(template_name="admin/admin.html"), name="admin_spa_page"),
     url(r'^admin/contest/$', TemplateView.as_view(template_name="admin/contest/add_contest.html"),
@@ -53,6 +54,7 @@ urlpatterns = [
     url(r'^api/submission/$', SubmissionAPIView.as_view(), name="submission_api"),
     url(r'^api/group_join/$', JoinGroupAPIView.as_view(), name="group_join_api"),
 
+    url(r'^api/admin/upload_image/$', SimditorImageUploadAPIView.as_view(), name="simditor_upload_image"),
     url(r'^api/admin/announcement/$', AnnouncementAdminAPIView.as_view(), name="announcement_admin_api"),
     url(r'^api/admin/contest/$', ContestAdminAPIView.as_view(), name="contest_admin_api"),
     url(r'^api/admin/user/$', UserAdminAPIView.as_view(), name="user_admin_api"),
@@ -106,5 +108,15 @@ urlpatterns = [
     url(r'^groups/(?P<page>\d+)/$', "group.views.group_list_page", name="group_list_page"),
     url(r'^group/(?P<group_id>\d+)/$', "group.views.group_page", name="group_page"),
     url(r'^group/(?P<group_id>\d+)/applications/$', "group.views.application_list_page", name="group_application_page"),
-    url(r'^group/application/(?P<request_id>\d+)/$', "group.views.application_page", name="group_application")
+    url(r'^group/application/(?P<request_id>\d+)/$', "group.views.application_page", name="group_application"),
+
+    url(r'^about/$', TemplateView.as_view(template_name="utils/about.html"), name="about_page"),
+    url(r'^help/$', TemplateView.as_view(template_name="utils/help.html"), name="help_page"),
+
+    url(r'^api/submission/share/$', SubmissionShareAPIView.as_view(), name="submission_share_api"),
+
+    url(r'^captcha/$', "utils.captcha.views.show_captcha", name="show_captcha"),
+    url(r'^api/account_security_check/$', AccountSecurityAPIView.as_view(), name="account_security_check"),
+
+    url(r'^api/contest/time/$', ContestTimeAPIView.as_view(), name="contest_time_api_view"),
 ]

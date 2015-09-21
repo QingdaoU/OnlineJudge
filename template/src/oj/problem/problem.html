@@ -1,11 +1,16 @@
 {% extends 'oj_base.html' %}
-
+{% block title %}
+    {{ problem.title }}
+{% endblock %}
 {% block body %}
     <div class="container main">
         <ul class="nav nav-tabs nav-tabs-google">
             <li role="presentation" class="active">
-                <a href="/problem/{{ problem.id }}/">题目</a></li>
-            <li role="presentation"><a href="/problem/{{ problem.id }}/submissions/">我的提交</a></li>
+                <a href="/problem/{{ problem.id }}/">题目</a>
+            </li>
+            <li role="presentation">
+                <a href="/problem/{{ problem.id }}/submissions/">我的提交</a>
+            </li>
         </ul>
         {% include "oj/problem/_problem_header.html" %}
 
@@ -13,7 +18,7 @@
             <div class="problem-section">
                 <label class="problem-label">描述</label>
 
-                <p class="problem-detail">{{ problem.description|safe }}</p>
+                <div class="problem-detail">{{ problem.description|safe }}</div>
             </div>
             <div class="problem-section">
                 <label class="problem-label">输入</label>
@@ -28,12 +33,12 @@
             {% for item in samples %}
                 <div class="problem-section">
                     <label class="problem-label">样例输入{{ forloop.counter }}</label>
+                    <a href="javascript:void(0)" class="copy-sample" data-clipboard-text="{{ item.input }}">复制</a>
         <pre>
 {{ item.input }}</pre>
 
                 </div>
                 <div class="problem-section">
-
                     <label class="problem-label">样例输出{{ forloop.counter }}</label>
         <pre>
 {{ item.output }}</pre>
@@ -45,36 +50,37 @@
             {% if problem.hint %}
                 <div class="problem-section hide">
                     <label class="problem-label">提示</label>
-
-                    <p class="problem-detail">{{ problem.hint|safe }}</p>
+                    <div class="problem-detail">{{ problem.hint|safe }}</div>
                 </div>
             {% endif %}
             <div class="problem-section hide">
                 <label class="problem-label">标签</label>
-
                 <p class="problem-detail">
                     {% for tag in problem.tags.all %}
                         <span class="label label-success">{{ tag.name }}</span>
                     {% endfor %}
                 </p>
             </div>
-
+            {% if problem.source %}
+                <div class="problem-section hide">
+                    <label class="problem-label">来源</label>
+                    <div class="problem-detail">{{ problem.source }}</div>
+                </div>
+            {% endif %}
             <div>
                 <label>选择语言</label>
-
                 <div>
                     <label class="radio-inline">
-                        <input type="radio" name="language" value="1" checked> C (gcc 4.8)
+                        <input type="radio" name="language" value="1" checked> C (GCC 4.8)
                     </label>
                     <label class="radio-inline">
-                        <input type="radio" name="language" value="2"> C++ (g++ 4.3)
+                        <input type="radio" name="language" value="2"> C++ (G++ 4.3)
                     </label>
                     <label class="radio-inline">
-                        <input type="radio" name="language" value="3"> Java (jre 1.7)
+                        <input type="radio" name="language" value="3"> Java (Oracle JDK 1.7)
                     </label>
                 </div>
             </div>
-
             <div id="code-field">
                 <label class="problem-label">提交代码</label>
                 <textarea id="code-editor"></textarea>
@@ -85,9 +91,7 @@
                     提交代码
                 </button>
                 <img src="/static/img/loading.gif" id="loading-gif">
-
             </div>
-
             <div id="result">
             </div>
             <hr>

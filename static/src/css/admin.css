@@ -1,4 +1,3 @@
-@import url("global.css");
 @import url("bootstrap/bootstrap.min.css");
 @import url("bootstrap/todc-bootstrap.min.css");
 @import url("codeMirror/codemirror.css");
@@ -6,6 +5,7 @@
 @import url("webuploader/webuploader.css");
 @import url("datetime_picker/bootstrap-datetimepicker.css");
 @import url("tagEditor/jquery.tag-editor.css");
+@import url("global.css");
 
 #loading-gif {
     width: 40px;

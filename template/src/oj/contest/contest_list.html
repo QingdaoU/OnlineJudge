@@ -1,4 +1,7 @@
 {% extends "oj_base.html" %}
+{% block title %}
+    比赛列表
+{% endblock %}
 {% block body %}
     {% load contest %}
     <div class="container main">
@@ -48,12 +51,13 @@
                         {% endfor %}
                         </tbody>
                     </table>
-
+                    {% if request.user.is_authenticated  %}
                     <div class="form-group">
                         <label>仅显示当前可参加的比赛
                             <input id="join" type="checkbox" {% if join %}checked{% endif %} onchange="if(this.checked){location.href='/contests/?join=True'}else{location.href='/contests/'}">
                         </label>
                     </div>
+                    {% endif %}
                     <nav>
                         <ul class="pager">
                             {% if previous_page %}

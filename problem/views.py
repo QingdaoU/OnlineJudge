@@ -13,12 +13,16 @@ from rest_framework.views import APIView
 
 from django.conf import settings
 
+
 from announcement.models import Announcement
 from utils.shortcuts import (serializer_invalid_response, error_response,
                              success_response, paginate, rand_str, error_page)
 from .serizalizers import (CreateProblemSerializer, EditProblemSerializer, ProblemSerializer,
                            ProblemTagSerializer, CreateProblemTagSerializer)
 from .models import Problem, ProblemTag
+import logging
+
+logger = logging.getLogger("app_info")
 
 
 def problem_page(request, problem_id):
@@ -56,7 +60,8 @@ class ProblemAdminAPIView(APIView):
                                              memory_limit=data["memory_limit"],
                                              difficulty=data["difficulty"],
                                              created_by=request.user,
-                                             hint=data["hint"])
+                                             hint=data["hint"],
+                                             visible=data["visible"])
             for tag in data["tags"]:
                 try:
                     tag = ProblemTag.objects.get(name=tag)
@@ -147,9 +152,13 @@ class TestCaseUploadAPIView(APIView):
         f = request.FILES["file"]
 
         tmp_zip = "/tmp/" + rand_str() + ".zip"
-        with open(tmp_zip, "wb") as test_case_zip:
-            for chunk in f:
-                test_case_zip.write(chunk)
+        try:
+            with open(tmp_zip, "wb") as test_case_zip:
+                for chunk in f:
+                    test_case_zip.write(chunk)
+        except IOError as e:
+            logger.error(e)
+            return error_response(u"上传失败")
 
         test_case_file = zipfile.ZipFile(tmp_zip, 'r')
         name_list = test_case_file.namelist()
@@ -198,16 +207,24 @@ class TestCaseUploadAPIView(APIView):
             # 计算输出文件的md5
             for i in range(len(l) / 2):
                 md5 = hashlib.md5()
+                striped_md5 = hashlib.md5()
                 f = open(test_case_dir + str(i + 1) + ".out", "r")
+                # 完整文件的md5
                 while True:
                     data = f.read(2 ** 8)
                     if not data:
                         break
                     md5.update(data)
 
+                # 删除标准输出最后的空格和换行
+                # 这时只能一次全部读入了，分块读的话，没办法确定文件结尾
+                f.seek(0)
+                striped_md5.update(f.read().rstrip())
+
                 file_info["test_cases"][str(i + 1)] = {"input_name": str(i + 1) + ".in",
                                                        "output_name": str(i + 1) + ".out",
                                                        "output_md5": md5.hexdigest(),
+                                                       "striped_output_md5": striped_md5.hexdigest(),
                                                        "output_size": os.path.getsize(test_case_dir + str(i + 1) + ".out")}
                 # 写入配置文件
                 open(test_case_dir + "info", "w").write(json.dumps(file_info))
@@ -228,6 +245,17 @@ def problem_list_page(request, page=1):
     if keyword:
         problems = problems.filter(Q(title__contains=keyword) | Q(description__contains=keyword))
 
+    difficulty_order = request.GET.get("order_by", None)
+    if difficulty_order:
+        if difficulty_order[0] == "-":
+            problems = problems.order_by("-difficulty")
+            difficulty_order = "difficulty"
+        else:
+            problems = problems.order_by("difficulty")
+            difficulty_order = "-difficulty"
+    else:
+        difficulty_order = "difficulty"
+
     # 按照标签筛选
     tag_text = request.GET.get("tag", None)
     if tag_text:
@@ -235,7 +263,7 @@ def problem_list_page(request, page=1):
             tag = ProblemTag.objects.get(name=tag_text)
         except ProblemTag.DoesNotExist:
             return error_page(request, u"标签不存在")
-        problems = tag.problem_set.all()
+        problems = tag.problem_set.all().filter(visible=True)
 
     paginator = Paginator(problems, 20)
     try:
@@ -255,13 +283,15 @@ def problem_list_page(request, page=1):
     except Exception:
         pass
 
-    # 右侧的公告列表
-    announcements = Announcement.objects.filter(is_global=True, visible=True).order_by("-create_time")
+    if request.user.is_authenticated():
+        problems_status = json.loads(request.user.problems_status)
+    else:
+        problems_status = {}
     # 右侧标签列表 按照关联的题目的数量排序 排除题目数量为0的
     tags = ProblemTag.objects.annotate(problem_number=Count("problem")).filter(problem_number__gt=0).order_by("-problem_number")
 
     return render(request, "oj/problem/problem_list.html",
                   {"problems": current_page, "page": int(page),
                    "previous_page": previous_page, "next_page": next_page,
-                   "keyword": keyword, "tag": tag_text,
-                   "announcements": announcements, "tags": tags})
+                   "keyword": keyword, "tag": tag_text,"problems_status": problems_status,
+                   "tags": tags, "difficulty_order": difficulty_order})

@@ -1,103 +1,100 @@
 {% extends 'oj_base.html' %}
-
+{% block title %}
+    {{ contest_problem.title }}
+{% endblock %}
 {% block body %}
     <div class="container main">
-    <ul class="nav nav-tabs nav-tabs-google">
-        <li role="presentation" class="active">
-            <a href="/contest/{{ contest_problem.contest.id }}/problem/{{ contest_problem.id }}/">题目</a></li>
-        <li role="presentation"><a
-                href="/contest/{{ contest_problem.contest.id }}/problem/{{ contest_problem.id }}/submissions/">我的提交</a>
-        </li>
-        <li role="presentation"><a
-                href="/contest/{{ contest_problem.contest.id }}/problems/">返回题目列表</a>
-        </li>
-    </ul>
-    <h2 class="text-center">{{ contest_problem.title }}</h2>
+        <ul class="nav nav-tabs nav-tabs-google">
+            <li role="presentation" class="active">
+                <a href="/contest/{{ contest_problem.contest.id }}/problem/{{ contest_problem.id }}/">题目</a></li>
+            <li role="presentation"><a
+                    href="/contest/{{ contest_problem.contest.id }}/problem/{{ contest_problem.id }}/submissions/">我的提交</a>
+            </li>
+        </ul>
+        <h2 class="text-center">{{ contest_problem.title }}</h2>
 
-    <p class="text-muted text-center">发布时间 : {{ contest_problem.create_time }}&nbsp;&nbsp;
-        时间限制 : {{ contest_problem.time_limit }}ms&nbsp;&nbsp;
-        内存限制 : {{ contest_problem.memory_limit }}M
-    </p>
-
-    <div>
-    <div class="problem-section">
-        <label class="problem-label">描述</label>
-
-        <p class="problem-detail">{{ contest_problem.description|safe }}</p>
-    </div>
-    <div class="problem-section">
-        <label class="problem-label">输入</label>
-
-        <p class="problem-detail">{{ contest_problem.input_description }}</p>
+        <p class="text-muted text-center">发布时间 : {{ contest_problem.create_time }}&nbsp;&nbsp;
+            时间限制 : {{ contest_problem.time_limit }}ms&nbsp;&nbsp;
+            内存限制 : {{ contest_problem.memory_limit }}M
+        </p>
 
         <div>
-
             <div class="problem-section">
-                <label class="problem-label">输出</label>
+                <label class="problem-label">描述</label>
 
-                <p class="problem-detail">{{ contest_problem.output_description }}</p>
+                <div class="problem-detail">{{ contest_problem.description|safe }}</div>
             </div>
-            {% for item in samples %}
-                <div class="problem-section">
-                    <label class="problem-label">样例输入{{ forloop.counter }}</label>
-        <pre>
-{{ item.input }}</pre>
+            <div class="problem-section">
+                <label class="problem-label">输入</label>
 
-                </div>
-                <div class="problem-section">
+                <p class="problem-detail">{{ contest_problem.input_description }}</p>
 
-                    <label class="problem-label">样例输出{{ forloop.counter }}</label>
-        <pre>
-{{ item.output }}</pre>
-                </div>
-            {% endfor %}
-            {% if contest_problem.hint %}
-                <div class="problem-section">
-                    <label class="problem-label">提示</label>
-
-                    <p class="problem-detail">{{ contest_problem.hint|safe }}</p>
-                </div>
-            {% endif %}
-
-            {% ifequal contest.status 0 %}
                 <div>
-                    <label>选择语言</label>
 
-                    <div>
-                        <label class="radio-inline">
-                            <input type="radio" name="language" value="1" checked> C (gcc 4.8)
-                        </label>
-                        <label class="radio-inline">
-                            <input type="radio" name="language" value="2"> C++ (g++ 4.3)
-                        </label>
-                        <label class="radio-inline">
-                            <input type="radio" name="language" value="3"> Java (jre 1.7)
-                        </label>
+                    <div class="problem-section">
+                        <label class="problem-label">输出</label>
+
+                        <p class="problem-detail">{{ contest_problem.output_description }}</p>
                     </div>
+                    {% for item in samples %}
+                        <div class="problem-section">
+                            <label class="problem-label">样例输入{{ forloop.counter }}</label>
+                            <a href="javascript:void(0)" class="copy-sample"
+                               data-clipboard-text="{{ item.input }}">复制</a>
+                            <pre>{{ item.input }}</pre>
+                        </div>
+                        <div class="problem-section">
+                            <label class="problem-label">样例输出{{ forloop.counter }}</label>
+                            <pre>{{ item.output }}</pre>
+                        </div>
+                    {% endfor %}
+                    {% if problem.hint %}
+                        <div class="problem-section hide">
+                            <label class="problem-label">提示</label>
+                            <p class="problem-detail">{{ contest_problem.hint|safe }}</p>
+                        </div>
+                    {% endif %}
+                    {% if contest_problem.hint %}
+                        <div class="problem-section hide">
+                            <label class="problem-label">提示</label>
+                            <div class="problem-detail">{{ contest_problem.hint|safe }}</div>
+                        </div>
+                    {% endif %}
+                    {% ifequal contest.status 0 %}
+                        <div>
+                            <label>选择语言</label>
+                            <div>
+                                <label class="radio-inline">
+                                    <input type="radio" name="language" value="1" checked> C (GCC 4.8)
+                                </label>
+                                <label class="radio-inline">
+                                    <input type="radio" name="language" value="2"> C++ (G++ 4.3)
+                                </label>
+                                <label class="radio-inline">
+                                    <input type="radio" name="language" value="3"> Java (Oracle JDK 1.7)
+                                </label>
+                            </div>
+                        </div>
+                        <div id="code-field">
+                            <label class="problem-label">提交代码</label>
+                            <textarea id="code-editor"></textarea>
+                        </div>
+                        <hr>
+                        <div id="submit-code">
+                            <button type="button" class="btn btn-primary" id="submit-code-button">
+                                提交代码
+                            </button>
+                            <img src="/static/img/loading.gif" id="loading-gif">
+                        </div>
+                    {% endifequal %}
+                    {% if show_warning %}
+                        <div class="alert alert-success" role="alert">{{ warning }}</div>
+                    {% endif %}
+                    <div id="result">
+                    </div>
+                    <hr>
                 </div>
-
-                <div id="code-field">
-                    <label class="problem-label">提交代码</label>
-                    <textarea id="code-editor"></textarea>
-                </div>
-                <hr>
-
-                <div id="submit-code">
-                    <button type="button" class="btn btn-primary" id="submit-code-button">
-                        提交代码
-                    </button>
-                    <img src="/static/img/loading.gif" id="loading-gif">
-
-                </div>
-            {% endifequal %}
-
-            {% if show_warning %}
-                <div class="alert alert-success" role="alert">{{ warning }}</div>
-            {% endif %}
-
-            <div id="result">
             </div>
-            <hr>
         </div>
     </div>
 {% endblock %}
