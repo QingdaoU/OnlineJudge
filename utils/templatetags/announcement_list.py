@@ -3,6 +3,7 @@ from django import template
 
 from announcement.models import Announcement
 
+
 def public_announcement_list():
     return Announcement.objects.filter(is_global=True, visible=True).order_by("-create_time")
 
