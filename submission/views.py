@@ -19,7 +19,8 @@ from announcement.models import Announcement
 from utils.shortcuts import serializer_invalid_response, error_response, success_response, error_page, paginate
 
 from .models import Submission
-from .serializers import CreateSubmissionSerializer, SubmissionSerializer, SubmissionhareSerializer
+from .serializers import (CreateSubmissionSerializer, SubmissionSerializer,
+                          SubmissionhareSerializer, SubmissionRejudgeSerializer)
 
 
 logger = logging.getLogger("app_info")
@@ -217,5 +218,32 @@ class SubmissionShareAPIView(APIView):
             submission.shared = not submission.shared
             submission.save()
             return success_response(submission.shared)
+        else:
+            return serializer_invalid_response(serializer)
+
+
+class SubmissionRejudgeAdminAPIView(APIView):
+    def post(self, request):
+        serializer = SubmissionRejudgeSerializer(data=request.data)
+        if serializer.is_valid():
+            submission_id = serializer.data["submission_id"]
+            try:
+                submission = Submission.objects.get(id=submission_id)
+            except Submission.DoesNotExist:
+                return error_response(u"提交不存在")
+            # 目前只考虑前台公开题目的重新判题
+            try:
+                problem = Problem.objects.get(id=submission.problem_id)
+            except Problem.DoesNotExist:
+                return error_response(u"题目不存在")
+            try:
+                judge.delay(submission_id, problem.time_limit, problem.memory_limit, problem.test_case_id)
+            except Exception as e:
+                logger.error(e)
+                return error_response(u"提交判题任务失败")
+
+            # 增加redis 中判题队列长度的计数器
+            r = redis.Redis(host=redis_config["host"], port=redis_config["port"], db=redis_config["db"])
+            r.incr("judge_queue_length")
         else:
             return serializer_invalid_response(serializer)

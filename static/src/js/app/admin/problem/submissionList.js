@@ -51,6 +51,20 @@ require(["jquery", "avalon", "csrfToken", "bsAlert"], function ($, avalon, csrfT
                 },
                 showProblemListPage: function(){
                     vm.$fire("up!showProblemListPage");
+                },
+                rejudge: function(submission_id){
+                    $.ajax({
+                        beforeSend: csrfTokenHeader,
+                        url: "/api/admin/rejudge/",
+                        method: "post",
+                        data: {"submission_id": submission_id},
+                        success: function(data){
+                            if(!data.code){
+                                bsAlert("重判任务提交成功");
+                            }
+                        }
+
+                    })
                 }
             });
         }

@@ -26,3 +26,7 @@ class SubmissionhareSerializer(serializers.Serializer):
     submission_id = serializers.CharField(max_length=40)
 
 
+class SubmissionRejudgeSerializer(serializers.Serializer):
+    submission_id  = serializers.CharField(max_length=40)
+
+
