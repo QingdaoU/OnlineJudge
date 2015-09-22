@@ -11,7 +11,7 @@ from rest_framework.views import APIView
 from judge.judger_controller.tasks import judge
 from judge.judger_controller.settings import redis_config
 from account.decorators import login_required
-from account.models import SUPER_ADMIN
+from account.models import SUPER_ADMIN, User
 
 from problem.models import Problem
 from contest.models import ContestProblem, Contest
@@ -19,7 +19,8 @@ from announcement.models import Announcement
 from utils.shortcuts import serializer_invalid_response, error_response, success_response, error_page, paginate
 
 from .models import Submission
-from .serializers import CreateSubmissionSerializer, SubmissionSerializer, SubmissionhareSerializer
+from .serializers import (CreateSubmissionSerializer, SubmissionSerializer,
+                          SubmissionhareSerializer, SubmissionRejudgeSerializer)
 
 
 logger = logging.getLogger("app_info")
@@ -160,8 +161,14 @@ def my_submission_list_page(request, page=1):
     """
     我的所有提交的列表页
     """
-    submissions = Submission.objects.filter(user_id=request.user.id, contest_id__isnull=True). \
-        values("id", "problem_id", "result", "create_time", "accepted_answer_time", "language").order_by("-create_time")
+    # 显示所有人的提交 这是管理员的调试功能
+    show_all = request.GET.get("show_all", False) == "true" and request.user.admin_type == SUPER_ADMIN
+    if show_all:
+        submissions = Submission.objects.filter(contest_id__isnull=True)
+    else:
+        submissions = Submission.objects.filter(user_id=request.user.id, contest_id__isnull=True)
+    submissions = submissions.values("id", "user_id", "problem_id", "result", "create_time", "accepted_answer_time", "language").order_by("-create_time")
+
     language = request.GET.get("language", None)
     filter = None
     if language:
@@ -172,14 +179,21 @@ def my_submission_list_page(request, page=1):
         submissions = submissions.filter(result=int(result))
         filter = {"name": "result", "content": result}
 
-    # 为 submission 查询题目 因为提交页面经常会有重复的题目，缓存一下查询结果
-    cache_result = {}
+    # 因为提交页面经常会有重复的题目和用户，缓存一下查询结果
+    cache_result = {"problem": {}, "user": {}}
     for item in submissions:
         problem_id = item["problem_id"]
-        if problem_id not in cache_result:
+        if problem_id not in cache_result["problem"]:
             problem = Problem.objects.get(id=problem_id)
-            cache_result[problem_id] = problem.title
-        item["title"] = cache_result[problem_id]
+            cache_result["problem"][problem_id] = problem.title
+        item["title"] = cache_result["problem"][problem_id]
+
+        if show_all:
+            user_id = item["user_id"]
+            if user_id not in cache_result["user"]:
+                user = User.objects.get(id=user_id)
+                cache_result["user"][user_id] = user
+            item["user"] = cache_result["user"][user_id]
 
     paginator = Paginator(submissions, 20)
     try:
@@ -196,13 +210,10 @@ def my_submission_list_page(request, page=1):
     except Exception:
         pass
 
-    # 右侧的公告列表
-    announcements = Announcement.objects.filter(is_global=True, visible=True).order_by("-create_time")
-
     return render(request, "oj/submission/my_submissions_list.html",
                   {"submissions": current_page, "page": int(page),
                    "previous_page": previous_page, "next_page": next_page, "start_id": int(page) * 20 - 20,
-                   "announcements": announcements, "filter": filter})
+                   "filter": filter, "show_all": show_all})
 
 
 class SubmissionShareAPIView(APIView):
@@ -217,5 +228,33 @@ class SubmissionShareAPIView(APIView):
             submission.shared = not submission.shared
             submission.save()
             return success_response(submission.shared)
+        else:
+            return serializer_invalid_response(serializer)
+
+
+class SubmissionRejudgeAdminAPIView(APIView):
+    def post(self, request):
+        serializer = SubmissionRejudgeSerializer(data=request.data)
+        if serializer.is_valid():
+            submission_id = serializer.data["submission_id"]
+            try:
+                submission = Submission.objects.get(id=submission_id)
+            except Submission.DoesNotExist:
+                return error_response(u"提交不存在")
+            # 目前只考虑前台公开题目的重新判题
+            try:
+                problem = Problem.objects.get(id=submission.problem_id)
+            except Problem.DoesNotExist:
+                return error_response(u"题目不存在")
+            try:
+                judge.delay(submission_id, problem.time_limit, problem.memory_limit, problem.test_case_id)
+            except Exception as e:
+                logger.error(e)
+                return error_response(u"提交判题任务失败")
+
+            # 增加redis 中判题队列长度的计数器
+            r = redis.Redis(host=redis_config["host"], port=redis_config["port"], db=redis_config["db"])
+            r.incr("judge_queue_length")
+            return success_response(u"任务提交成功")
         else:
             return serializer_invalid_response(serializer)

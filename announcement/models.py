@@ -18,7 +18,7 @@ class Announcement(models.Model):
     last_update_time = models.DateTimeField(auto_now=True)
     # 是否可见 false的话相当于删除
     visible = models.BooleanField(default=True)
-    # 公告可见范围 0是全局可见 1是部分小组可见，需要在下面的字段中存储可见的小组
+    # 公告可见范围 True 是全局可见 False 是部分小组可见，需要在下面的字段中存储可见的小组
     is_global = models.BooleanField()
     groups = models.ManyToManyField(Group)
 
