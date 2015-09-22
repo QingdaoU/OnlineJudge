@@ -52,6 +52,7 @@
             <tr>
                 <th scope="row">
                     <a href="/submission/{{ item.id }}/">{{ forloop.counter |add:start_id }}</a>
+                    {% if show_all %}（{{ item.user.username }}）{% endif %}
                 </th>
                 <td>
                     <a href="/problem/{{ item.problem_id }}/">{{ item.title }}</a>
