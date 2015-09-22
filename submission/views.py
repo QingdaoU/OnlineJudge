@@ -162,7 +162,7 @@ def my_submission_list_page(request, page=1):
     我的所有提交的列表页
     """
     # 显示所有人的提交 这是管理员的调试功能
-    show_all = request.GET.get("show_all", False) == "true"
+    show_all = request.GET.get("show_all", False) == "true" and request.user.admin_type == SUPER_ADMIN
     if show_all:
         submissions = Submission.objects.filter(contest_id__isnull=True)
     else:
