@@ -27,7 +27,10 @@
             <tbody>
             {% for item in submissions %}
                 <tr>
-                    <th scope="row"><a href="/submission/{{ item.id }}/">{{ forloop.counter }}</a></th>
+                    <th scope="row">
+                        <a href="/submission/{{ item.id }}/">{{ forloop.counter }}</a>
+                        {% if show_all %}{{ item.user.username }}{% endif %}
+                    </th>
                     <td>{{ item.create_time }}</td>
                     <td>
                         {{ item.language|translate_language }}
