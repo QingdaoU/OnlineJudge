@@ -46,7 +46,7 @@ class Contest(models.Model):
             # 没有开始 返回1
             return 1
         elif self.end_time < now():
-            # 已经结束 返回0
+            # 已经结束 返回-1
             return -1
         else:
             # 正在进行 返回0
