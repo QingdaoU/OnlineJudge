@@ -161,11 +161,13 @@ def my_submission_list_page(request, page=1):
     """
     我的所有提交的列表页
     """
-    submissions = Submission.objects.filter(user_id=request.user.id, contest_id__isnull=True). \
-        values("id", "user_id", "problem_id", "result", "create_time", "accepted_answer_time", "language").order_by("-create_time")
-
     # 显示所有人的提交 这是管理员的调试功能
     show_all = request.GET.get("show_all", False) == "true"
+    if show_all:
+        submissions = Submission.objects.filter(contest_id__isnull=True)
+    else:
+        submissions = Submission.objects.filter(user_id=request.user.id, contest_id__isnull=True)
+    submissions = submissions.values("id", "user_id", "problem_id", "result", "create_time", "accepted_answer_time", "language").order_by("-create_time")
 
     language = request.GET.get("language", None)
     filter = None
