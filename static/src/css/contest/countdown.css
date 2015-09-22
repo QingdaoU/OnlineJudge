@@ -1,0 +1,14 @@
+#timer {
+    margin: 20px auto;
+}
+.timer-section {
+    display: inline-block;
+}
+.timer-section span {
+    background-color: #ffffff;
+    padding: 5px 4px;
+    border-radius: 5px;
+}
+.time {
+    font-weight: bold;
+}

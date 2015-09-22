@@ -50,7 +50,7 @@ class Contest(models.Model):
             # 没有开始 返回1
             return CONTEST_NOT_START
         elif self.end_time < now():
-            # 已经结束 返回0
+            # 已经结束 返回-1
             return CONTEST_ENDED
         else:
             # 正在进行 返回0
