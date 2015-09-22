@@ -245,5 +245,6 @@ class SubmissionRejudgeAdminAPIView(APIView):
             # 增加redis 中判题队列长度的计数器
             r = redis.Redis(host=redis_config["host"], port=redis_config["port"], db=redis_config["db"])
             r.incr("judge_queue_length")
+            return success_response(u"任务提交成功")
         else:
             return serializer_invalid_response(serializer)
