@@ -2,6 +2,7 @@
 @import url("bootstrap/todc-bootstrap.min.css");
 @import url("codeMirror/codemirror.css");
 @import url("global.css");
+@import url("contest/countdown.css");
 
 #language-selector {
     width: 130px;
