@@ -24,8 +24,7 @@ require(["jquery", "avalon", "bootstrap"], function ($, avalon) {
         var superAdminNav = [
                 {    name: "首页",
                     children: [{name: "主页", hash: "#index/index"},
-                               {name: "监控", hash: "#monitor/monitor"},
-                               {name: "统计", hash: "#statistics/statistics"}]
+                               {name: "监控", hash: "#monitor/monitor"}]
                 },
                 {
                     name: "通用",

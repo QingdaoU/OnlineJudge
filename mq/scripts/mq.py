@@ -57,6 +57,9 @@ class MessageQueue(object):
             # 能运行到这里的都是比赛题目
             try:
                 contest = Contest.objects.get(id=submission.contest_id)
+                if contest.status != 0:
+                    logger.info("Contest debug mode, id: " + str(contest.id) + ", submission id: " + submission_id)
+                    continue
                 contest_problem = ContestProblem.objects.get(contest=contest, id=submission.problem_id)
             except Contest.DoesNotExist:
                 logger.warning("Submission contest does not exist, submission_id: " + submission_id)

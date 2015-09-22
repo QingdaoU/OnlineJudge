@@ -3,6 +3,7 @@ var require = {
     baseUrl: "/static/js/",
     paths: {
         jquery: "lib/jquery/jquery",
+        jcountdown: "lib/jcountdown/jcountdown",
         avalon: "lib/avalon/avalon",
         editor: "utils/editor",
         uploader: "utils/uploader",

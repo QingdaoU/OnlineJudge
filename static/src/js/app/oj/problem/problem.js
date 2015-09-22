@@ -142,9 +142,6 @@ require(["jquery", "codeMirror", "csrfToken", "bsAlert", "ZeroClipboard"],
                     if(!data.code){
                         time = data.data;
                     }
-                },
-                error: function(){
-                    time = new Date().getTime();
                 }
             });
             return time;
@@ -153,13 +150,16 @@ require(["jquery", "codeMirror", "csrfToken", "bsAlert", "ZeroClipboard"],
         if(location.href.indexOf("contest") > -1) {
             setInterval(function () {
                 var time = getServerTime();
-                var minutes = parseInt(time / (1000 * 60));
-                if(minutes == 0){
-                    bsAlert("比赛即将结束");
+                if(time["status"] == 0){
+                    var minutes = parseInt(time["end"] / (1000 * 60));
+                    if(minutes == 0){
+                        bsAlert("比赛即将结束");
+                    }
+                    else if(minutes > 0 && minutes <= 5){
+                        bsAlert("比赛还剩" + minutes.toString() + "分钟");
+                    }
                 }
-                else if(minutes > 0 && minutes <= 5){
-                    bsAlert("比赛还剩" + minutes.toString() + "分钟");
-                }
+
             }, 1000 * 60);
         }
 

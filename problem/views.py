@@ -4,6 +4,7 @@ import re
 import os
 import hashlib
 import json
+import logging
 
 from django.shortcuts import render
 from django.db.models import Q, Count
@@ -13,19 +14,23 @@ from rest_framework.views import APIView
 
 from django.conf import settings
 
-
-from announcement.models import Announcement
+from account.models import SUPER_ADMIN
+from account.decorators import super_admin_required
 from utils.shortcuts import (serializer_invalid_response, error_response,
                              success_response, paginate, rand_str, error_page)
 from .serizalizers import (CreateProblemSerializer, EditProblemSerializer, ProblemSerializer,
                            ProblemTagSerializer, CreateProblemTagSerializer)
 from .models import Problem, ProblemTag
-import logging
+from .decorators import check_user_problem_permission
+
 
 logger = logging.getLogger("app_info")
 
 
 def problem_page(request, problem_id):
+    """
+    前台题目详情页
+    """
     try:
         problem = Problem.objects.get(id=problem_id, visible=True)
     except Problem.DoesNotExist:
@@ -34,11 +39,15 @@ def problem_page(request, problem_id):
 
 
 class ProblemTagAdminAPIView(APIView):
+    """
+    获取所有标签的列表
+    """
     def get(self, request):
         return success_response(ProblemTagSerializer(ProblemTag.objects.all(), many=True).data)
 
 
 class ProblemAdminAPIView(APIView):
+    @super_admin_required
     def post(self, request):
         """
         题目发布json api接口
@@ -72,6 +81,7 @@ class ProblemAdminAPIView(APIView):
         else:
             return serializer_invalid_response(serializer)
 
+    @check_user_problem_permission
     def put(self, request):
         """
         题目编辑json api接口
@@ -82,11 +92,7 @@ class ProblemAdminAPIView(APIView):
         serializer = EditProblemSerializer(data=request.data)
         if serializer.is_valid():
             data = serializer.data
-            try:
-                problem = Problem.objects.get(id=data["id"])
-            except Problem.DoesNotExist:
-                return error_response(u"该题目不存在！")
-
+            problem = Problem.objects.get(id=data["id"])
             problem.title = data["title"]
             problem.description = data["description"]
             problem.input_description = data["input_description"]
@@ -123,23 +129,36 @@ class ProblemAdminAPIView(APIView):
         problem_id = request.GET.get("problem_id", None)
         if problem_id:
             try:
+                # 普通管理员只能获取自己创建的题目
+                # 超级管理员可以获取全部的题目
                 problem = Problem.objects.get(id=problem_id)
+                if request.user.admin_type != SUPER_ADMIN:
+                    problem = problem.get(created_by=request.user)
                 return success_response(ProblemSerializer(problem).data)
             except Problem.DoesNotExist:
                 return error_response(u"题目不存在")
-        problem = Problem.objects.all().order_by("-create_time")
+
+        # 获取问题列表
+        problems = Problem.objects.all().order_by("-create_time")
+
+        if request.user.admin_type != SUPER_ADMIN:
+            problems = problems.filter(created_by=request.user)
+
         visible = request.GET.get("visible", None)
         if visible:
-            problem = problem.filter(visible=(visible == "true"))
+            problems = problems.filter(visible=(visible == "true"))
         keyword = request.GET.get("keyword", None)
         if keyword:
-            problem = problem.filter(Q(title__contains=keyword) |
+            problems = problems.filter(Q(title__contains=keyword) |
                                      Q(description__contains=keyword))
 
-        return paginate(request, problem, ProblemSerializer)
+        return paginate(request, problems, ProblemSerializer)
 
 
 class TestCaseUploadAPIView(APIView):
+    """
+    上传题目的测试用例
+    """
     def _is_legal_test_case_file_name(self, file_name):
         # 正整数开头的 .in 或者.out 结尾的
         regex = r"^[1-9]\d*\.(in|out)$"
@@ -237,6 +256,9 @@ class TestCaseUploadAPIView(APIView):
 
 
 def problem_list_page(request, page=1):
+    """
+    前台的问题列表
+    """
     # 正常情况
     problems = Problem.objects.filter(visible=True)
 

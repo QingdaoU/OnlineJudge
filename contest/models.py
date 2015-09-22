@@ -10,6 +10,10 @@ GROUP_CONTEST = 0
 PUBLIC_CONTEST = 1
 PASSWORD_PROTECTED_CONTEST = 2
 
+CONTEST_NOT_START = 1
+CONTEST_ENDED = -1
+CONTEST_UNDERWAY = 0
+
 
 class Contest(models.Model):
     title = models.CharField(max_length=40, unique=True)
@@ -44,13 +48,13 @@ class Contest(models.Model):
     def status(self):
         if self.start_time > now():
             # 没有开始 返回1
-            return 1
+            return CONTEST_NOT_START
         elif self.end_time < now():
-            # 已经结束 返回0
-            return -1
+            # 已经结束 返回-1
+            return CONTEST_ENDED
         else:
             # 正在进行 返回0
-            return 0
+            return CONTEST_UNDERWAY
 
     class Meta:
         db_table = "contest"

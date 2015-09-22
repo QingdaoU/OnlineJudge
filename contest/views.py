@@ -16,7 +16,7 @@ from utils.shortcuts import (serializer_invalid_response, error_response,
 from account.models import SUPER_ADMIN, User
 from account.decorators import login_required
 from group.models import Group
-from .models import Contest, ContestProblem, ContestSubmission
+from .models import Contest, ContestProblem, ContestSubmission, CONTEST_ENDED, CONTEST_NOT_START, CONTEST_UNDERWAY
 from .models import GROUP_CONTEST, PUBLIC_CONTEST, PASSWORD_PROTECTED_CONTEST
 from .decorators import check_user_contest_permission
 from .serializers import (CreateContestSerializer, ContestSerializer, EditContestSerializer,
@@ -45,10 +45,10 @@ class ContestAdminAPIView(APIView):
             if data["contest_type"] in [PUBLIC_CONTEST, PASSWORD_PROTECTED_CONTEST]:
                 if request.user.admin_type != SUPER_ADMIN:
                     return error_response(u"只有超级管理员才可创建公开赛")
+
             if data["contest_type"] == PASSWORD_PROTECTED_CONTEST:
                 if not data["password"]:
                     return error_response(u"此比赛为有密码的公开赛，密码不可为空")
-
             # 没有密码的公开赛 没有密码的小组赛
             elif data["contest_type"] == GROUP_CONTEST:
                 if request.user.admin_type == SUPER_ADMIN:
@@ -58,7 +58,7 @@ class ContestAdminAPIView(APIView):
                 if not groups.count():
                     return error_response(u"请至少选择一个小组")
             if data["start_time"] >= data["end_time"]:
-                return error_response(u"比赛的开始时间不能晚于或等于比赛结束的时间")
+                return error_response(u"比赛的开始时间必须早于比赛结束的时间")
             try:
                 contest = Contest.objects.create(title=data["title"], description=data["description"],
                                                  mode=data["mode"], contest_type=data["contest_type"],
@@ -86,7 +86,10 @@ class ContestAdminAPIView(APIView):
             data = serializer.data
             groups = []
             try:
+                # 超级管理员可以编辑所有的
                 contest = Contest.objects.get(id=data["id"])
+                if request.user.admin_type != SUPER_ADMIN:
+                    contest = contest.get(created_by=request.user)
             except Contest.DoesNotExist:
                 return error_response(u"该比赛不存在！")
             try:
@@ -109,9 +112,8 @@ class ContestAdminAPIView(APIView):
                 if not groups.count():
                     return error_response(u"请至少选择一个小组")
             if data["start_time"] >= data["end_time"]:
-                return error_response(u"比赛的开始时间不能晚于或等于比赛结束的时间")
-            if request.user.admin_type != SUPER_ADMIN and request.user != contest.created_by:
-                return error_response(u"你无权修改该比赛!")
+                return error_response(u"比赛的开始时间必须早于比赛结束的时间")
+
             contest.title = data["title"]
             contest.description = data["description"]
             contest.mode = data["mode"]
@@ -163,6 +165,8 @@ class ContestProblemAdminAPIView(APIView):
             data = serializer.data
             try:
                 contest = Contest.objects.get(id=data["contest_id"])
+                if request.user.admin_type != SUPER_ADMIN:
+                    contest = contest.get(created_by=request.user)
             except Contest.DoesNotExist:
                 return error_response(u"比赛不存在")
             contest_problem = ContestProblem.objects.create(title=data["title"],
@@ -199,7 +203,7 @@ class ContestProblemAdminAPIView(APIView):
                 return error_response(u"该比赛题目不存在！")
             contest = Contest.objects.get(id=contest_problem.contest_id)
             if request.user.admin_type != SUPER_ADMIN and contest.created_by != request.user:
-                return error_response(u"你无权修改该题目!")
+                return error_response(u"比赛不存在")
             contest_problem.title = data["title"]
             contest_problem.description = data["description"]
             contest_problem.input_description = data["input_description"]
@@ -227,29 +231,27 @@ class ContestProblemAdminAPIView(APIView):
         if contest_problem_id:
             try:
                 contest_problem = ContestProblem.objects.get(id=contest_problem_id)
+                if request.user.admin_type != SUPER_ADMIN:
+                    contest_problem = contest_problem.get(created_by=request.user)
                 return success_response(ContestProblemSerializer(contest_problem).data)
             except ContestProblem.DoesNotExist:
                 return error_response(u"比赛题目不存在")
-        if request.user.admin_type == SUPER_ADMIN:
-            contest_problem = ContestProblem.objects.all().order_by("sort_index")
-        else:
-            contest_problem = ContestProblem.objects.filter(created_by=request.user).order_by("sort_index")
+
+        contest_problems = ContestProblem.objects.all().order_by("sort_index")
+        if request.user.admin_type != SUPER_ADMIN:
+            contest_problems = contest_problems.filter(created_by=request.user).order_by("sort_index")
         visible = request.GET.get("visible", None)
         if visible:
-            contest_problem = contest_problem.filter(visible=(visible == "true"))
+            contest_problems = contest_problems.filter(visible=(visible == "true"))
         keyword = request.GET.get("keyword", None)
         if keyword:
-            contest_problem = contest_problem.filter(Q(title__contains=keyword) |
+            contest_problems = contest_problems.filter(Q(title__contains=keyword) |
                                                      Q(description__contains=keyword))
         contest_id = request.GET.get("contest_id", None)
         if contest_id:
-            try:
-                contest = Contest.objects.get(id=contest_id)
-            except Contest.DoesNotExist:
-                return error_response(u"该比赛不存在!")
-            contest_problem = contest_problem.filter(contest=contest).order_by("sort_index")
+            contest_problem = contest_problems.filter(contest__id=contest_id).order_by("sort_index")
 
-        return paginate(request, contest_problem, ContestProblemSerializer)
+        return paginate(request, contest_problems, ContestProblemSerializer)
 
 
 class ContestPasswordVerifyAPIView(APIView):
@@ -306,12 +308,23 @@ def contest_problem_page(request, contest_id, contest_problem_id):
         pass
 
     # 已经结束
-    if contest.status == -1:
+    if contest.status == CONTEST_ENDED:
         show_warning = True
         warning = u"比赛已经结束"
+    elif contest.status == CONTEST_NOT_START:
+        show_warning = True
+        warning = u"比赛没有开始，您是管理员，可以提交和测试题目，但是目前的提交不会计入排名。"
+
+    show_submit_code_area = False
+    if contest.status == CONTEST_UNDERWAY:
+        show_submit_code_area = True
+    if request.user.admin_type == SUPER_ADMIN or request.user == contest.created_by:
+        show_submit_code_area = True
+
     return render(request, "oj/contest/contest_problem.html", {"contest_problem": contest_problem, "contest": contest,
                                                                "samples": json.loads(contest_problem.samples),
-                                                               "show_warning": show_warning, "warning": warning})
+                                                               "show_warning": show_warning, "warning": warning,
+                                                               "show_submit_code_area": show_submit_code_area})
 
 
 @check_user_contest_permission
@@ -319,10 +332,7 @@ def contest_problems_list_page(request, contest_id):
     """
     比赛所有题目的列表页
     """
-    try:
-        contest = Contest.objects.get(id=contest_id)
-    except Contest.DoesNotExist:
-        return error_page(request, u"比赛不存在")
+    contest = Contest.objects.get(id=contest_id)
     contest_problems = ContestProblem.objects.filter(contest=contest).order_by("sort_index")
     submissions = ContestSubmission.objects.filter(user=request.user, contest=contest)
     state = {}
@@ -463,15 +473,12 @@ class ContestTimeAPIView(APIView):
     获取比赛开始或者结束的倒计时，返回毫秒数字
     """
     def get(self, request):
-        t = request.GET.get("type", "start")
         contest_id = request.GET.get("contest_id", -1)
         try:
             contest = Contest.objects.get(id=contest_id)
         except Contest.DoesNotExist:
             return error_response(u"比赛不存在")
-        if t == "start":
-            # 距离开始还有多长时间
-            return success_response(int((contest.start_time - now()).total_seconds() * 1000))
-        else:
-            # 距离结束还有多长时间
-            return success_response(int((contest.end_time - now()).total_seconds() * 1000))
+        return success_response({"start": int((contest.start_time - now()).total_seconds() * 1000),
+                                 "end": int((contest.end_time - now()).total_seconds() * 1000),
+                                 "status": contest.status})
+
