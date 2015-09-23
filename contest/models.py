@@ -5,6 +5,8 @@ from django.utils.timezone import now
 from account.models import User
 from problem.models import AbstractProblem
 from group.models import Group
+from utils.models import RichTextField
+
 
 GROUP_CONTEST = 0
 PUBLIC_CONTEST = 1
@@ -17,7 +19,7 @@ CONTEST_UNDERWAY = 0
 
 class Contest(models.Model):
     title = models.CharField(max_length=40, unique=True)
-    description = models.TextField()
+    description = RichTextField()
     # 比赛模式：0 即为是acm模式，1 即为是按照总的 ac 题目数量排名模式
     mode = models.IntegerField()
     # 是否显示实时排名结果

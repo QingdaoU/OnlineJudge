@@ -60,7 +60,7 @@
                             <div class="problem-detail">{{ contest_problem.hint|safe }}</div>
                         </div>
                     {% endif %}
-                    {% ifequal contest.status 0 %}
+                    {% if show_submit_code_area %}
                         <div>
                             <label>选择语言</label>
                             <div>
@@ -86,7 +86,7 @@
                             </button>
                             <img src="/static/img/loading.gif" id="loading-gif">
                         </div>
-                    {% endifequal %}
+                    {% endif %}
                     {% if show_warning %}
                         <div class="alert alert-success" role="alert">{{ warning }}</div>
                     {% endif %}

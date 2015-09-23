@@ -218,7 +218,7 @@ require(["jquery", "avalon", "csrfToken", "bsAlert", "editor", "datetimePicker",
                         description: problem.description,
                         time_limit: problem.time_limit,
                         memory_limit: problem.memory_limit,
-                        samples: problem.samples,
+                        samples: [],
                         test_case_id: problem.test_case_id,
                         hint: problem.hint,
                         source: problem.contest.title,
@@ -228,6 +228,9 @@ require(["jquery", "avalon", "csrfToken", "bsAlert", "editor", "datetimePicker",
                         output_description: problem.output_description,
                         difficulty: 0
                     };
+                    for (var i = 0; i < problem.samples.length; i++) {
+                        ajaxData.samples.push({input: problem.samples[i].input, output: problem.samples[i].output})
+                    }
                     $.ajax({
                         beforeSend: csrfTokenHeader,
                         url: "/api/admin/problem/",
