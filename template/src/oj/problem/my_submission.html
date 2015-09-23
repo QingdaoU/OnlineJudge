@@ -40,6 +40,9 @@
                     {{ submission.result|translate_result }}
                 </span>
                 </h4>
+                {% ifnotequal request.user.id submission.user_id %}
+                    <p>作者：{{ user.username }}</p>
+                {% endifnotequal %}
                 {% ifequal submission.result 0 %}
                     <p>时间 : {{ submission.accepted_answer_time }}ms 语言 :
                         {{ submission.language|translate_language }}
@@ -74,7 +77,7 @@
                 {% endif %}
                 <textarea class="form-control" id="share-code-textarea"
                           {% if not submission.shared %}style="display: none" {% endif %}>{{ problem.title }}
-                    {{ request.build_absolute_uri }}</textarea>
+{{ request.build_absolute_uri }}</textarea>
             </div>
         {% endif %}
 
