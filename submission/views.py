@@ -124,7 +124,7 @@ def my_submission(request, submission_id):
     """
     try:
         result = _get_submission(submission_id, request.user)
-        submission = request["submission"]
+        submission = result["submission"]
     except Submission.DoesNotExist:
         return error_page(request, u"提交不存在")
 
