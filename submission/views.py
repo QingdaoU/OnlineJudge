@@ -231,7 +231,7 @@ class SubmissionShareAPIView(APIView):
                 result = _get_submission(submission_id, request.user)
             except Submission.DoesNotExist:
                 return error_response(u"提交不存在")
-            if not request["can_share"]:
+            if not result["can_share"]:
                 return error_page(request, u"提交不存在")
             submission = result["submission"]
             submission.shared = not submission.shared
