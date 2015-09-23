@@ -2,6 +2,7 @@
 from django.db import models
 
 from account.models import User
+from utils.models import RichTextField
 
 
 class ProblemTag(models.Model):
@@ -15,7 +16,7 @@ class AbstractProblem(models.Model):
     # 标题
     title = models.CharField(max_length=50)
     # 问题描述 HTML 格式
-    description = models.TextField()
+    description = RichTextField()
     # 输入描述
     input_description = models.CharField(max_length=10000)
     # 输出描述

@@ -77,20 +77,20 @@ require(["jquery", "avalon", "editor", "uploader", "bsAlert", "csrfToken", "tagE
                 });
         if (avalon.vmodels.editProblem) {
             var vm = avalon.vmodels.editProblem;
-            title: "",
-            description= "";
-            timeLimit= -1;
-            memoryLimit= -1;
-            samples= [];
-            hint= "";
-            visible= true;
-            difficulty= 0;
-            inputDescription= "";
-            outputDescription= "";
-            testCaseIdd= "";
-            uploadSuccess= false;
-            source= "";
-            testCaseList= [];
+            vm.title= "",
+            vm.description= "";
+            vm.timeLimit= -1;
+            vm.memoryLimit= -1;
+            vm.samples= [];
+            vm.hint= "";
+            vm.visible= true;
+            vm.difficulty= 0;
+            vm.inputDescription= "";
+            vm.outputDescription= "";
+            vm.testCaseIdd= "";
+            vm.uploadSuccess= false;
+            vm.source= "";
+            vm.testCaseList= [];
         }
         else
             var vm = avalon.define({

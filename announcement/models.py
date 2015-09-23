@@ -3,13 +3,14 @@ from django.db import models
 
 from account.models import User
 from group.models import Group
+from utils.models import RichTextField
 
 
 class Announcement(models.Model):
     # 标题
     title = models.CharField(max_length=50)
     # 公告的内容 HTML 格式
-    content = models.TextField()
+    content = RichTextField()
     # 创建时间
     create_time = models.DateTimeField(auto_now_add=True)
     # 这个公告是谁创建的

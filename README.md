@@ -4,11 +4,12 @@
 
 文档：https://www.zybuluo.com/virusdefender/note/171932
 
+demo: https://qduoj.com
+
 TODO：
 
  - 完善文档，目前还差很多
  - 完善测试
- - 搭建 demo 站点
 
 ![oj_previewindex.png][1]
 
