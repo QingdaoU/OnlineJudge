@@ -51,6 +51,8 @@ class ContestSubmissionAPIView(APIView):
                 return error_response(u"提交判题任务失败")
             # 修改用户解题状态
             problems_status = request.user.problems_status
+            if "contest_problems" not in problems_status:
+                problems_status["contest_problems"] = {}
             problems_status["contest_problems"][str(data["problem_id"])] = 2
             request.user.problems_status = problems_status
             request.user.save()
