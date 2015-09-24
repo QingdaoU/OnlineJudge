@@ -5,7 +5,8 @@ from django.utils.timezone import now
 from account.models import User
 from problem.models import AbstractProblem
 from group.models import Group
-from utils.models import RichTextField, JsonField
+from utils.models import RichTextField
+from jsonfield import JSONField
 from judge.judger.result import result
 
 
@@ -117,7 +118,7 @@ class ContestRank(models.Model):
     total_time = models.IntegerField(default=0)
     # 数据结构{23: {"is_ac": True, "ac_time": 8999, "error_number": 2, "is_first_ac": True}}
     # key 是比赛题目的id
-    submission_info = JsonField(default={})
+    submission_info = JSONField(default={})
 
     def update_rank(self, submission):
         if not submission.contest_id or submission.contest_id != self.contest_id:

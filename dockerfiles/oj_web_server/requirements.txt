@@ -10,3 +10,4 @@ coverage
 django-extensions
 supervisor
 pillow
+jsonfield
