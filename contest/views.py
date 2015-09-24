@@ -334,18 +334,6 @@ def contest_problems_list_page(request, contest_id):
     """
     contest = Contest.objects.get(id=contest_id)
     contest_problems = ContestProblem.objects.filter(contest=contest).order_by("sort_index")
-    submissions = ContestSubmission.objects.filter(user=request.user, contest=contest)
-    state = {}
-    for item in submissions:
-        state[item.problem_id] = item.ac
-    for item in contest_problems:
-        if item.id in state:
-            if state[item.id]:
-                item.state = 1
-            else:
-                item.state = 2
-        else:
-            item.state = 0
     return render(request, "oj/contest/contest_problems_list.html", {"contest_problems": contest_problems,
                                                                      "contest": {"id": contest_id}})
 

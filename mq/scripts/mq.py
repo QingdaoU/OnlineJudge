@@ -82,5 +82,10 @@ class MessageQueue(object):
                     contest_problem.total_accepted_number += 1
                     contest_problem.save()
 
+                    problems_status = user.problems_status
+                    problems_status["contest_problems"][str(contest_problem.id)] = 1
+                    user.problems_status = problems_status
+                    user.save()
+
 logger.debug("Start message queue")
 MessageQueue().listen_task()
