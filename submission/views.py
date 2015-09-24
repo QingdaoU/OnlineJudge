@@ -53,9 +53,11 @@ class SubmissionAPIView(APIView):
                 logger.error(e)
                 return error_response(u"提交判题任务失败")
             # 修改用户解题状态
-            problems_status = json.loads(request.user.problems_status)
-            problems_status[str(data["problem_id"])] = 2
-            request.user.problems_status = json.dumps(problems_status)
+            problems_status = request.user.problems_status
+            if "problems" not in problems_status:
+                problems_status["problems"] = {}
+            problems_status["problems"][str(data["problem_id"])] = 2
+            request.user.problems_status = problems_status
             request.user.save()
             # 增加redis 中判题队列长度的计数器
             r = redis.Redis(host=redis_config["host"], port=redis_config["port"], db=redis_config["db"])
@@ -124,7 +126,7 @@ def my_submission(request, submission_id):
     """
     try:
         result = _get_submission(submission_id, request.user)
-        submission = request["submission"]
+        submission = result["submission"]
     except Submission.DoesNotExist:
         return error_page(request, u"提交不存在")
 
@@ -231,7 +233,7 @@ class SubmissionShareAPIView(APIView):
                 result = _get_submission(submission_id, request.user)
             except Submission.DoesNotExist:
                 return error_response(u"提交不存在")
-            if not request["can_share"]:
+            if not result["can_share"]:
                 return error_page(request, u"提交不存在")
             submission = result["submission"]
             submission.shared = not submission.shared

@@ -3,6 +3,7 @@
     比赛排名
 {% endblock %}
 {% block body %}
+    {% load contest %}
     <div class="container main">
 
         <ul class="nav nav-tabs nav-tabs-google contest-tab">
@@ -23,13 +24,13 @@
         <div class="row">
             <div class="col-lg-12">
                 <h2 class="text-center">排名(
-                    {% if real_time_rank %}
+                    {% if contest.real_time_rank %}
                         实时
                     {% else %}
                         已封榜
                     {% endif %})
                 </h2>
-                {% if result %}
+                {% if rank %}
                     <table class="table table-bordered text-center">
                         <thead>
                         <tr>
@@ -45,24 +46,20 @@
                         </tr>
                         </thead>
                         <tbody class="rank">
-                        {% for item in result %}
+                        {% for item in rank %}
                             <tr>
                                 <th scope="row">{{ forloop.counter }}</th>
                                 <td>
-                                    {{ item.username }}
+                                    {{ item.user.username }}
                                     {% if show_real_name %}
                                         （{{ item.real_name }}）
                                     {% endif %}
                                 </td>
-                                <td>{{ item.total_ac }} / {{ item.total_submit }}</td>
-                                <td>{% if item.total_time %}{{ item.total_time }}{% else %}--{% endif %}</td>
-                                {% for problem in item.problems %}
-                                    <td class="
-                                            {% if problem %}{% if problem.ac %}{% if problem.first_achieved %}first-achieved{% else %}alert-success{% endif %}{% else %}alert-danger{% endif %}{% endif %}">
-                                        {% if problem.ac %}{{ problem.ac_time }}{% endif %}
-                                        {% if problem.failed_number %}
-                                            (-{{ problem.failed_number }})
-                                        {% endif %}
+                                <td>{{ item.total_ac_number }} / {{ item.total_submission_number }}</td>
+                                <td>{% if item.total_time %}{{ item.total_time|format_seconds }}{% else %}--{% endif %}</td>
+                                {% for problem in contest_problems %}
+                                    <td class="{% get_submission_class item problem %}">
+                                    {% get_submission_content item problem %}
                                     </td>
                                 {% endfor %}
                             </tr>

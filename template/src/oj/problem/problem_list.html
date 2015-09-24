@@ -31,7 +31,7 @@
                         <tbody>
                         {% for item in problems %}
                             <tr>
-                                <th><span class="{% get_problem_status problems_status item.id %}"></span></th>
+                                <th><span class="{% get_problem_status request.user.problems_status.problems item.id %}"></span></th>
                                 <th scope="row"><a href="/problem/{{ item.id }}/">{{ item.id }}</a></th>
                                 <td><a href="/problem/{{ item.id }}/">{{ item.title }}</a></td>
                                 <td>

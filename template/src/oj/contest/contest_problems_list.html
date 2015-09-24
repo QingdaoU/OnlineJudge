@@ -44,20 +44,7 @@
                     {% for item in contest_problems %}
                     <tr>
                         <th>
-
-                            <span class="glyphicon
-                            {% if item.state %}
-                                {% ifequal item.state 1%}
-                                glyphicon-ok ac-flag
-                                {% else %}
-                                glyphicon-minus dealing-flag
-                                {% endifequal %}
-                            {% endif %}
-
-
-
-                             "></span>
-
+                            <span class="{% get_problem_status request.user.problems_status.contest_problems item.id %}"></span>
                         </th>
                         <th scope="row">
                             <a href="/contest/{{ item.contest.id }}/problem/{{ item.id }}/">{{ item.sort_index }}</a>

@@ -40,6 +40,9 @@
                     {{ submission.result|translate_result }}
                 </span>
                 </h4>
+                {% ifnotequal request.user.id submission.user_id %}
+                    <p>作者：{{ user.username }}</p>
+                {% endifnotequal %}
                 {% ifequal submission.result 0 %}
                     <p>时间 : {{ submission.accepted_answer_time }}ms 语言 :
                         {{ submission.language|translate_language }}
@@ -65,17 +68,18 @@
         <div id="code-field">
             <textarea id="code-editor">{{ submission.code }}</textarea>
         </div>
-
-        <div id="share-code" class="col-lg-6 col-md-6">
-            {% if submission.shared %}
-                <button class="btn btn-warning" id="share-code-btn">取消分享</button>
-            {% else %}
-                <button class="btn btn-primary" id="share-code-btn">分享我的代码</button>
-            {% endif %}
-            <textarea class="form-control" id="share-code-textarea"
-                      {% if not submission.shared %}style="display: none" {% endif %}>{{ problem.title }}
+        {% if can_share %}
+            <div id="share-code" class="col-lg-6 col-md-6">
+                {% if submission.shared %}
+                    <button class="btn btn-warning" id="share-code-btn">取消分享</button>
+                {% else %}
+                    <button class="btn btn-primary" id="share-code-btn">分享我的代码</button>
+                {% endif %}
+                <textarea class="form-control" id="share-code-textarea"
+                          {% if not submission.shared %}style="display: none" {% endif %}>{{ problem.title }}
 {{ request.build_absolute_uri }}</textarea>
-        </div>
+            </div>
+        {% endif %}
 
 
     </div>
@@ -102,7 +106,7 @@
                     url: "/api/submission/share/",
                     method: "post",
                     data: {submission_id: location.href.split("/")[4]},
-                    success: function(data){
+                    success: function (data) {
                         location.reload();
                     }
                 })
