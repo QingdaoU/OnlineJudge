@@ -1,4 +1,5 @@
 # coding=utf-8
+import json
 from django.db import models
 
 from utils.xss_filter import XssHtml
@@ -9,8 +10,18 @@ class RichTextField(models.TextField):
 
     def get_prep_value(self, value):
         if not value:
-            return value
+            value = ""
         parser = XssHtml()
         parser.feed(value)
         parser.close()
         return parser.getHtml()
+
+
+class JsonField(models.TextField):
+    __metaclass__ = models.SubfieldBase
+
+    def get_prep_value(self, value):
+        return json.dumps(value)
+
+    def to_python(self, value):
+        return json.loads(value)
