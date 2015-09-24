@@ -46,3 +46,9 @@ class EditUserSerializer(serializers.Serializer):
     password = serializers.CharField(max_length=30, min_length=6, required=False, default=None)
     email = serializers.EmailField(max_length=254)
     admin_type = serializers.IntegerField(default=0)
+
+
+class ApplyResetPasswordSerializer(serializers.Serializer):
+    username = serializers.CharField(max_length=30)
+    email = serializers.EmailField()
+    captcha = serializers.CharField(max_length=4, min_length=4)

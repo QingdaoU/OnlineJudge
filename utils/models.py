@@ -15,13 +15,3 @@ class RichTextField(models.TextField):
         parser.feed(value)
         parser.close()
         return parser.getHtml()
-
-
-class JsonField(models.TextField):
-    __metaclass__ = models.SubfieldBase
-
-    def get_prep_value(self, value):
-        return json.dumps(value)
-
-    def to_python(self, value):
-        return json.loads(value)
