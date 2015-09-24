@@ -10,8 +10,8 @@ from rest_framework.views import APIView
 
 from judge.judger_controller.tasks import judge
 from judge.judger_controller.settings import redis_config
-from account.decorators import login_required
-from account.models import SUPER_ADMIN, User
+from account.decorators import login_required, super_admin_required
+from account.models import SUPER_ADMIN, User, REGULAR_USER
 
 from problem.models import Problem
 from contest.models import ContestProblem, Contest
@@ -53,9 +53,11 @@ class SubmissionAPIView(APIView):
                 logger.error(e)
                 return error_response(u"提交判题任务失败")
             # 修改用户解题状态
-            problems_status = json.loads(request.user.problems_status)
-            problems_status[str(data["problem_id"])] = 2
-            request.user.problems_status = json.dumps(problems_status)
+            problems_status = request.user.problems_status
+            if "problems" not in problems_status:
+                problems_status["problems"] = {}
+            problems_status["problems"][str(data["problem_id"])] = 2
+            request.user.problems_status = problems_status
             request.user.save()
             # 增加redis 中判题队列长度的计数器
             r = redis.Redis(host=redis_config["host"], port=redis_config["port"], db=redis_config["db"])
@@ -104,14 +106,17 @@ def _get_submission(submission_id, user):
     """
     submission = Submission.objects.get(id=submission_id)
     # 超级管理员或者提交者自己或者是一个分享的提交
-    if user.admin_type == SUPER_ADMIN or submission.user_id == user.id or submission.shared:
-        return submission
+    if user.admin_type == SUPER_ADMIN or submission.user_id == user.id:
+        return {"submission": submission, "can_share": True}
     if submission.contest_id:
         contest = Contest.objects.get(id=submission.contest_id)
         # 比赛提交的话，比赛创建者也可见
         if contest.created_by == user:
-            return submission
-    raise Submission.DoesNotExist
+            return {"submission": submission, "can_share": True}
+    if submission.shared:
+        return {"submission": submission, "can_share": False}
+    else:
+        raise Submission.DoesNotExist
 
 
 @login_required
@@ -120,7 +125,8 @@ def my_submission(request, submission_id):
     单个题目的提交详情页
     """
     try:
-        submission = _get_submission(submission_id, request.user)
+        result = _get_submission(submission_id, request.user)
+        submission = result["submission"]
     except Submission.DoesNotExist:
         return error_page(request, u"提交不存在")
 
@@ -143,8 +149,10 @@ def my_submission(request, submission_id):
             info = submission.info
     else:
         info = None
+    user = User.objects.get(id=submission.user_id)
     return render(request, "oj/problem/my_submission.html",
-                  {"submission": submission, "problem": problem, "info": info})
+                  {"submission": submission, "problem": problem, "info": info,
+                   "user": user, "can_share": result["can_share"]})
 
 
 class SubmissionAdminAPIView(APIView):
@@ -222,9 +230,12 @@ class SubmissionShareAPIView(APIView):
         if serializer.is_valid():
             submission_id = serializer.data["submission_id"]
             try:
-                submission = _get_submission(submission_id, request.user)
+                result = _get_submission(submission_id, request.user)
             except Submission.DoesNotExist:
                 return error_response(u"提交不存在")
+            if not result["can_share"]:
+                return error_page(request, u"提交不存在")
+            submission = result["submission"]
             submission.shared = not submission.shared
             submission.save()
             return success_response(submission.shared)
@@ -233,6 +244,7 @@ class SubmissionShareAPIView(APIView):
 
 
 class SubmissionRejudgeAdminAPIView(APIView):
+    @super_admin_required
     def post(self, request):
         serializer = SubmissionRejudgeSerializer(data=request.data)
         if serializer.is_valid():

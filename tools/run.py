@@ -23,6 +23,7 @@ inspect_redis = json.loads(os.popen("docker inspect redis").read())
 if not inspect_redis:
     print "Error when inspect redis ip"
     exit()
+
 redis_ip = inspect_redis[0]["NetworkSettings"]["IPAddress"]
 print "redis ip ", redis_ip
 
@@ -31,6 +32,7 @@ inspect_mysql = json.loads(os.popen("docker inspect mysql").read())
 if not inspect_mysql:
     print "Error when inspect mysql ip"
     exit()
+
 mysql_ip = inspect_mysql[0]["NetworkSettings"]["IPAddress"]
 print "mysql ip ", mysql_ip
 
@@ -44,6 +46,7 @@ for line in f.readlines():
         content += ("\nexport submission_db_host=" + mysql_ip + "\n")
     else:
         content += line
+
 f.close()
 
 

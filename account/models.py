@@ -2,6 +2,8 @@
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser
 
+from jsonfield import JSONField
+
 
 class AdminGroup(models.Model):
     pass
@@ -31,7 +33,9 @@ class User(AbstractBaseUser):
     # 0代表不是管理员 1是普通管理员 2是超级管理员
     admin_type = models.IntegerField(default=0)
     # JSON字典用来表示该用户的问题的解决状态 1为ac，2为正在进行
-    problems_status = models.TextField(default="{}")
+    problems_status = JSONField(default={})
+    # 找回密码用的token
+    # reset_password_token = models.CharField(max_length=40, blank=True, null=True)
 
     USERNAME_FIELD = 'username'
     REQUIRED_FIELDS = []
