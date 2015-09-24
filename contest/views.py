@@ -385,7 +385,7 @@ def contest_rank_page(request, contest_id):
     contest = Contest.objects.get(id=contest_id)
     contest_problems = ContestProblem.objects.filter(contest=contest).order_by("sort_index")
     rank = ContestRank.objects.filter(contest_id=contest_id).order_by("-total_ac_number", "total_time")
-    return render(request, "oj/contest/contest_rank_new.html",
+    return render(request, "oj/contest/contest_rank.html",
                   {"rank": rank, "contest": contest,
                    "contest_problems": contest_problems,
                    "auto_refresh": request.GET.get("auto_refresh", None) == "true",
