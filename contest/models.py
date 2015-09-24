@@ -125,7 +125,7 @@ class ContestRank(models.Model):
             raise ValueError("Error submission type")
 
         # 这道题以前提交过
-        if submission.problem_id in self.problem_info:
+        if submission.problem_id in self.submission_info:
             info = self.submission_info[submission.problem_id]
             # 如果这道题目已经 ac 了就跳过
             if info["is_ac"]:
