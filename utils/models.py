@@ -15,3 +15,7 @@ class RichTextField(models.TextField):
         parser.feed(value)
         parser.close()
         return parser.getHtml()
+
+
+class JsonField(models.TextField):
+    pass
