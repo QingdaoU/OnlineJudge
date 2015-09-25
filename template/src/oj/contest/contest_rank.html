@@ -39,8 +39,8 @@
                             <th class="text-center">AC / 总提交</th>
                             <th class="text-center">用时 + 罚时</th>
                             {% for item in contest_problems %}
-                                <th class="text-center"><a
-                                        href="/contest/{{ contest.id }}/problem/{{ item.id }}/">{{ item.sort_index }}</a>
+                                <th class="text-center">
+                                    <a href="/contest/{{ contest.id }}/problem/{{ item.id }}/">{{ item.sort_index }}</a>
                                 </th>
                             {% endfor %}
                         </tr>

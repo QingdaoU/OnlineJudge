@@ -334,7 +334,7 @@ def contest_problems_list_page(request, contest_id):
     比赛所有题目的列表页
     """
     contest = Contest.objects.get(id=contest_id)
-    contest_problems = ContestProblem.objects.filter(contest=contest).order_by("sort_index")
+    contest_problems = ContestProblem.objects.filter(contest=contest).select_related("contest").order_by("sort_index")
     return render(request, "oj/contest/contest_problems_list.html", {"contest_problems": contest_problems,
                                                                      "contest": {"id": contest_id}})
 
@@ -383,8 +383,8 @@ def contest_list_page(request, page=1):
 @check_user_contest_permission
 def contest_rank_page(request, contest_id):
     contest = Contest.objects.get(id=contest_id)
-    contest_problems = ContestProblem.objects.filter(contest=contest).order_by("sort_index")
-    rank = ContestRank.objects.filter(contest_id=contest_id).order_by("-total_ac_number", "total_time")
+    contest_problems = ContestProblem.objects.filter(contest=contest).order_by("sort_index")[:20]
+    rank = ContestRank.objects.filter(contest_id=contest_id).select_related("user").order_by("-total_ac_number", "total_time")
     return render(request, "oj/contest/contest_rank.html",
                   {"rank": rank, "contest": contest,
                    "contest_problems": contest_problems,
