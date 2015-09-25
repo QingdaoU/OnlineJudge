@@ -222,7 +222,7 @@ require(["jquery", "codeMirror", "csrfToken", "bsAlert", "ZeroClipboard"],
                 url: url,
                 method: "post",
                 data: JSON.stringify(data),
-                contentType: "application/json",
+                contentType: "application/json;charset=UTF-8",
                 success: function (data) {
                     if (!data.code) {
                         submissionId = data.data.submission_id;

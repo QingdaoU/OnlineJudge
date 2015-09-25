@@ -48,10 +48,9 @@ require(["jquery", "avalon", "csrfToken", "bsAlert", "editor", "datetimePicker",
                     beforeSend: csrfTokenHeader,
                     url: "/api/admin/contest/",
                     dataType: "json",
-                    contentType: "application/json",
+                    contentType: "application/json;charset=UTF-8",
                     data: JSON.stringify(ajaxData),
                     method: "put",
-                    contentType: "application/json",
                     success: function (data) {
                         if (!data.code) {
                             bsAlert("修改成功!");
@@ -237,7 +236,7 @@ require(["jquery", "avalon", "csrfToken", "bsAlert", "editor", "datetimePicker",
                         dataType: "json",
                         data: JSON.stringify(ajaxData),
                         method: "post",
-                        contentType: "application/json",
+                        contentType: "application/json;charset=UTF-8",
                         success: function (data) {
                             if (!data.code) {
                                 bsAlert("题目添加成功！题目现在处于隐藏状态，请到题目列表手动修改，并添加分类和难度信息！");
