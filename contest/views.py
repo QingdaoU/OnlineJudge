@@ -1,6 +1,7 @@
 # coding=utf-8
 import json
 import datetime
+import redis
 
 from django.shortcuts import render
 from django.db import IntegrityError
@@ -8,6 +9,7 @@ from django.utils import dateparse
 from django.db.models import Q, Sum
 from django.core.paginator import Paginator
 from django.utils.timezone import now
+from django.conf import settings
 
 from rest_framework.views import APIView
 
@@ -383,8 +385,19 @@ def contest_list_page(request, page=1):
 @check_user_contest_permission
 def contest_rank_page(request, contest_id):
     contest = Contest.objects.get(id=contest_id)
-    contest_problems = ContestProblem.objects.filter(contest=contest).order_by("sort_index")[:20]
-    rank = ContestRank.objects.filter(contest_id=contest_id).select_related("user").order_by("-total_ac_number", "total_time")
+    contest_problems = ContestProblem.objects.filter(contest=contest).order_by("sort_index")
+    r = redis.Redis(host=settings.REDIS_CACHE["host"], port=settings.REDIS_CACHE["port"], db=settings.REDIS_CACHE["db"])
+    cache_key = str(contest_id) + "_rank_cache"
+    rank = r.get(cache_key)
+    if not rank:
+        rank = ContestRank.objects.filter(contest_id=contest_id).\
+            select_related("user").\
+            order_by("-total_ac_number", "total_time").\
+            values("id", "user__id", "user__username", "user__real_name", "contest_id", "submission_info",
+                   "total_submission_number", "total_ac_number", "total_time")
+        r.set(cache_key, json.dumps([dict(item) for item in rank]))
+    else:
+        rank = json.loads(rank)
     return render(request, "oj/contest/contest_rank.html",
                   {"rank": rank, "contest": contest,
                    "contest_problems": contest_problems,
