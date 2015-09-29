@@ -120,6 +120,9 @@ class ContestRank(models.Model):
     # key 是比赛题目的id
     submission_info = JSONField(default={})
 
+    class Meta:
+        db_table = "contest_rank"
+
     def update_rank(self, submission):
         if not submission.contest_id or submission.contest_id != self.contest_id:
             raise ValueError("Error submission type")
