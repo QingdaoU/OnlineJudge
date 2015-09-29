@@ -91,7 +91,7 @@ require(["jquery", "avalon", "csrfToken", "bsAlert", "editor", "validator"],
                         $.ajax({
                             beforeSend: csrfTokenHeader,
                             url: "/api/admin/announcement/",
-                            contentType: "application/json",
+                            contentType: "application/json;charset=UTF-8",
                             dataType: "json",
                             method: "put",
                             data: JSON.stringify({
@@ -209,7 +209,7 @@ require(["jquery", "avalon", "csrfToken", "bsAlert", "editor", "validator"],
                     $.ajax({
                         beforeSend: csrfTokenHeader,
                         url: "/api/admin/announcement/",
-                        contentType: "application/json",
+                        contentType: "application/json;charset=UTF-8",
                         data: JSON.stringify({
                             title: title,
                             content: content,

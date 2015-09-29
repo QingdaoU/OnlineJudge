@@ -62,6 +62,8 @@ class JudgeClient(object):
                   " --max-real-time " + str(self._max_real_time / 1000.0 * 2) + \
                   " --max-memory " + str(self._max_memory * 1000 * 1000) + \
                   " --network false" + \
+                  " --remount-dev true " + \
+                  " --reset-env true " + \
                   " --syscalls '" + self._language["syscalls"] + "'" + \
                   " --max-nprocess 20" + \
                   " --uid " + str(lrun_uid) + \

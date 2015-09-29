@@ -13,9 +13,10 @@ def judge(submission_id, time_limit, memory_limit, test_case_id):
     try:
         command = "%s run --privileged --rm " \
                   "--link mysql " \
-                  "-v %s:/var/judger/test_case/ " \
-                  "-v %s:/var/judger/code/ " \
+                  "-v %s:/var/judger/test_case/:ro " \
+                  "-v %s:/var/judger/code/:ro " \
                   "-v %s:/var/judger/code/log/ " \
+                  "--device /dev/null:/dev/null " \
                   "%s " \
                   "python judge/judger/run.py " \
                   "--solution_id %s --time_limit %s --memory_limit %s --test_case_id %s" % \

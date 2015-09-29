@@ -9,14 +9,14 @@ require(["jquery", "csrfToken", "bsAlert"], function ($, csrfTokenHeader, bsAler
         }
 
         var groupId = window.location.pathname.split("/")[2];
-        data = {group_id: groupId,message:message}
+        var data = {group_id: groupId,message:message};
         $.ajax({
             url: "/api/group_join/",
             method: "post",
             dataType: "json",
             beforeSend: csrfTokenHeader,
             data: JSON.stringify(data),
-            contentType: "application/json",
+            contentType: "application/json;charset=UTF-8",
             success: function (data) {
                 if (data.code) {
                     bsAlert(data.data);
