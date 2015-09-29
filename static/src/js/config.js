@@ -38,6 +38,7 @@ var require = {
         modal: "lib/bootstrap/modal",
         dropdown: "lib/bootstrap/dropdown",
         transition: "lib/bootstrap/transition",
+        collapse: "lib/bootstrap/collapse",
 
         //百度webuploader -> uploader
         webUploader: "lib/webuploader/webuploader",
