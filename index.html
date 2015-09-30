@@ -1,57 +1,866 @@
-<!DOCTYPE html>
-<html lang="en-us">
-  <head>
-    <meta charset="UTF-8">
-    <title>Onlinejudge by QingdaoU</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" type="text/css" href="stylesheets/normalize.css" media="screen">
-    <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
-    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
-    <link rel="stylesheet" type="text/css" href="stylesheets/github-light.css" media="screen">
-  </head>
-  <body>
-    <section class="page-header">
-      <h1 class="project-name">Onlinejudge</h1>
-      <h2 class="project-tagline">青岛大学 Online Judge</h2>
-      <a href="https://github.com/QingdaoU/OnlineJudge" class="btn">View on GitHub</a>
-      <a href="https://github.com/QingdaoU/OnlineJudge/zipball/master" class="btn">Download .zip</a>
-      <a href="https://github.com/QingdaoU/OnlineJudge/tarball/master" class="btn">Download .tar.gz</a>
-    </section>
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+<style>
+/* 
+Name: Github ReadMe style for Mou app
+Version: v1.1
+Author: hzlzh(hzlzh.dev@gmail.com)
+URL: https://github.com/hzlzh/Mou-Theme
+*/
+@charset "UTF-8";
+html {
+    font-family: sans-serif;
+    -ms-text-size-adjust: 100%;
+    -webkit-text-size-adjust: 100%
+}
 
-    <section class="main-content">
-      <h3>
-<a id="welcome-to-github-pages" class="anchor" href="#welcome-to-github-pages" aria-hidden="true"><span class="octicon octicon-link"></span></a>Welcome to GitHub Pages.</h3>
+body {
+    margin: 0
+}
 
-<p>This automatic page generator is the easiest way to create beautiful pages for all of your projects. Author your page content here <a href="https://guides.github.com/features/mastering-markdown/">using GitHub Flavored Markdown</a>, select a template crafted by a designer, and publish. After your page is generated, you can check out the new <code>gh-pages</code> branch locally. If you’re using GitHub Desktop, simply sync your repository and you’ll see the new branch.</p>
+article,aside,details,figcaption,figure,footer,header,hgroup,main,nav,section,summary {
+    display: block
+}
 
-<h3>
-<a id="designer-templates" class="anchor" href="#designer-templates" aria-hidden="true"><span class="octicon octicon-link"></span></a>Designer Templates</h3>
+audio,canvas,progress,video {
+    display: inline-block;
+    vertical-align: baseline
+}
 
-<p>We’ve crafted some handsome templates for you to use. Go ahead and click 'Continue to layouts' to browse through them. You can easily go back to edit your page before publishing. After publishing your page, you can revisit the page generator and switch to another theme. Your Page content will be preserved.</p>
+audio:not([controls]) {
+    display: none;
+    height: 0
+}
 
-<h3>
-<a id="creating-pages-manually" class="anchor" href="#creating-pages-manually" aria-hidden="true"><span class="octicon octicon-link"></span></a>Creating pages manually</h3>
+[hidden],template {
+    display: none
+}
 
-<p>If you prefer to not use the automatic generator, push a branch named <code>gh-pages</code> to your repository to create a page manually. In addition to supporting regular HTML content, GitHub Pages support Jekyll, a simple, blog aware static site generator. Jekyll makes it easy to create site-wide headers and footers without having to copy them across every page. It also offers intelligent blog support and other advanced templating features.</p>
+a {
+    background: transparent
+}
 
-<h3>
-<a id="authors-and-contributors" class="anchor" href="#authors-and-contributors" aria-hidden="true"><span class="octicon octicon-link"></span></a>Authors and Contributors</h3>
+a:active,a:hover {
+    outline: 0
+}
 
-<p>You can <a href="https://github.com/blog/821" class="user-mention">@mention</a> a GitHub username to generate a link to their profile. The resulting <code>&lt;a&gt;</code> element will link to the contributor’s GitHub Profile. For example: In 2007, Chris Wanstrath (<a href="https://github.com/defunkt" class="user-mention">@defunkt</a>), PJ Hyett (<a href="https://github.com/pjhyett" class="user-mention">@pjhyett</a>), and Tom Preston-Werner (<a href="https://github.com/mojombo" class="user-mention">@mojombo</a>) founded GitHub.</p>
+abbr[title] {
+    border-bottom: 1px dotted
+}
 
-<h3>
-<a id="support-or-contact" class="anchor" href="#support-or-contact" aria-hidden="true"><span class="octicon octicon-link"></span></a>Support or Contact</h3>
+b,strong {
+    font-weight: bold
+}
 
-<p>Having trouble with Pages? Check out our <a href="https://help.github.com/pages">documentation</a> or <a href="https://github.com/contact">contact support</a> and we’ll help you sort it out.</p>
+dfn {
+    font-style: italic
+}
 
-      <footer class="site-footer">
-        <span class="site-footer-owner"><a href="https://github.com/QingdaoU/OnlineJudge">Onlinejudge</a> is maintained by <a href="https://github.com/QingdaoU">QingdaoU</a>.</span>
+h1 {
+    font-size: 2em;
+    margin: 0.67em 0
+}
 
-        <span class="site-footer-credits">This page was generated by <a href="https://pages.github.com">GitHub Pages</a> using the <a href="https://github.com/jasonlong/cayman-theme">Cayman theme</a> by <a href="https://twitter.com/jasonlong">Jason Long</a>.</span>
-      </footer>
+mark {
+    background: #ff0;
+    color: #000
+}
 
-    </section>
+small {
+    font-size: 80%
+}
 
-  
-  </body>
+sub,sup {
+    font-size: 75%;
+    line-height: 0;
+    position: relative;
+    vertical-align: baseline
+}
+
+sup {
+    top: -0.5em
+}
+
+sub {
+    bottom: -0.25em
+}
+
+img {
+    border: 0
+}
+
+svg:not(:root) {
+    overflow: hidden
+}
+
+figure {
+    margin: 1em 40px
+}
+
+hr {
+    -moz-box-sizing: content-box;
+    box-sizing: content-box;
+    height: 0
+}
+
+pre {
+    overflow: auto
+}
+
+code,kbd,pre,samp {
+    font-family: monospace, monospace;
+    font-size: 1em
+}
+
+button,input,optgroup,select,textarea {
+    color: inherit;
+    font: inherit;
+    margin: 0
+}
+
+button {
+    overflow: visible
+}
+
+button,select {
+    text-transform: none
+}
+
+button,html input[type="button"],input[type="reset"],input[type="submit"] {
+    -webkit-appearance: button;
+    cursor: pointer
+}
+
+button[disabled],html input[disabled] {
+    cursor: default
+}
+
+button::-moz-focus-inner,input::-moz-focus-inner {
+    border: 0;
+    padding: 0
+}
+
+input {
+    line-height: normal
+}
+
+input[type="checkbox"],input[type="radio"] {
+    box-sizing: border-box;
+    padding: 0
+}
+
+input[type="number"]::-webkit-inner-spin-button,input[type="number"]::-webkit-outer-spin-button {
+    height: auto
+}
+
+input[type="search"] {
+    -webkit-appearance: textfield;
+    -moz-box-sizing: content-box;
+    -webkit-box-sizing: content-box;
+    box-sizing: content-box
+}
+
+input[type="search"]::-webkit-search-cancel-button,input[type="search"]::-webkit-search-decoration {
+    -webkit-appearance: none
+}
+
+fieldset {
+    border: 1px solid #c0c0c0;
+    margin: 0 2px;
+    padding: 0.35em 0.625em 0.75em
+}
+
+legend {
+    border: 0;
+    padding: 0
+}
+
+textarea {
+    overflow: auto
+}
+
+optgroup {
+    font-weight: bold
+}
+
+table {
+    border-collapse: collapse;
+    border-spacing: 0
+}
+
+td,th {
+    padding: 0
+}
+
+* {
+    -moz-box-sizing: border-box;
+    box-sizing: border-box
+}
+
+input,select,textarea,button {
+    font: 13px/1.4 Helvetica, arial, freesans, clean, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol"
+}
+
+body {
+    padding: 30px;
+    max-width: 858px;
+    margin: 0 auto;
+    font: 13px/1.4 Helvetica, arial, freesans, clean, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol";
+    color: #333;
+    background-color: #fff
+}
+
+a {
+    color: #4183c4;
+    text-decoration: none
+}
+
+a:hover,a:focus,a:active {
+    text-decoration: underline
+}
+
+hr,.rule {
+    height: 0;
+    margin: 15px 0;
+    overflow: hidden;
+    background: transparent;
+    border: 0;
+    border-bottom: 1px solid #ddd
+}
+
+hr:before,.rule:before {
+    display: table;
+    content: ""
+}
+
+hr:after,.rule:after {
+    display: table;
+    clear: both;
+    content: ""
+}
+
+fieldset {
+    padding: 0;
+    margin: 0;
+    border: 0
+}
+
+label {
+    font-size: 13px;
+    font-weight: bold
+}
+
+input[type="text"],#adv_code_search .search-page-label,input[type="password"],input[type="email"],input[type="number"],input[type="tel"],input[type="url"],textarea {
+    min-height: 34px;
+    padding: 7px 8px;
+    font-size: 13px;
+    color: #333;
+    vertical-align: middle;
+    background-color: #fff;
+    background-repeat: no-repeat;
+    background-position: right center;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    outline: none;
+    box-shadow: inset 0 1px 2px rgba(0,0,0,0.075)
+}
+
+input[type="text"].focus,#adv_code_search .focus.search-page-label,input[type="text"]:focus,.focused .drag-and-drop,#adv_code_search .search-page-label:focus,input[type="password"].focus,input[type="password"]:focus,input[type="email"].focus,input[type="email"]:focus,input[type="number"].focus,input[type="number"]:focus,input[type="tel"].focus,input[type="tel"]:focus,input[type="url"].focus,input[type="url"]:focus,textarea.focus,textarea:focus {
+    border-color: #51a7e8;
+    box-shadow: inset 0 1px 2px rgba(0,0,0,0.075),0 0 5px rgba(81,167,232,0.5)
+}
+
+input.input-contrast,.input-contrast {
+    background-color: #fafafa
+}
+
+input.input-contrast:focus,.input-contrast:focus {
+    background-color: #fff
+}
+
+::-webkit-input-placeholder,:-moz-placeholder {
+    color: #aaa
+}
+
+::-webkit-validation-bubble-message {
+    font-size: 12px;
+    color: #fff;
+    background: #9c2400;
+    border: 0;
+    border-radius: 3px;
+    -webkit-box-shadow: 1px 1px 1px rgba(0,0,0,0.1)
+}
+
+input::-webkit-validation-bubble-icon {
+    display: none
+}
+
+::-webkit-validation-bubble-arrow {
+    background-color: #9c2400;
+    border: solid 1px #9c2400;
+    -webkit-box-shadow: 1px 1px 1px rgba(0,0,0,0.1)
+}
+
+body{
+    font-family: "Helvetica Neue", Helvetica, "Segoe UI", Arial, freesans, sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+    word-wrap: break-word
+}
+
+body>*:first-child {
+    margin-top: 0 !important
+}
+
+body>*:last-child {
+    margin-bottom: 0 !important
+}
+
+.absent {
+    color: #c00
+}
+
+.anchor {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    display: block;
+    padding-right: 6px;
+    padding-left: 30px;
+    margin-left: -30px
+}
+
+.anchor:focus {
+    outline: none
+}
+
+h1,h2,h3,h4,h5,h6 {
+    position: relative;
+    margin-top: 1em;
+    margin-bottom: 16px;
+    font-weight: bold;
+    line-height: 1.4
+}
+
+h1 .octicon-link,h2 .octicon-link,h3 .octicon-link,h4 .octicon-link,h5 .octicon-link,h6 .octicon-link {
+    display: none;
+    color: #000;
+    vertical-align: middle
+}
+
+h1:hover .anchor,h2:hover .anchor,h3:hover .anchor,h4:hover .anchor,h5:hover .anchor,h6:hover .anchor {
+    height: 1em;
+    padding-left: 8px;
+    margin-left: -30px;
+    line-height: 1;
+    text-decoration: none
+}
+
+h1:hover .anchor .octicon-link,h2:hover .anchor .octicon-link,h3:hover .anchor .octicon-link,h4:hover .anchor .octicon-link,h5:hover .anchor .octicon-link,h6:hover .anchor .octicon-link {
+    display: inline-block
+}
+
+h1 tt,h1 code,h2 tt,h2 code,h3 tt,h3 code,h4 tt,h4 code,h5 tt,h5 code,h6 tt,h6 code {
+    font-size: inherit
+}
+
+h1 {
+    padding-bottom: 0.3em;
+    font-size: 2.25em;
+    line-height: 1.2;
+    border-bottom: 1px solid #eee
+}
+
+h2 {
+    padding-bottom: 0.3em;
+    font-size: 1.75em;
+    line-height: 1.225;
+    border-bottom: 1px solid #eee
+}
+
+h3 {
+    font-size: 1.5em;
+    line-height: 1.43
+}
+
+h4 {
+    font-size: 1.25em
+}
+
+h5 {
+    font-size: 1em
+}
+
+h6 {
+    font-size: 1em;
+    color: #777
+}
+
+p,blockquote,ul,ol,dl,table,pre {
+    margin-top: 0;
+    margin-bottom: 16px
+}
+
+hr {
+    height: 4px;
+    padding: 0;
+    margin: 16px 0;
+    background-color: #e7e7e7;
+    border: 0 none
+}
+
+ul,ol {
+    padding-left: 2em
+}
+
+ul.no-list,ol.no-list {
+    padding: 0;
+    list-style-type: none
+}
+
+ul ul,ul ol,ol ol,ol ul {
+    margin-top: 0;
+    margin-bottom: 0
+}
+
+li>p {
+    margin-top: 16px
+}
+
+dl {
+    padding: 0
+}
+
+dl dt {
+    padding: 0;
+    margin-top: 16px;
+    font-size: 1em;
+    font-style: italic;
+    font-weight: bold
+}
+
+dl dd {
+    padding: 0 16px;
+    margin-bottom: 16px
+}
+
+blockquote {
+    padding: 0 15px;
+    color: #777;
+    border-left: 4px solid #ddd
+}
+
+blockquote>:first-child {
+    margin-top: 0
+}
+
+blockquote>:last-child {
+    margin-bottom: 0
+}
+
+table {
+    display: block;
+    width: 100%;
+    overflow: auto;
+    word-break: normal;
+    word-break: keep-all
+}
+
+table th {
+    font-weight: bold
+}
+
+table th,table td {
+    padding: 6px 13px;
+    border: 1px solid #ddd
+}
+
+table tr {
+    background-color: #fff;
+    border-top: 1px solid #ccc
+}
+
+table tr:nth-child(2n) {
+    background-color: #f8f8f8
+}
+
+img {
+    max-width: 100%;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box
+}
+
+span.frame {
+    display: block;
+    overflow: hidden
+}
+
+span.frame>span {
+    display: block;
+    float: left;
+    width: auto;
+    padding: 7px;
+    margin: 13px 0 0;
+    overflow: hidden;
+    border: 1px solid #ddd
+}
+
+span.frame span img {
+    display: block;
+    float: left
+}
+
+span.frame span span {
+    display: block;
+    padding: 5px 0 0;
+    clear: both;
+    color: #333
+}
+
+span.align-center {
+    display: block;
+    overflow: hidden;
+    clear: both
+}
+
+span.align-center>span {
+    display: block;
+    margin: 13px auto 0;
+    overflow: hidden;
+    text-align: center
+}
+
+span.align-center span img {
+    margin: 0 auto;
+    text-align: center
+}
+
+span.align-right {
+    display: block;
+    overflow: hidden;
+    clear: both
+}
+
+span.align-right>span {
+    display: block;
+    margin: 13px 0 0;
+    overflow: hidden;
+    text-align: right
+}
+
+span.align-right span img {
+    margin: 0;
+    text-align: right
+}
+
+span.float-left {
+    display: block;
+    float: left;
+    margin-right: 13px;
+    overflow: hidden
+}
+
+span.float-left span {
+    margin: 13px 0 0
+}
+
+span.float-right {
+    display: block;
+    float: right;
+    margin-left: 13px;
+    overflow: hidden
+}
+
+span.float-right>span {
+    display: block;
+    margin: 13px auto 0;
+    overflow: hidden;
+    text-align: right
+}
+
+code,tt {
+    padding: 0;
+    padding-top: 0.2em;
+    padding-bottom: 0.2em;
+    margin: 0;
+    font-size: 85%;
+    background-color: rgba(0,0,0,0.04);
+    border-radius: 3px
+}
+
+code:before,code:after,tt:before,tt:after {
+    letter-spacing: -0.2em;
+    content: "\00a0"
+}
+
+code br,tt br {
+    display: none
+}
+
+del code {
+    text-decoration: inherit;
+    vertical-align: text-top
+}
+
+pre>code {
+    padding: 0;
+    margin: 0;
+    font-size: 100%;
+    word-break: normal;
+    white-space: pre;
+    background: transparent;
+    border: 0
+}
+
+.highlight {
+    margin-bottom: 16px
+}
+
+.highlight pre,pre {
+    padding: 16px;
+    overflow: auto;
+    font-size: 85%;
+    line-height: 1.45;
+    background-color: #f7f7f7;
+    border-radius: 3px
+}
+
+.highlight pre {
+    margin-bottom: 0;
+    word-break: normal
+}
+
+pre {
+    word-wrap: normal
+}
+
+pre code,pre tt {
+    display: inline;
+    max-width: initial;
+    padding: 0;
+    margin: 0;
+    overflow: initial;
+    line-height: inherit;
+    word-wrap: normal;
+    background-color: transparent;
+    border: 0
+}
+
+pre code:before,pre code:after,pre tt:before,pre tt:after {
+    content: normal
+}
+
+
+</style>
+<title>青岛大学在线评测平台 Document</title>
+<script type="text/x-mathjax-config">MathJax.Hub.Config({tex2jax:{inlineMath:[['$$$','$$$']]}});</script><script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+</head>
+<body>
+<h1>青岛大学在线评测平台 Document</h1>
+
+<p>https://github.com/QingdaoU/OnlineJudge
+<strong>qduoj</strong> 可以提供多种语言代码的运行和评测，举办各种类型的比赛，分析比赛结果等，可以用于日常教学练习和考试，目前青大 ACM 队内部使用。</p>
+
+<h2>系统架构</h2>
+
+<p><img src="https://dn-virusdefender-blog-cdn.qbox.me/oj%20%E6%9E%B6%E6%9E%84.png" alt="此处输入图片的描述" /></p>
+
+<p>如图，系统主要分为 <code>Web server</code>、<code>MySQL数据库</code>、<code>判题服务器</code>和 <code>Redis</code> 四部分，它们可以任意的合并或者拆分到一台服务器上。</p>
+
+<p>系统使用两个 MySQL 数据库，一个存储用户信息、题目信息、比赛信息等，另一个只存储用户提交的代码和运行结果。因为用户提交的代码和运行结果通常比较长，数据量和体积比较大，所以将其拆分出来。</p>
+
+<p>两个 Redis 实例也是分别承担不同的任务，一个是 web 服务器的缓存，另一个是消息队列和任务队列，承担 web 服务器和判题服务器的通信任务。</p>
+
+<p>判题服务器使用 <code>docker</code> 和 <a href="https://github.com/quark-zju/lrun"><code>lrun</code></a> 实现，每次收到一个新的判题任务就会创建一个新的 docker 容器，启动相关的判题程序，结束后自动删除。然后会向 <code>submission</code> 数据库写入本次的判题结果，同时向消息队列中写入，这样 web 服务器在不轮询数据库的情况下就能获取最新的判题结果。</p>
+
+<h2>安装方法</h2>
+
+<h3>web 服务器和数据库</h3>
+
+<p>以下安装步骤均为 Ubuntu 系统下的演示，其他的系统可能命令稍有不同。</p>
+
+<p>系统使用 docker 创建运行环境。源代码<code>dockerfiles/oj_web_server</code>和<code>dockerfiles/judger</code>中有两个 Dockerfile，是 Django web 服务器的环境和判题的运行环境。同时还依赖于 <a href="https://hub.docker.com/r/mysql/mysql-server/">MySQL</a> 和 <a href="https://hub.docker.com/_/redis/">redis</a> 的 docker 镜像。</p>
+
+<p>首先安装 Docker，进入上面<code>oj_web_server</code>目录，命令是 <code>docker build -t oj_web_server .</code>，其中<code>-t</code>参数<code>oj_web_server</code>就是创建的镜像的名字，注意不要漏了最后的那个<code>.</code>，代表是当前目录。接下来创建判题的运行环境，进入 <code>judger</code> 目录，运行<code>docker build -t judger .</code>即可。MySQL 和 redis 直接使用官方镜像，命令分别是<code>docker pull mysql/mysql-server</code>和<code>docker pull redis</code>。</p>
+
+<p>国内的网络下载 docker 和 build docker 镜像不太方便，可以使用 daocloud 的镜像 <a href="https://dashboard.daocloud.io/mirror">https://dashboard.daocloud.io/mirror</a>。安装后运行<code>dao pull ubuntu:14.04</code>和<code>dao pull python:2.7</code>之后再 build，应该就会快很多了。如果不介意的话，可以用下我的邀请链接</p>
+
+<blockquote><p>我正在使用 DaoCloud 提供的一站式容器云平台 ，你也快来加入吧！ 自动化持续集成，超高速 Docker
+镜像构建，还支持一键部署的容器运行集群哦！点此注册：
+https://account.daocloud.io/signup?invite_code=95q5q8dw0n1xv22zc69y
+，还有机会获得全球首本《Docker源码分析》和树莓派！</p></blockquote>
+
+<p>这个时候运行<code>docker images</code>就可以看到刚才创建的镜像了。
+<code>
+REPOSITORY                              TAG                 IMAGE ID            CREATED             VIRTUAL SIZE
+oj_web_server                           latest              0d5fd23cb4aa        5 minutes ago       739.1 MB
+judger                                  latest              3d15638ddab8        About an hour ago   951.9 MB
+redis                                   latest              2f2578ff984f        4 days ago          109.2 MB
+python                                  2.7                 7a7d87336a33        4 days ago          675.4 MB
+mysql/mysql-server                      latest              ba04a84ec299        5 days ago          285.8 MB
+ubuntu                                  14.04               91e54dfb1179        3 weeks ago         188.4 MB
+</code></p>
+
+<p>在<code>oj</code>目录中有几个配置文件，是通过环境变量<code>oj_env</code>来控制加载哪一个的，如果<code>oj_env=local</code>或者没有这个环境变量就使用<code>local_settings.py</code>，否则使用<code>server_settings.py</code>。通用设置在<code>settings.py</code>中。</p>
+
+<p>两个设置项目的不同点主要包括</p>
+
+<ul>
+<li><code>BASEBASE</code> 数据库地址，<code>default</code>是除了用户提交之外的所有的数据，submission 是用户提交数据库。</li>
+<li><code>REDIS_CACHE</code> redis 网页缓存服务器</li>
+<li><code>STATICFILES_DIRS</code> 静态文件目录，只有在 <code>DEBUG=True</code> 的时候 runserver 才会去处理。css、js 等都在 <code>static</code> 目录中，用户上传的图片在根目录下的 <code>upload</code> 目录中。</li>
+<li><code>TEMPLATE_DIRS</code> 网页模板目录。因为静态文件需要加 md5来处理缓存问题，所以需要修改模板文件，处理后的模板放在 <code>release</code> 里面，源代码在 <code>src</code> 里面。</li>
+</ul>
+
+
+<p>还有两个设置项需要注意，就是 <code>TEST_CASE_DIR</code>、<code>LOG_PATH</code> 和 <code>IMAGE_UPLOAD_DIR</code>，暂时没有区分配置文件，都在源代码根目录下。但是在 docker 中运行的时候，我们需要在命令中对这三个文件加进行映射，让实际的文件写入主机磁盘，否则 docker 容器删除后这些文件也丢失了。我们创建<code>/root/log</code>、<code>/root/test_case</code>和<code>/root/upload</code>三个目录。因为 MySQL 也是运行在 docker 中的，也需要对数据库的数据存储目录进行映射， 还需要创建<code>/root/data</code>。</p>
+
+<p>启动 MySQL，命令是<code>docker run --name mysql -v /root/data:/var/lib/mysql -e MYSQL_ROOT_PASSWORD=root  -d mysql/mysql-server:latest</code>。然后 <code>docker ps -a</code>就能看到这个容器了。以后手动的去操作 MySQL 都可以使用这个命令。</p>
+
+<pre><code>CONTAINER ID        IMAGE                       COMMAND                  CREATED             STATUS              PORTS               NAMES
+360073468c74        mysql/mysql-server:latest   "/entrypoint.sh mysql"   3 seconds ago       Up 3 seconds        3306/tcp            mysql
+</code></pre>
+
+<p>要注意的是
+ - 如果你的 MySQL 备份路径不是/root/data 的话，注意替换命令中的路径。
+ - <code>--name</code> 参数是 <code>mysql</code>，这个只能存在一个，如果<code>docker ps -a</code>中还有一个同名的，会造成启动失败，需要先删除就容器<code>docker rm CONTAINER_ID</code>。
+ - <code>MYSQL_ROOT_PASSWORD=root</code>说明 <code>root</code> 密码是 <code>root</code>，这个可以自己设置，运行在容器中的代码可以通过环境变量获取到这个密码。
+ - MySQL 5.6及以上版本会默认打开<code>performance_schema=OFF</code>，导致 MySQL 的 docker 容器占用大量内存，512M 内存的基本不能运行，问题分析见<a href="https://virusdefender.net/index.php/archives/471/">这里</a>。如果确实内存不足，可以在本地新建一个 my.cnf，复制以下内容，</p>
+
+<pre><code>[mysqld]
+skip-host-cache
+skip-name-resolve
+datadir=/var/lib/mysql
+socket=/var/lib/mysql/mysql.sock
+secure-file-priv=/var/lib/mysql-files
+user=mysql
+assorted security risks
+symbolic-links=0
+log-error=/var/log/mysqld.log
+pid-file=/var/run/mysqld/mysqld.pid
+performance_schema=OFF
+</code></pre>
+
+<p>然后启动 MySQL 的命令再加上<code>-v /root/data/my.cnf:/etc/my.cnf</code>，使用自定义的配置文件，和官方的相比，就添加了最后一行。</p>
+
+<p>接下来我们就能连接到 docker 中的数据库了，命令是<code>docker run -it --link mysql:mysql --rm mysql/mysql-server:latest sh -c 'exec mysql -h"$MYSQL_PORT_3306_TCP_ADDR" -P"$MYSQL_PORT_3306_TCP_PORT" -uroot -p"$MYSQL_ENV_MYSQL_ROOT_PASSWORD"'</code>
+然后运行下面两个 sql 语句。
+<code>create database oj default character set utf8;</code>，<code>create database oj_submission default character set utf8;</code>。这个时候，在 <code>/root/data</code> 目录就能看到同名的目录了。</p>
+
+<p>然后我们创建数据库表，首先需要进入到<code>oj_web_server</code>中，命令是<code>docker run -i -t -e oj_env=server -v /root/qduoj:/code -v /root/test_case:/code/test_case -v /root/log:/code/log -v /root/upload:/code/upload --link mysql --rm oj_web_server /bin/bash</code>，然后使用命令<code>python manage.py migrate</code>和<code>python manage.py migrate --database=submission</code>，如果没有错误，就可以了。然后运行<code>python manage.py shell</code>创建超级管理员用户。
+```
+root@93cfb0df88e5:/code# python manage.py shell
+Python 2.7.10 (default, Sep  9 2015, 20:21:51)
+[GCC 4.9.2] on linux2
+Type "help", "copyright", "credits" or "license" for more information.
+(InteractiveConsole)</p>
+
+<blockquote><blockquote><blockquote><p>from account.models import User
+u = User.objects.create(username="root", admin_type=2)
+u.set_password("root")
+u.save()
+<code>``
+安装完成，</code>exit`退出就行了。</p></blockquote></blockquote></blockquote>
+
+<p>接下来我们要在服务器上进行 js 的打包和模板中静态文件加 md5 戳的操作，可以将多个 js 合并成一个，同时避免服务器文件修改后浏览器没及时更新的问题，以后每次更新代码也要进行相同的操作。这个操作需要安装 node.js，自行安装就行。然后在 manage.py 所在的目录运行<code>python tools/release_static.py</code>就可以了。</p>
+
+<p>启动 redis</p>
+
+<pre><code>docker run --name redis -d redis
+</code></pre>
+
+<p>接下来我们就可以用 gunicorn 真正的去运行 web 程序了，命令是</p>
+
+<pre><code>docker run --name oj_web_server -e oj_env=server -v /root/qduoj:/code -v /root/test_case:/code/test_case -v /root/log:/code/log -v /root/upload:/code/upload -v /root/qduoj/dockerfiles/oj_web_server/supervisord.conf:/etc/supervisord.conf -v /root/qduoj/dockerfiles/oj_web_server/gunicorn.conf:/etc/gunicorn.conf -v /root/qduoj/dockerfiles/oj_web_server/mq.conf:/etc/mq.conf -d -p 127.0.0.1:8080:8080 --link mysql --link=redis oj_web_server
+</code></pre>
+
+<p>安装 nginx，进行一下反向代理和静态文件的处理就好了。</p>
+
+<pre><code>server {
+    listen 80;
+    location /static/upload {
+        alias /root/upload;
+    }
+    location /static {
+        alias /root/qduoj/static/release;
+    }
+    location / {
+        proxy_pass http://127.0.0.1:8080;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    }
+}
+</code></pre>
+
+<p>这个时候尝试访问你的 ip 或者域名应该就可以看到网页界面了。</p>
+
+<h3>判题</h3>
+
+<p>判题队列使用的 celery 不是运行在 docker 里面的，所有它运行需要的数据库配置等都需要手动的获取。主要包括 submission 数据库地址，redis 地址，主机上测试用例目录和源代码目录。因为数据库和 redis 都是在 docker 中运行的，我们首先要获取这两个地址。</p>
+
+<pre><code>docker inspect redis
+docker inspect mysql
+</code></pre>
+
+<p>在这两个输出中寻找 IPAddress，记住，然后打开<code>/etc/profile</code>，在文件最后增加</p>
+
+<pre><code>export REDIS_PORT_6379_TCP_ADDR=192.168.xx.xx
+export submission_db_host=192.168.xx.xx
+</code></pre>
+
+<p>自己按照实际情况替换即可。</p>
+
+<p>主机上我们也是使用的 supervisor 监控 celery 的，创建/etc/supervisord.conf，</p>
+
+<pre><code>[supervisord]
+logfile=/root/log/supervisord.log ; supervisord log file
+logfile_maxbytes=50MB       ; maximum size of logfile before rotation
+logfile_backups=10          ; number of backed up logfiles
+loglevel=info               ; info, debug, warn, trace
+pidfile=/root/log/supervisord.pid ; pidfile location
+nodaemon=false              ; run supervisord as a daemon
+minfds=1024                 ; number of startup file descriptors
+minprocs=200                ; number of process descriptors
+user=root                   ; default user
+childlogdir=/root/log/            ; where child log files will live
+
+
+[rpcinterface:supervisor]
+supervisor.rpcinterface_factory = supervisor.rpcinterface:make_main_rpcinterface
+
+[supervisorctl]
+serverurl=unix:///tmp/supervisor.sock ; use unix:// schem for a unix sockets.
+
+
+[include]
+
+files=celeryd.conf
+</code></pre>
+
+<p>创建/etc/celeryd.conf</p>
+
+<pre><code>[program:celery]
+command=celery worker -A judge.judger_controller --loglevel=INFO
+
+directory=/root/qduoj/
+user=root
+numprocs=1
+stdout_logfile=/root/log/worker.log
+stderr_logfile=/root/log/worker.log
+autostart=true
+autorestart=true
+startsecs=1
+
+stopwaitsecs = 6
+
+killasgroup=true
+</code></pre>
+
+<p>运行<code>supervisord</code>，这时候就会启动 celery 了。</p>
+</body>
 </html>
