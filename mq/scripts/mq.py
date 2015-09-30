@@ -39,20 +39,21 @@ class MessageQueue(object):
                 logger.warning("Submission user does not exist, submission_id: " + submission_id)
                 continue
 
-            if submission.result == result["accepted"] and not submission.contest_id:
+            if not submission.contest_id:
                 # 更新普通题目的 ac 计数器
-                try:
-                    problem = Problem.objects.get(id=submission.problem_id)
-                    problem.total_accepted_number += 1
-                    problem.save()
-                except Problem.DoesNotExist:
-                    logger.warning("Submission problem does not exist, submission_id: " + submission_id)
-                    continue
+                if submission.result == result["accepted"]:
+                    try:
+                        problem = Problem.objects.get(id=submission.problem_id)
+                        problem.total_accepted_number += 1
+                        problem.save()
+                    except Problem.DoesNotExist:
+                        logger.warning("Submission problem does not exist, submission_id: " + submission_id)
+                        continue
 
-                problems_status = user.problems_status
-                problems_status["problems"][str(problem.id)] = 1
-                user.problems_status = problems_status
-                user.save()
+                    problems_status = user.problems_status
+                    problems_status["problems"][str(problem.id)] = 1
+                    user.problems_status = problems_status
+                    user.save()
 
                 # 普通题目的话，到这里就结束了
                 continue
