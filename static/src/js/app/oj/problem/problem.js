@@ -111,6 +111,9 @@ require(["jquery", "codeMirror", "csrfToken", "bsAlert", "ZeroClipboard"],
                         bsAlert(data.data);
                         hideLoading();
                     }
+                },
+                error: function(){
+                    bsAlert("额 好像出错了，请刷新页面重试。如还有问题，请填写页面导航栏上的反馈。")
                 }
             })
         }
