@@ -75,14 +75,14 @@
             <ul class="pager">
                 {% if paging_info.previous_page %}
                 <li class="previous">
-                    <a href="/contest/{{ contest.id }}/rank/?paging=true&page={{ paging_info.previous_page }}&page_size={{ paging_info.page_size }}&auto_refresh={% if auto_refresh %}true{% endif %}">
+                    <a href="/contest/{{ contest.id }}/rank/?paging=true&page={{ paging_info.previous_page }}&page_size={{ paging_info.page_size }}&auto_refresh={% if auto_refresh %}true{% else %}false{% endif %}">
 
                     <span aria-hidden="true">&larr;</span> 上一页
                     </a></li>
                 {% endif %}
                 {% if paging_info.next_page %}
                 <li class="next">
-                    <a href="/contest/{{ contest.id }}/rank/?paging=true&page={{ paging_info.next_page }}&page_size={{ paging_info.page_size }}&auto_refresh={% if auto_refresh %}true{% endif %}">
+                    <a href="/contest/{{ contest.id }}/rank/?paging=true&page={{ paging_info.next_page }}&page_size={{ paging_info.page_size }}&auto_refresh={% if auto_refresh %}true{% else %}false{% endif %}">
                         下一页 <span aria-hidden="true">&rarr;</span>
                     </a></li>
                 {% endif %}
