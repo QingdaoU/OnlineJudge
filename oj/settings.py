@@ -54,8 +54,13 @@ INSTALLED_APPS = (
 
     'django_extensions',
     'rest_framework',
-    'rest_framework_swagger',
 )
+
+if DEBUG:
+    INSTALLED_APPS += (
+        'debug_toolbar',
+        'rest_framework_swagger',
+    )
 
 MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -159,10 +164,17 @@ LOGGING = {
     },
 }
 
-
-REST_FRAMEWORK = {
-    'TEST_REQUEST_DEFAULT_FORMAT': 'json'
-}
+if DEBUG:
+    REST_FRAMEWORK = {
+        'TEST_REQUEST_DEFAULT_FORMAT': 'json'
+    }
+else:
+    REST_FRAMEWORK = {
+        'TEST_REQUEST_DEFAULT_FORMAT': 'json',
+        'DEFAULT_RENDERER_CLASSES': (
+            'rest_framework.renderers.JSONRenderer',
+        )
+    }
 
 DATABASE_ROUTERS = ['oj.db_router.DBRouter']
 
