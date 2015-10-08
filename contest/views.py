@@ -14,7 +14,7 @@ from django.conf import settings
 from rest_framework.views import APIView
 
 from utils.shortcuts import (serializer_invalid_response, error_response,
-                             success_response, paginate, error_page)
+                             success_response, paginate, error_page, paginate_data)
 from account.models import SUPER_ADMIN, User
 from account.decorators import login_required
 from group.models import Group
@@ -398,9 +398,26 @@ def contest_rank_page(request, contest_id):
         r.set(cache_key, json.dumps([dict(item) for item in rank]))
     else:
         rank = json.loads(rank)
+
+    try:
+        paging_rank = paginate_data(request, rank, None)
+        if request.GET.get("paging", None):
+            rank = paging_rank["results"]
+        else:
+            rank = paging_rank
+    except Exception as e:
+        return error_page(request, e.message)
+
+    if request.GET.get("paging", None):
+        paging_info = paging_rank
+        paging_info["offset"] = paging_rank["page_size"] * (int(paging_rank["current_page"]) - 1)
+    else:
+        paging_info = {"previous_page": None, "next_page": None, "count": 0, "total_page": 0, "offset": 0}
+
     return render(request, "oj/contest/contest_rank.html",
                   {"rank": rank, "contest": contest,
                    "contest_problems": contest_problems,
+                   "paging_info": paging_info,
                    "auto_refresh": request.GET.get("auto_refresh", None) == "true",
                    "show_real_name": request.GET.get("show_real_name", None) == "true",})
 
