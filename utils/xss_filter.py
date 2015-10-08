@@ -38,7 +38,7 @@ class XssHtml(HTMLParser):
                   'p', 'div', 'em', 'span', 'h1', 'h2', 'h3', 'h4',
                   'h5', 'h6', 'blockquote', 'ul', 'ol', 'tr', 'th', 'td',
                   'hr', 'li', 'u', 'embed', 's', 'table', 'thead', 'tbody',
-                  'caption', 'small', 'q', 'sup', 'sub']
+                  'caption', 'small', 'q', 'sup', 'sub', 'font']
     common_attrs = ["style", "class", "name"]
     nonend_tags = ["img", "hr", "br", "embed"]
     tags_own_attrs = {
@@ -46,6 +46,7 @@ class XssHtml(HTMLParser):
         "a": ["href", "target", "rel", "title"],
         "embed": ["src", "width", "height", "type", "allowfullscreen", "loop", "play", "wmode", "menu"],
         "table": ["border", "cellpadding", "cellspacing"],
+        "font": ["color"]
     }
 
     def __init__(self, allows=[]):

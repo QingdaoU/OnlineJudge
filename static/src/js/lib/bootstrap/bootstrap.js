@@ -1,1 +1,1 @@
-require(["jquery", "modal", "dropdown", "transition"]);
+require(["jquery", "modal", "dropdown", "transition", "collapse"]);

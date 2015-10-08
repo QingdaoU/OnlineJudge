@@ -46,7 +46,7 @@ require(["jquery", "avalon", "editor", "uploader", "bsAlert", "csrfToken", "date
                     beforeSend: csrfTokenHeader,
                     url: "/api/admin/contest/",
                     dataType: "json",
-                    contentType: "application/json",
+                    contentType: "application/json;charset=UTF-8",
                     data: JSON.stringify(ajaxData),
                     method: "post",
                     success: function (data) {

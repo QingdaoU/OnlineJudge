@@ -45,7 +45,7 @@ require(["jquery", "avalon", "csrfToken", "bsAlert", "validator"], function ($, 
                         url: "/api/admin/group_member/",
                         method: "put",
                         data: JSON.stringify({group_id: relation.group, members: [relation.user.id]}),
-                        contentType: "application/json",
+                        contentType: "application/json;charset=UTF-8",
                         success: function (data) {
                             vm.memberList.remove(relation);
                             bsAlert(data.data);

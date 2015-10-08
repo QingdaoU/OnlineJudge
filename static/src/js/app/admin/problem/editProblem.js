@@ -60,7 +60,7 @@ require(["jquery", "avalon", "editor", "uploader", "bsAlert", "csrfToken", "tagE
                             dataType: "json",
                             data: JSON.stringify(ajaxData),
                             method: "put",
-                            contentType: "application/json",
+                            contentType: "application/json;charset=UTF-8",
                             success: function (data) {
                                 if (!data.code) {
                                     bsAlert("题目编辑成功！");

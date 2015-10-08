@@ -37,5 +37,6 @@ class JoinGroupRequest(models.Model):
     # 是否处理
     status = models.BooleanField(default=False)
     accepted = models.BooleanField(default=False)
+
     class Meta:
         db_table = "join_group_request"

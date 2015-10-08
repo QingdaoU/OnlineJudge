@@ -1,6 +1,5 @@
 # coding=utf-8
-import datetime
-from django.utils.timezone import now
+import json
 
 
 def get_contest_status(contest):
@@ -34,10 +33,11 @@ def get_the_formatted_time(seconds):
 
 
 def get_submission_class(rank, problem):
-    if str(problem.id) not in rank.submission_info:
+    submission_info = json.loads(rank["submission_info"])
+    if str(problem.id) not in submission_info:
         return ""
     else:
-        submission = rank.submission_info[str(problem.id)]
+        submission = submission_info[str(problem.id)]
         if submission["is_ac"]:
             _class = "alert-success"
             if submission["is_first_ac"]:
@@ -48,10 +48,11 @@ def get_submission_class(rank, problem):
 
 
 def get_submission_content(rank, problem):
-    if str(problem.id) not in rank.submission_info:
+    submission_info = json.loads(rank["submission_info"])
+    if str(problem.id) not in submission_info:
         return ""
     else:
-        submission = rank.submission_info[str(problem.id)]
+        submission = submission_info[str(problem.id)]
         if submission["is_ac"]:
             r = get_the_formatted_time(submission["ac_time"])
             if submission["error_number"]:

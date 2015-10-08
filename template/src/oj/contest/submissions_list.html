@@ -24,8 +24,10 @@
             </ul>
         </div>
         <table class="table table-bordered">
-            <thead>
-            <tr class="" success>
+
+            {% if submissions %}
+                <thead>
+            <tr>
                 <th>#</th>
                 <th>题目名称</th>
                 <th>用户</th>
@@ -65,7 +67,6 @@
                 </th>
             </tr>
             </thead>
-            {% if submissions %}
                 <tbody>
                 {% for item in submissions %}
                     <tr>
