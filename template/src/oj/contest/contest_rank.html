@@ -50,7 +50,9 @@
                             <tr>
                                 <th scope="row">{{ forloop.counter }}</th>
                                 <td>
+                                <a href="/contest/{{ contest.id }}/submissions/?user_id={{ item.user__id }}">
                                     {{ item.user__username }}
+                                </a>
                                     {% if show_real_name %}
                                         （{{ item.user__real_name }}）
                                     {% endif %}

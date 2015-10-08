@@ -98,6 +98,9 @@ def contest_problem_submissions_list_page(request, contest_id, page=1):
         values("id", "contest_id", "problem_id", "result", "create_time",
                "accepted_answer_time", "language", "user_id").order_by("-create_time")
 
+    user_id = request.GET.get("user_id", None)
+    if user_id:
+        submissions = submissions.filter(user_id=request.GET.get("user_id"))
 
     # 封榜的时候只能看到自己的提交
     if not contest.real_time_rank:
@@ -148,7 +151,7 @@ def contest_problem_submissions_list_page(request, contest_id, page=1):
     return render(request, "oj/contest/submissions_list.html",
                   {"submissions": current_page, "page": int(page),
                    "previous_page": previous_page, "next_page": next_page, "start_id": int(page) * 20 - 20,
-                   "contest": contest, "filter": filter})
+                   "contest": contest, "filter": filter, "user_id": user_id})
 
 
 class ContestSubmissionAdminAPIView(APIView):

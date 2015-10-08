@@ -39,10 +39,10 @@
                             语言<span class="caret"></span>
                         </a>
                         <ul class="dropdown-menu" aria-labelledby="languageFilter">
-                            <li><a href="/contest/{{ contest.id }}/submissions/?language=1">C</a></li>
-                            <li><a href="/contest/{{ contest.id }}/submissions/?language=2">C++</a></li>
-                            <li><a href="/contest/{{ contest.id }}/submissions/?language=3">Java</a></li>
-                            <li><a href="/contest/{{ contest.id }}/submissions/">取消筛选</a></li>
+                            <li><a href="/contest/{{ contest.id }}/submissions/?language=1{% if user_id %}&user_id={{ user_id }}{% endif %}">C</a></li>
+                            <li><a href="/contest/{{ contest.id }}/submissions/?language=2{% if user_id %}&user_id={{ user_id }}{% endif %}">C++</a></li>
+                            <li><a href="/contest/{{ contest.id }}/submissions/?language=3{% if user_id %}&user_id={{ user_id }}{% endif %}">Java</a></li>
+                            <li><a href="/contest/{{ contest.id }}/submissions/{% if user_id %}&user_id={{ user_id }}{% endif %}">取消筛选</a></li>
                         </ul>
                     </div>
                 </th>
@@ -54,14 +54,14 @@
                             结果<span class="caret"></span>
                         </a>
                         <ul class="dropdown-menu" aria-labelledby="resultFilter">
-                            <li><a href="/contest/{{ contest.id }}/submissions/?result=0">Accepted</a></li>
-                            <li><a href="/contest/{{ contest.id }}/submissions/?result=6">Wrong Answer</a></li>
-                            <li><a href="/contest/{{ contest.id }}/submissions/?result=1">Runtime Error</a></li>
-                            <li><a href="/contest/{{ contest.id }}/submissions/?result=2">Time Limit Exceeded</a></li>
-                            <li><a href="/contest/{{ contest.id }}/submissions/?result=3">Memory Limit Exceeded</a></li>
-                            <li><a href="/contest/{{ contest.id }}/submissions/?result=4">Compile Error</a></li>
-                            <li><a href="/contest/{{ contest.id }}/submissions/?result=5">Format Error</a></li>
-                            <li><a href="/contest/{{ contest.id }}/submissions/">取消筛选</a></li>
+                            <li><a href="/contest/{{ contest.id }}/submissions/?result=0{% if user_id %}&user_id={{ user_id }}{% endif %}">Accepted</a></li>
+                            <li><a href="/contest/{{ contest.id }}/submissions/?result=6{% if user_id %}&user_id={{ user_id }}{% endif %}">Wrong Answer</a></li>
+                            <li><a href="/contest/{{ contest.id }}/submissions/?result=1{% if user_id %}&user_id={{ user_id }}{% endif %}">Runtime Error</a></li>
+                            <li><a href="/contest/{{ contest.id }}/submissions/?result=2{% if user_id %}&user_id={{ user_id }}{% endif %}">Time Limit Exceeded</a></li>
+                            <li><a href="/contest/{{ contest.id }}/submissions/?result=3{% if user_id %}&user_id={{ user_id }}{% endif %}">Memory Limit Exceeded</a></li>
+                            <li><a href="/contest/{{ contest.id }}/submissions/?result=4{% if user_id %}&user_id={{ user_id }}{% endif %}">Compile Error</a></li>
+                            <li><a href="/contest/{{ contest.id }}/submissions/?result=5{% if user_id %}&user_id={{ user_id }}{% endif %}">Format Error</a></li>
+                            <li><a href="/contest/{{ contest.id }}/submissions/{% if user_id %}&user_id={{ user_id }}{% endif %}">取消筛选</a></li>
                         </ul>
                     </div>
                 </th>
@@ -106,14 +106,18 @@
         <nav>
             <ul class="pager">
                 {% if previous_page %}
-                    <li class="previous"><a
-                            href="/contest/{{ contest.id }}/submissions/{{ previous_page }}/{% if filter %}?{{ filter.name }}={{ filter.content }}{% endif %}">
-                        <span aria-hidden="true">&larr;</span> 上一页</a></li>
+                    <li class="previous">
+                        <a href="/contest/{{ contest.id }}/submissions/{{ previous_page }}/{% if filter %}?{{ filter.name }}={{ filter.content }}{% if user_id %}&user_id={{ user_id }}{% endif %}{% else %}{% if user_id %}?user_id={{ user_id }}{% endif %}{% endif %}">
+                                <span aria-hidden="true">&larr;</span> 上一页
+                        </a>
+                    </li>
                 {% endif %}
                 {% if next_page %}
                     <li class="next">
-                        <a href="/contest/{{ contest.id }}/submissions/{{ next_page }}/{% if filter %}?{{ filter.name }}={{ filter.content }}{% endif %}">
-                            下一页 <span aria-hidden="true">&rarr;</span></a></li>
+                        <a href="/contest/{{ contest.id }}/submissions/{{ next_page }}/{% if filter %}?{{ filter.name }}={{ filter.content }}{% if user_id %}&user_id={{ user_id }}{% endif %}{% else %}{% if user_id %}?user_id={{ user_id }}{% endif %}{% endif %}">
+                            下一页 <span aria-hidden="true">&rarr;</span>
+                        </a>
+                    </li>
                 {% endif %}
             </ul>
         </nav>
