@@ -252,7 +252,7 @@ class ContestProblemAdminAPIView(APIView):
                                                      Q(description__contains=keyword))
         contest_id = request.GET.get("contest_id", None)
         if contest_id:
-            contest_problem = contest_problems.filter(contest__id=contest_id).order_by("sort_index")
+            contest_problems = contest_problems.filter(contest__id=contest_id).order_by("sort_index")
 
         return paginate(request, contest_problems, ContestProblemSerializer)
 
