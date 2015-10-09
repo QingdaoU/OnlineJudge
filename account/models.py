@@ -35,7 +35,11 @@ class User(AbstractBaseUser):
     # JSON字典用来表示该用户的问题的解决状态 1为ac，2为正在进行
     problems_status = JSONField(default={})
     # 找回密码用的token
-    # reset_password_token = models.CharField(max_length=40, blank=True, null=True)
+    reset_password_token = models.CharField(max_length=40, blank=True, null=True)
+    # token 生成时间
+    reset_password_token_create_time = models.DateTimeField(blank=True, null=True)
+    # user 登陆失败的次数计数器。每次密码错误就增加3，而登陆成功一次减去1，在这个计时器大于0的时候，需要输入验证码
+    login_failed_counter = models.IntegerField(default=0)
 
     USERNAME_FIELD = 'username'
     REQUIRED_FIELDS = []
