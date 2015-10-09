@@ -36,7 +36,7 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        exclude = ["password"]
+        fields = ["username", "real_name", "email", "admin_type"]
 
 
 class EditUserSerializer(serializers.Serializer):
