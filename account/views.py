@@ -33,30 +33,19 @@ class UserLoginAPIView(APIView):
         serializer = UserLoginSerializer(data=request.data)
         if serializer.is_valid():
             data = serializer.data
+
+            if "captcha" not in data:
+                return error_response(u"请填写验证码！")
+            captcha = Captcha(request)
+            if not captcha.check(data["captcha"]):
+                return error_response(u"验证码错误")
+
             user = auth.authenticate(username=data["username"], password=data["password"])
             # 用户名或密码错误的话 返回None
             if user:
-                # 管理员必须使用验证码 多次错误的使用验证码
-                if user.admin_type > 0 or user.login_failed_counter:
-                    if "captcha" not in data:
-                        return error_response(u"请填写验证码！")
-                    captcha = Captcha(request)
-                    if not captcha.check(data["captcha"]):
-                        return error_response(u"验证码错误")
                 auth.login(request, user)
-                # 登陆成功，计数器减去1
-                if user.login_failed_counter > 0:
-                    user.login_failed_counter -= 1
-                    user.save()
                 return success_response(u"登录成功")
             else:
-                # 登陆失败，计数器加3
-                try:
-                    user = User.objects.get(username=data["username"])
-                    user.login_failed_counter += 3
-                    user.save()
-                except User.DoesNotExist:
-                    pass
                 return error_response(u"用户名或密码错误")
         else:
             return serializer_invalid_response(serializer)
@@ -232,23 +221,6 @@ class UserInfoAPIView(APIView):
         response_serializer: UserSerializer
         """
         return success_response(UserSerializer(request.user).data)
-
-
-class AccountSecurityAPIView(APIView):
-    def get(self, request):
-        """
-        判断用户登录是否需要验证码
-        ---
-        """
-        username = request.GET.get("username", None)
-        if username:
-            try:
-                user = User.objects.get(username=username)
-            except User.DoesNotExist:
-                return success_response({"applied_captcha": True})
-            if user.admin_type > 0 or user.login_failed_counter > 0:
-                return success_response({"applied_captcha": True})
-        return success_response({"applied_captcha": False})
 
 
 class ApplyResetPasswordAPIView(APIView):
