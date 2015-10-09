@@ -5,7 +5,7 @@ from django.views.generic import TemplateView
 
 from account.views import (UserLoginAPIView, UsernameCheckAPIView, UserRegisterAPIView,
                            UserChangePasswordAPIView, EmailCheckAPIView,
-                           UserAdminAPIView, UserInfoAPIView, AccountSecurityAPIView,
+                           UserAdminAPIView, UserInfoAPIView,
                            ApplyResetPasswordAPIView)
 
 from announcement.views import AnnouncementAdminAPIView
@@ -118,7 +118,6 @@ urlpatterns = [
     url(r'^api/submission/share/$', SubmissionShareAPIView.as_view(), name="submission_share_api"),
 
     url(r'^captcha/$', "utils.captcha.views.show_captcha", name="show_captcha"),
-    url(r'^api/account_security_check/$', AccountSecurityAPIView.as_view(), name="account_security_check"),
 
     url(r'^api/contest/time/$', ContestTimeAPIView.as_view(), name="contest_time_api_view"),
     url(r'^api/admin/rejudge/$', SubmissionRejudgeAdminAPIView.as_view(), name="submission_rejudge_api"),
