@@ -51,6 +51,7 @@ INSTALLED_APPS = (
     'mq',
     'contest',
     'contest_submission',
+    'mail',
 
     'django_extensions',
     'rest_framework',

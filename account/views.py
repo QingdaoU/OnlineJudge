@@ -1,4 +1,5 @@
 # coding=utf-8
+import codecs
 from django import http
 from django.contrib import auth
 from django.shortcuts import render
@@ -9,6 +10,9 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from utils.shortcuts import serializer_invalid_response, error_response, success_response, paginate, rand_str
 from utils.captcha import Captcha
+from mail.tasks import send_email
+
+from envelopes import Envelope
 
 from .decorators import login_required
 from .models import User
@@ -32,15 +36,27 @@ class UserLoginAPIView(APIView):
             user = auth.authenticate(username=data["username"], password=data["password"])
             # 用户名或密码错误的话 返回None
             if user:
-                if user.admin_type > 0:
+                # 管理员必须使用验证码 多次错误的使用验证码
+                if user.admin_type > 0 or user.login_failed_counter:
                     if "captcha" not in data:
                         return error_response(u"请填写验证码！")
                     captcha = Captcha(request)
                     if not captcha.check(data["captcha"]):
                         return error_response(u"验证码错误")
                 auth.login(request, user)
+                # 登陆成功，计数器减去1
+                if user.login_failed_counter > 0:
+                    user.login_failed_counter -= 1
+                    user.save()
                 return success_response(u"登录成功")
             else:
+                # 登陆失败，计数器加3
+                try:
+                    user = User.objects.get(username=data["username"])
+                    user.login_failed_counter += 3
+                    user.save()
+                except User.DoesNotExist:
+                    pass
                 return error_response(u"用户名或密码错误")
         else:
             return serializer_invalid_response(serializer)
@@ -230,13 +246,18 @@ class AccountSecurityAPIView(APIView):
                 user = User.objects.get(username=username)
             except User.DoesNotExist:
                 return success_response({"applied_captcha": True})
-            if user.admin_type > 0:
+            if user.admin_type > 0 or user.login_failed_counter > 0:
                 return success_response({"applied_captcha": True})
         return success_response({"applied_captcha": False})
 
 
 class ApplyResetPasswordAPIView(APIView):
     def post(self, request):
+        """
+        提交请求重置密码
+        ---
+        request_serializer: ApplyResetPasswordSerializer
+        """
         serializer = ApplyResetPasswordSerializer(data=request.data)
         if serializer.is_valid():
             data = serializer.data
@@ -249,9 +270,11 @@ class ApplyResetPasswordAPIView(APIView):
                 return error_response(u"用户不存在")
             user.reset_password_token = rand_str()
             user.save()
-            # todo
-            email_template = open(settings.TEMPLATES[0]["DIRS"][0] + "utils/reset_password_email.html", "r").read()
-            email_template.replace("{{ username }}", user.username).replace("{{ link }}", "/reset_password/?token=" + user.reset_password_token)
+            email_template = codecs.open(settings.TEMPLATES[0]["DIRS"][0] + "utils/reset_password_email.html", "r", "utf-8").read()
+
+            email_template = email_template.replace("{{ username }}", user.username).replace("{{ link }}", request.scheme + "://" + request.META['HTTP_HOST'] + "/reset_password/?token=" + user.reset_password_token)
+
+            send_email(user.email, user.username, u"qduoj 密码找回邮件", email_template)
             return success_response(u"邮件发生成功")
         else:
             return serializer_invalid_response(serializer)

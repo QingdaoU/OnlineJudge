@@ -1,10 +1,12 @@
 # coding=utf-8
+from django.conf import settings
 from django.conf.urls import include, url
 from django.views.generic import TemplateView
 
 from account.views import (UserLoginAPIView, UsernameCheckAPIView, UserRegisterAPIView,
                            UserChangePasswordAPIView, EmailCheckAPIView,
-                           UserAdminAPIView, UserInfoAPIView, AccountSecurityAPIView)
+                           UserAdminAPIView, UserInfoAPIView, AccountSecurityAPIView,
+                           ApplyResetPasswordAPIView)
 
 from announcement.views import AnnouncementAdminAPIView
 
@@ -28,7 +30,7 @@ from contest_submission.views import contest_problem_my_submissions_list_page
 
 urlpatterns = [
     url("^$", "account.views.index_page", name="index_page"),
-    url(r'^docs/', include('rest_framework_swagger.urls')),
+
     url(r'^admin/$', TemplateView.as_view(template_name="admin/admin.html"), name="admin_spa_page"),
     url(r'^admin/contest/$', TemplateView.as_view(template_name="admin/contest/add_contest.html"),
         name="add_contest_page"),
@@ -120,4 +122,15 @@ urlpatterns = [
 
     url(r'^api/contest/time/$', ContestTimeAPIView.as_view(), name="contest_time_api_view"),
     url(r'^api/admin/rejudge/$', SubmissionRejudgeAdminAPIView.as_view(), name="submission_rejudge_api"),
+
+    url(r'^user/(?P<username>\w+)/$', "account.views.user_index_page"),
+
+    url(r'^api/reset_password/$', ApplyResetPasswordAPIView.as_view(), name="apply_reset_password_api"),
+
+    url(r'^account/settings/$', TemplateView.as_view(template_name="oj/account/settings.html"), name="account_setting_page"),
+    url(r'^account/settings/avatar/$', TemplateView.as_view(template_name="oj/account/avatar.html"), name="avatar_settings_page"),
 ]
+
+
+if settings.DEBUG:
+    urlpatterns.append(url(r'^docs/', include('rest_framework_swagger.urls')))
