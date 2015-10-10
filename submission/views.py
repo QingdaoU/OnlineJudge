@@ -39,9 +39,6 @@ class SubmissionAPIView(APIView):
             data = serializer.data
             try:
                 problem = Problem.objects.get(id=data["problem_id"])
-                # 更新问题的总提交计数
-                problem.total_submit_number += 1
-                problem.save()
             except Problem.DoesNotExist:
                 return error_response(u"题目不存在")
             submission = Submission.objects.create(user_id=request.user.id, language=int(data["language"]),
@@ -52,14 +49,6 @@ class SubmissionAPIView(APIView):
             except Exception as e:
                 logger.error(e)
                 return error_response(u"提交判题任务失败")
-            # 修改用户解题状态
-            problems_status = request.user.problems_status
-            if "problems" not in problems_status:
-                problems_status["problems"] = {}
-            problems_status["problems"][str(data["problem_id"])] = 2
-            request.user.problems_status = problems_status
-            request.user.save()
-            # 增加redis 中判题队列长度的计数器
             r = redis.Redis(host=redis_config["host"], port=redis_config["port"], db=redis_config["db"])
             r.incr("judge_queue_length")
 

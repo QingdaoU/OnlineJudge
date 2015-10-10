@@ -35,7 +35,9 @@ class User(AbstractBaseUser):
     # JSON字典用来表示该用户的问题的解决状态 1为ac，2为正在进行
     problems_status = JSONField(default={})
     # 找回密码用的token
-    # reset_password_token = models.CharField(max_length=40, blank=True, null=True)
+    reset_password_token = models.CharField(max_length=40, blank=True, null=True)
+    # token 生成时间
+    reset_password_token_create_time = models.DateTimeField(blank=True, null=True)
 
     USERNAME_FIELD = 'username'
     REQUIRED_FIELDS = []

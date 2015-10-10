@@ -84,8 +84,8 @@ class JudgeClient(object):
     def _parse_lrun_output(self, output):
         # 要注意的是 lrun把结果输出到了stderr，所以有些情况下lrun的输出可能与程序的一些错误输出的混合的，要先分离一下
         error = None
-        # 倒序找到MEMORY的位置
-        output_start = output.rfind("MEMORY")
+        # 倒序找到MEMORY的位置,lrun的 MEMORY 输出后面有3个空格，而 EXCEEDED 也有可能是MEMORY，所以需要判断空格
+        output_start = output.rfind("MEMORY   ")
         if output_start == -1:
             logger.error("Lrun result parse error")
             logger.error(output)

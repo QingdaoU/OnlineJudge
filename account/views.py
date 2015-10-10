@@ -1,14 +1,19 @@
 # coding=utf-8
+import codecs
 from django import http
 from django.contrib import auth
 from django.shortcuts import render
 from django.db.models import Q
 from django.conf import settings
+from django.core.exceptions import MultipleObjectsReturned
 
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from utils.shortcuts import serializer_invalid_response, error_response, success_response, paginate, rand_str
 from utils.captcha import Captcha
+from mail.tasks import send_email
+
+from envelopes import Envelope
 
 from .decorators import login_required
 from .models import User
@@ -29,15 +34,16 @@ class UserLoginAPIView(APIView):
         serializer = UserLoginSerializer(data=request.data)
         if serializer.is_valid():
             data = serializer.data
+
+            if "captcha" not in data:
+                return error_response(u"请填写验证码！")
+            captcha = Captcha(request)
+            if not captcha.check(data["captcha"]):
+                return error_response(u"验证码错误")
+
             user = auth.authenticate(username=data["username"], password=data["password"])
             # 用户名或密码错误的话 返回None
             if user:
-                if user.admin_type > 0:
-                    if "captcha" not in data:
-                        return error_response(u"请填写验证码！")
-                    captcha = Captcha(request)
-                    if not captcha.check(data["captcha"]):
-                        return error_response(u"验证码错误")
                 auth.login(request, user)
                 return success_response(u"登录成功")
             else:
@@ -83,6 +89,9 @@ class UserRegisterAPIView(APIView):
                 pass
             try:
                 User.objects.get(email=data["email"])
+                return error_response(u"该邮箱已被注册，请换其他邮箱进行注册")
+            # 兼容部分老数据，有邮箱重复的
+            except MultipleObjectsReturned:
                 return error_response(u"该邮箱已被注册，请换其他邮箱进行注册")
             except User.DoesNotExist:
                 user = User.objects.create(username=data["username"], real_name=data["real_name"],
@@ -147,7 +156,7 @@ class EmailCheckAPIView(APIView):
             try:
                 User.objects.get(email=email)
                 return Response(status=400)
-            except User.DoesNotExist:
+            except Exception:
                 return Response(status=200)
         return Response(status=200)
 
@@ -218,25 +227,13 @@ class UserInfoAPIView(APIView):
         return success_response(UserSerializer(request.user).data)
 
 
-class AccountSecurityAPIView(APIView):
-    def get(self, request):
-        """
-        判断用户登录是否需要验证码
-        ---
-        """
-        username = request.GET.get("username", None)
-        if username:
-            try:
-                user = User.objects.get(username=username)
-            except User.DoesNotExist:
-                return success_response({"applied_captcha": True})
-            if user.admin_type > 0:
-                return success_response({"applied_captcha": True})
-        return success_response({"applied_captcha": False})
-
-
 class ApplyResetPasswordAPIView(APIView):
     def post(self, request):
+        """
+        提交请求重置密码
+        ---
+        request_serializer: ApplyResetPasswordSerializer
+        """
         serializer = ApplyResetPasswordSerializer(data=request.data)
         if serializer.is_valid():
             data = serializer.data
@@ -249,9 +246,11 @@ class ApplyResetPasswordAPIView(APIView):
                 return error_response(u"用户不存在")
             user.reset_password_token = rand_str()
             user.save()
-            # todo
-            email_template = open(settings.TEMPLATES[0]["DIRS"][0] + "utils/reset_password_email.html", "r").read()
-            email_template.replace("{{ username }}", user.username).replace("{{ link }}", "/reset_password/?token=" + user.reset_password_token)
+            email_template = codecs.open(settings.TEMPLATES[0]["DIRS"][0] + "utils/reset_password_email.html", "r", "utf-8").read()
+
+            email_template = email_template.replace("{{ username }}", user.username).replace("{{ link }}", request.scheme + "://" + request.META['HTTP_HOST'] + "/reset_password/?token=" + user.reset_password_token)
+
+            send_email(user.email, user.username, u"qduoj 密码找回邮件", email_template)
             return success_response(u"邮件发生成功")
         else:
             return serializer_invalid_response(serializer)

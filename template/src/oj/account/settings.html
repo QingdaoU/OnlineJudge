@@ -1,0 +1,79 @@
+{% extends "oj_base.html" %}
+{% block title %}
+    用户设置
+{% endblock %}
+{% block body %}
+    <div class="container main">
+
+        <div class="col-lg-2">
+            <ul class="list-group">
+                <li class="list-group-header">通用设置</li>
+                <li class="list-group-item active"><a href="/account/settings/">个人信息</a></li>
+                <li class="list-group-item"><a href="/account/settings/avatar/">更换头像</a></li>
+                <li class="list-group-item"><a href="/change_password/">修改密码</a></li>
+            </ul>
+        </div>
+    <div class="col-lg-3">
+        <img src="https://coding.net/static/fruit_avatar/Fruit-1.png" class="img-responsive"
+                     style="height: 200px;width: 200px;">
+    </div>
+    <div class="col-lg-6">
+        <form>
+            <div class="row">
+                <div class="form-group col-md-6"><label>用户名</label>
+                    <input name="username" type="text" class="form-control"
+                           value="{{ request.user.username }}" readonly>
+
+                </div>
+                <div class="form-group col-md-6"><label>真实姓名</label>
+                    <input name="real_name" type="text" class="form-control"
+                           value="{{ request.user.real_name }}" readonly>
+
+                </div>
+            </div>
+            <div class="row">
+                <div class="form-group col-md-6"><label>电子邮箱</label>
+                    <input name="email" type="email" class="form-control"
+                           value="{{ request.user.email }}" readonly>
+                    <div class="help-block with-errors"></div>
+                </div>
+                <div class="form-group col-md-6"><label>手机</label>
+                    <input name="phone" type="text" class="form-control"
+                           data-error="请填写手机号码" value="{{ request.user.phone }}">
+                    <div class="help-block with-errors"></div>
+                </div>
+            </div>
+            <div class="row">
+
+                <div class="form-group col-md-6">
+                    <label>hduoj 用户名</label>
+                    <input name=hduoj" type="text" class="form-control"
+                           value="{{ request.user.hduoj_username }}">
+                    <div class="help-block with-errors"></div>
+                </div>
+                <div class="form-group col-md-6">
+                    <label>BestCoder 用户名</label>
+                    <input name=bestcoder" type="text" class="form-control"
+                           value="{{ request.user.bestcoder_username }}">
+                    <div class="help-block with-errors"></div>
+                </div>
+                <div class="form-group col-md-6">
+                    <label>Codeforces 用户名</label>
+                    <input name=codeforces" type="text" class="form-control"
+                           value="{{ request.user.bestcoder_username }}">
+                    <div class="help-block with-errors"></div>
+                </div>
+                <div class="form-group col-md-12"><label>blog</label>
+                    <input name=blog" type="url" class="form-control"
+                           value="{{ request.user.blog }}">
+                    <div class="help-block with-errors"></div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <button type="submit" class="btn btn-primary">提交</button>
+            </div>
+        </form>
+    </div>
+    </div>
+{% endblock %}

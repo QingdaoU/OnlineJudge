@@ -59,7 +59,7 @@
     margin: 10px;
 }
 
-li.list-group-item {
+li.problem-tag {
     padding: 10px 15px;
     margin-bottom: -1px;
     border: 1px solid #e5e5e5;
@@ -113,3 +113,8 @@ li.list-group-item {
     background: #33CC99;
 }
 
+
+.avatar-item{
+    padding-top: 7.5px;
+    padding-bottom: 7.5px;
+}

@@ -1,0 +1,40 @@
+{% extends "oj_base.html" %}
+{% block title %}
+    更换头像
+{% endblock %}
+{% block body %}
+    <div class="container main">
+
+        <div class="col-lg-2">
+            <ul class="list-group">
+                <li class="list-group-header">通用设置</li>
+                <li class="list-group-item"><a href="/account/settings/">个人信息</a></li>
+                <li class="list-group-item active"><a href="/account/settings/avatar/">更换头像</a></li>
+                <li class="list-group-item"><a href="/change_password/">修改密码</a></li>
+            </ul>
+        </div>
+    <div class="col-lg-3">
+        <img src="https://coding.net/static/fruit_avatar/Fruit-1.png" class="img-responsive"
+                     style="height: 200px;width: 200px;">
+    </div>
+    <div class="col-lg-6">
+        <form>
+            <div class="row">
+                {% for i in "aaaaaaaaaaaaaaaaaaaa" %}
+                <div class="col-lg-2 avatar-item">
+                    <div style="border: 1px solid red;" >
+                    <img src="/static/img/avatar/avatar-{{ forloop.counter }}.png">
+                        </div>
+                </div>
+                {% endfor %}
+
+            </div>
+        <div title="Coding.net 是深圳市扣钉网络科技有限公司打造的国内最大的一站式云端开发平台，提供包括代码托管，项目管理，产品演示，WebIDE 等工具。">
+        <img src="https://coding.net/static/d0aa9dd75e2500930b9e6ef61d9bcfa0.jpg" style="height: 100px;width: 150px">
+        水果头像由<a href="https://coding.net">coding.net</a>提供。
+            </div>
+
+        </form>
+    </div>
+    </div>
+{% endblock %}

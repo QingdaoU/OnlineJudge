@@ -10,7 +10,7 @@ if os.system("docker run --name mysql -v /root/data:/var/lib/mysql -v /root/data
     print "Error start mysql"
     exit()
 
-if os.system("docker run --name redis -d redis"):
+if os.system("docker run --name redis -v /root/redis/:/data -d redis redis-server --appendonly yes"):
     print "Error start redis"
     exit()
 
