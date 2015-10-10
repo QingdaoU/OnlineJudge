@@ -31,9 +31,7 @@ require(["jquery", "bsAlert", "csrfToken", "validator"], function ($, bsAlert, c
                         location.href = "/";
                     }
                     else {
-                        if(applied_captcha) {
-                            refresh_captcha();
-                        }
+                        refresh_captcha();
                         bsAlert(data.data);
                     }
                 },
