@@ -694,20 +694,20 @@
 
 // Store default english locale so we can switch easier
 	$.fn.countdown.locale.en = {
-		yearText: 'years',
-		monthText: 'months',
-		weekText: 'weeks',
-		dayText: 'days',
-		hourText: 'hours',
-		minText: 'mins',
-		secText: 'sec',
-		yearSingularText: 'year',
-		monthSingularText: 'month',
-		weekSingularText: 'week',
-		daySingularText: 'day',
-		hourSingularText: 'hour',
-		minSingularText: 'min',
-		secSingularText: 'sec',
+		yearText: '年',
+		monthText: '月',
+		weekText: '星期',
+		dayText: '天',
+		hourText: '小时',
+		minText: '分钟',
+		secText: '秒',
+		yearSingularText: '年',
+		monthSingularText: '月',
+		weekSingularText: '星期',
+		daySingularText: '天',
+		hourSingularText: '小时',
+		minSingularText: '分钟',
+		secSingularText: '秒',
 		isRTL: false
 	};
 
