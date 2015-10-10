@@ -117,6 +117,12 @@ class ContestAdminAPIView(APIView):
             if data["start_time"] >= data["end_time"]:
                 return error_response(u"比赛的开始时间必须早于比赛结束的时间")
 
+            # 之前是封榜，现在要开放，需要清除缓存
+            if contest.real_time_rank == True and data["real_time_rank"] == False:
+                r = redis.Redis(host=settings.REDIS_CACHE["host"], port=settings.REDIS_CACHE["port"], db=settings.REDIS_CACHE["db"])
+                cache_key = str(contest.id) + "_rank_cache"
+                r.delete(cache_key)
+
             contest.title = data["title"]
             contest.description = data["description"]
             contest.mode = data["mode"]
