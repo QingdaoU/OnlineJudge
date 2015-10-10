@@ -5,10 +5,15 @@
 {% block body %}
     <div class="container main">
         <ul class="nav nav-tabs nav-tabs-google">
+            <li role="presentation">
+                <a href="/contest/{{ contest_problem.contest.id }}/problems/">题目列表</a>
+            </li>
             <li role="presentation" class="active">
-                <a href="/contest/{{ contest_problem.contest.id }}/problem/{{ contest_problem.id }}/">题目</a></li>
-            <li role="presentation"><a
-                    href="/contest/{{ contest_problem.contest.id }}/problem/{{ contest_problem.id }}/submissions/">我的提交</a>
+                <a href="/contest/{{ contest_problem.contest.id }}/problem/{{ contest_problem.id }}/">题目
+                    {{ contest_problem.sort_index }}</a>
+            </li>
+            <li role="presentation">
+                <a href="/contest/{{ contest_problem.contest.id }}/problem/{{ contest_problem.id }}/submissions/">我的提交</a>
             </li>
         </ul>
         <h2 class="text-center">{{ contest_problem.title }}</h2>
