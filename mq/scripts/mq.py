@@ -2,7 +2,6 @@
 import logging
 
 import redis
-import json
 
 from django.db import transaction
 
@@ -10,6 +9,7 @@ from judge.judger_controller.settings import redis_config
 from judge.judger.result import result
 from submission.models import Submission
 from problem.models import Problem
+from utils.cache import get_cache_redis
 from contest.models import ContestProblem, Contest, ContestSubmission, CONTEST_UNDERWAY, ContestRank
 from account.models import User
 
@@ -32,7 +32,7 @@ class MessageQueue(object):
                 logger.warning("Submission does not exist, submission_id: " + submission_id)
                 continue
 
-            # 更新该用户的解题状态
+            # 更新该用户的解题状态用
             try:
                 user = User.objects.get(pk=submission.user_id)
             except User.DoesNotExist:
@@ -40,21 +40,23 @@ class MessageQueue(object):
                 continue
 
             if not submission.contest_id:
-                # 更新普通题目的 ac 计数器
+                try:
+                    problem = Problem.objects.get(id=submission.problem_id)
+                except Problem.DoesNotExist:
+                    logger.warning("Submission problem does not exist, submission_id: " + submission_id)
+                    continue
+
+                problems_status = user.problems_status
+
+                # 更新普通题目的计数器
+                problem.add_submission_number()
                 if submission.result == result["accepted"]:
-                    try:
-                        problem = Problem.objects.get(id=submission.problem_id)
-                        problem.total_accepted_number += 1
-                        problem.save()
-                    except Problem.DoesNotExist:
-                        logger.warning("Submission problem does not exist, submission_id: " + submission_id)
-                        continue
-
-                    problems_status = user.problems_status
+                    problem.add_ac_number()
                     problems_status["problems"][str(problem.id)] = 1
-                    user.problems_status = problems_status
-                    user.save()
-
+                else:
+                    problems_status["problems"][str(problem.id)] = 2
+                user.problems_status = problems_status
+                user.save()
                 # 普通题目的话，到这里就结束了
                 continue
 
@@ -72,6 +74,10 @@ class MessageQueue(object):
                 logger.warning("Submission problem does not exist, submission_id: " + submission_id)
                 continue
 
+            # 如果比赛现在不是封榜状态，删除比赛的排名缓存
+            if contest.real_time_rank:
+                get_cache_redis().delete(str(contest.id) + "_rank_cache")
+
             with transaction.atomic():
                 try:
                     contest_rank = ContestRank.objects.get(contest=contest, user=user)
@@ -79,14 +85,16 @@ class MessageQueue(object):
                 except ContestRank.DoesNotExist:
                     ContestRank.objects.create(contest=contest, user=user).update_rank(submission)
 
-                if submission.result == result["accepted"]:
-                    contest_problem.total_accepted_number += 1
-                    contest_problem.save()
+                problems_status = user.problems_status
 
-                    problems_status = user.problems_status
+                contest_problem.add_submission_number()
+                if submission.result == result["accepted"]:
+                    contest_problem.add_ac_number()
                     problems_status["contest_problems"][str(contest_problem.id)] = 1
-                    user.problems_status = problems_status
-                    user.save()
+                else:
+                    problems_status["contest_problems"][str(contest_problem.id)] = 1
+                user.problems_status = problems_status
+                user.save()
 
 logger.debug("Start message queue")
 MessageQueue().listen_task()

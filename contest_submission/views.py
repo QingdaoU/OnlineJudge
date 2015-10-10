@@ -9,16 +9,15 @@ from django.utils import timezone
 from rest_framework.views import APIView
 
 from judge.judger_controller.tasks import judge
-from judge.judger_controller.settings import redis_config
 
 from account.decorators import login_required
 from account.models import SUPER_ADMIN
 
 from contest.decorators import check_user_contest_permission
-from problem.models import Problem
 from contest.models import Contest, ContestProblem
 
 from utils.shortcuts import serializer_invalid_response, error_response, success_response, error_page, paginate
+from utils.cache import get_cache_redis
 from submission.models import Submission
 from .serializers import CreateContestSubmissionSerializer
 from submission.serializers import SubmissionSerializer
@@ -57,7 +56,7 @@ class ContestSubmissionAPIView(APIView):
             request.user.problems_status = problems_status
             request.user.save()
             # 增加redis 中判题队列长度的计数器
-            r = redis.Redis(host=redis_config["host"], port=redis_config["port"], db=redis_config["db"])
+            r = get_cache_redis()
             r.incr("judge_queue_length")
             return success_response({"submission_id": submission.id})
         else:
@@ -98,6 +97,9 @@ def contest_problem_submissions_list_page(request, contest_id, page=1):
         values("id", "contest_id", "problem_id", "result", "create_time",
                "accepted_answer_time", "language", "user_id").order_by("-create_time")
 
+    user_id = request.GET.get("user_id", None)
+    if user_id:
+        submissions = submissions.filter(user_id=request.GET.get("user_id"))
 
     # 封榜的时候只能看到自己的提交
     if not contest.real_time_rank:
@@ -148,7 +150,7 @@ def contest_problem_submissions_list_page(request, contest_id, page=1):
     return render(request, "oj/contest/submissions_list.html",
                   {"submissions": current_page, "page": int(page),
                    "previous_page": previous_page, "next_page": next_page, "start_id": int(page) * 20 - 20,
-                   "contest": contest, "filter": filter})
+                   "contest": contest, "filter": filter, "user_id": user_id})
 
 
 class ContestSubmissionAdminAPIView(APIView):

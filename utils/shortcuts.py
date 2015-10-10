@@ -26,7 +26,7 @@ def success_response(data):
     return Response(data={"code": 0, "data": data})
 
 
-def paginate(request, query_set, object_serializer):
+def paginate_data(request, query_set, object_serializer):
     """
     用于分页的函数
     如果 url 里面不含有paging=true，那么将返回全部数据。类似
@@ -39,38 +39,26 @@ def paginate(request, query_set, object_serializer):
     如果 url 中有 paging=true 的参数，
     然后还需要读取其余的两个参数，page=[int]，需要的页码，p
     age_size=[int]，一页的数据条数
-    参数错误的时候，返回{"code": 1, "data": u"参数错误"}
-    返回的数据格式
-    {
-        "code": 0,
-        "data": {
-            "previous_page": null,
-            "results": [
-                {
-                    "username": "1111111",
-                    "password": "123456"
-                }
-            ],
-            "next_page": 2
-        }
-    }
+
     :param query_set 数据库查询结果
     :param object_serializer: 序列化单个object的serializer
-    :return response
     """
     need_paginate = request.GET.get("paging", None)
     # 如果请求的参数里面没有paging=true的话 就返回全部数据
     if need_paginate != "true":
-        return success_response(data=object_serializer(query_set, many=True).data)
+        if object_serializer:
+            return object_serializer(query_set, many=True).data
+        else:
+            return query_set
 
     page_size = request.GET.get("page_size", None)
     if not page_size:
-        return error_response(u"参数错误")
+        raise ValueError("Error parameter page_size")
 
     try:
         page_size = int(page_size)
     except Exception:
-        return error_response(u"参数错误")
+        raise ValueError("Error parameter page_size")
 
     paginator = Paginator(query_set, page_size)
     page = request.GET.get("page", None)
@@ -78,11 +66,17 @@ def paginate(request, query_set, object_serializer):
     try:
         current_page = paginator.page(page)
     except Exception:
-        return error_response(u"参数错误")
+        raise ValueError("Error parameter current_page")
+    if object_serializer:
+        results = object_serializer(current_page, many=True).data
+    else:
+        results = current_page
 
-    data = {"results": object_serializer(current_page, many=True).data,
+    data = {"results": results,
             "previous_page": None,
             "next_page": None,
+            "page_size": page_size,
+            "current_page": page,
             "count": paginator.count,
             "total_page": paginator.num_pages}
 
@@ -96,6 +90,14 @@ def paginate(request, query_set, object_serializer):
     except Exception:
         pass
 
+    return data
+
+
+def paginate(request, query_set, object_serializer=None):
+    try:
+        data= paginate_data(request, query_set, object_serializer)
+    except Exception:
+        return error_response(u"参数错误")
     return success_response(data)
 
 

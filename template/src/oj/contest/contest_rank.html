@@ -17,7 +17,7 @@
                 <a href="/contest/{{ contest.id }}/submissions/">提交</a>
             </li>
             <li role="presentation" class="active">
-                <a href="/contest/{{ contest.id }}/rank/">排名</a>
+                <a href="/contest/{{ contest.id }}/rank/?paging=true&page=1&page_size=40">排名</a>
             </li>
         </ul>
 
@@ -48,9 +48,11 @@
                         <tbody class="rank">
                         {% for item in rank %}
                             <tr>
-                                <th scope="row">{{ forloop.counter }}</th>
+                                <th scope="row">{{ forloop.counter|add:paging_info.offset}}</th>
                                 <td>
+                                <a href="/contest/{{ contest.id }}/submissions/?user_id={{ item.user__id }}">
                                     {{ item.user__username }}
+                                </a>
                                     {% if show_real_name %}
                                         （{{ item.user__real_name }}）
                                     {% endif %}
@@ -67,8 +69,25 @@
                         </tbody>
                     </table>
                     <input type="checkbox" id="auto-refresh" {% if auto_refresh %}checked{% endif %}
-                           onchange="if(this.checked){location.href='?auto_refresh=true'}else{location.href=location.href.split('?')[0]}">
+                           onchange="if(this.checked){location.href=location.href + '&auto_refresh=true'}else{location.href=location.href=location.href.replace('&auto_refresh=true', '')}">
                     自动刷新
+                    <nav>
+            <ul class="pager">
+                {% if paging_info.previous_page %}
+                <li class="previous">
+                    <a href="/contest/{{ contest.id }}/rank/?paging=true&page={{ paging_info.previous_page }}&page_size={{ paging_info.page_size }}&auto_refresh={% if auto_refresh %}true{% else %}false{% endif %}">
+
+                    <span aria-hidden="true">&larr;</span> 上一页
+                    </a></li>
+                {% endif %}
+                {% if paging_info.next_page %}
+                <li class="next">
+                    <a href="/contest/{{ contest.id }}/rank/?paging=true&page={{ paging_info.next_page }}&page_size={{ paging_info.page_size }}&auto_refresh={% if auto_refresh %}true{% else %}false{% endif %}">
+                        下一页 <span aria-hidden="true">&rarr;</span>
+                    </a></li>
+                {% endif %}
+            </ul>
+        </nav>
                 {% else %}
                     <p>还没有结果</p>
                 {% endif %}

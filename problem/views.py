@@ -58,6 +58,11 @@ class ProblemAdminAPIView(APIView):
         serializer = CreateProblemSerializer(data=request.data)
         if serializer.is_valid():
             data = serializer.data
+            try:
+                Problem.objects.get(title=data["title"], description=data["description"])
+                return error_response(u"添加失败，存在重复的题目")
+            except Problem.DoesNotExist:
+                pass
             problem = Problem.objects.create(title=data["title"],
                                              description=data["description"],
                                              input_description=data["input_description"],

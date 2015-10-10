@@ -14,10 +14,11 @@ from django.conf import settings
 from rest_framework.views import APIView
 
 from utils.shortcuts import (serializer_invalid_response, error_response,
-                             success_response, paginate, error_page)
+                             success_response, paginate, error_page, paginate_data)
 from account.models import SUPER_ADMIN, User
 from account.decorators import login_required
 from group.models import Group
+from utils.cache import get_cache_redis
 from .models import (Contest, ContestProblem, ContestSubmission, CONTEST_ENDED,
                      CONTEST_NOT_START, CONTEST_UNDERWAY, ContestRank)
 from .models import GROUP_CONTEST, PUBLIC_CONTEST, PASSWORD_PROTECTED_CONTEST
@@ -26,8 +27,6 @@ from .serializers import (CreateContestSerializer, ContestSerializer, EditContes
                           CreateContestProblemSerializer, ContestProblemSerializer,
                           ContestPasswordVerifySerializer,
                           EditContestProblemSerializer)
-from oj.settings import REDIS_CACHE
-import redis
 
 
 class ContestAdminAPIView(APIView):
@@ -116,6 +115,12 @@ class ContestAdminAPIView(APIView):
                     return error_response(u"请至少选择一个小组")
             if data["start_time"] >= data["end_time"]:
                 return error_response(u"比赛的开始时间必须早于比赛结束的时间")
+
+            # 之前是封榜，现在要开放，需要清除缓存
+            if contest.real_time_rank == False and data["real_time_rank"] == True:
+                r = get_cache_redis()
+                cache_key = str(contest.id) + "_rank_cache"
+                r.delete(cache_key)
 
             contest.title = data["title"]
             contest.description = data["description"]
@@ -252,7 +257,7 @@ class ContestProblemAdminAPIView(APIView):
                                                      Q(description__contains=keyword))
         contest_id = request.GET.get("contest_id", None)
         if contest_id:
-            contest_problem = contest_problems.filter(contest__id=contest_id).order_by("sort_index")
+            contest_problems = contest_problems.filter(contest__id=contest_id).order_by("sort_index")
 
         return paginate(request, contest_problems, ContestProblemSerializer)
 
@@ -386,9 +391,11 @@ def contest_list_page(request, page=1):
 def contest_rank_page(request, contest_id):
     contest = Contest.objects.get(id=contest_id)
     contest_problems = ContestProblem.objects.filter(contest=contest).order_by("sort_index")
-    r = redis.Redis(host=settings.REDIS_CACHE["host"], port=settings.REDIS_CACHE["port"], db=settings.REDIS_CACHE["db"])
+
+    r = get_cache_redis()
     cache_key = str(contest_id) + "_rank_cache"
     rank = r.get(cache_key)
+
     if not rank:
         rank = ContestRank.objects.filter(contest_id=contest_id).\
             select_related("user").\
@@ -398,9 +405,26 @@ def contest_rank_page(request, contest_id):
         r.set(cache_key, json.dumps([dict(item) for item in rank]))
     else:
         rank = json.loads(rank)
+
+    try:
+        paging_rank = paginate_data(request, rank, None)
+        if request.GET.get("paging", None):
+            rank = paging_rank["results"]
+        else:
+            rank = paging_rank
+    except Exception as e:
+        return error_page(request, e.message)
+
+    if request.GET.get("paging", None):
+        paging_info = paging_rank
+        paging_info["offset"] = paging_rank["page_size"] * (int(paging_rank["current_page"]) - 1)
+    else:
+        paging_info = {"previous_page": None, "next_page": None, "count": 0, "total_page": 0, "offset": 0}
+
     return render(request, "oj/contest/contest_rank.html",
                   {"rank": rank, "contest": contest,
                    "contest_problems": contest_problems,
+                   "paging_info": paging_info,
                    "auto_refresh": request.GET.get("auto_refresh", None) == "true",
                    "show_real_name": request.GET.get("show_real_name", None) == "true",})
 

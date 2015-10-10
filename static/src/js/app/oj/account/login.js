@@ -4,14 +4,12 @@ require(["jquery", "bsAlert", "csrfToken", "validator"], function ($, bsAlert, c
         if (!e.isDefaultPrevented()) {
             var username = $("#username").val();
             var password = $("#password").val();
-            var ajaxData = {username: username, password: password};
-            if (applied_captcha) {
-                ajaxData.captcha = $("#captcha").val();
-            }
+            var captcha = $("#captcha").val();
+
             $.ajax({
                 beforeSend: csrfTokenHeader,
                 url: "/api/login/",
-                data: ajaxData,
+                data: {username: username, password: password, captcha: captcha},
                 dataType: "json",
                 method: "post",
                 success: function (data) {
@@ -33,37 +31,16 @@ require(["jquery", "bsAlert", "csrfToken", "validator"], function ($, bsAlert, c
                         location.href = "/";
                     }
                     else {
-                        if(applied_captcha) {
-                            refresh_captcha();
-                        }
+                        refresh_captcha();
                         bsAlert(data.data);
                     }
+                },
+                error: function(){
+                    bsAlert("额 好像出错了，请刷新页面重试。如还有问题，请填写页面导航栏上的反馈。")
                 }
 
             });
             return false;
-        }
-    });
-
-    $('#username').blur(function () {
-        if ($("#username").val()) {
-            $.ajax({
-                beforeSend: csrfTokenHeader,
-                url: "/api/account_security_check/?username=" + $("#username").val(),
-                method: "get",
-                success: function (data) {
-                    if (!data.code) {
-                        if (data.data.applied_captcha) {
-                            $('#captcha-area').html('<label for="captcha">验证码</label>&nbsp;&nbsp;<img src="/captcha/" id="captcha-img"><small><p></p></small><input type="text" class="form-control input-lg" id="captcha" name="captcha" placeholder="验证码" maxlength="4" data-error="请填写验证码" required><div class="help-block with-errors"></div>');
-                            applied_captcha = true;
-                        }
-                        else {
-                            $('#captcha-area').html('');
-                            applied_captcha = false;
-                        }
-                    }
-                }
-            });
         }
     });
     function refresh_captcha(){

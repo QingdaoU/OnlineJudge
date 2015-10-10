@@ -11,3 +11,4 @@ django-extensions
 supervisor
 pillow
 jsonfield
+Envelopes
