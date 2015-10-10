@@ -5,6 +5,7 @@ from django.contrib import auth
 from django.shortcuts import render
 from django.db.models import Q
 from django.conf import settings
+from django.core.exceptions import MultipleObjectsReturned
 
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -89,6 +90,9 @@ class UserRegisterAPIView(APIView):
             try:
                 User.objects.get(email=data["email"])
                 return error_response(u"该邮箱已被注册，请换其他邮箱进行注册")
+            # 兼容部分老数据，有邮箱重复的
+            except MultipleObjectsReturned:
+                return error_response(u"该邮箱已被注册，请换其他邮箱进行注册")
             except User.DoesNotExist:
                 user = User.objects.create(username=data["username"], real_name=data["real_name"],
                                            email=data["email"])
@@ -152,7 +156,7 @@ class EmailCheckAPIView(APIView):
             try:
                 User.objects.get(email=email)
                 return Response(status=400)
-            except User.DoesNotExist:
+            except Exception:
                 return Response(status=200)
         return Response(status=200)
 
