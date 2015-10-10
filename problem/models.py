@@ -48,6 +48,14 @@ class AbstractProblem(models.Model):
         db_table = "problem"
         abstract = True
 
+    def add_submission_number(self):
+        self.total_accepted_number += 1
+        self.save()
+
+    def add_ac_number(self):
+        self.total_accepted_number += 1
+        self.save()
+
 
 class Problem(AbstractProblem):
     # 难度 0 - n
