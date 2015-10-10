@@ -9,16 +9,15 @@ from django.utils import timezone
 from rest_framework.views import APIView
 
 from judge.judger_controller.tasks import judge
-from judge.judger_controller.settings import redis_config
 
 from account.decorators import login_required
 from account.models import SUPER_ADMIN
 
 from contest.decorators import check_user_contest_permission
-from problem.models import Problem
 from contest.models import Contest, ContestProblem
 
 from utils.shortcuts import serializer_invalid_response, error_response, success_response, error_page, paginate
+from utils.cache import get_cache_redis
 from submission.models import Submission
 from .serializers import CreateContestSubmissionSerializer
 from submission.serializers import SubmissionSerializer
@@ -57,7 +56,7 @@ class ContestSubmissionAPIView(APIView):
             request.user.problems_status = problems_status
             request.user.save()
             # 增加redis 中判题队列长度的计数器
-            r = redis.Redis(host=redis_config["host"], port=redis_config["port"], db=redis_config["db"])
+            r = get_cache_redis()
             r.incr("judge_queue_length")
             return success_response({"submission_id": submission.id})
         else:

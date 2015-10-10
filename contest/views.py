@@ -18,6 +18,7 @@ from utils.shortcuts import (serializer_invalid_response, error_response,
 from account.models import SUPER_ADMIN, User
 from account.decorators import login_required
 from group.models import Group
+from utils.cache import get_cache_redis
 from .models import (Contest, ContestProblem, ContestSubmission, CONTEST_ENDED,
                      CONTEST_NOT_START, CONTEST_UNDERWAY, ContestRank)
 from .models import GROUP_CONTEST, PUBLIC_CONTEST, PASSWORD_PROTECTED_CONTEST
@@ -26,8 +27,6 @@ from .serializers import (CreateContestSerializer, ContestSerializer, EditContes
                           CreateContestProblemSerializer, ContestProblemSerializer,
                           ContestPasswordVerifySerializer,
                           EditContestProblemSerializer)
-from oj.settings import REDIS_CACHE
-import redis
 
 
 class ContestAdminAPIView(APIView):
@@ -119,7 +118,7 @@ class ContestAdminAPIView(APIView):
 
             # 之前是封榜，现在要开放，需要清除缓存
             if contest.real_time_rank == False and data["real_time_rank"] == True:
-                r = redis.Redis(host=settings.REDIS_CACHE["host"], port=settings.REDIS_CACHE["port"], db=settings.REDIS_CACHE["db"])
+                r = get_cache_redis()
                 cache_key = str(contest.id) + "_rank_cache"
                 r.delete(cache_key)
 
@@ -392,9 +391,11 @@ def contest_list_page(request, page=1):
 def contest_rank_page(request, contest_id):
     contest = Contest.objects.get(id=contest_id)
     contest_problems = ContestProblem.objects.filter(contest=contest).order_by("sort_index")
-    r = redis.Redis(host=settings.REDIS_CACHE["host"], port=settings.REDIS_CACHE["port"], db=settings.REDIS_CACHE["db"])
+
+    r = get_cache_redis()
     cache_key = str(contest_id) + "_rank_cache"
     rank = r.get(cache_key)
+
     if not rank:
         rank = ContestRank.objects.filter(contest_id=contest_id).\
             select_related("user").\
