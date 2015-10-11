@@ -49,8 +49,8 @@ class AbstractProblem(models.Model):
         abstract = True
 
     def add_submission_number(self):
-        self.total_accepted_number += 1
-        self.save(update_fields=["total_accepted_number"])
+        self.total_submit_number += 1
+        self.save(update_fields=["total_submission_number"])
 
     def add_ac_number(self):
         self.total_accepted_number += 1
