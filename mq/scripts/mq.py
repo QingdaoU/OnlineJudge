@@ -50,6 +50,8 @@ class MessageQueue(object):
 
                 # 更新普通题目的计数器
                 problem.add_submission_number()
+                if "problems" not in problems_status:
+                    problems_status["problems"] = {}
                 if submission.result == result["accepted"]:
                     problem.add_ac_number()
                     problems_status["problems"][str(problem.id)] = 1
@@ -88,6 +90,8 @@ class MessageQueue(object):
                 problems_status = user.problems_status
 
                 contest_problem.add_submission_number()
+                if "contest_problems" not in problems_status:
+                    problems_status["contest_problems"] = {}
                 if submission.result == result["accepted"]:
                     contest_problem.add_ac_number()
                     problems_status["contest_problems"][str(contest_problem.id)] = 1

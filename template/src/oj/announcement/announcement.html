@@ -10,11 +10,10 @@
             作者：{{ announcement.created_by }}
             &nbsp;&nbsp;&nbsp;
             创建时间：{{ announcement.create_time }}
-            {% ifequal announcement.create_time announcement.last_update_time %}
-            {% else %}
+            {% ifnotequal announcement.create_time announcement.last_update_time %}
                 &nbsp;&nbsp;&nbsp;
                 最后更新：{{ announcement.last_update_time }}
-            {% endifequal %}
+            {% endifnotequal %}
         </p>
 
         <div>

@@ -2,14 +2,15 @@
 
 基于 Python 和 Django的在线评测平台。
 
-文档：https://www.zybuluo.com/virusdefender/note/171932
+文档：http://qingdaou.github.io/OnlineJudge/
 
 demo: https://qduoj.com
 
 TODO：
 
- - 完善文档，目前还差很多
  - 完善测试
+ - 完善小组功能
+ - 后台重构
 
 ![oj_previewindex.png][1]
 

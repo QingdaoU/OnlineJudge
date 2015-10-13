@@ -102,5 +102,5 @@ def paginate(request, query_set, object_serializer=None):
 
 
 def rand_str(length=32):
-    string = hashlib.md5(str(time.time()) + str(random.randrange(1, 987654321234567))).hexdigest()
+    string = hashlib.md5(str(time.time()) + str(random.randrange(1, 987654321234567)) + str(random.randrange(1, 987654321234567))).hexdigest()
     return string[0:length]
