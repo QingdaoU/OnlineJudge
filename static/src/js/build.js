@@ -74,6 +74,9 @@
     dir: "../../release/",
     modules: [
         {
+            name: "bootstrap",
+        },
+        {
             name: "announcement_0_pack"
         },
         {
