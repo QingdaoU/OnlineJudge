@@ -662,12 +662,13 @@ pre code:before,pre code:after,pre tt:before,pre tt:after {
 <body>
 <h1>青岛大学在线评测平台 Document</h1>
 
-<p>https://github.com/QingdaoU/OnlineJudge
-<strong>qduoj</strong> 可以提供多种语言代码的运行和评测，举办各种类型的比赛，分析比赛结果等，可以用于日常教学练习和考试，目前青大 ACM 队内部使用。</p>
+<p>GitHub地址： <a href="https://github.com/QingdaoU/OnlineJudge">https://github.com/QingdaoU/OnlineJudge</a></p>
+
+<p>qduoj可以提供多种语言代码的运行和评测，举办各种类型的比赛，分析比赛结果等，可以用于日常教学练习和考试，目前青大 ACM 队内部使用。</p>
 
 <h2>系统架构</h2>
 
-<p><img src="https://dn-virusdefender-blog-cdn.qbox.me/oj%20%E6%9E%B6%E6%9E%84.png" alt="此处输入图片的描述" /></p>
+<p><img src="https://dn-virusdefender-blog-cdn.qbox.me/oj%20%E6%9E%B6%E6%9E%84.png" alt="架构图" /></p>
 
 <p>如图，系统主要分为 <code>Web server</code>、<code>MySQL数据库</code>、<code>判题服务器</code>和 <code>Redis</code> 四部分，它们可以任意的合并或者拆分到一台服务器上。</p>
 
@@ -683,18 +684,13 @@ pre code:before,pre code:after,pre tt:before,pre tt:after {
 
 <p>以下安装步骤均为 Ubuntu 系统下的演示，其他的系统可能命令稍有不同。</p>
 
-<p>系统使用 docker 创建运行环境。源代码<code>dockerfiles/oj_web_server</code>和<code>dockerfiles/judger</code>中有两个 Dockerfile，是 Django web 服务器的环境和判题的运行环境。同时还依赖于 <a href="https://hub.docker.com/r/mysql/mysql-server/">MySQL</a> 和 <a href="https://hub.docker.com/_/redis/">redis</a> 的 docker 镜像。</p>
+<p>系统使用 docker 创建运行环境。源代码目录 <code>dockerfiles/oj_web_server</code> 和 <code>dockerfiles/judger</code> 中有两个 Dockerfile，是 Django web 服务器的环境和判题的运行环境。同时还依赖于 <a href="https://hub.docker.com/r/mysql/mysql-server/">MySQL</a> 和 <a href="https://hub.docker.com/_/redis/">redis</a> 的 docker 镜像。</p>
 
-<p>首先安装 Docker，进入上面<code>oj_web_server</code>目录，命令是 <code>docker build -t oj_web_server .</code>，其中<code>-t</code>参数<code>oj_web_server</code>就是创建的镜像的名字，注意不要漏了最后的那个<code>.</code>，代表是当前目录。接下来创建判题的运行环境，进入 <code>judger</code> 目录，运行<code>docker build -t judger .</code>即可。MySQL 和 redis 直接使用官方镜像，命令分别是<code>docker pull mysql/mysql-server</code>和<code>docker pull redis</code>。</p>
+<p>首先安装 Docker，过程略过。然后进入上面<code>oj_web_server</code>目录创建第一个镜像，命令是 <code>docker build -t oj_web_server .</code>，其中<code>-t</code>参数<code>oj_web_server</code>就是创建的镜像的名字，注意不要漏了最后的那个<code>.</code>，代表是当前目录。接下来创建判题的运行环境，进入 <code>judger</code> 目录，运行<code>docker build -t judger .</code>即可。MySQL 和 redis 直接使用官方镜像，命令分别是<code>docker pull mysql/mysql-server</code>和<code>docker pull redis</code>。</p>
 
-<p>国内的网络下载 docker 和 build docker 镜像不太方便，可以使用 daocloud 的镜像 <a href="https://dashboard.daocloud.io/mirror">https://dashboard.daocloud.io/mirror</a>。安装后运行<code>dao pull ubuntu:14.04</code>和<code>dao pull python:2.7</code>之后再 build，应该就会快很多了。如果不介意的话，可以用下我的邀请链接</p>
+<p>国内的网络下载 docker 和 build docker 镜像不太方便，可以使用 daocloud 的镜像 <a href="https://dashboard.daocloud.io/mirror">https://dashboard.daocloud.io/mirror</a>。安装后运行<code>dao pull ubuntu:14.04</code>和<code>dao pull python:2.7</code>之后再 build，应该就会快很多了。</p>
 
-<blockquote><p>我正在使用 DaoCloud 提供的一站式容器云平台 ，你也快来加入吧！ 自动化持续集成，超高速 Docker
-镜像构建，还支持一键部署的容器运行集群哦！点此注册：
-https://account.daocloud.io/signup?invite_code=95q5q8dw0n1xv22zc69y
-，还有机会获得全球首本《Docker源码分析》和树莓派！</p></blockquote>
-
-<p>这个时候运行<code>docker images</code>就可以看到刚才创建的镜像了。
+<p>这个时候运行 <code>docker images</code> 就可以看到刚才创建的镜像了。
 <code>
 REPOSITORY                              TAG                 IMAGE ID            CREATED             VIRTUAL SIZE
 oj_web_server                           latest              0d5fd23cb4aa        5 minutes ago       739.1 MB
@@ -705,28 +701,32 @@ mysql/mysql-server                      latest              ba04a84ec299        
 ubuntu                                  14.04               91e54dfb1179        3 weeks ago         188.4 MB
 </code></p>
 
-<p>在<code>oj</code>目录中有几个配置文件，是通过环境变量<code>oj_env</code>来控制加载哪一个的，如果<code>oj_env=local</code>或者没有这个环境变量就使用<code>local_settings.py</code>，否则使用<code>server_settings.py</code>。通用设置在<code>settings.py</code>中。</p>
+<h3>配置文件</h3>
+
+<p>在源代码 <code>oj</code> 目录中有几个配置文件，是通过环境变量 <code>oj_env</code> 来控制加载哪一个的，如果<code>oj_env=local</code>或者没有这个环境变量就使用<code>local_settings.py</code>，否则使用<code>server_settings.py</code>。通用设置在<code>settings.py</code>中。</p>
 
 <p>两个设置项目的不同点主要包括</p>
 
 <ul>
-<li><code>BASEBASE</code> 数据库地址，<code>default</code>是除了用户提交之外的所有的数据，submission 是用户提交数据库。</li>
+<li><code>BASEBASE</code> 数据库地址，<code>default</code>是除了用户提交之外的所有的数据，<code>submission</code> 是用户提交数据库。</li>
 <li><code>REDIS_CACHE</code> redis 网页缓存服务器</li>
 <li><code>STATICFILES_DIRS</code> 静态文件目录，只有在 <code>DEBUG=True</code> 的时候 runserver 才会去处理。css、js 等都在 <code>static</code> 目录中，用户上传的图片在根目录下的 <code>upload</code> 目录中。</li>
 <li><code>TEMPLATE_DIRS</code> 网页模板目录。因为静态文件需要加 md5来处理缓存问题，所以需要修改模板文件，处理后的模板放在 <code>release</code> 里面，源代码在 <code>src</code> 里面。</li>
 </ul>
 
 
-<p>还有两个设置项需要注意，就是 <code>TEST_CASE_DIR</code>、<code>LOG_PATH</code> 和 <code>IMAGE_UPLOAD_DIR</code>，暂时没有区分配置文件，都在源代码根目录下。但是在 docker 中运行的时候，我们需要在命令中对这三个文件加进行映射，让实际的文件写入主机磁盘，否则 docker 容器删除后这些文件也丢失了。我们创建<code>/root/log</code>、<code>/root/test_case</code>和<code>/root/upload</code>三个目录。因为 MySQL 也是运行在 docker 中的，也需要对数据库的数据存储目录进行映射， 还需要创建<code>/root/data</code>。</p>
+<p>要注意的是如果服务器在运行的时候写入本地文件了是不能持久化的，docker 容器删除后这些文件也丢失了。我们创建<code>/root/log</code>、<code>/root/test_case</code>、<code>/root/upload</code>、<code>/root/redis</code> 和 <code>/root/data</code>这几个目录让 docker 容器中的文件映射写入本地。</p>
 
-<p>启动 MySQL，命令是<code>docker run --name mysql -v /root/data:/var/lib/mysql -e MYSQL_ROOT_PASSWORD=root  -d mysql/mysql-server:latest</code>。然后 <code>docker ps -a</code>就能看到这个容器了。以后手动的去操作 MySQL 都可以使用这个命令。</p>
+<h3>启动 MySQL</h3>
+
+<p>启动 MySQL，命令是<code>docker run --name mysql -v /root/data:/var/lib/mysql -e MYSQL_ROOT_PASSWORD=root -d mysql/mysql-server:latest</code>。然后 <code>docker ps -a</code>就能看到这个容器了。以后手动的去操作 MySQL 都可以使用这个命令。</p>
 
 <pre><code>CONTAINER ID        IMAGE                       COMMAND                  CREATED             STATUS              PORTS               NAMES
 360073468c74        mysql/mysql-server:latest   "/entrypoint.sh mysql"   3 seconds ago       Up 3 seconds        3306/tcp            mysql
 </code></pre>
 
 <p>要注意的是
- - 如果你的 MySQL 备份路径不是/root/data 的话，注意替换命令中的路径。
+ - 如果你的 MySQL 备份路径不是/root/data 的话，注意替换命令中的路径，下同。
  - <code>--name</code> 参数是 <code>mysql</code>，这个只能存在一个，如果<code>docker ps -a</code>中还有一个同名的，会造成启动失败，需要先删除就容器<code>docker rm CONTAINER_ID</code>。
  - <code>MYSQL_ROOT_PASSWORD=root</code>说明 <code>root</code> 密码是 <code>root</code>，这个可以自己设置，运行在容器中的代码可以通过环境变量获取到这个密码。
  - MySQL 5.6及以上版本会默认打开<code>performance_schema=OFF</code>，导致 MySQL 的 docker 容器占用大量内存，512M 内存的基本不能运行，问题分析见<a href="https://virusdefender.net/index.php/archives/471/">这里</a>。如果确实内存不足，可以在本地新建一个 my.cnf，复制以下内容，</p>
@@ -747,31 +747,41 @@ performance_schema=OFF
 
 <p>然后启动 MySQL 的命令再加上<code>-v /root/data/my.cnf:/etc/my.cnf</code>，使用自定义的配置文件，和官方的相比，就添加了最后一行。</p>
 
+<h3>启动 redis</h3>
+
+<pre><code>docker run --name redis -v /root/redis/:/data -d redis redis-server --appendonly yes
+</code></pre>
+
+<p>为防止数据丢失，redis 的文件是写入<code>/root/redis</code> 的</p>
+
+<h3>创建数据库</h3>
+
 <p>接下来我们就能连接到 docker 中的数据库了，命令是<code>docker run -it --link mysql:mysql --rm mysql/mysql-server:latest sh -c 'exec mysql -h"$MYSQL_PORT_3306_TCP_ADDR" -P"$MYSQL_PORT_3306_TCP_PORT" -uroot -p"$MYSQL_ENV_MYSQL_ROOT_PASSWORD"'</code>
 然后运行下面两个 sql 语句。
 <code>create database oj default character set utf8;</code>，<code>create database oj_submission default character set utf8;</code>。这个时候，在 <code>/root/data</code> 目录就能看到同名的目录了。</p>
 
-<p>然后我们创建数据库表，首先需要进入到<code>oj_web_server</code>中，命令是<code>docker run -i -t -e oj_env=server -v /root/qduoj:/code -v /root/test_case:/code/test_case -v /root/log:/code/log -v /root/upload:/code/upload --link mysql --rm oj_web_server /bin/bash</code>，然后使用命令<code>python manage.py migrate</code>和<code>python manage.py migrate --database=submission</code>，如果没有错误，就可以了。然后运行<code>python manage.py shell</code>创建超级管理员用户。
-```
-root@93cfb0df88e5:/code# python manage.py shell
-Python 2.7.10 (default, Sep  9 2015, 20:21:51)
+<h3>创建数据库表</h3>
+
+<p>然后我们创建数据库表，首先需要进入到<code>oj_web_server</code>中，命令是<code>docker run -i -t -e oj_env=server -v /root/qduoj:/code -v /root/test_case:/code/test_case -v /root/log:/code/log -v /root/upload:/code/upload --link mysql --rm oj_web_server /bin/bash</code>，然后使用命令<code>python manage.py migrate</code>和<code>python manage.py migrate --database=submission</code>，如果没有错误，就可以了。然后运行<code>python manage.py shell</code>创建超级管理员用户。</p>
+
+<pre><code>root@93cfb0df88e5:/code# python manage.py shell
+Python 2.7.10 (default, Sep  9 2015, 20:21:51) 
 [GCC 4.9.2] on linux2
 Type "help", "copyright", "credits" or "license" for more information.
-(InteractiveConsole)</p>
+(InteractiveConsole)
+&gt;&gt;&gt; from account.models import User
+&gt;&gt;&gt; u = User.objects.create(username="root", admin_type=2)
+&gt;&gt;&gt; u.set_password("root")
+&gt;&gt;&gt; u.save()
+</code></pre>
 
-<blockquote><blockquote><blockquote><p>from account.models import User
-u = User.objects.create(username="root", admin_type=2)
-u.set_password("root")
-u.save()
-<code>``
-安装完成，</code>exit`退出就行了。</p></blockquote></blockquote></blockquote>
+<p>安装完成，<code>exit</code>退出就行了。</p>
+
+<h3>打包静态文件</h3>
 
 <p>接下来我们要在服务器上进行 js 的打包和模板中静态文件加 md5 戳的操作，可以将多个 js 合并成一个，同时避免服务器文件修改后浏览器没及时更新的问题，以后每次更新代码也要进行相同的操作。这个操作需要安装 node.js，自行安装就行。然后在 manage.py 所在的目录运行<code>python tools/release_static.py</code>就可以了。</p>
 
-<p>启动 redis</p>
-
-<pre><code>docker run --name redis -d redis
-</code></pre>
+<h3>启动 web 服务</h3>
 
 <p>接下来我们就可以用 gunicorn 真正的去运行 web 程序了，命令是</p>
 
@@ -799,7 +809,7 @@ u.save()
 
 <p>这个时候尝试访问你的 ip 或者域名应该就可以看到网页界面了。</p>
 
-<h3>判题</h3>
+<h3>启动判题队列</h3>
 
 <p>判题队列使用的 celery 不是运行在 docker 里面的，所有它运行需要的数据库配置等都需要手动的获取。主要包括 submission 数据库地址，redis 地址，主机上测试用例目录和源代码目录。因为数据库和 redis 都是在 docker 中运行的，我们首先要获取这两个地址。</p>
 
@@ -813,54 +823,13 @@ docker inspect mysql
 export submission_db_host=192.168.xx.xx
 </code></pre>
 
-<p>自己按照实际情况替换即可。</p>
+<p>自己按照实际情况替换即可。
+在源代码中 <code>tools/run.py</code> 中有自动化的工具，但是这一步还是不建议使用工具，有兴趣的自己看下源代码。</p>
 
-<p>主机上我们也是使用的 supervisor 监控 celery 的，创建/etc/supervisord.conf，</p>
+<p>在源代码目录运行<code>nohup celery -A judge.judger_controller worker -l DEBUG &amp;</code>就可以启动 celery 了。</p>
 
-<pre><code>[supervisord]
-logfile=/root/log/supervisord.log ; supervisord log file
-logfile_maxbytes=50MB       ; maximum size of logfile before rotation
-logfile_backups=10          ; number of backed up logfiles
-loglevel=info               ; info, debug, warn, trace
-pidfile=/root/log/supervisord.pid ; pidfile location
-nodaemon=false              ; run supervisord as a daemon
-minfds=1024                 ; number of startup file descriptors
-minprocs=200                ; number of process descriptors
-user=root                   ; default user
-childlogdir=/root/log/            ; where child log files will live
+<p>创建并提交一道题目是是吧~</p>
 
-
-[rpcinterface:supervisor]
-supervisor.rpcinterface_factory = supervisor.rpcinterface:make_main_rpcinterface
-
-[supervisorctl]
-serverurl=unix:///tmp/supervisor.sock ; use unix:// schem for a unix sockets.
-
-
-[include]
-
-files=celeryd.conf
-</code></pre>
-
-<p>创建/etc/celeryd.conf</p>
-
-<pre><code>[program:celery]
-command=celery worker -A judge.judger_controller --loglevel=INFO
-
-directory=/root/qduoj/
-user=root
-numprocs=1
-stdout_logfile=/root/log/worker.log
-stderr_logfile=/root/log/worker.log
-autostart=true
-autorestart=true
-startsecs=1
-
-stopwaitsecs = 6
-
-killasgroup=true
-</code></pre>
-
-<p>运行<code>supervisord</code>，这时候就会启动 celery 了。</p>
+<p>有各种问题欢迎去 issue 中提。</p>
 </body>
 </html>
