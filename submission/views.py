@@ -149,7 +149,7 @@ class SubmissionAdminAPIView(APIView):
         problem_id = request.GET.get("problem_id", None)
         if not problem_id:
             return error_response(u"参数错误")
-        submissions = Submission.objects.filter(problem_id=problem_id).order_by("-create_time")
+        submissions = Submission.objects.filter(problem_id=problem_id, contest_id__isnull=True).order_by("-create_time")
         return paginate(request, submissions, SubmissionSerializer)
 
 

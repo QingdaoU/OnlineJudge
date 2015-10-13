@@ -29,7 +29,7 @@ class User(AbstractBaseUser):
     # 用户邮箱
     email = models.EmailField(max_length=254, blank=True, null=True)
     # 用户注册时间
-    create_time = models.DateTimeField(auto_now_add=True)
+    create_time = models.DateTimeField(auto_now_add=True, null=True)
     # 0代表不是管理员 1是普通管理员 2是超级管理员
     admin_type = models.IntegerField(default=0)
     # JSON字典用来表示该用户的问题的解决状态 1为ac，2为正在进行
@@ -38,6 +38,8 @@ class User(AbstractBaseUser):
     reset_password_token = models.CharField(max_length=40, blank=True, null=True)
     # token 生成时间
     reset_password_token_create_time = models.DateTimeField(blank=True, null=True)
+    # 论坛授权token
+    auth_token = models.CharField(max_length=40, blank=True, null=True)
 
     USERNAME_FIELD = 'username'
     REQUIRED_FIELDS = []

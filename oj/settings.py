@@ -182,3 +182,7 @@ DATABASE_ROUTERS = ['oj.db_router.DBRouter']
 TEST_CASE_DIR = os.path.join(BASE_DIR, 'test_case/')
 
 IMAGE_UPLOAD_DIR = os.path.join(BASE_DIR, 'upload/')
+
+WEBSITE_INFO = {"website_name": "qduoj",
+                "website_footer": u"青岛大学信息工程学院 创新实验室",
+                "url": "https://qduoj.com"}
