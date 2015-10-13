@@ -57,5 +57,5 @@ f.close()
 print "Please run source /etc/profile"
 
 os.system("ps -ef|grep celery")
-print "nohup celery -A judge.judger_controller worker -l DEBUG"
+print "nohup celery -A judge.judger_controller worker -l DEBUG &"
 
