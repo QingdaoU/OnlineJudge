@@ -37,9 +37,6 @@ class ContestSubmissionAPIView(APIView):
             contest = Contest.objects.get(id=data["contest_id"])
             try:
                 problem = ContestProblem.objects.get(contest=contest, id=data["problem_id"])
-                # 更新题目提交计数器
-                problem.total_submit_number += 1
-                problem.save()
             except ContestProblem.DoesNotExist:
                 return error_response(u"题目不存在")
             submission = Submission.objects.create(user_id=request.user.id, language=int(data["language"]),
