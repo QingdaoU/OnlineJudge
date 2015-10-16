@@ -12,23 +12,25 @@ require(["jquery", "avalon", "csrfToken", "bsAlert", "editor", "validator", "pag
                 var vm = avalon.define({
                     $id: "announcement",
                     announcementList: [],
+                    isEditing: false,
+                    showVisibleOnly: false,
+
+                    //编辑器同步变量
+                    announcementId: -1,
+                    newTitle: "",
+                    announcementVisible: false,
+
                     pager: {
                         getPage: function(page){
                             getPage(page);
                         }
                     },
-                    isEditing: false,
-                    announcementId: -1,
-                    showVisibleOnly: false,
-                    newTitle: "",
-                    announcementVisible: 0,
-
                     editAnnouncement: function (announcement) {
                         vm.newTitle = announcement.title;
                         vm.announcementId = announcement.id;
                         editAnnouncementEditor.setValue(announcement.content);
                         vm.announcementVisible = announcement.visible;
-                        vm.isEditing = !vm.isEditing;
+                        vm.isEditing = true;
                         editAnnouncementEditor.focus();
                     },
                     cancelEdit: function () {
@@ -76,7 +78,7 @@ require(["jquery", "avalon", "csrfToken", "bsAlert", "editor", "validator", "pag
             }
 
             function getPage(page) {
-                var url = "/api/admin/announcement/?paging=true&page=" + page + "&page_size=2";
+                var url = "/api/admin/announcement/?paging=true&page=" + page + "&page_size=20";
                 if (vm.showVisibleOnly)
                     url += "&visible=true";
                 $.ajax({
