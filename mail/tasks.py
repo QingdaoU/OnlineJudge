@@ -1,14 +1,19 @@
 # coding=utf-8
+import os
+from envelopes import Envelope
+
+SMTP_CONFIG = {"smtp_server": "smtp.mxhichina.com",
+               "email": "noreply@qduoj.com",
+               "password": os.environ.get("smtp_password", "111111"),
+               "tls": False}
 
 
-def send_email(*args, **kwargs):
-    pass
-
-
-'''
-envelope = Envelope(from_addr=("noreply@qduoj.com", u"qduoj 密码找回邮件", email_template),
-                                to_addr=(user.email, user.username),
-                                subject=u"qduoj 密码找回邮件",
-                                html_body=email_template)
-envelope.send("smtp.mxhichina.com", login="noreply@qduoj.com", password="092122302Zarpe2015", tls=False)
-'''
+def send_email(from_name, to_email, to_name, subject, content):
+    envelope = Envelope(from_addr=(SMTP_CONFIG["email"], from_name),
+                        to_addr=(to_email, to_name),
+                        subject=subject,
+                        html_body=content)
+    envelope.send(SMTP_CONFIG["smtp_server"],
+                  login=SMTP_CONFIG["email"],
+                  password=SMTP_CONFIG["password"],
+                  tls=SMTP_CONFIG["tls"])
