@@ -23,6 +23,9 @@
         validator: "lib/validator/validator",
         ZeroClipboard: "lib/ZeroClipboard/ZeroClipboard",
 
+        // ------ admin web 组件 ----------
+        pager: "components/pager",
+
         // ------ 下面写的都不要直接用，而是使用上面的封装版本 ------
         //富文本编辑器simditor -> editor
         simditor: "lib/simditor/simditor",
@@ -68,6 +71,11 @@
         contestPassword_19_pack: "app/oj/contest/contestPassword",
         group_20_pack: "app/admin/group/group",
         submissionList_21_pack: "app/admin/contest/submissionList"
+    },
+    shim: {
+            avalon: {
+                exports: "avalon"
+            }
     },
     findNestedDependencies: true,
     appDir: "../",
