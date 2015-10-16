@@ -6,6 +6,7 @@ var require = {
         jquery: "lib/jquery/jquery",
         jcountdown: "lib/jcountdown/jcountdown",
         avalon: "lib/avalon/avalon",
+        //avalon15: "lib/avalon/avalon15",
         editor: "utils/editor",
         uploader: "utils/uploader",
         formValidation: "utils/formValidation",
@@ -22,6 +23,9 @@ var require = {
         datetimePicker: "lib/datetime_picker/bootstrap-datetimepicker",
         validator: "lib/validator/validator",
         ZeroClipboard: "lib/ZeroClipboard/ZeroClipboard",
+
+        // ------ admin web 组件 ----------
+        pager: "components/pager",
 
 
         // ------ 下面写的都不要直接用，而是使用上面的封装版本 ------
@@ -69,5 +73,10 @@ var require = {
         contestPassword_19_pack: "app/oj/contest/contestPassword",
         group_20_pack: "app/admin/group/group",
         submissionList_21_pack: "app/admin/contest/submissionList"
+    },
+    shim: {
+            avalon: {
+                exports: "avalon"
+            }
     }
 };

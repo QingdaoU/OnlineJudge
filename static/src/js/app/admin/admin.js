@@ -1,4 +1,4 @@
-require(["jquery", "avalon", "bootstrap"], function ($, avalon) {
+require(["jquery", "avalon", "csrfToken", "bsAlert", "bootstrap"], function ($, avalon, csrfTokenHeader, bsAlert) {
 
     avalon.ready(function () {
 
@@ -155,7 +155,15 @@ require(["jquery", "avalon", "bootstrap"], function ($, avalon) {
                 show_template("template/" + hash + ".html");
             }
         };
-        setTimeout(function(){li_active("#li-" + hash.replace("/", "-"));}, 500)
+        setTimeout(function(){li_active("#li-" + hash.replace("/", "-"));}, 500);
+
+        $.ajaxSetup({
+          beforeSend: csrfTokenHeader,
+            dataType: "json",
+            error: function(){
+                bsAlert("请求失败");
+            }
+        });
     });
 
 
