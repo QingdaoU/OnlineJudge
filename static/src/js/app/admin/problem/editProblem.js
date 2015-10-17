@@ -5,7 +5,7 @@ require(["jquery", "avalon", "editor", "uploader", "bsAlert", "csrfToken", "tagE
 
             $("#edit-problem-form").validator()
                 .on('submit', function (e) {
-                    if (!e.isDefaultPrevented()){
+                    if (!e.isDefaultPrevented()) {
                         if (vm.testCaseId == "") {
                             bsAlert("你还没有上传测试数据!");
                             return false;
@@ -51,7 +51,10 @@ require(["jquery", "avalon", "editor", "uploader", "bsAlert", "csrfToken", "tagE
                         };
 
                         for (var i = 0; i < vm.samples.$model.length; i++) {
-                            ajaxData.samples.push({input: vm.samples.$model[i].input, output: vm.samples.$model[i].output});
+                            ajaxData.samples.push({
+                                input: vm.samples.$model[i].input,
+                                output: vm.samples.$model[i].output
+                            });
                         }
 
                         $.ajax({
@@ -75,78 +78,70 @@ require(["jquery", "avalon", "editor", "uploader", "bsAlert", "csrfToken", "tagE
                         return false;
                     }
                 });
-        if (avalon.vmodels.editProblem) {
-            var vm = avalon.vmodels.editProblem;
-            vm.title= "",
-            vm.description= "";
-            vm.timeLimit= -1;
-            vm.memoryLimit= -1;
-            vm.samples= [];
-            vm.hint= "";
-            vm.visible= true;
-            vm.difficulty= 0;
-            vm.inputDescription= "";
-            vm.outputDescription= "";
-            vm.testCaseIdd= "";
-            vm.uploadSuccess= false;
-            vm.source= "";
-            vm.testCaseList= [];
-        }
-        else
-            var vm = avalon.define({
-                $id: "editProblem",
-                title: "",
-                description: "",
-                timeLimit: -1,
-                memoryLimit: -1,
-                samples: [],
-                hint: "",
-                visible: true,
-                difficulty: 0,
-                inputDescription: "",
-                outputDescription: "",
-                testCaseIdd: "",
-                uploadSuccess: false,
-                source: "",
-                testCaseList: [],
-                addSample: function () {
-                    vm.samples.push({input: "", output: "", "visible": true});
-                },
-                delSample: function (sample) {
-                    if (confirm("你确定要删除么?")) {
-                        vm.samples.remove(sample);
+            if (avalon.vmodels.editProblem) {
+                var vm = avalon.vmodels.editProblem;
+            }
+            else
+                var vm = avalon.define({
+                    $id: "editProblem",
+                    title: "",
+                    description: "",
+                    timeLimit: -1,
+                    memoryLimit: -1,
+                    samples: [],
+                    hint: "",
+                    visible: true,
+                    difficulty: 0,
+                    inputDescription: "",
+                    outputDescription: "",
+                    testCaseIdd: "",
+                    uploadSuccess: false,
+                    source: "",
+                    testCaseList: [],
+                    uploadProgress: 0,
+                    addSample: function () {
+                        vm.samples.push({input: "", output: "", "visible": true});
+                    },
+                    delSample: function (sample) {
+                        if (confirm("你确定要删除么?")) {
+                            vm.samples.remove(sample);
+                        }
+                    },
+                    toggleSample: function (sample) {
+                        sample.visible = !sample.visible;
+                    },
+                    getBtnContent: function (item) {
+                        if (item.visible)
+                            return "折叠";
+                        return "展开";
+                    },
+                    showProblemListPage: function () {
+                        avalon.vmodels.admin.template_url = "template/problem/problem_list.html";
                     }
-                },
-                toggleSample: function (sample) {
-                    sample.visible = !sample.visible;
-                },
-                getBtnContent: function (item) {
-                    if (item.visible)
-                        return "折叠";
-                    return "展开";
-                },
-                showProblemListPage: function(){
-                    vm.$fire("up!showProblemListPage");
-                }
-            });
+                });
             var hintEditor = editor("#hint");
             var descriptionEditor = editor("#problemDescription");
-            var testCaseUploader = uploader("#testCaseFile", "/api/admin/test_case_upload/", function (file, response) {
-                if (response.code)
-                    bsAlert(response.data);
-                else {
-                    vm.testCaseId = response.data.test_case_id;
-                    vm.uploadSuccess = true;
-                    vm.testCaseList = [];
-                    for (var i = 0; i < response.data.file_list.input.length; i++) {
-                        vm.testCaseList.push({
-                            input: response.data.file_list.input[i],
-                            output: response.data.file_list.output[i]
-                        });
+            var testCaseUploader = uploader("#testCaseFile", "/api/admin/test_case_upload/",
+                function (file, response) {
+                    if (response.code)
+                        bsAlert(response.data);
+                    else {
+                        vm.testCaseId = response.data.test_case_id;
+                        vm.uploadSuccess = true;
+                        vm.testCaseList = [];
+                        for (var i = 0; i < response.data.file_list.input.length; i++) {
+                            vm.testCaseList.push({
+                                input: response.data.file_list.input[i],
+                                output: response.data.file_list.output[i]
+                            });
+                        }
+                        bsAlert("测试数据添加成功！共添加" + vm.testCaseList.length + "组测试数据");
                     }
-                    bsAlert("测试数据添加成功！共添加" + vm.testCaseList.length + "组测试数据");
+                },
+                function (file, percentage) {
+                    vm.uploadProgress = percentage;
                 }
-            });
+            );
 
             $.ajax({
                 url: "/api/admin/problem/?problem_id=" + avalon.vmodels.admin.problemId,
