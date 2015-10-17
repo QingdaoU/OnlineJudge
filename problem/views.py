@@ -183,8 +183,10 @@ class TestCaseUploadAPIView(APIView):
         except IOError as e:
             logger.error(e)
             return error_response(u"上传失败")
-
-        test_case_file = zipfile.ZipFile(tmp_zip, 'r')
+        try:
+            test_case_file = zipfile.ZipFile(tmp_zip, 'r')
+        except Exception:
+            return error_response(u"解压失败")
         name_list = test_case_file.namelist()
 
         l = []
