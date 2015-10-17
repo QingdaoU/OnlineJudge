@@ -32,6 +32,7 @@
         "simple-module": "lib/simditor/module",
         "simple-hotkeys": "lib/simditor/hotkeys",
         "simple-uploader": "lib/simditor/uploader",
+        "simditor-autosave": "lib/simditor/simditor-autosave",
 
         //code mirror 代码编辑器 ->codeMirror
         _codeMirror: "lib/codeMirror/codemirror",

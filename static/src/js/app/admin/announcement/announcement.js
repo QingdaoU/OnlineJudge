@@ -60,6 +60,7 @@ require(["jquery", "avalon", "csrfToken", "bsAlert", "editor", "validator", "pag
                                 if (!data.code) {
                                     bsAlert("修改成功");
                                     vm.isEditing = false;
+                                    localStorage.removeItem("/admin/autosave/edit-announcement-editor/");
                                     getPage(1);
                                 }
                                 else {
@@ -97,7 +98,7 @@ require(["jquery", "avalon", "csrfToken", "bsAlert", "editor", "validator", "pag
             }
 
             //新建公告表单验证与数据提交
-            $("#announcement-form").validator().on('submit', function (e) {
+             $("#announcement-form").validator().on('submit', function (e) {
                 if (!e.isDefaultPrevented()) {
                     var title = $("#title").val();
                     var content = createAnnouncementEditor.getValue();
@@ -119,6 +120,7 @@ require(["jquery", "avalon", "csrfToken", "bsAlert", "editor", "validator", "pag
                                 bsAlert("提交成功！");
                                 $("#title").val("");
                                 createAnnouncementEditor.setValue("");
+                                localStorage.removeItem("/admin/autosave/create-announcement-editor/");
                                 getPage(1);
                             } else {
                                 bsAlert(data.data);

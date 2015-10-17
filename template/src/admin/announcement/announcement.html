@@ -38,7 +38,7 @@
                    ms-duplex="newTitle"></div>
         <div class="form-group">
             <label>内容</label>
-            <textarea id="edit-announcement-editor"></textarea>
+            <textarea id="edit-announcement-editor" data-autosave="edit-announcement-editor"></textarea>
         </div>
         <div class="form-group">
             <label>可见 <input ms-duplex-checked="announcementVisible" type="checkbox"/></label>
@@ -62,7 +62,7 @@
         </div>
         <div class="form-group">
             <label>内容</label>
-            <textarea id="create-announcement-editor" placeholder="公告内容" maxlength="10000" required>
+            <textarea id="create-announcement-editor" placeholder="公告内容" maxlength="10000" data-autosave="create-announcement-editor" required>
             </textarea>
 
             <div class="help-block with-errors"></div>
