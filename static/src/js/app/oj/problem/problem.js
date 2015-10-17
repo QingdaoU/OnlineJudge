@@ -27,14 +27,41 @@ require(["jquery", "codeMirror", "csrfToken", "bsAlert", "ZeroClipboard"],
             return;
         }
 
+        function getLanguage(){
+            return $("input[name='language'][checked]").val();
+        }
+
         var codeEditor = codeMirror(codeEditorSelector, "text/x-csrc");
-        var language = $("input[name='language'][checked]").val();
+        var language = getLanguage();
         var submissionId;
+
+        function setLanguage(language){
+            var languageTypes = {"1": "text/x-csrc", "2": "text/x-c++src", "3": "text/x-java"};
+            codeEditor.setOption("mode", languageTypes[language]);
+        }
+
+        function saveCode(code){
+            localStorage.setItem(location.href, JSON.stringify({code: code, language: language}))
+        }
+
+        if(window.localStorage){
+            var data = localStorage[location.href];
+            if(data){
+                data = JSON.parse(data);
+                $("input[name='language'][value='" + data.language + "']").prop("checked", true);
+                language = data.language;
+                codeEditor.setValue(data.code);
+                setLanguage(data.language);
+            }
+
+            setInterval(function(){
+                saveCode(codeEditor.getValue())
+            }, 3000);
+        }
 
         $("input[name='language']").change(function () {
             language = this.value;
-            var languageTypes = {"1": "text/x-csrc", "2": "text/x-c++src", "3": "text/x-java"};
-            codeEditor.setOption("mode", languageTypes[language]);
+            setLanguage(language);
         });
 
         $("#show-more-btn").click(function () {
