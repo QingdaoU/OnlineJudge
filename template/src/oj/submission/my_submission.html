@@ -44,14 +44,14 @@
                     <p>作者：{{ user.username }}</p>
                 {% endifnotequal %}
                 {% ifequal submission.result 0 %}
-                    <p>时间 : {{ submission.accepted_answer_time }}ms 语言 :
+                    <p>时间: {{ submission.accepted_answer_time }}ms 语言 :
                         {{ submission.language|translate_language }}
                     </p>
                 {% endifequal %}
                 {% ifequal submission.result 4 %}
                     <pre>{{ submission.info }}</pre>
                 {% endifequal %}
-                <p>提交时间 : {{ submission.create_time }}</p>
+                <p>提交时间: {{ submission.create_time }}</p>
             </div>
         </div>
         {% ifequal request.user.admin_type 2 %}
