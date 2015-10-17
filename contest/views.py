@@ -19,7 +19,7 @@ from account.models import SUPER_ADMIN, User
 from account.decorators import login_required
 from group.models import Group
 from utils.cache import get_cache_redis
-from .models import (Contest, ContestProblem, ContestSubmission, CONTEST_ENDED,
+from .models import (Contest, ContestProblem, CONTEST_ENDED,
                      CONTEST_NOT_START, CONTEST_UNDERWAY, ContestRank)
 from .models import GROUP_CONTEST, PUBLIC_CONTEST, PASSWORD_PROTECTED_CONTEST
 from .decorators import check_user_contest_permission

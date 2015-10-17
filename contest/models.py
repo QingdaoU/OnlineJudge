@@ -22,12 +22,8 @@ CONTEST_UNDERWAY = 0
 class Contest(models.Model):
     title = models.CharField(max_length=40, unique=True)
     description = RichTextField()
-    # 比赛模式：0 即为是acm模式，1 即为是按照总的 ac 题目数量排名模式
-    mode = models.IntegerField()
     # 是否显示实时排名结果
     real_time_rank = models.BooleanField()
-    # 是否显示别人的提交记录
-    show_user_submission = models.BooleanField()
     # 只能超级管理员创建公开赛，管理员只能创建小组内部的比赛
     # 如果这一项不为空，即为有密码的公开赛，没有密码的可以为小组赛或者是公开赛（此时用比赛的类型来表示）
     password = models.CharField(max_length=30, blank=True, null=True)
@@ -68,44 +64,11 @@ class ContestProblem(AbstractProblem):
     contest = models.ForeignKey(Contest)
     # 比如A B 或者1 2 或者 a b 将按照这个排序
     sort_index = models.CharField(max_length=30)
-    score = models.IntegerField(default=0)
+    # 是否已经公开了题目，防止重复公开
+    is_public = models.BooleanField(default=False)
 
     class Meta:
         db_table = "contest_problem"
-
-
-class ContestProblemTestCase(models.Model):
-    """
-    如果比赛是按照通过的测试用例总分计算的话，就需要这个model 记录每个测试用例的分数
-    """
-    # 测试用例的id 这个还在测试用例的配置文件里面有对应
-    id = models.CharField(max_length=40, primary_key=True, db_index=True)
-    problem = models.ForeignKey(ContestProblem)
-    score = models.IntegerField()
-
-    class Meta:
-        db_table = "contest_problem_test_case"
-
-
-class ContestSubmission(models.Model):
-    """
-    用于保存比赛提交和排名的一些数据，加快检索速度
-    """
-    user = models.ForeignKey(User)
-    problem = models.ForeignKey(ContestProblem)
-    contest = models.ForeignKey(Contest)
-    total_submission_number = models.IntegerField(default=1)
-    # 这道题是 AC 还是没过
-    ac = models.BooleanField()
-    # ac 用时以秒计
-    ac_time = models.IntegerField(default=0)
-    # 总的时间，用于acm 类型的，也需要保存罚时
-    total_time = models.IntegerField(default=0)
-    # 第一个解出此题目
-    first_achieved = models.BooleanField(default=False)
-
-    class Meta:
-        db_table = "contest_submission"
 
 
 class ContestRank(models.Model):
