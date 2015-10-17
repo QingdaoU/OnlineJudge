@@ -85,7 +85,7 @@ def problem_my_submissions_list_page(request, problem_id):
                                             contest_id__isnull=True).order_by("-create_time"). \
         values("id", "result", "create_time", "accepted_answer_time", "language")
 
-    return render(request, "oj/problem/my_submissions_list.html",
+    return render(request, "oj/submission/problem_my_submissions_list.html",
                   {"submissions": submissions, "problem": problem})
 
 
@@ -139,7 +139,7 @@ def my_submission(request, submission_id):
     else:
         info = None
     user = User.objects.get(id=submission.user_id)
-    return render(request, "oj/problem/my_submission.html",
+    return render(request, "oj/submission/my_submission.html",
                   {"submission": submission, "problem": problem, "info": info,
                    "user": user, "can_share": result["can_share"]})
 

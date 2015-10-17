@@ -293,7 +293,6 @@ def contest_page(request, contest_id):
     单个比赛的详情页
     """
     contest = Contest.objects.get(id=contest_id)
-
     return render(request, "oj/contest/contest_index.html", {"contest": contest})
 
 
@@ -304,15 +303,17 @@ def contest_problem_page(request, contest_id, contest_problem_id):
     """
     contest = Contest.objects.get(id=contest_id)
     try:
-        contest_problem = ContestProblem.objects.get(id=contest_problem_id, visible=True)
+        problem = ContestProblem.objects.get(id=contest_problem_id, visible=True)
     except ContestProblem.DoesNotExist:
         return error_page(request, u"比赛题目不存在")
     warning = u"您已经提交过本题的正确答案，重复提交可能造成时间累计。"
     show_warning = False
+
     try:
-        submission = ContestSubmission.objects.get(user=request.user, contest=contest, problem=contest_problem)
-        show_warning = submission.ac
-    except ContestSubmission.DoesNotExist:
+        rank = ContestRank.objects.get(user=request.user, contest=contest)
+        # 提示已经 ac 过这道题了
+        show_warning = rank.submission_info.get(str(problem.id), {"is_ac": False})["is_ac"]
+    except ContestRank.DoesNotExist:
         pass
 
     # 已经结束
@@ -324,14 +325,16 @@ def contest_problem_page(request, contest_id, contest_problem_id):
         warning = u"比赛没有开始，您是管理员，可以提交和测试题目，但是目前的提交不会计入排名。"
 
     show_submit_code_area = False
-    if contest.status == CONTEST_UNDERWAY:
-        show_submit_code_area = True
-    if request.user.admin_type == SUPER_ADMIN or request.user == contest.created_by:
+    if contest.status == CONTEST_UNDERWAY or \
+                    request.user.admin_type == SUPER_ADMIN or \
+                    request.user == contest.created_by:
         show_submit_code_area = True
 
-    return render(request, "oj/contest/contest_problem.html", {"contest_problem": contest_problem, "contest": contest,
-                                                               "samples": json.loads(contest_problem.samples),
-                                                               "show_warning": show_warning, "warning": warning,
+    return render(request, "oj/problem/contest_problem.html", {"problem": problem,
+                                                               "contest": contest,
+                                                               "samples": json.loads(problem.samples),
+                                                               "show_warning": show_warning,
+                                                               "warning": warning,
                                                                "show_submit_code_area": show_submit_code_area})
 
 

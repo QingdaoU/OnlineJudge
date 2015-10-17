@@ -7,17 +7,25 @@
     {% load submission %}
     <div class="container main">
         <ul class="nav nav-tabs nav-tabs-google">
-            <li role="presentation">
-                <a href="/contest/{{ problem.contest.id }}/problem/{{ problem.id }}/">题目</a></li>
-            <li role="presentation" class="active">
-                <a href="/contest/{{ problem.contest.id }}/problem/{{ problem.id }}/submissions/">
-                    我的提交</a>
-            </li>
+            {% if problem.contest_id %}
+                <li role="presentation">
+                    <a href="/contest/{{ problem.contest.id }}/problem/{{ problem.id }}/">题目</a></li>
+                <li role="presentation" class="active">
+                    <a href="/contest/{{ problem.contest.id }}/problem/{{ problem.id }}/submissions/">我的提交</a>
+                </li>
+            {% else %}
+                <li role="presentation">
+                    <a href="/problem/{{ problem.id }}/">题目</a></li>
+                <li role="presentation" class="active">
+                    <a href="/problem/{{ problem.id }}/submissions/">我的提交</a>
+                </li>
+            {% endif %}
         </ul>
         {% include "oj/problem/_problem_header.html" %}
+        {% if submissions %}
         <table class="table table-bordered">
             <thead>
-            <tr>
+            <tr class="" success>
                 <th>#</th>
                 <th>提交时间</th>
                 <th>语言</th>
@@ -28,7 +36,9 @@
             <tbody>
             {% for item in submissions %}
                 <tr>
-                    <th scope="row"><a href="/submission/{{ item.id }}/">{{ forloop.counter }}</a></th>
+                    <th scope="row">
+                        <a href="/submission/{{ item.id }}/">{{ forloop.counter }}</a>
+                    </th>
                     <td>{{ item.create_time }}</td>
                     <td>
                         {{ item.language|translate_language }}
@@ -48,5 +58,8 @@
 
             </tbody>
         </table>
+        {% else %}
+            <p>你还没有提交该题目</p>
+        {% endif %}
     </div>
 {% endblock %}

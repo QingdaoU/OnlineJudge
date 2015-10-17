@@ -86,6 +86,9 @@
             name: "bootstrap",
         },
         {
+            name: "codeMirror"
+        },
+        {
             name: "announcement_0_pack"
         },
         {

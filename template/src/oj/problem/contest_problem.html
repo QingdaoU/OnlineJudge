@@ -1,0 +1,42 @@
+{% extends 'oj_base.html' %}
+{% block title %}
+    {{ problem.title }}
+{% endblock %}
+{% block body %}
+    <div class="container main">
+        <ul class="nav nav-tabs nav-tabs-google">
+            <li role="presentation">
+                <a href="/contest/{{ problem.contest.id }}/problems/">题目列表</a>
+            </li>
+            <li role="presentation" class="active">
+                <a href="/contest/{{ problem.contest.id }}/problem/{{ problem.id }}/">题目{{ problem.sort_index }}</a>
+            </li>
+            <li role="presentation">
+                <a href="/contest/{{ problem.contest.id }}/problem/{{ problem.id }}/submissions/">我的提交</a>
+            </li>
+        </ul>
+        {% include "oj/problem/_problem_header.html" %}
+        <div>
+            {% include "oj/problem/_problem_main_info.html" %}
+            {% if problem.hint %}
+                <div class="problem-section">
+                    <label class="problem-label">提示</label>
+
+                    <div class="problem-detail">{{ problem.hint|safe }}</div>
+                </div>
+            {% endif %}
+            {% if show_submit_code_area %}
+                {% include "oj/problem/_submit_problem.html" %}
+            {% endif %}
+            {% if show_warning %}
+                <div class="alert alert-success" role="alert">{{ warning }}</div>
+            {% endif %}
+            <div id="result">
+            </div>
+            <hr>
+        </div>
+    </div>
+{% endblock %}
+{% block js_block %}
+    <script src="/static/js/app/oj/problem/problem.js"></script>
+{% endblock %}
