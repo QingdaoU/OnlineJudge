@@ -26,11 +26,12 @@ class AbstractProblem(models.Model):
     # 测试用例id 这个id 可以用来拼接得到测试用例的文件存储位置
     test_case_id = models.CharField(max_length=40)
     # 提示
-    hint = models.TextField(blank=True, null=True)
+    hint = RichTextField(blank=True, null=True)
     # 创建时间
     create_time = models.DateTimeField(auto_now_add=True)
-    # 最后更新时间
-    # last_update_time = models.DateTimeField(auto_now=True)
+    # 最后更新时间，不适用auto_now，因为本 model 里面的提交数量是变化的，导致每次 last_update_time 也更新了
+    # 需要每次编辑后手动赋值
+    last_update_time = models.DateTimeField(blank=True, null=True)
     # 这个题是谁创建的
     created_by = models.ForeignKey(User)
     # 时间限制 单位是毫秒
@@ -63,4 +64,4 @@ class Problem(AbstractProblem):
     # 标签
     tags = models.ManyToManyField(ProblemTag)
     # 来源
-    source = models.CharField(max_length=30, blank=True, null=True)
+    source = models.CharField(max_length=200, blank=True, null=True)

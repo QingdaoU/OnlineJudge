@@ -17,12 +17,16 @@ def check_user_problem_permission(func):
             request = args[0]
 
         # 这是在后台使用的url middleware 已经确保用户是登录状态的了
-        if request.user.admin_type == SUPER_ADMIN:
-            return func(*args, **kwargs)
         try:
-            Problem.objects.get(id=request.data.get("problem_id", -1), created_by=request.user)
+            problem = Problem.objects.get(id=request.data.get("id", -1))
         except Problem.DoesNotExist:
             return error_response(u"问题不存在")
-        return func(*args, **kwargs)
+
+        if request.user.admin_type == SUPER_ADMIN:
+            return func(*args, **kwargs)
+        else:
+            if problem.created_by != request.user:
+                return error_response(u"问题不存在")
+            return func(*args, **kwargs)
 
     return check

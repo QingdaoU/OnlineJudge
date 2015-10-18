@@ -39,8 +39,8 @@ require(["jquery", "chart"], function ($, Chart) {
     $("#clear-chart-data").click(function(){
         for(var i = 0;i < dataCounter;i++) {
             chart.removeData();
-            dataCounter = 0;
         }
+        dataCounter = 0;
     });
 
     var intervalId = setInterval(getMonitorData, 3000);

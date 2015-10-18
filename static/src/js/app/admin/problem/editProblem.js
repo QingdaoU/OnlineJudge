@@ -1,16 +1,16 @@
-require(["jquery", "avalon", "editor", "uploader", "bsAlert", "csrfToken", "tagEditor", "validator", "jqueryUI"],
+require(["jquery", "avalon", "editor", "uploader", "bsAlert", "csrfToken", "tagEditor", "validator", "jqueryUI", "editorComponent"],
     function ($, avalon, editor, uploader, bsAlert, csrfTokenHeader) {
 
         avalon.ready(function () {
 
             $("#edit-problem-form").validator()
                 .on('submit', function (e) {
-                    if (!e.isDefaultPrevented()){
+                    if (!e.isDefaultPrevented()) {
                         if (vm.testCaseId == "") {
                             bsAlert("你还没有上传测试数据!");
                             return false;
                         }
-                        if (vm.description == "") {
+                        if (avalon.vmodels.problemDescriptionEditor.content == "") {
                             bsAlert("题目描述不能为空!");
                             return false;
                         }
@@ -36,12 +36,12 @@ require(["jquery", "avalon", "editor", "uploader", "bsAlert", "csrfToken", "tagE
                         var ajaxData = {
                             id: avalon.vmodels.admin.problemId,
                             title: vm.title,
-                            description: vm.description,
+                            description: avalon.vmodels.problemDescriptionEditor.content,
                             time_limit: vm.timeLimit,
                             memory_limit: vm.memoryLimit,
                             samples: [],
                             test_case_id: vm.testCaseId,
-                            hint: vm.hint,
+                            hint: avalon.vmodels.problemHintEditor.content,
                             source: vm.source,
                             visible: vm.visible,
                             tags: tags,
@@ -51,7 +51,10 @@ require(["jquery", "avalon", "editor", "uploader", "bsAlert", "csrfToken", "tagE
                         };
 
                         for (var i = 0; i < vm.samples.$model.length; i++) {
-                            ajaxData.samples.push({input: vm.samples.$model[i].input, output: vm.samples.$model[i].output});
+                            ajaxData.samples.push({
+                                input: vm.samples.$model[i].input,
+                                output: vm.samples.$model[i].output
+                            });
                         }
 
                         $.ajax({
@@ -75,78 +78,78 @@ require(["jquery", "avalon", "editor", "uploader", "bsAlert", "csrfToken", "tagE
                         return false;
                     }
                 });
-        if (avalon.vmodels.editProblem) {
-            var vm = avalon.vmodels.editProblem;
-            vm.title= "",
-            vm.description= "";
-            vm.timeLimit= -1;
-            vm.memoryLimit= -1;
-            vm.samples= [];
-            vm.hint= "";
-            vm.visible= true;
-            vm.difficulty= 0;
-            vm.inputDescription= "";
-            vm.outputDescription= "";
-            vm.testCaseIdd= "";
-            vm.uploadSuccess= false;
-            vm.source= "";
-            vm.testCaseList= [];
-        }
-        else
-            var vm = avalon.define({
-                $id: "editProblem",
-                title: "",
-                description: "",
-                timeLimit: -1,
-                memoryLimit: -1,
-                samples: [],
-                hint: "",
-                visible: true,
-                difficulty: 0,
-                inputDescription: "",
-                outputDescription: "",
-                testCaseIdd: "",
-                uploadSuccess: false,
-                source: "",
-                testCaseList: [],
-                addSample: function () {
-                    vm.samples.push({input: "", output: "", "visible": true});
-                },
-                delSample: function (sample) {
-                    if (confirm("你确定要删除么?")) {
-                        vm.samples.remove(sample);
+            if (avalon.vmodels.editProblem) {
+                var vm = avalon.vmodels.editProblem;
+            }
+            else
+                var vm = avalon.define({
+                    $id: "editProblem",
+                    title: "",
+                    timeLimit: -1,
+                    memoryLimit: -1,
+                    samples: [],
+                    visible: true,
+                    difficulty: "1",
+                    inputDescription: "",
+                    outputDescription: "",
+                    testCaseIdd: "",
+                    uploadSuccess: false,
+                    source: "",
+                    testCaseList: [],
+                    uploadProgress: 0,
+
+                    problemDescriptionEditor: {
+                        editorId: "problem-description-editor",
+                        placeholder: "题目描述"
+                    },
+                    problemHintEditor: {
+                        editorId: "problem-hint-editor",
+                        placeholder: "提示"
+                    },
+
+                    addSample: function () {
+                        vm.samples.push({input: "", output: "", "visible": true});
+                    },
+                    delSample: function (sample) {
+                        if (confirm("你确定要删除么?")) {
+                            vm.samples.remove(sample);
+                        }
+                    },
+                    toggleSample: function (sample) {
+                        sample.visible = !sample.visible;
+                    },
+                    getBtnContent: function (item) {
+                        if (item.visible)
+                            return "折叠";
+                        return "展开";
+                    },
+                    showProblemListPage: function () {
+                        avalon.vmodels.admin.template_url = "template/problem/problem_list.html";
+                    }
+                });
+            var testCaseUploader = uploader("#testCaseFile", "/api/admin/test_case_upload/",
+                function (file, response) {
+                    if (response.code) {
+                        vm.uploadProgress = 0;
+                        bsAlert(response.data);
+                    }
+                    else {
+                        vm.testCaseId = response.data.test_case_id;
+                        vm.uploadSuccess = true;
+                        vm.testCaseList = [];
+                        for (var i = 0; i < response.data.file_list.input.length; i++) {
+                            vm.testCaseList.push({
+                                input: response.data.file_list.input[i],
+                                output: response.data.file_list.output[i]
+                            });
+                        }
+                        bsAlert("测试数据添加成功！共添加" + vm.testCaseList.length + "组测试数据");
                     }
                 },
-                toggleSample: function (sample) {
-                    sample.visible = !sample.visible;
-                },
-                getBtnContent: function (item) {
-                    if (item.visible)
-                        return "折叠";
-                    return "展开";
-                },
-                showProblemListPage: function(){
-                    vm.$fire("up!showProblemListPage");
+                function (file, percentage) {
+                    vm.uploadProgress = percentage;
                 }
-            });
-            var hintEditor = editor("#hint");
-            var descriptionEditor = editor("#problemDescription");
-            var testCaseUploader = uploader("#testCaseFile", "/api/admin/test_case_upload/", function (file, response) {
-                if (response.code)
-                    bsAlert(response.data);
-                else {
-                    vm.testCaseId = response.data.test_case_id;
-                    vm.uploadSuccess = true;
-                    vm.testCaseList = [];
-                    for (var i = 0; i < response.data.file_list.input.length; i++) {
-                        vm.testCaseList.push({
-                            input: response.data.file_list.input[i],
-                            output: response.data.file_list.output[i]
-                        });
-                    }
-                    bsAlert("测试数据添加成功！共添加" + vm.testCaseList.length + "组测试数据");
-                }
-            });
+            );
 
             $.ajax({
                 url: "/api/admin/problem/?problem_id=" + avalon.vmodels.admin.problemId,
@@ -159,7 +162,7 @@ require(["jquery", "avalon", "editor", "uploader", "bsAlert", "csrfToken", "tagE
                     else {
                         var problem = data.data;
                         vm.title = problem.title;
-                        vm.description = problem.description;
+                        avalon.vmodels.problemDescriptionEditor.content = problem.description;
                         vm.timeLimit = problem.time_limit;
                         vm.memoryLimit = problem.memory_limit;
                         for (var i = 0; i < problem.samples.length; i++) {
@@ -169,7 +172,7 @@ require(["jquery", "avalon", "editor", "uploader", "bsAlert", "csrfToken", "tagE
                                 visible: false
                             })
                         }
-                        vm.hint = problem.hint;
+                        avalon.vmodels.problemHintEditor.content = problem.hint;
                         vm.visible = problem.visible;
                         vm.difficulty = problem.difficulty;
                         vm.inputDescription = problem.input_description;
@@ -177,8 +180,6 @@ require(["jquery", "avalon", "editor", "uploader", "bsAlert", "csrfToken", "tagE
                         vm.testCaseId = problem.test_case_id;
                         vm.source = problem.source;
                         var problemTags = problem.tags;
-                        hintEditor.setValue(vm.hint);
-                        descriptionEditor.setValue(vm.description);
                         $.ajax({
                             url: "/api/admin/tag/",
                             dataType: "json",

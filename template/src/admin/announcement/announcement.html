@@ -7,7 +7,6 @@
             <th>创建时间</th>
             <th>更新时间</th>
             <th>创建者</th>
-            <th>类型</th>
             <th>可见</th>
             <th></th>
         </tr>
@@ -17,7 +16,6 @@
             <td>{{ el.create_time|date("yyyy-MM-dd HH:mm:ss")}}</td>
             <td>{{ el.last_update_time|date("yyyy-MM-dd HH:mm:ss")}}</td>
             <td>{{ el.created_by.username }}</td>
-            <td ms-text="el.is_global?'全局可见':'组内可见'"></td>
             <td ms-text="el.visible?'可见':'不可见'"></td>
             <td>
                 <button class="btn-sm btn-info" ms-click="editAnnouncement(el)">编辑</button>
@@ -28,12 +26,10 @@
         <label>仅显示可见 <input ms-duplex-checked="showVisibleOnly" type="checkbox"/></label>
     </div>
     <div class="right">
-        页数：{{ page }}/{{ totalPage }}&nbsp;&nbsp;
-        <button ms-attr-class="getBtnClass('pre')" ms-click="getPrevious">上一页</button>
-        <button ms-attr-class="getBtnClass('next')" ms-click="getNext">下一页</button>
+        <ms:pager $id="announcementPager" config="pager"></ms:pager>
     </div>
 
-    <div ms-visible="editingAnnouncementId">
+    <div ms-visible="isEditing">
         <h3>编辑公告</h3>
 
         <div class="form-group">
@@ -42,37 +38,19 @@
                    ms-duplex="newTitle"></div>
         <div class="form-group">
             <label>内容</label>
-            <textarea id="edit-announcement-editor"></textarea>
+            <ms:editor $id="editAnnouncementEditor" config="editAnnouncementEditor"></ms:editor>
         </div>
         <div class="form-group">
             <label>可见 <input ms-duplex-checked="announcementVisible" type="checkbox"/></label>
         </div>
-        <div class="form-group">
-            <label>可见范围</label>
 
-            <div>
-                <span ms-if="showGlobalViewRadio">
-                    <input type="radio" value="true" name="isGlobal" ms-duplex-boolean="isGlobal">全局可见
-                </span>
-                <span>
-                    <input type="radio" value="false" name="isGlobal" ms-duplex-boolean="isGlobal">小组内可见
-                </span>
-            </div>
-
-        </div>
-        <div class="form-group col-md-12" ms-if="!isGlobal">
-            <!-- radio 的value 没有用 但是没有的话，表单验证会出错-->
-            <div ms-repeat="allGroups" class="col-md-4">
-                <input type="checkbox" value="group_id" ms-duplex-checked="el.isSelected">&nbsp;&nbsp;{{ el.name }}
-            </div>
-        </div>
         <div class="form-group">
             <button ms-click="submitChange()" class="btn btn-success">保存修改</button>
             &nbsp;&nbsp;
             <button ms-click="cancelEdit()" class="btn btn-danger">取消</button>
         </div>
     </div>
-    <h3>添加公告</h3>
+    <h3>发布公告</h3>
 
     <form id="announcement-form">
         <div class="form-group">
@@ -84,36 +62,12 @@
         </div>
         <div class="form-group">
             <label>内容</label>
-            <textarea id="create-announcement-editor" placeholder="公告内容" maxlength="10000" required>
-            </textarea>
+
+            <ms:editor $id="createAnnouncementEditor" config="createAnnouncementEditor"></ms:editor>
 
             <div class="help-block with-errors"></div>
         </div>
-        <div class="form-group">
-            <label>可见范围</label>
 
-            <div>
-                <span ms-if="showGlobalViewRadio">
-                    <label>
-                        <small><input type="radio" value="true" name="isGlobal" ms-duplex-boolean="isGlobal">全局可见
-                        </small>
-                    </label>
-                </span>
-                <span>
-                    <label>
-                        <small><input type="radio" value="false" name="isGlobal" ms-duplex-boolean="isGlobal">小组内可见
-                        </small>
-                    </label>
-                </span>
-            </div>
-
-        </div>
-        <div class="form-group col-md-12" ms-if="!isGlobal">
-            <!-- radio 的value 没有用 但是没有的话，表单验证会出错-->
-            <div ms-repeat="allGroups" class="col-md-4">
-                <input type="checkbox" value="group_id" ms-duplex-checked="el.isSelected">&nbsp;&nbsp;{{ el.name }}
-            </div>
-        </div>
         <div class="form-group">
             <button type="submit" class="btn btn-success">发布公告</button>
         </div>

@@ -5,7 +5,7 @@ from announcement.models import Announcement
 
 
 def public_announcement_list():
-    return Announcement.objects.filter(is_global=True, visible=True).order_by("-create_time")
+    return Announcement.objects.filter(visible=True).order_by("-create_time")
 
 register = template.Library()
 register.assignment_tag(public_announcement_list, name="public_announcement_list")

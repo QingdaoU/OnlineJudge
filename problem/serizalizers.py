@@ -25,13 +25,13 @@ class CreateProblemSerializer(serializers.Serializer):
     # [{"input": "1 1", "output": "2"}]
     samples = ProblemSampleSerializer()
     test_case_id = serializers.CharField(max_length=40)
-    source = serializers.CharField(max_length=30, required=False, default=None)
     time_limit = serializers.IntegerField(min_value=1)
     memory_limit = serializers.IntegerField(min_value=1)
     difficulty = serializers.IntegerField()
     tags = serializers.ListField(child=serializers.CharField(max_length=10))
     hint = serializers.CharField(max_length=3000, allow_blank=True)
-    visible = visible = serializers.BooleanField()
+    source = serializers.CharField(max_length=100, required=False, default=None)
+    visible = serializers.BooleanField()
 
 
 class ProblemTagSerializer(serializers.ModelSerializer):
@@ -61,7 +61,7 @@ class EditProblemSerializer(serializers.Serializer):
     input_description = serializers.CharField(max_length=10000)
     output_description = serializers.CharField(max_length=10000)
     test_case_id = serializers.CharField(max_length=40)
-    source = serializers.CharField(max_length=30)
+    source = serializers.CharField(max_length=100)
     time_limit = serializers.IntegerField(min_value=1)
     memory_limit = serializers.IntegerField(min_value=1)
     difficulty = serializers.IntegerField()
@@ -69,7 +69,3 @@ class EditProblemSerializer(serializers.Serializer):
     samples = ProblemSampleSerializer()
     hint = serializers.CharField(max_length=3000, allow_blank=True)
     visible = serializers.BooleanField()
-
-
-class CreateProblemTagSerializer(serializers.Serializer):
-    name = serializers.CharField(max_length=10)

@@ -16,7 +16,6 @@
             <th>ID</th>
             <th>用户名</th>
             <th>注册时间</th>
-            <th>最近登陆</th>
             <th>真实姓名</th>
             <th>电子邮箱</th>
             <th>用户类型</th>
@@ -26,7 +25,6 @@
             <td>{{ el.id }}</td>
             <td>{{ el.username }}</td>
             <td>{{ el.create_time|date("yyyy-MM-dd HH:mm:ss")}}</td>
-            <td>{{ el.last_login|date("yyyy-MM-dd HH:mm:ss")}}</td>
             <td>{{ el.real_name }}</td>
             <td>{{ el.email }}</td>
             <td>{{ userType[el.admin_type]}}</td>
@@ -39,17 +37,15 @@
         <label>仅显示管理员 <input ms-duplex-checked="showAdminOnly" type="checkbox"/></label>
     </div>
     <div class="text-right">
-        页数：{{ page }}/{{ totalPage }}&nbsp;&nbsp;
-        <button ms-attr-class="getBtnClass('pre')" ms-click="getPrevious">上一页</button>
-        <button ms-attr-class="getBtnClass('next')" ms-click="getNext">下一页</button>
+        <ms:pager $id="userPager" config="pager"></ms:pager>
     </div>
-    <div ms-visible="editingUserId">
+    <div ms-visible="isEditing">
         <h3>修改用户信息</h3>
 
-        <form id="edit_user-form">
+        <form id="edit-user-form">
             <div class="row">
                 <div class="form-group col-md-4"><label>ID</label>
-                    <input name="id" type="number" class="form-control" readonly ms-duplex="id">
+                    <input name="id" type="number" class="form-control" readonly ms-duplex="userId">
                 </div>
                 <div class="form-group col-md-4"><label>用户名</label>
                     <input name="username" type="text" class="form-control" ms-duplex="username"
@@ -64,7 +60,7 @@
             </div>
             <div class="row">
                 <div class="form-group col-md-4"><label>新密码（留空则保留原密码）</label>
-                    <input name="password" type="password" class="form-control" id="password" ms-duplex="password"
+                    <input name="password" type="password" class="form-control" id="password" autocomplete="off"
                            placeholder="此项留空则保留原密码" data-minlength="6" data-minlength-error="密码不得少于6位">
                     <div class="help-block with-errors"></div>
                 </div>
@@ -80,7 +76,7 @@
                 </div>
             </div>
             <div class="form-group">
-                <button type="submit" class="btn btn-primary">提交</button>
+                <button type="submit" class="btn btn-success">保存修改</button>
             </div>
         </form>
     </div>

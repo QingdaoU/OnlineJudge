@@ -69,8 +69,8 @@
             <ul class="list-group">
                 <div ms-repeat="adminNavList">
                     <li class="list-group-header">{{ el.name }}</li>
-                    <li class="list-group-item" ms-attr-id="getLiId(item.hash)" ms-repeat-item="el.children">
-                    <a ms-attr-href="el.hash">{{ item.name }}</a>
+                    <li class="list-group-item" ms-repeat-item="el.children" ms-attr-id="getLiId(item.hash)" >
+                    <a ms-attr-href="item.hash">{{ item.name }}</a>
                     </li>
                 </div>
             </ul>

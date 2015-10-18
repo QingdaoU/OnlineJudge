@@ -27,9 +27,7 @@
         </tr>
     </table>
     <div class="text-right">
-        页数：{{ page }}/{{ totalPage }}&nbsp;&nbsp;
-        <button ms-attr-class="getBtnClass('pre')" ms-click="getPrevious">上一页</button>
-        <button ms-attr-class="getBtnClass('next')" ms-click="getNext">下一页</button>
+        <ms:pager $id="submissionsListPager" config="pager"></ms:pager>
     </div>
 </div>
 <script src="/static/js/app/admin/problem/submissionList.js"></script>

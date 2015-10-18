@@ -1,4 +1,4 @@
-require(["jquery", "avalon", "bootstrap"], function ($, avalon) {
+require(["jquery", "avalon", "csrfToken", "bsAlert", "bootstrap"], function ($, avalon, csrfTokenHeader, bsAlert) {
 
     avalon.ready(function () {
 
@@ -109,22 +109,8 @@ require(["jquery", "avalon", "bootstrap"], function ($, avalon) {
             vm.template_url = "template/group/group_detail.html";
         });
 
-        vm.$watch("showEditProblemPage", function (problemId) {
-            vm.problemId = problemId;
-            vm.template_url = "template/problem/edit_problem.html";
-        });
-
-        vm.$watch("showProblemListPage", function () {
-            vm.template_url = "template/problem/problem_list.html";
-        });
-
         vm.$watch("showGroupListPage", function () {
             vm.template_url = "template/group/group.html";
-        });
-
-        vm.$watch("showProblemSubmissionPage", function (problemId) {
-            vm.problemId = problemId;
-            vm.template_url = "template/problem/submission_list.html";
         });
 
         vm.$watch("showContestProblemPage", function (problemId, contestId, contestMode) {
@@ -155,7 +141,15 @@ require(["jquery", "avalon", "bootstrap"], function ($, avalon) {
                 show_template("template/" + hash + ".html");
             }
         };
-        setTimeout(function(){li_active("#li-" + hash.replace("/", "-"));}, 500)
+        setTimeout(function(){li_active("#li-" + hash.replace("/", "-"));}, 500);
+
+        $.ajaxSetup({
+          beforeSend: csrfTokenHeader,
+            dataType: "json",
+            error: function(){
+                bsAlert("请求失败");
+            }
+        });
     });
 
 
