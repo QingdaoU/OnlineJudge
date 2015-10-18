@@ -50,7 +50,6 @@ INSTALLED_APPS = (
     'submission',
     'mq',
     'contest',
-    'contest_submission',
     'mail',
 
     'django_extensions',
@@ -59,7 +58,7 @@ INSTALLED_APPS = (
 
 if DEBUG:
     INSTALLED_APPS += (
-        'debug_toolbar',
+        # 'debug_toolbar',
         'rest_framework_swagger',
     )
 

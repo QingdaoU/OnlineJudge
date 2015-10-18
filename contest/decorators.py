@@ -37,6 +37,8 @@ def check_user_contest_permission(func):
             contest_id = kwargs["contest_id"]
         elif "contest_id" in request.data:
             contest_id = request.data["contest_id"]
+        elif "contest_id" in request.GET:
+            contest_id = request.GET["contest_id"]
         else:
             if request.is_ajax():
                 return error_response(u"参数错误")

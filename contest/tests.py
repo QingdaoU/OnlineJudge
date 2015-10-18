@@ -8,8 +8,7 @@ from rest_framework.test import APITestCase, APIClient
 from account.models import User
 from group.models import Group
 from contest.models import Contest, ContestProblem
-from .models import ContestSubmission
-from .models import GROUP_CONTEST, PASSWORD_PROTECTED_CONTEST
+from .models import GROUP_CONTEST, PASSWORD_PROTECTED_CONTEST, PUBLIC_CONTEST
 from account.models import REGULAR_USER, ADMIN, SUPER_ADMIN
 
 
@@ -581,6 +580,40 @@ class ContestListPageTest(TestCase):
         response = self.client.get(self.url + "?join=True")
         self.assertEqual(response.status_code, 200)
 
+
+class ContestProblemMySubmissionListTest(TestCase):
+    # 以下是我比赛单个题目的提交列表的测试
+    def setUp(self):
+        self.client = Client()
+        self.user1 = User.objects.create(username="test1", admin_type=SUPER_ADMIN)
+        self.user1.set_password("testaa")
+        self.user1.save()
+        self.user2 = User.objects.create(username="test2", admin_type=REGULAR_USER)
+        self.user2.set_password("testbb")
+        self.user2.save()
+        self.global_contest = Contest.objects.create(title="titlex", description="descriptionx", mode=1,
+                                                     contest_type=PUBLIC_CONTEST, show_rank=True,
+                                                     show_user_submission=True,
+                                                     start_time="2015-08-15T10:00:00.000Z",
+                                                     end_time="2015-08-30T12:00:00.000Z",
+                                                     created_by=User.objects.get(username="test1"))
+        self.contest_problem = ContestProblem.objects.create(title="titlex",
+                                                             description="descriptionx",
+                                                             input_description="input1_description",
+                                                             output_description="output1_description",
+                                                             test_case_id="1",
+                                                             samples=json.dumps([{"input": "1 1", "output": "2"}]),
+                                                             time_limit=100,
+                                                             memory_limit=1000,
+                                                             hint="hint1",
+                                                             created_by=self.user1,
+                                                             contest=self.global_contest,
+                                                             sort_index="a")
+
+    def test_contestsList_page_not_exist(self):
+        self.client.login(username="test1", password="testaa")
+        response = self.client.get('/contest/1/submissions/999/')
+        self.assertTemplateUsed(response, "utils/error.html")
 
 
 
