@@ -32,11 +32,13 @@ def check_user_contest_permission(func):
             else:
                 return HttpResponseRedirect("/login/")
 
-        # kwargs 就包含了url 里面的播或参数
+        # kwargs 就包含了 url 里面的参数
         if "contest_id" in kwargs:
             contest_id = kwargs["contest_id"]
         elif "contest_id" in request.data:
             contest_id = request.data["contest_id"]
+        elif "contest_id" in request.GET:
+            contest_id = request.GET["contest_id"]
         else:
             if request.is_ajax():
                 return error_response(u"参数错误")
@@ -53,6 +55,13 @@ def check_user_contest_permission(func):
 
         if request.user.admin_type == SUPER_ADMIN or request.user == contest.created_by:
             return func(*args, **kwargs)
+
+        # 管理员可见隐藏的比赛，已经先判断了身份
+        if not contest.visible:
+            if request.is_ajax():
+                return error_response(u"比赛不存在")
+            else:
+                return error_page(request, u"比赛不存在")
 
         # 有密码的公开赛
         if contest.contest_type == PASSWORD_PROTECTED_CONTEST:

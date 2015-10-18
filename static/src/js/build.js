@@ -23,12 +23,16 @@
         validator: "lib/validator/validator",
         ZeroClipboard: "lib/ZeroClipboard/ZeroClipboard",
 
+        // ------ admin web 组件 ----------
+        pager: "components/pager",
+
         // ------ 下面写的都不要直接用，而是使用上面的封装版本 ------
         //富文本编辑器simditor -> editor
         simditor: "lib/simditor/simditor",
         "simple-module": "lib/simditor/module",
         "simple-hotkeys": "lib/simditor/hotkeys",
         "simple-uploader": "lib/simditor/uploader",
+        "simditor-autosave": "lib/simditor/simditor-autosave",
 
         //code mirror 代码编辑器 ->codeMirror
         _codeMirror: "lib/codeMirror/codemirror",
@@ -69,12 +73,20 @@
         group_20_pack: "app/admin/group/group",
         submissionList_21_pack: "app/admin/contest/submissionList"
     },
+    shim: {
+            avalon: {
+                exports: "avalon"
+            }
+    },
     findNestedDependencies: true,
     appDir: "../",
     dir: "../../release/",
     modules: [
         {
             name: "bootstrap",
+        },
+        {
+            name: "codeMirror"
         },
         {
             name: "announcement_0_pack"

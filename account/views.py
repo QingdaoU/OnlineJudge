@@ -6,21 +6,21 @@ from django.shortcuts import render
 from django.db.models import Q
 from django.conf import settings
 from django.core.exceptions import MultipleObjectsReturned
+from django.utils.timezone import now
 
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from utils.shortcuts import serializer_invalid_response, error_response, success_response, paginate, rand_str
+from utils.shortcuts import (serializer_invalid_response, error_response,
+                             success_response, error_page, paginate, rand_str)
 from utils.captcha import Captcha
 from mail.tasks import send_email
-
-from envelopes import Envelope
 
 from .decorators import login_required
 from .models import User
 from .serializers import (UserLoginSerializer, UsernameCheckSerializer,
                           UserRegisterSerializer, UserChangePasswordSerializer,
                           EmailCheckSerializer, UserSerializer, EditUserSerializer,
-                          ApplyResetPasswordSerializer)
+                          ApplyResetPasswordSerializer, ResetPasswordSerializer)
 from .decorators import super_admin_required
 
 
@@ -34,13 +34,9 @@ class UserLoginAPIView(APIView):
         serializer = UserLoginSerializer(data=request.data)
         if serializer.is_valid():
             data = serializer.data
-
-            if "captcha" not in data:
-                return error_response(u"请填写验证码！")
             captcha = Captcha(request)
             if not captcha.check(data["captcha"]):
                 return error_response(u"验证码错误")
-
             user = auth.authenticate(username=data["username"], password=data["password"])
             # 用户名或密码错误的话 返回None
             if user:
@@ -244,21 +240,59 @@ class ApplyResetPasswordAPIView(APIView):
                 user = User.objects.get(username=data["username"], email=data["email"])
             except User.DoesNotExist:
                 return error_response(u"用户不存在")
+            if user.reset_password_token_create_time and (now() - user.reset_password_token_create_time).total_seconds() < 20 * 60:
+                return error_response(u"20分钟内只能找回一次密码")
             user.reset_password_token = rand_str()
+            user.reset_password_token_create_time = now()
             user.save()
             email_template = codecs.open(settings.TEMPLATES[0]["DIRS"][0] + "utils/reset_password_email.html", "r", "utf-8").read()
 
-            email_template = email_template.replace("{{ username }}", user.username).replace("{{ link }}", request.scheme + "://" + request.META['HTTP_HOST'] + "/reset_password/?token=" + user.reset_password_token)
+            email_template = email_template.replace("{{ username }}", user.username).\
+                replace("{{ website_name }}", settings.WEBSITE_INFO["website_name"]).\
+                replace("{{ link }}", request.scheme + "://" + request.META['HTTP_HOST'] + "/reset_password/?token=" + user.reset_password_token)
 
-            send_email(user.email, user.username, u"qduoj 密码找回邮件", email_template)
-            return success_response(u"邮件发生成功")
+            send_email(settings.WEBSITE_INFO["website_name"],
+                       user.email,
+                       user.username,
+                       settings.WEBSITE_INFO["website_name"] + u" 密码找回邮件",
+                       email_template)
+            return success_response(u"邮件发送成功")
         else:
             return serializer_invalid_response(serializer)
 
 
 class ResetPasswordAPIView(APIView):
-    pass
+    def post(self, request):
+        serializer = ResetPasswordSerializer(data=request.data)
+        if serializer.is_valid():
+            data = serializer.data
+            captcha = Captcha(request)
+            if not captcha.check(data["captcha"]):
+                return error_response(u"验证码错误")
+            try:
+                user = User.objects.get(reset_password_token=data["token"])
+            except User.DoesNotExist:
+                return error_response(u"token 不存在")
+            if (now() - user.reset_password_token_create_time).total_seconds() > 30 * 60:
+                return error_response(u"token 已经过期，请在30分钟内重置密码")
+            user.reset_password_token = None
+            user.set_password(data["password"])
+            user.save()
+            return success_response(u"密码重置成功")
+        else:
+            return serializer_invalid_response(serializer)
 
 
 def user_index_page(request, username):
     return render(request, "oj/account/user_index.html")
+
+
+def auth_page(request):
+    if not request.user.is_authenticated():
+        return render(request, "oj/account/oauth.html")
+    callback = request.GET.get("callback", None)
+    if not callback:
+        return error_page(request, u"参数错误")
+    token = rand_str()
+    request.user.auth_token = token
+    return render(request, "oj/account/oauth.html", {"callback": callback, "token": token})

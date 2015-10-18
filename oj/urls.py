@@ -19,13 +19,12 @@ from group.views import (GroupAdminAPIView, GroupMemberAdminAPIView,
 from admin.views import AdminTemplateView
 
 from problem.views import TestCaseUploadAPIView, ProblemTagAdminAPIView, ProblemAdminAPIView
-from submission.views import (SubmissionAPIView, SubmissionAdminAPIView,
-                              SubmissionShareAPIView, SubmissionRejudgeAdminAPIView)
-from contest_submission.views import ContestSubmissionAPIView, ContestSubmissionAdminAPIView
+from submission.views import (SubmissionAPIView, SubmissionAdminAPIView, ContestSubmissionAPIView,
+                              SubmissionShareAPIView, SubmissionRejudgeAdminAPIView,
+                              ContestSubmissionAdminAPIView)
 from monitor.views import QueueLengthMonitorAPIView
 from utils.views import SimditorImageUploadAPIView
 
-from contest_submission.views import contest_problem_my_submissions_list_page
 
 
 urlpatterns = [
@@ -78,16 +77,16 @@ urlpatterns = [
     url(r'^contest/(?P<contest_id>\d+)/problem/(?P<contest_problem_id>\d+)/$', "contest.views.contest_problem_page",
         name="contest_problem_page"),
     url(r'^contest/(?P<contest_id>\d+)/problem/(?P<contest_problem_id>\d+)/submissions/$',
-        "contest_submission.views.contest_problem_my_submissions_list_page",
+        "contest.views.contest_problem_my_submissions_list_page",
         name="contest_problem_my_submissions_list_page"),
 
     url(r'^contest/(?P<contest_id>\d+)/$', "contest.views.contest_page", name="contest_page"),
     url(r'^contest/(?P<contest_id>\d+)/problems/$', "contest.views.contest_problems_list_page",
         name="contest_problems_list_page"),
-    url(r'^contest/(?P<contest_id>\d+)/submissions/$', "contest_submission.views.contest_problem_submissions_list_page",
+    url(r'^contest/(?P<contest_id>\d+)/submissions/$', "contest.views.contest_problem_submissions_list_page",
         name="contest_problem_submissions_list_page"),
     url(r'^contest/(?P<contest_id>\d+)/submissions/(?P<page>\d+)/$',
-        "contest_submission.views.contest_problem_submissions_list_page", name="contest_problem_submissions_list_page"),
+        "contest.views.contest_problem_submissions_list_page", name="contest_problem_submissions_list_page"),
 
     url(r'^contests/$', "contest.views.contest_list_page", name="contest_list_page"),
     url(r'^contests/(?P<page>\d+)/$', "contest.views.contest_list_page", name="contest_list_page"),
@@ -128,6 +127,7 @@ urlpatterns = [
 
     url(r'^account/settings/$', TemplateView.as_view(template_name="oj/account/settings.html"), name="account_setting_page"),
     url(r'^account/settings/avatar/$', TemplateView.as_view(template_name="oj/account/avatar.html"), name="avatar_settings_page"),
+    url(r'^account/auth/$', "account.views.auth_page", name="auth_login_page"),
 ]
 
 

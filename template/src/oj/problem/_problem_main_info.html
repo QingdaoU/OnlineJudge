@@ -1,0 +1,29 @@
+<div class="problem-section">
+                <label class="problem-label">描述</label>
+
+                <div class="problem-detail">{{ problem.description|safe }}</div>
+            </div>
+            <div class="problem-section">
+                <label class="problem-label">输入</label>
+
+                <p class="problem-detail">{{ problem.input_description }}</p>
+            </div>
+            <div class="problem-section">
+                <label class="problem-label">输出</label>
+
+                <p class="problem-detail">{{ problem.output_description }}</p>
+            </div>
+            {% for item in samples %}
+                <div class="problem-section">
+                    <label class="problem-label">样例输入{{ forloop.counter }}</label>
+                    <a href="javascript:void(0)" class="copy-sample" data-clipboard-text="{{ item.input }}">复制</a>
+        <pre>
+{{ item.input }}</pre>
+
+                </div>
+                <div class="problem-section">
+                    <label class="problem-label">样例输出{{ forloop.counter }}</label>
+        <pre>
+{{ item.output }}</pre>
+                </div>
+            {% endfor %}

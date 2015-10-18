@@ -9,20 +9,18 @@ import logging
 from django.shortcuts import render
 from django.db.models import Q, Count
 from django.core.paginator import Paginator
-
-from rest_framework.views import APIView
-
+from django.utils.timezone import now
 from django.conf import settings
+from rest_framework.views import APIView
 
 from account.models import SUPER_ADMIN
 from account.decorators import super_admin_required
 from utils.shortcuts import (serializer_invalid_response, error_response,
                              success_response, paginate, rand_str, error_page)
 from .serizalizers import (CreateProblemSerializer, EditProblemSerializer, ProblemSerializer,
-                           ProblemTagSerializer, CreateProblemTagSerializer)
+                           ProblemTagSerializer)
 from .models import Problem, ProblemTag
 from .decorators import check_user_problem_permission
-
 
 logger = logging.getLogger("app_info")
 
@@ -59,7 +57,7 @@ class ProblemAdminAPIView(APIView):
         if serializer.is_valid():
             data = serializer.data
             try:
-                Problem.objects.get(title=data["title"], description=data["description"])
+                Problem.objects.get(title=data["title"])
                 return error_response(u"添加失败，存在重复的题目")
             except Problem.DoesNotExist:
                 pass
@@ -110,6 +108,7 @@ class ProblemAdminAPIView(APIView):
             problem.samples = json.dumps(data["samples"])
             problem.hint = data["hint"]
             problem.visible = data["visible"]
+            problem.last_update_time = now()
 
             # 删除原有的标签的对应关系
             problem.tags.remove(*problem.tags.all())
@@ -155,7 +154,7 @@ class ProblemAdminAPIView(APIView):
         keyword = request.GET.get("keyword", None)
         if keyword:
             problems = problems.filter(Q(title__contains=keyword) |
-                                     Q(description__contains=keyword))
+                                       Q(description__contains=keyword))
 
         return paginate(request, problems, ProblemSerializer)
 
@@ -164,6 +163,7 @@ class TestCaseUploadAPIView(APIView):
     """
     上传题目的测试用例
     """
+
     def _is_legal_test_case_file_name(self, file_name):
         # 正整数开头的 .in 或者.out 结尾的
         regex = r"^[1-9]\d*\.(in|out)$"
@@ -183,17 +183,16 @@ class TestCaseUploadAPIView(APIView):
         except IOError as e:
             logger.error(e)
             return error_response(u"上传失败")
-
-        test_case_file = zipfile.ZipFile(tmp_zip, 'r')
+        try:
+            test_case_file = zipfile.ZipFile(tmp_zip, 'r')
+        except Exception:
+            return error_response(u"解压失败")
         name_list = test_case_file.namelist()
 
         l = []
 
         # 如果文件是直接打包的，那么name_list 就是["1.in", "1.out"]这样的
-        # 如果文件还有一层文件夹test_case，那么name_list就是["test_case/", "test_case/1.in", "test_case/1.out"]
-        # 现在暂时只支持第一种，先判断一下是什么格式的
 
-        # 第一种格式的
         if "1.in" in name_list and "1.out" in name_list:
             for file_name in name_list:
                 if self._is_legal_test_case_file_name(file_name):
@@ -251,7 +250,8 @@ class TestCaseUploadAPIView(APIView):
                                                        "striped_output_md5": striped_md5.hexdigest(),
                                                        "output_size": os.path.getsize(test_case_dir + str(i + 1) + ".out")}
                 # 写入配置文件
-                open(test_case_dir + "info", "w").write(json.dumps(file_info))
+                with open(test_case_dir + "info", "w") as f:
+                    f.write(json.dumps(file_info))
 
             return success_response({"test_case_id": problem_test_dir,
                                      "file_list": {"input": l[0::2],
@@ -311,7 +311,8 @@ def problem_list_page(request, page=1):
         pass
 
     # 右侧标签列表 按照关联的题目的数量排序 排除题目数量为0的
-    tags = ProblemTag.objects.annotate(problem_number=Count("problem")).filter(problem_number__gt=0).order_by("-problem_number")
+    tags = ProblemTag.objects.annotate(problem_number=Count("problem")).filter(problem_number__gt=0).order_by(
+        "-problem_number")
 
     return render(request, "oj/problem/problem_list.html",
                   {"problems": current_page, "page": int(page),

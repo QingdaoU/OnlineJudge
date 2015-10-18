@@ -19,7 +19,8 @@ from account.models import SUPER_ADMIN, User
 from account.decorators import login_required
 from group.models import Group
 from utils.cache import get_cache_redis
-from .models import (Contest, ContestProblem, ContestSubmission, CONTEST_ENDED,
+from submission.models import Submission
+from .models import (Contest, ContestProblem, CONTEST_ENDED,
                      CONTEST_NOT_START, CONTEST_UNDERWAY, ContestRank)
 from .models import GROUP_CONTEST, PUBLIC_CONTEST, PASSWORD_PROTECTED_CONTEST
 from .decorators import check_user_contest_permission
@@ -293,7 +294,6 @@ def contest_page(request, contest_id):
     单个比赛的详情页
     """
     contest = Contest.objects.get(id=contest_id)
-
     return render(request, "oj/contest/contest_index.html", {"contest": contest})
 
 
@@ -304,15 +304,17 @@ def contest_problem_page(request, contest_id, contest_problem_id):
     """
     contest = Contest.objects.get(id=contest_id)
     try:
-        contest_problem = ContestProblem.objects.get(id=contest_problem_id, visible=True)
+        problem = ContestProblem.objects.get(id=contest_problem_id, visible=True)
     except ContestProblem.DoesNotExist:
         return error_page(request, u"比赛题目不存在")
     warning = u"您已经提交过本题的正确答案，重复提交可能造成时间累计。"
     show_warning = False
+
     try:
-        submission = ContestSubmission.objects.get(user=request.user, contest=contest, problem=contest_problem)
-        show_warning = submission.ac
-    except ContestSubmission.DoesNotExist:
+        rank = ContestRank.objects.get(user=request.user, contest=contest)
+        # 提示已经 ac 过这道题了
+        show_warning = rank.submission_info.get(str(problem.id), {"is_ac": False})["is_ac"]
+    except ContestRank.DoesNotExist:
         pass
 
     # 已经结束
@@ -324,14 +326,16 @@ def contest_problem_page(request, contest_id, contest_problem_id):
         warning = u"比赛没有开始，您是管理员，可以提交和测试题目，但是目前的提交不会计入排名。"
 
     show_submit_code_area = False
-    if contest.status == CONTEST_UNDERWAY:
-        show_submit_code_area = True
-    if request.user.admin_type == SUPER_ADMIN or request.user == contest.created_by:
+    if contest.status == CONTEST_UNDERWAY or \
+                    request.user.admin_type == SUPER_ADMIN or \
+                    request.user == contest.created_by:
         show_submit_code_area = True
 
-    return render(request, "oj/contest/contest_problem.html", {"contest_problem": contest_problem, "contest": contest,
-                                                               "samples": json.loads(contest_problem.samples),
-                                                               "show_warning": show_warning, "warning": warning,
+    return render(request, "oj/problem/contest_problem.html", {"problem": problem,
+                                                               "contest": contest,
+                                                               "samples": json.loads(problem.samples),
+                                                               "show_warning": show_warning,
+                                                               "warning": warning,
                                                                "show_submit_code_area": show_submit_code_area})
 
 
@@ -442,3 +446,93 @@ class ContestTimeAPIView(APIView):
         return success_response({"start": int((contest.start_time - now()).total_seconds() * 1000),
                                  "end": int((contest.end_time - now()).total_seconds() * 1000),
                                  "status": contest.status})
+
+
+@login_required
+def contest_problem_my_submissions_list_page(request, contest_id, contest_problem_id):
+    """
+    我比赛单个题目的所有提交列表
+    """
+    try:
+        Contest.objects.get(id=contest_id)
+    except Contest.DoesNotExist:
+        return error_page(request, u"比赛不存在")
+    try:
+        contest_problem = ContestProblem.objects.get(id=contest_problem_id, visible=True)
+    except ContestProblem.DoesNotExist:
+        return error_page(request, u"比赛问题不存在")
+    submissions = Submission.objects.filter(user_id=request.user.id, problem_id=contest_problem.id).\
+        order_by("-create_time").\
+        values("id", "result", "create_time", "accepted_answer_time", "language")
+    return render(request, "oj/submission/problem_my_submissions_list.html",
+                  {"submissions": submissions, "problem": contest_problem})
+
+
+@check_user_contest_permission
+def contest_problem_submissions_list_page(request, contest_id, page=1):
+    """
+    单个比赛中的所有提交（包含自己和别人，自己可查提交结果，其他人不可查）
+    """
+    try:
+        contest = Contest.objects.get(id=contest_id)
+    except Contest.DoesNotExist:
+        return error_page(request, u"比赛不存在")
+
+    submissions = Submission.objects.filter(contest_id=contest_id).\
+        values("id", "contest_id", "problem_id", "result", "create_time",
+               "accepted_answer_time", "language", "user_id").order_by("-create_time")
+
+    user_id = request.GET.get("user_id", None)
+    if user_id:
+        submissions = submissions.filter(user_id=request.GET.get("user_id"))
+
+    # 封榜的时候只能看到自己的提交
+    if not contest.real_time_rank:
+        if not (request.user.admin_type == SUPER_ADMIN or request.user == contest.created_by):
+            submissions = submissions.filter(user_id=request.user.id)
+
+    language = request.GET.get("language", None)
+    filter = None
+    if language:
+        submissions = submissions.filter(language=int(language))
+        filter = {"name": "language", "content": language}
+    result = request.GET.get("result", None)
+    if result:
+        submissions = submissions.filter(result=int(result))
+        filter = {"name": "result", "content": result}
+    paginator = Paginator(submissions, 20)
+
+    # 为查询题目标题创建新字典
+    title = {}
+    contest_problems = ContestProblem.objects.filter(contest=contest)
+    for item in contest_problems:
+        title[item.id] = item.title
+    for item in submissions:
+        item['title'] = title[item['problem_id']]
+
+    try:
+        current_page = paginator.page(int(page))
+    except Exception:
+        return error_page(request, u"不存在的页码")
+    previous_page = next_page = None
+    try:
+        previous_page = current_page.previous_page_number()
+    except Exception:
+        pass
+    try:
+        next_page = current_page.next_page_number()
+    except Exception:
+        pass
+
+    for item in current_page:
+        # 自己提交的 管理员和创建比赛的可以看到所有的提交链接
+        if item["user_id"] == request.user.id or request.user.admin_type == SUPER_ADMIN or \
+                        request.user == contest.created_by:
+            item["show_link"] = True
+        else:
+            item["show_link"] = False
+
+    return render(request, "oj/contest/submissions_list.html",
+                  {"submissions": current_page, "page": int(page),
+                   "previous_page": previous_page, "next_page": next_page, "start_id": int(page) * 20 - 20,
+                   "contest": contest, "filter": filter, "user_id": user_id})

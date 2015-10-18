@@ -1,5 +1,17 @@
+@font-face{
+    font-family: 'source_code_pro';
+    font-weight: 500;
+    font-style: normal;
+    font-stretch: normal;
+    src: url('/static/css/fonts/source_code_pro/EOT/SourceCodePro-Regular.eot') format('embedded-opentype'),
+         url('/static/css/fonts/source_code_pro/WOFF2/TTF/SourceCodePro-Regular.ttf.woff2') format('woff2'),
+         url('/static/css/fonts/source_code_pro/WOFF/OTF/SourceCodePro-Regular.otf.woff') format('woff'),
+         url('/static/css/fonts/source_code_pro/OTF/SourceCodePro-Regular.otf') format('opentype'),
+         url('/static/css/fonts/source_code_pro/TTF/SourceCodePro-Regular.ttf') format('truetype');
+}
+
 body, button, input, select, textarea, h1, h2, h3, h4, h5, h6 {
-    font-family: Georgia, STHeiti, "Microsoft Yahei", SimSun, "Droid Sans";
+    font-family: "source_code_pro", Georgia, STHeiti, "Microsoft Yahei", SimSun, "Droid Sans";
 }
 
 html {
@@ -39,12 +51,14 @@ label {
 }
 
 
-pre {
-    font-family: "Consolas", "Bitstream Vera Sans Mono", "Courier New", Courier, monospace;
+pre, code {
+    font-family: "source_code_pro";
     background-color: white;
+    white-space: pre-wrap;
+    word-wrap: break-word;
 }
 
 .CodeMirror-code{
-    font-family: "Consolas", "Bitstream Vera Sans Mono", "Courier New", Courier, monospace;
+    font-family: "source_code_pro";
     background-color: white;
 }

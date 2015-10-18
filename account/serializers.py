@@ -7,7 +7,7 @@ from .models import User
 class UserLoginSerializer(serializers.Serializer):
     username = serializers.CharField(max_length=30)
     password = serializers.CharField(max_length=30)
-    captcha = serializers.CharField(required=False, min_length=4, max_length=4)
+    captcha = serializers.CharField(min_length=4, max_length=4)
 
 
 class UsernameCheckSerializer(serializers.Serializer):
@@ -51,4 +51,10 @@ class EditUserSerializer(serializers.Serializer):
 class ApplyResetPasswordSerializer(serializers.Serializer):
     username = serializers.CharField(max_length=30)
     email = serializers.EmailField()
+    captcha = serializers.CharField(max_length=4, min_length=4)
+
+
+class ResetPasswordSerializer(serializers.Serializer):
+    token = serializers.CharField(min_length=1, max_length=40)
+    password = serializers.CharField(min_length=6, max_length=30)
     captcha = serializers.CharField(max_length=4, min_length=4)

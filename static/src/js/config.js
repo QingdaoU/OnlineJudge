@@ -6,6 +6,7 @@ var require = {
         jquery: "lib/jquery/jquery",
         jcountdown: "lib/jcountdown/jcountdown",
         avalon: "lib/avalon/avalon",
+        //avalon15: "lib/avalon/avalon15",
         editor: "utils/editor",
         uploader: "utils/uploader",
         formValidation: "utils/formValidation",
@@ -23,6 +24,10 @@ var require = {
         validator: "lib/validator/validator",
         ZeroClipboard: "lib/ZeroClipboard/ZeroClipboard",
 
+        // ------ admin web 组件 ----------
+        pager: "components/pager",
+        editorComponent: "components/editorComponent",
+
 
         // ------ 下面写的都不要直接用，而是使用上面的封装版本 ------
         //富文本编辑器simditor -> editor
@@ -30,6 +35,7 @@ var require = {
         "simple-module": "lib/simditor/module",
         "simple-hotkeys": "lib/simditor/hotkeys",
         "simple-uploader": "lib/simditor/uploader",
+        "simditor-autosave": "lib/simditor/simditor-autosave",
 
         //code mirror 代码编辑器 ->codeMirror
         _codeMirror: "lib/codeMirror/codemirror",
@@ -69,5 +75,10 @@ var require = {
         contestPassword_19_pack: "app/oj/contest/contestPassword",
         group_20_pack: "app/admin/group/group",
         submissionList_21_pack: "app/admin/contest/submissionList"
+    },
+    shim: {
+            avalon: {
+                exports: "avalon"
+            }
     }
 };

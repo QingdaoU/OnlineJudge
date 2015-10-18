@@ -1,0 +1,24 @@
+{% extends "oj_base.html" %}
+{% block title %}
+    授权登录
+{% endblock %}
+{% block body %}
+    <div class="container main">
+        <div class="text-center">
+            {% if request.user.is_authenticated %}
+                <p>3秒钟后将跳转到<span id="link">{{ callback }}</span></p>
+                <script>setTimeout(function(){
+                    window.location.href = "{{ callback }}?token={{ token }}"},
+                        3000);
+                </script>
+            {% else %}
+                <script>window.location.href = "/login/";</script>
+            {% endif %}
+
+
+        </div>
+    </div>
+{% endblock %}
+{% block js_block %}
+
+{% endblock %}

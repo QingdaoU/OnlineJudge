@@ -5,25 +5,27 @@ import logging
 import redis
 from django.shortcuts import render
 from django.core.paginator import Paginator
-
 from rest_framework.views import APIView
 
 from judge.judger_controller.tasks import judge
-from judge.judger_controller.settings import redis_config
 from account.decorators import login_required, super_admin_required
-from account.models import SUPER_ADMIN, User, REGULAR_USER
-
+from account.models import SUPER_ADMIN, User
 from problem.models import Problem
 from contest.models import ContestProblem, Contest
-from announcement.models import Announcement
+from contest.decorators import check_user_contest_permission
 from utils.shortcuts import serializer_invalid_response, error_response, success_response, error_page, paginate
-
+from utils.cache import get_cache_redis
 from .models import Submission
 from .serializers import (CreateSubmissionSerializer, SubmissionSerializer,
-                          SubmissionhareSerializer, SubmissionRejudgeSerializer)
-
+                          SubmissionhareSerializer, SubmissionRejudgeSerializer,
+                          CreateContestSubmissionSerializer)
 
 logger = logging.getLogger("app_info")
+
+
+def _judge(submission_id, time_limit, memory_limit, test_case_id):
+    judge.delay(submission_id, time_limit, memory_limit, test_case_id)
+    get_cache_redis().incr("judge_queue_length")
 
 
 class SubmissionAPIView(APIView):
@@ -41,17 +43,16 @@ class SubmissionAPIView(APIView):
                 problem = Problem.objects.get(id=data["problem_id"])
             except Problem.DoesNotExist:
                 return error_response(u"题目不存在")
-            submission = Submission.objects.create(user_id=request.user.id, language=int(data["language"]),
-                                                   code=data["code"], problem_id=problem.id)
+            submission = Submission.objects.create(user_id=request.user.id,
+                                                   language=int(data["language"]),
+                                                   code=data["code"],
+                                                   problem_id=problem.id)
 
             try:
-                judge.delay(submission.id, problem.time_limit, problem.memory_limit, problem.test_case_id)
+                _judge(submission.id, problem.time_limit, problem.memory_limit, problem.test_case_id)
             except Exception as e:
                 logger.error(e)
                 return error_response(u"提交判题任务失败")
-            r = redis.Redis(host=redis_config["host"], port=redis_config["port"], db=redis_config["db"])
-            r.incr("judge_queue_length")
-
             return success_response({"submission_id": submission.id})
         else:
             return serializer_invalid_response(serializer)
@@ -71,6 +72,37 @@ class SubmissionAPIView(APIView):
         return success_response(response_data)
 
 
+class ContestSubmissionAPIView(APIView):
+    @check_user_contest_permission
+    def post(self, request):
+        """
+        创建比赛的提交
+        ---
+        request_serializer: CreateContestSubmissionSerializer
+        """
+        serializer = CreateContestSubmissionSerializer(data=request.data)
+        if serializer.is_valid():
+            data = serializer.data
+            contest = Contest.objects.get(id=data["contest_id"])
+            try:
+                problem = ContestProblem.objects.get(contest=contest, id=data["problem_id"])
+            except ContestProblem.DoesNotExist:
+                return error_response(u"题目不存在")
+            submission = Submission.objects.create(user_id=request.user.id,
+                                                   language=int(data["language"]),
+                                                   contest_id=contest.id,
+                                                   code=data["code"],
+                                                   problem_id=problem.id)
+            try:
+                _judge(submission.id, problem.time_limit, problem.memory_limit, problem.test_case_id)
+            except Exception as e:
+                logger.error(e)
+                return error_response(u"提交判题任务失败")
+            return success_response({"submission_id": submission.id})
+        else:
+            return serializer_invalid_response(serializer)
+
+
 @login_required
 def problem_my_submissions_list_page(request, problem_id):
     """
@@ -81,11 +113,11 @@ def problem_my_submissions_list_page(request, problem_id):
     except Problem.DoesNotExist:
         return error_page(request, u"问题不存在")
 
-    submissions = Submission.objects.filter(user_id=request.user.id, problem_id=problem.id,
-                                            contest_id__isnull=True).order_by("-create_time"). \
+    submissions = Submission.objects.filter(user_id=request.user.id, problem_id=problem.id,contest_id__isnull=True).\
+        order_by("-create_time"). \
         values("id", "result", "create_time", "accepted_answer_time", "language")
 
-    return render(request, "oj/problem/my_submissions_list.html",
+    return render(request, "oj/submission/problem_my_submissions_list.html",
                   {"submissions": submissions, "problem": problem})
 
 
@@ -119,17 +151,13 @@ def my_submission(request, submission_id):
     except Submission.DoesNotExist:
         return error_page(request, u"提交不存在")
 
-    if submission.contest_id:
-        try:
-            problem = ContestProblem.objects.get(id=submission.problem_id,
-                                                 visible=True)
-        except ContestProblem.DoesNotExist:
-            return error_page(request, u"提交不存在")
-    else:
-        try:
+    try:
+        if submission.contest_id:
+            problem = ContestProblem.objects.get(id=submission.problem_id, visible=True)
+        else:
             problem = Problem.objects.get(id=submission.problem_id, visible=True)
-        except Problem.DoesNotExist:
-            return error_page(request, u"提交不存在")
+    except Exception:
+        return error_page(request, u"提交不存在")
 
     if submission.info:
         try:
@@ -139,12 +167,13 @@ def my_submission(request, submission_id):
     else:
         info = None
     user = User.objects.get(id=submission.user_id)
-    return render(request, "oj/problem/my_submission.html",
+    return render(request, "oj/submission/my_submission.html",
                   {"submission": submission, "problem": problem, "info": info,
                    "user": user, "can_share": result["can_share"]})
 
 
 class SubmissionAdminAPIView(APIView):
+    @super_admin_required
     def get(self, request):
         problem_id = request.GET.get("problem_id", None)
         if not problem_id:
@@ -164,7 +193,8 @@ def my_submission_list_page(request, page=1):
         submissions = Submission.objects.filter(contest_id__isnull=True)
     else:
         submissions = Submission.objects.filter(user_id=request.user.id, contest_id__isnull=True)
-    submissions = submissions.values("id", "user_id", "problem_id", "result", "create_time", "accepted_answer_time", "language").order_by("-create_time")
+    submissions = submissions.values("id", "user_id", "problem_id", "result", "create_time", "accepted_answer_time",
+                                     "language").order_by("-create_time")
 
     language = request.GET.get("language", None)
     filter = None
@@ -238,24 +268,42 @@ class SubmissionRejudgeAdminAPIView(APIView):
         serializer = SubmissionRejudgeSerializer(data=request.data)
         if serializer.is_valid():
             submission_id = serializer.data["submission_id"]
+            # 目前只考虑前台公开题目的重新判题
             try:
-                submission = Submission.objects.get(id=submission_id)
+                submission = Submission.objects.get(id=submission_id, contest_id__isnull=True)
             except Submission.DoesNotExist:
                 return error_response(u"提交不存在")
-            # 目前只考虑前台公开题目的重新判题
+
             try:
                 problem = Problem.objects.get(id=submission.problem_id)
             except Problem.DoesNotExist:
                 return error_response(u"题目不存在")
             try:
-                judge.delay(submission_id, problem.time_limit, problem.memory_limit, problem.test_case_id)
+                _judge(submission.id, problem.time_limit, problem.memory_limit, problem.test_case_id)
             except Exception as e:
                 logger.error(e)
                 return error_response(u"提交判题任务失败")
-
-            # 增加redis 中判题队列长度的计数器
-            r = redis.Redis(host=redis_config["host"], port=redis_config["port"], db=redis_config["db"])
-            r.incr("judge_queue_length")
             return success_response(u"任务提交成功")
         else:
             return serializer_invalid_response(serializer)
+
+
+class ContestSubmissionAdminAPIView(APIView):
+    @check_user_contest_permission
+    def get(self, request):
+        """
+        查询比赛提交,单个比赛题目提交的adminAPI
+        ---
+        response_serializer: SubmissionSerializer
+        """
+        problem_id = request.GET.get("problem_id", None)
+        contest_id = request.GET.get("contest_id", None)
+
+        # 需要 problem_id 和 contest_id 两个参数 否则会在check_user_contest_permission 的时候被拦截
+        if problem_id:
+            submissions = Submission.objects.filter(contest_id=contest_id, problem_id=problem_id).order_by("-create_time")
+        # 需要 contest_id 参数
+        else:
+            submissions = Submission.objects.filter(contest_id=contest_id).order_by("-create_time")
+
+        return paginate(request, submissions, SubmissionSerializer)

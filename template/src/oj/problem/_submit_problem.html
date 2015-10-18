@@ -1,0 +1,25 @@
+<div>
+                <label>选择语言</label>
+                <div>
+                    <label class="radio-inline">
+                        <input type="radio" name="language" value="1" checked> C (GCC 4.8)
+                    </label>
+                    <label class="radio-inline">
+                        <input type="radio" name="language" value="2"> C++ (G++ 4.3)
+                    </label>
+                    <label class="radio-inline">
+                        <input type="radio" name="language" value="3"> Java (Oracle JDK 1.7)
+                    </label>
+                </div>
+            </div>
+            <div id="code-field">
+                <label class="problem-label">提交代码</label>
+                <textarea id="code-editor"></textarea>
+            </div>
+            <hr>
+            <div id="submit-code">
+                <button type="button" class="btn btn-primary" id="submit-code-button">
+                    提交代码
+                </button>
+                <img src="/static/img/loading.gif" id="loading-gif">
+            </div>
