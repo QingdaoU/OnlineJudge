@@ -1,4 +1,4 @@
-define("editor", ["simditor", "simditor-autosave"], function(Simditor){
+define("editor", ["simditor"], function(Simditor){
     function editor(selector){
         return new Simditor({
             textarea: $(selector),

@@ -1,4 +1,4 @@
-require(["jquery", "avalon", "editor", "uploader", "bsAlert", "csrfToken", "tagEditor", "validator", "jqueryUI"],
+require(["jquery", "avalon", "editor", "uploader", "bsAlert", "csrfToken", "tagEditor", "validator", "jqueryUI", "editorComponent"],
     function ($, avalon, editor, uploader, bsAlert, csrfTokenHeader) {
 
         avalon.ready(function () {
@@ -10,7 +10,7 @@ require(["jquery", "avalon", "editor", "uploader", "bsAlert", "csrfToken", "tagE
                             bsAlert("你还没有上传测试数据!");
                             return false;
                         }
-                        if (vm.description == "") {
+                        if (avalon.vmodels.problemDescriptionEditor.content == "") {
                             bsAlert("题目描述不能为空!");
                             return false;
                         }
@@ -36,12 +36,12 @@ require(["jquery", "avalon", "editor", "uploader", "bsAlert", "csrfToken", "tagE
                         var ajaxData = {
                             id: avalon.vmodels.admin.problemId,
                             title: vm.title,
-                            description: vm.description,
+                            description: avalon.vmodels.problemDescriptionEditor.content,
                             time_limit: vm.timeLimit,
                             memory_limit: vm.memoryLimit,
                             samples: [],
                             test_case_id: vm.testCaseId,
-                            hint: vm.hint,
+                            hint: avalon.vmodels.problemHintEditor.content,
                             source: vm.source,
                             visible: vm.visible,
                             tags: tags,
@@ -85,13 +85,11 @@ require(["jquery", "avalon", "editor", "uploader", "bsAlert", "csrfToken", "tagE
                 var vm = avalon.define({
                     $id: "editProblem",
                     title: "",
-                    description: "",
                     timeLimit: -1,
                     memoryLimit: -1,
                     samples: [],
-                    hint: "",
                     visible: true,
-                    difficulty: 0,
+                    difficulty: "1",
                     inputDescription: "",
                     outputDescription: "",
                     testCaseIdd: "",
@@ -99,6 +97,16 @@ require(["jquery", "avalon", "editor", "uploader", "bsAlert", "csrfToken", "tagE
                     source: "",
                     testCaseList: [],
                     uploadProgress: 0,
+
+                    problemDescriptionEditor: {
+                        editorId: "problem-description-editor",
+                        placeholder: "题目描述"
+                    },
+                    problemHintEditor: {
+                        editorId: "problem-hint-editor",
+                        placeholder: "提示"
+                    },
+
                     addSample: function () {
                         vm.samples.push({input: "", output: "", "visible": true});
                     },
@@ -119,12 +127,12 @@ require(["jquery", "avalon", "editor", "uploader", "bsAlert", "csrfToken", "tagE
                         avalon.vmodels.admin.template_url = "template/problem/problem_list.html";
                     }
                 });
-            var hintEditor = editor("#hint");
-            var descriptionEditor = editor("#problemDescription");
             var testCaseUploader = uploader("#testCaseFile", "/api/admin/test_case_upload/",
                 function (file, response) {
-                    if (response.code)
+                    if (response.code) {
+                        vm.uploadProgress = 0;
                         bsAlert(response.data);
+                    }
                     else {
                         vm.testCaseId = response.data.test_case_id;
                         vm.uploadSuccess = true;
@@ -154,7 +162,7 @@ require(["jquery", "avalon", "editor", "uploader", "bsAlert", "csrfToken", "tagE
                     else {
                         var problem = data.data;
                         vm.title = problem.title;
-                        vm.description = problem.description;
+                        avalon.vmodels.problemDescriptionEditor.content = problem.description;
                         vm.timeLimit = problem.time_limit;
                         vm.memoryLimit = problem.memory_limit;
                         for (var i = 0; i < problem.samples.length; i++) {
@@ -164,7 +172,7 @@ require(["jquery", "avalon", "editor", "uploader", "bsAlert", "csrfToken", "tagE
                                 visible: false
                             })
                         }
-                        vm.hint = problem.hint;
+                        avalon.vmodels.problemHintEditor.content = problem.hint;
                         vm.visible = problem.visible;
                         vm.difficulty = problem.difficulty;
                         vm.inputDescription = problem.input_description;
@@ -172,8 +180,6 @@ require(["jquery", "avalon", "editor", "uploader", "bsAlert", "csrfToken", "tagE
                         vm.testCaseId = problem.test_case_id;
                         vm.source = problem.source;
                         var problemTags = problem.tags;
-                        hintEditor.setValue(vm.hint);
-                        descriptionEditor.setValue(vm.description);
                         $.ajax({
                             url: "/api/admin/tag/",
                             dataType: "json",

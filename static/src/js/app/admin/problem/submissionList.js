@@ -1,12 +1,11 @@
-require(["jquery", "avalon", "csrfToken", "bsAlert"], function ($, avalon, csrfTokenHeader, bsAlert) {
+require(["jquery", "avalon", "csrfToken", "bsAlert", "pager"], function ($, avalon, csrfTokenHeader, bsAlert) {
 
     avalon.ready(function () {
 
-        if (avalon.vmodels.submissionList){
+        if (avalon.vmodels.submissionList) {
             var vm = avalon.vmodels.submissionList;
         }
         else {
-
             var vm = avalon.define({
                 $id: "submissionList",
                 submissionList: [],
@@ -14,65 +13,43 @@ require(["jquery", "avalon", "csrfToken", "bsAlert"], function ($, avalon, csrfT
                 nextPage: 0,
                 page: 1,
                 totalPage: 1,
-                results : {
-                        0: "Accepted",
-                        1: "Runtime Error",
-                        2: "Time Limit Exceeded",
-                        3: "Memory Limit Exceeded",
-                        4: "Compile Error",
-                        5: "Format Error",
-                        6: "Wrong Answer",
-                        7: "System Error",
-                        8: "Waiting"
-                    },
-                getNext: function () {
-                    if (!vm.nextPage)
-                        return;
-                    getPageData(vm.page + 1);
+                results: {
+                    0: "Accepted",
+                    1: "Runtime Error",
+                    2: "Time Limit Exceeded",
+                    3: "Memory Limit Exceeded",
+                    4: "Compile Error",
+                    5: "Format Error",
+                    6: "Wrong Answer",
+                    7: "System Error",
+                    8: "Waiting"
                 },
-                getPrevious: function () {
-                    if (!vm.previousPage)
-                        return;
-                    getPageData(vm.page - 1);
-                },
-                getBtnClass: function (btn) {
-                    if (btn == "next") {
-                        return vm.nextPage ? "btn btn-primary" : "btn btn-primary disabled";
-                    }
-                    else {
-                        return vm.previousPage ? "btn btn-primary" : "btn btn-primary disabled";
+                pager: {
+                    getPage: function (page) {
+                        getPage(page);
                     }
                 },
-                getPage: function (page_index) {
-                    getPageData(page_index);
+                showProblemListPage: function () {
+                    avalon.vmodels.admin.template_url = "template/problem/problem_list.html";
                 },
-                showSubmissionDetailPage: function (submissionId) {
 
-                },
-                showProblemListPage: function(){
-                    vm.$fire("up!showProblemListPage");
-                },
-                rejudge: function(submission_id){
+                rejudge: function (submission_id) {
                     $.ajax({
-                        beforeSend: csrfTokenHeader,
                         url: "/api/admin/rejudge/",
                         method: "post",
                         data: {"submission_id": submission_id},
-                        success: function(data){
-                            if(!data.code){
+                        success: function (data) {
+                            if (!data.code) {
                                 bsAlert("重判任务提交成功");
                             }
                         }
-
                     })
                 }
             });
         }
 
-        getPageData(1);
-
-        function getPageData(page) {
-            var url = "/api/admin/submission/?paging=true&page=" + page + "&page_size=10&problem_id=" + avalon.vmodels.admin.problemId;
+        function getPage(page) {
+            var url = "/api/admin/submission/?paging=true&page=" + page + "&page_size=20&problem_id=" + avalon.vmodels.admin.problemId;
             $.ajax({
                 url: url,
                 dataType: "json",
@@ -84,6 +61,7 @@ require(["jquery", "avalon", "csrfToken", "bsAlert"], function ($, avalon, csrfT
                         vm.previousPage = data.data.previous_page;
                         vm.nextPage = data.data.next_page;
                         vm.page = page;
+                        avalon.vmodels.submissionsListPager.totalPage = data.data.total_page;
                     }
                     else {
                         bsAlert(data.data);

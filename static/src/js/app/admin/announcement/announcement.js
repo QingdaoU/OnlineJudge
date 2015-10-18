@@ -1,9 +1,6 @@
-require(["jquery", "avalon", "csrfToken", "bsAlert", "editor", "validator", "pager"],
+require(["jquery", "avalon", "csrfToken", "bsAlert", "validator", "pager", "editorComponent"],
     function ($, avalon, csrfTokenHeader, bsAlert, editor) {
         avalon.ready(function () {
-
-            var createAnnouncementEditor = editor("#create-announcement-editor");
-            var editAnnouncementEditor = editor("#edit-announcement-editor");
 
             if (avalon.vmodels.announcement){
                 var vm = avalon.vmodels.announcement;
@@ -25,20 +22,30 @@ require(["jquery", "avalon", "csrfToken", "bsAlert", "editor", "validator", "pag
                             getPage(page);
                         }
                     },
+
+                    createAnnouncementEditor: {
+                        editorId: "create-announcement-editor",
+                        placeholder: "公告内容"
+                    },
+
+                    editAnnouncementEditor: {
+                        editorId: "edit-announcement-editor",
+                        placeholder: "公告内容"
+                    },
+
                     editAnnouncement: function (announcement) {
                         vm.newTitle = announcement.title;
                         vm.announcementId = announcement.id;
-                        editAnnouncementEditor.setValue(announcement.content);
+                        avalon.vmodels.editAnnouncementEditor.content = announcement.content;
                         vm.announcementVisible = announcement.visible;
                         vm.isEditing = true;
-                        editAnnouncementEditor.focus();
                     },
                     cancelEdit: function () {
                         vm.isEditing = false;
                     },
                     submitChange: function () {
                         var title = vm.newTitle;
-                        var content = editAnnouncementEditor.getValue();
+                        var content = avalon.vmodels.editAnnouncementEditor.content;
 
                         if (content == "" || title == "") {
                             bsAlert("标题和内容都不能为空");
@@ -60,7 +67,6 @@ require(["jquery", "avalon", "csrfToken", "bsAlert", "editor", "validator", "pag
                                 if (!data.code) {
                                     bsAlert("修改成功");
                                     vm.isEditing = false;
-                                    localStorage.removeItem("/admin/autosave/edit-announcement-editor/");
                                     getPage(1);
                                 }
                                 else {
@@ -101,7 +107,7 @@ require(["jquery", "avalon", "csrfToken", "bsAlert", "editor", "validator", "pag
              $("#announcement-form").validator().on('submit', function (e) {
                 if (!e.isDefaultPrevented()) {
                     var title = $("#title").val();
-                    var content = createAnnouncementEditor.getValue();
+                    var content = avalon.vmodels.createAnnouncementEditor.content;
                     if (content == "") {
                         bsAlert("请填写公告内容");
                         return false;
@@ -119,8 +125,7 @@ require(["jquery", "avalon", "csrfToken", "bsAlert", "editor", "validator", "pag
                             if (!data.code) {
                                 bsAlert("提交成功！");
                                 $("#title").val("");
-                                createAnnouncementEditor.setValue("");
-                                localStorage.removeItem("/admin/autosave/create-announcement-editor/");
+                                avalon.vmodels.createAnnouncementEditor.content = "";
                                 getPage(1);
                             } else {
                                 bsAlert(data.data);

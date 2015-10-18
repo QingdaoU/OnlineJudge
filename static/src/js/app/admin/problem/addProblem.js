@@ -1,4 +1,4 @@
-require(["jquery", "avalon", "editor", "uploader", "bsAlert", "csrfToken", "tagEditor", "validator", "jqueryUI"],
+require(["jquery", "avalon", "editor", "uploader", "bsAlert", "csrfToken", "tagEditor", "validator", "jqueryUI", "editorComponent"],
     function ($, avalon, editor, uploader, bsAlert, csrfTokenHeader) {
         avalon.ready(function () {
 
@@ -9,7 +9,7 @@ require(["jquery", "avalon", "editor", "uploader", "bsAlert", "csrfToken", "tagE
                             bsAlert("你还没有上传测试数据!");
                             return false;
                         }
-                        if (vm.description == "") {
+                        if (avalon.vmodels.problemDescriptionEditor.content == "") {
                             bsAlert("题目描述不能为空!");
                             return false;
                         }
@@ -35,12 +35,12 @@ require(["jquery", "avalon", "editor", "uploader", "bsAlert", "csrfToken", "tagE
                         var ajaxData = {
                             id: avalon.vmodels.admin.problemId,
                             title: vm.title,
-                            description: vm.description,
+                            description: avalon.vmodels.problemDescriptionEditor.content,
                             time_limit: vm.timeLimit,
                             memory_limit: vm.memoryLimit,
                             samples: [],
                             test_case_id: vm.testCaseId,
-                            hint: vm.hint,
+                            hint: avalon.vmodels.problemHintEditor.content,
                             source: vm.source,
                             visible: vm.visible,
                             tags: tags,
@@ -77,9 +77,6 @@ require(["jquery", "avalon", "editor", "uploader", "bsAlert", "csrfToken", "tagE
                     }
                 });
 
-
-            var hintEditor = editor("#hint");
-            var problemDescription = editor("#problemDescription");
             if (avalon.vmodels.addProblem) {
                 var vm = avalon.vmodels.addProblem;
             }
@@ -87,13 +84,11 @@ require(["jquery", "avalon", "editor", "uploader", "bsAlert", "csrfToken", "tagE
                 var vm = avalon.define({
                     $id: "addProblem",
                     title: "",
-                    description: "",
                     timeLimit: 1000,
                     memoryLimit: 128,
                     samples: [{input: "", output: "", "visible": true}],
-                    hint: "",
                     visible: true,
-                    difficulty: 0,
+                    difficulty: "1",
                     tags: [],
                     inputDescription: "",
                     outputDescription: "",
@@ -102,6 +97,16 @@ require(["jquery", "avalon", "editor", "uploader", "bsAlert", "csrfToken", "tagE
                     uploadSuccess: false,
                     source: "",
                     uploadProgress: 0,
+
+                    problemDescriptionEditor: {
+                        editorId: "problem-description-editor",
+                        placeholder: "题目描述"
+                    },
+                    problemHintEditor: {
+                        editorId: "problem-hint-editor",
+                        placeholder: "提示"
+                    },
+
                     addSample: function () {
                         vm.samples.push({input: "", output: "", "visible": true});
                     },
@@ -122,8 +127,10 @@ require(["jquery", "avalon", "editor", "uploader", "bsAlert", "csrfToken", "tagE
 
             var testCaseUploader = uploader("#testCaseFile", "/api/admin/test_case_upload/",
                 function (file, response) {
-                    if (response.code)
+                    if (response.code) {
+                        vm.uploadProgress = 0;
                         bsAlert(response.data);
+                    }
                     else {
                         vm.testCaseId = response.data.test_case_id;
                         vm.uploadSuccess = true;
