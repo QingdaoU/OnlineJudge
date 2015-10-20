@@ -5,6 +5,7 @@ from django.contrib import auth
 from django.shortcuts import render
 from django.db.models import Q
 from django.conf import settings
+from django.http import HttpResponseRedirect
 from django.core.exceptions import MultipleObjectsReturned
 from django.utils.timezone import now
 
@@ -20,7 +21,8 @@ from .models import User
 from .serializers import (UserLoginSerializer, UsernameCheckSerializer,
                           UserRegisterSerializer, UserChangePasswordSerializer,
                           EmailCheckSerializer, UserSerializer, EditUserSerializer,
-                          ApplyResetPasswordSerializer, ResetPasswordSerializer)
+                          ApplyResetPasswordSerializer, ResetPasswordSerializer,
+                          SSOSerializer)
 from .decorators import super_admin_required
 
 
@@ -287,12 +289,24 @@ def user_index_page(request, username):
     return render(request, "oj/account/user_index.html")
 
 
-def auth_page(request):
-    if not request.user.is_authenticated():
-        return render(request, "oj/account/oauth.html")
-    callback = request.GET.get("callback", None)
-    if not callback:
-        return error_page(request, u"参数错误")
-    token = rand_str()
-    request.user.auth_token = token
-    return render(request, "oj/account/oauth.html", {"callback": callback, "token": token})
+class SSOAPIView(APIView):
+    def post(self, request):
+        serializer = SSOSerializer(data=request.data)
+        if serializer.is_valid():
+            try:
+                user = User.objects.get(auth_token=serializer.data["token"])
+                return success_response({"username": user.username})
+            except User.DoesNotExist:
+                return error_response(u"用户不存在")
+        else:
+            return serializer_invalid_response(serializer)
+
+    @login_required
+    def get(self, request):
+        callback = request.GET.get("callback", None)
+        if not callback or callback != settings.SSO["callback"]:
+            return error_page(request, u"参数错误")
+        token = rand_str()
+        request.user.auth_token = token
+        request.user.save()
+        return render(request, "oj/account/sso.html", {"redirect_url": callback + "?token=" + token, "callback": callback})
