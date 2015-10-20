@@ -1,4 +1,5 @@
 # coding=utf-8
+import urllib
 from functools import wraps
 
 from django.http import HttpResponse, HttpResponseRedirect
@@ -30,7 +31,7 @@ def check_user_contest_permission(func):
             if request.is_ajax():
                 return error_response(u"请先登录")
             else:
-                return HttpResponseRedirect("/login/")
+                return HttpResponseRedirect("/login/?__from=" + urllib.quote(request.build_absolute_uri()))
 
         # kwargs 就包含了 url 里面的参数
         if "contest_id" in kwargs:
