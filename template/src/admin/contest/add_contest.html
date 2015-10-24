@@ -17,8 +17,7 @@
             </div>
             <div class="col-md-12">
                 <div class="form-group">
-                    <textarea id="editor" placeholder="这里输入内容" autofocus ms-duplex="description"></textarea>
-                    <p class="error-info" ms-visible="description==''">请填写比赛描述</p>
+                    <ms:editor $id="contestDescriptionEditor" config="contestDescriptionEditor"></ms:editor>
                 </div>
             </div>
             <div class="col-md-6">
@@ -39,7 +38,7 @@
             </div>
             <div class="col-md-6">
                 <div class="form-group">
-                    <label>可见范围</label>
+                    <label>比赛类型</label>
 
                     <div>
                 <span ms-if="showGlobalViewRadio">
@@ -70,30 +69,12 @@
                     <input type="checkbox" value="group_id" ms-duplex-checked="el.isSelected">&nbsp;&nbsp;{{ el.name }}
                 </div>
             </div>
-            <div class="col-md-3">
-                <label>排名方式</label>
-                <div class="form-group">
-                    <label><input type="radio" name="mode" ms-duplex-string="mode" value="0">
-                        <small>ACM</small>
-                    </label>
-                    <label><input type="radio" name="mode" ms-duplex-string="mode" value="1">
-                        <small>分数</small>
-                    </label>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <label>公开提交记录</label>
-                <div class="form-group">
-                    <label class="text"><input type="checkbox" ms-duplex-checked="showSubmission">
-                        <small>公开</small>
-                    </label>
-                </div>
-            </div>
-            <div class="col-md-3">
+
+            <div class="col-md-12">
                 <label>实时排名</label>
                 <div class="form-group">
                     <label class="text"><input type="checkbox" ms-duplex-checked="realTimeRank">
-                        <small>是</small>
+                        <small>如果不勾选，排名会被缓存，不会更新，而且只显示自己的提交。用于 acm 封榜。</small>
                     </label>
                 </div>
             </div>

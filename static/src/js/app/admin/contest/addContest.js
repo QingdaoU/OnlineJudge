@@ -1,5 +1,5 @@
 require(["jquery", "avalon", "editor", "uploader", "bsAlert", "csrfToken", "datetimePicker",
-        "validator"],
+        "validator", "editorComponent"],
     function ($, avalon, editor, uploader, bsAlert, csrfTokenHeader) {
 
         $("#add-contest-form").validator().on('submit', function (e) {
@@ -7,11 +7,9 @@ require(["jquery", "avalon", "editor", "uploader", "bsAlert", "csrfToken", "date
                 e.preventDefault();
                 var ajaxData = {
                     title: vm.title,
-                    description: vm.description,
-                    mode: vm.mode,
+                    description: avalon.vmodels.contestDescriptionEditor.content,
                     contest_type: 0,
                     real_time_rank: vm.realTimeRank,
-                    show_user_submission: vm.showSubmission,
                     start_time: vm.startTime,
                     end_time: vm.endTime,
                     visible: false
@@ -38,12 +36,11 @@ require(["jquery", "avalon", "editor", "uploader", "bsAlert", "csrfToken", "date
                     bsAlert("你没有选择参赛用户!");
                     return false;
                 }
-                if (vm.editDescription == "") {
+                if (ajaxData.description.trim() == "") {
                     bsAlert("比赛描述不能为空!");
                     return false;
                 }
-                $.ajax({                                  // Add contest
-                    beforeSend: csrfTokenHeader,
+                $.ajax({
                     url: "/api/admin/contest/",
                     dataType: "json",
                     contentType: "application/json;charset=UTF-8",
@@ -52,17 +49,7 @@ require(["jquery", "avalon", "editor", "uploader", "bsAlert", "csrfToken", "date
                     success: function (data) {
                         if (!data.code) {
                             bsAlert("添加成功！将转到比赛列表页以便为比赛添加问题(注意比赛当前状态为:隐藏)");
-                            vm.title = "";
-                            vm.description = "";
-                            vm.startTime = "";
-                            vm.endTime = "";
-                            vm.password = "";
-                            vm.mode = "0";
-                            vm.showSubmission = true;
                             location.hash = "#contest/contest_list";
-                            vm.isGlobal = true;
-                            vm.allGroups = [];
-                            vm.showGlobalViewRadio = true;
                         }
                         else {
                             bsAlert(data.data);
@@ -73,23 +60,25 @@ require(["jquery", "avalon", "editor", "uploader", "bsAlert", "csrfToken", "date
             return false;
         });
 
-        editor("#editor");
+        //editor("#editor");
         if (avalon.vmodels.add_contest)
             var vm = avalon.vmodels.add_contest;
         else
             var vm = avalon.define({
                 $id: "add_contest",
                 title: "",
-                description: "",
                 startTime: "",
                 endTime: "",
                 password: "",
-                mode: "0",
-                showSubmission: true,
                 isGlobal: true,
                 allGroups: [],
                 showGlobalViewRadio: true,
-                realTimeRank: true
+                realTimeRank: true,
+
+                contestDescriptionEditor: {
+                    editorId: "contest-description-editor",
+                    placeholder: "比赛介绍内容"
+                }
             });
 
         $.ajax({
@@ -102,7 +91,6 @@ require(["jquery", "avalon", "editor", "uploader", "bsAlert", "csrfToken", "date
                     if (data.data.admin_type == 1) {
                         vm.isGlobal = false;
                         vm.showGlobalViewRadio = false;
-
                     }
                 }
                 $.ajax({
