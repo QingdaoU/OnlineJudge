@@ -70,23 +70,6 @@ require(["jquery", "avalon", "csrfToken", "bsAlert", "editor", "datetimePicker",
             // this page has been loaded before, so set the default value
             var vm = avalon.vmodels.contestList;
             vm.contestList = [];
-            vm.previousPage = 0;
-            vm.nextPage = 0;
-            vm.page = 1;
-            vm.totalPage = 1;
-            vm.keyword = "";
-            vm.editingContestId = 0;
-            vm.editTitle = "";
-            vm.editDescription = "";
-            vm.editProblemList = [];
-            vm.editPassword = "";
-            vm.editStartTime = "";
-            vm.editEndTime = "";
-            vm.editMode = "";
-            vm.editShowSubmission = false;
-            vm.editVisible = false;
-            vm.editingProblemContestIndex = 0;
-            vm.editRealTimeRank = true;
         }
         else {
             var vm = avalon.define({
