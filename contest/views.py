@@ -484,6 +484,10 @@ def contest_problem_submissions_list_page(request, contest_id, page=1):
     if user_id:
         submissions = submissions.filter(user_id=request.GET.get("user_id"))
 
+    problem_id = request.GET.get("problem_id", None)
+    if problem_id:
+        submissions = submissions.filter(problem_id=problem_id)
+
     # 封榜的时候只能看到自己的提交
     if not contest.real_time_rank:
         if not (request.user.admin_type == SUPER_ADMIN or request.user == contest.created_by):
