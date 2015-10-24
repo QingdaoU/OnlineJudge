@@ -64,9 +64,8 @@ class ContestAdminAPIView(APIView):
                 return error_response(u"比赛的开始时间必须早于比赛结束的时间")
             try:
                 contest = Contest.objects.create(title=data["title"], description=data["description"],
-                                                 mode=data["mode"], contest_type=data["contest_type"],
+                                                 contest_type=data["contest_type"],
                                                  real_time_rank=data["real_time_rank"], password=data["password"],
-                                                 show_user_submission=data["show_user_submission"],
                                                  start_time=dateparse.parse_datetime(data["start_time"]),
                                                  end_time=dateparse.parse_datetime(data["end_time"]),
                                                  created_by=request.user, visible=data["visible"])
@@ -125,10 +124,8 @@ class ContestAdminAPIView(APIView):
 
             contest.title = data["title"]
             contest.description = data["description"]
-            contest.mode = data["mode"]
             contest.contest_type = data["contest_type"]
             contest.real_time_rank = data["real_time_rank"]
-            contest.show_user_submission = data["show_user_submission"]
             contest.start_time = dateparse.parse_datetime(data["start_time"])
             contest.end_time = dateparse.parse_datetime(data["end_time"])
             contest.visible = data["visible"]
@@ -225,6 +222,7 @@ class ContestProblemAdminAPIView(APIView):
             contest_problem.visible = data["visible"]
             contest_problem.sort_index = data["sort_index"]
             contest_problem.score = data["score"]
+            contest_problem.last_update_time = now()
             contest_problem.save()
             return success_response(ContestProblemSerializer(contest_problem).data)
         else:
