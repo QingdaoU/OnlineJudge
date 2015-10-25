@@ -537,4 +537,4 @@ def contest_problem_submissions_list_page(request, contest_id, page=1):
     return render(request, "oj/contest/submissions_list.html",
                   {"submissions": current_page, "page": int(page),
                    "previous_page": previous_page, "next_page": next_page, "start_id": int(page) * 20 - 20,
-                   "contest": contest, "filter": filter, "user_id": user_id})
+                   "contest": contest, "filter": filter, "user_id": user_id, "problem_id": problem_id})
