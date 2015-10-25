@@ -83,3 +83,11 @@ pre, code {
 .admin-star{
     color: #c0c0c0;
 }
+
+#user-data-number{
+    font-size: 20px;
+}
+
+#user-data-text{
+    display: block;
+}

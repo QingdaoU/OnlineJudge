@@ -1,6 +1,6 @@
 {% extends "oj_base.html" %}
 {% block title %}
-
+{{ user.username }}的主页
 {% endblock %}
 {% block body %}
     <div class="container main">
@@ -21,7 +21,7 @@
                 </h2>
                 <p id="user-mood">{{ user.userprofile.mood }}</p>
             </div>
-            <div class="list-group col-lg-8">
+            <div class="list-group col-lg-9">
 
                 {% if user.userprofile.blog %}
                 <p class="list-group-item"><span class="glyphicon glyphicon-link"></span>
@@ -60,10 +60,24 @@
                     <span class="glyphicon glyphicon-calendar"></span>
                     {{ user.create_time }}
                 </p>
+                <div class="rows">
+                    <div class="col-lg-4 text-center">
+                        <strong id="user-data-number">{{ user.userprofile.rank }}</strong>
+                        <span id="user-data-text">Rank</span>
+                    </div>
+                    <div class="col-lg-4 text-center">
+                        <strong id="user-data-number">{{ user.userprofile.accepted_number }}</strong>
+                        <span id="user-data-text">AC</span>
+                    </div>
+                    <div class="col-lg-4 text-center">
+                        <strong id="user-data-number">{{ user.userprofile.submissions_number }}</strong>
+                        <span id="user-data-text">Submissions</span>
+                    </div>
+                </div>
             </div>
         </div>
         <div class="col-lg-8">
-            TODO
+            
         </div>
     </div>
 {% endblock %}
