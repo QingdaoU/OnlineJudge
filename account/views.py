@@ -286,7 +286,17 @@ class ResetPasswordAPIView(APIView):
 
 
 def user_index_page(request, username):
-    return render(request, "oj/account/user_index.html")
+    try:
+        user = User.objects.get(username=username)
+    except User.DoesNotExist:
+        return error_page(request, u"用户不存在")
+
+    blog_link = ""
+
+    if user.userprofile.blog:
+        blog_link = user.userprofile.blog.replace("http://", "").replace("https://", "")
+
+    return render(request, "oj/account/user_index.html", {"user": user, "blog_link": blog_link})
 
 
 class SSOAPIView(APIView):

@@ -121,7 +121,7 @@ urlpatterns = [
     url(r'^api/contest/time/$', ContestTimeAPIView.as_view(), name="contest_time_api_view"),
     url(r'^api/admin/rejudge/$', SubmissionRejudgeAdminAPIView.as_view(), name="submission_rejudge_api"),
 
-    url(r'^user/(?P<username>\w+)/$', "account.views.user_index_page"),
+    url(r'^user/(?P<username>.+)/$', "account.views.user_index_page"),
 
     url(r'^api/reset_password/$', ApplyResetPasswordAPIView.as_view(), name="apply_reset_password_api"),
 
