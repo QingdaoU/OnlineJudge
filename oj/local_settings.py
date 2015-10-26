@@ -11,18 +11,13 @@ DATABASES = {
     },
     # submission 的 name 和 engine 请勿修改，其他代码会用到
     'submission': {
-        'NAME': 'oj_submission',
-        'ENGINE': 'django.db.backends.mysql',
-        'CONN_MAX_AGE': 0.1,
-        'HOST': "127.0.0.1",
-        'PORT': 3306,
-        'USER': 'root',
-        'PASSWORD': 'root',
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': os.path.join(BASE_DIR, 'db1.sqlite3'),
     }
 }
 
 REDIS_CACHE = {
-    "host": "121.42.32.129",
+    "host": "127.0.0.1",
     "port": 6379,
     "db": 1
 }
@@ -37,3 +32,5 @@ STATICFILES_DIRS = [os.path.join(BASE_DIR, "static/src/"), BASE_DIR]
 
 # 模板文件夹
 TEMPLATE_DIRS = [os.path.join(BASE_DIR, 'template/src/')]
+
+SSO = {"callback": "http://localhost:8765/login"}

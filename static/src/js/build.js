@@ -25,6 +25,7 @@
 
         // ------ admin web 组件 ----------
         pager: "components/pager",
+        editorComponent: "components/editorComponent",
 
         // ------ 下面写的都不要直接用，而是使用上面的封装版本 ------
         //富文本编辑器simditor -> editor
@@ -153,7 +154,7 @@
         },
         {
             name: "submissionList_21_pack"
-        }
+        },
     ],
     optimizeCss: "standard",
 })

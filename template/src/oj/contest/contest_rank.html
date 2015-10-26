@@ -40,7 +40,7 @@
                             <th class="text-center">用时 + 罚时</th>
                             {% for item in contest_problems %}
                                 <th class="text-center">
-                                    <a href="/contest/{{ contest.id }}/problem/{{ item.id }}/">{{ item.sort_index }}</a>
+                                    <a href="/contest/{{ contest.id }}/submissions/?problem_id={{ item.id }}">{{ item.sort_index }}</a>
                                 </th>
                             {% endfor %}
                         </tr>
@@ -48,7 +48,7 @@
                         <tbody class="rank">
                         {% for item in rank %}
                             <tr>
-                                <th scope="row">{{ forloop.counter|add:paging_info.offset}}</th>
+                                <th scope="row">{% if item.total_ac_number %}{{ forloop.counter|add:paging_info.offset}}{% else %}-{% endif %}</th>
                                 <td>
                                 <a href="/contest/{{ contest.id }}/submissions/?user_id={{ item.user__id }}">
                                     {{ item.user__username }}

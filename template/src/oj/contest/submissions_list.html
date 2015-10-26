@@ -107,14 +107,14 @@
             <ul class="pager">
                 {% if previous_page %}
                     <li class="previous">
-                        <a href="/contest/{{ contest.id }}/submissions/{{ previous_page }}/{% if filter %}?{{ filter.name }}={{ filter.content }}{% if user_id %}&user_id={{ user_id }}{% endif %}{% else %}{% if user_id %}?user_id={{ user_id }}{% endif %}{% endif %}">
+                        <a href="/contest/{{ contest.id }}/submissions/{{ previous_page }}/?{% if filter %}{{ filter.name }}={{ filter.content }}&{% endif %}{% if user_id %}user_id={{ user_id }}&{% endif %}{% if problem_id %}problem_id={{ problem_id }}&{% endif %}">
                                 <span aria-hidden="true">&larr;</span> 上一页
                         </a>
                     </li>
                 {% endif %}
                 {% if next_page %}
                     <li class="next">
-                        <a href="/contest/{{ contest.id }}/submissions/{{ next_page }}/{% if filter %}?{{ filter.name }}={{ filter.content }}{% if user_id %}&user_id={{ user_id }}{% endif %}{% else %}{% if user_id %}?user_id={{ user_id }}{% endif %}{% endif %}">
+                        <a href="/contest/{{ contest.id }}/submissions/{{ next_page }}/?{% if filter %}{{ filter.name }}={{ filter.content }}&{% endif %}{% if user_id %}user_id={{ user_id }}&{% endif %}{% if problem_id %}problem_id={{ problem_id }}&{% endif %}">
                             下一页 <span aria-hidden="true">&rarr;</span>
                         </a>
                     </li>

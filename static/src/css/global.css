@@ -62,3 +62,32 @@ pre, code {
     font-family: "source_code_pro";
     background-color: white;
 }
+
+#index-avatar{
+    height: 200px;
+    width: 200px;
+}
+
+#user-mood{
+    max-width: 70%;
+}
+
+#oj-logo{
+    height: 20px;
+}
+
+.super-admin-star{
+    color: #ffd700;
+}
+
+.admin-star{
+    color: #c0c0c0;
+}
+
+#user-data-number{
+    font-size: 20px;
+}
+
+#user-data-text{
+    display: block;
+}

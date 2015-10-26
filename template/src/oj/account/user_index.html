@@ -1,90 +1,83 @@
 {% extends "oj_base.html" %}
 {% block title %}
-
+{{ user.username }}的主页
 {% endblock %}
 {% block body %}
     <div class="container main">
         <div class="col-lg-4">
             <div class="avatar">
-                <img src="https://coding.net/static/fruit_avatar/Fruit-1.png" class="img-responsive"
-                     style="height: 200px;width: 200px;">
+                <img src="{{ user.userprofile.avatar }}" class="img-responsive" id="index-avatar">
             </div>
             <div>
-                <h2>virusdefender</h2>
+                <h2>
+                    {{ user.username }}
+                    {% ifequal user.admin_type 2 %}
+                        <span class="glyphicon glyphicon-star super-admin-star" title="超级管理员"></span>
+                    {% endifequal %}
+                    {% ifequal user.admin_type 1 %}
+                        <span class="glyphicon glyphicon-star admin-star"></span>
+                    {% endifequal %}
+
+                </h2>
+                <p id="user-mood">{{ user.userprofile.mood }}</p>
             </div>
-            <div class="list-group col-lg-10">
+            <div class="list-group col-lg-9">
+
+                {% if user.userprofile.blog %}
                 <p class="list-group-item"><span class="glyphicon glyphicon-link"></span>
-                    <a href="https://virusdefender.net">https://virusdefender.net</a>
+                    <a href="{{ user.userprofile.blog }}" target="_blank">{{ blog_link }}</a>
                 </p>
+                {% endif %}
+
+                {% if user.userprofile.hduoj_username %}
+                <p class="list-group-item">
+                    <img src="/static/img/oj_logo/hdu_logo.png" id="oj-logo">
+                    <a href="http://bestcoder.hdu.edu.cn/rating.php?user={{ user.userprofile.hduoj_username }}" target="_blank">
+                        {{ user.userprofile.hduoj_username }}
+                    </a>
+                </p>
+                {% endif %}
+
+                {% if user.userprofile.bestcoder_username %}
+                <p class="list-group-item">
+                    <img src="/static/img/oj_logo/bestcoder_logo.png" id="oj-logo">
+                    <a href="http://bestcoder.hdu.edu.cn/rating.php?user={{ user.userprofile.bestcoder_username }}" target="_blank">
+                        {{ user.userprofile.bestcoder_username }}
+                    </a>
+                </p>
+                {% endif %}
+
+                {% if user.userprofile.codeforces_username %}
+                <p class="list-group-item">
+                    <img src="/static/img/oj_logo/codeforces_logo.png" id="oj-logo">
+                    <a href="http://codeforces.com/profile/{{ user.userprofile.codeforces_username }}" target="_blank">
+                        {{ user.userprofile.codeforces_username }}
+                    </a>
+                </p>
+                {% endif %}
 
                 <p class="list-group-item">
-                    <img src="/static/img/oj_logo/hdu_logo.png" style="height: 20px">
-                    <a href="https://virusdefender.net">https://virusdefender.net</a>
+                    <span class="glyphicon glyphicon-calendar"></span>
+                    {{ user.create_time }}
                 </p>
-
-                <p class="list-group-item">
-                    <img src="/static/img/oj_logo/bestcoder_logo.png" style="height: 20px">
-                    <a href="https://virusdefender.net">https://virusdefender.net</a>
-                </p>
-
-                <p class="list-group-item">
-                    <img src="/static/img/oj_logo/codeforces_logo.png" style="height: 20px">
-                    <a href="https://virusdefender.net">https://virusdefender.net</a>
-                </p>
-
-
-                <p class="list-group-item"><span class="glyphicon glyphicon-calendar"></span> 2015-9-10</p>
+                <div class="rows">
+                    <div class="col-lg-4 text-center">
+                        <strong id="user-data-number">{{ user.userprofile.rank }}</strong>
+                        <span id="user-data-text">Rank</span>
+                    </div>
+                    <div class="col-lg-4 text-center">
+                        <strong id="user-data-number">{{ user.userprofile.accepted_number }}</strong>
+                        <span id="user-data-text">AC</span>
+                    </div>
+                    <div class="col-lg-4 text-center">
+                        <strong id="user-data-number">{{ user.userprofile.submissions_number }}</strong>
+                        <span id="user-data-text">Submissions</span>
+                    </div>
+                </div>
             </div>
         </div>
         <div class="col-lg-8">
-            <ul class="nav nav-tabs" style="margin: 10px;;">
-                <li role="presentation" class="active"><a href="#">Home</a></li>
-                <li role="presentation"><a href="#123">全部分享</a></li>
-            </ul>
-
-
-            <div class="col-lg-6">
-                <div class="panel panel-success">
-                    <div class="panel-heading"><h3 class="panel-title">正在做的题</h3></div>
-
-                    <div class="list-group">
-                        <p class="list-group-item">
-                            <a href="#" style="font-size: large;">problem title</a>
-                            <span class="right">3 / 10</span>
-                            <span style="display: block;">Accepted</span>
-                        </p>
-
-                        <p class="list-group-item">
-                            <a href="#" style="font-size: large;">problem title</a>
-                            <span class="right">3 / 10</span>
-                            <span style="display: block;">Accepted</span>
-                        </p>
-
-                        <p class="list-group-item">
-                            <a href="#" style="font-size: large;">problem title</a>
-                            <span class="right">3 / 10</span>
-                            <span style="display: block;">Accepted</span>
-                        </p>
-
-                        <p class="list-group-item">
-                            <a href="#" style="font-size: large;">problem title</a>
-                            <span class="right">3 / 10</span>
-                            <span style="display: block;">Accepted</span>
-                        </p>
-
-                    </div>
-
-                </div>
-            </div>
-            <div class="col-lg-6">
-                <div class="panel panel-info">
-                    <div class="panel-heading"><h3 class="panel-title">分享的代码</h3></div>
-                    <div class="panel-body"> Panel content</div>
-                </div>
-            </div>
+            
         </div>
     </div>
-{% endblock %}
-{% block js_block %}
-    <script src="/static/js/app/oj/account/register.js"></script>
 {% endblock %}

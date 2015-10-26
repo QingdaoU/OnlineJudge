@@ -48,3 +48,26 @@ class User(AbstractBaseUser):
 
     class Meta:
         db_table = "user"
+
+
+def _random_avatar():
+    import random
+    return "/static/img/avatar/avatar-" + str(random.randint(1, 20)) + ".png"
+
+
+class UserProfile(models.Model):
+    user = models.OneToOneField(User)
+    avatar = models.CharField(max_length=50, default=_random_avatar)
+    blog = models.URLField(blank=True, null=True)
+    mood = models.CharField(max_length=200, blank=True, null=True)
+    hduoj_username = models.CharField(max_length=30, blank=True, null=True)
+    bestcoder_username = models.CharField(max_length=30, blank=True, null=True)
+    codeforces_username = models.CharField(max_length=30, blank=True, null=True)
+    rank = models.IntegerField(default=65535)
+    accepted_number = models.IntegerField(default=0)
+    submissions_number = models.IntegerField(default=0)
+    # JSON字典用来表示该用户的问题的解决状态 1为ac，2为正在进行
+    problems_status = JSONField(default={})
+
+    class Meta:
+        db_table = "user_profile"

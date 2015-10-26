@@ -1,0 +1,20 @@
+{% extends "oj_base.html" %}
+{% block title %}
+    授权登录
+{% endblock %}
+{% block body %}
+    <div class="container main">
+        <div class="text-center">
+                <p>3秒钟后将使用账号{{ request.user.username }}登录<span id="link">{{ callback }}</span></p>
+            <button class="btn btn-warning" onclick="location.href='/'">取消登录</button>
+            <button class="btn btn-success" onclick="location.href='/login/'">更换账号</button>
+                <script>setTimeout(function(){
+                    window.location.href = "{{ redirect_url }}"},
+                        3000);
+                </script>
+        </div>
+    </div>
+{% endblock %}
+{% block js_block %}
+
+{% endblock %}
