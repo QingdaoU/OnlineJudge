@@ -58,3 +58,7 @@ class ResetPasswordSerializer(serializers.Serializer):
     token = serializers.CharField(min_length=1, max_length=40)
     password = serializers.CharField(min_length=6, max_length=30)
     captcha = serializers.CharField(max_length=4, min_length=4)
+
+
+class SSOSerializer(serializers.Serializer):
+    token = serializers.CharField(max_length=40)

@@ -14,21 +14,18 @@ require(["jquery", "bsAlert", "csrfToken", "validator"], function ($, bsAlert, c
                 method: "post",
                 success: function (data) {
                     if (!data.code) {
-                        //成功登陆
-                        var ref = document.referrer;
-                        if (ref) {
-                            // 注册页和本页的来源的跳转回首页，防止死循环
-                            if (ref.indexOf("register") > -1 || ref.indexOf("login") > -1) {
-                                location.href = "/";
-                                return;
-                            }
-                            // 判断来源，只有同域下才跳转
-                            if (ref.split("/")[2].split(":")[0] == location.hostname) {
-                                location.href = ref;
-                                return;
-                            }
+                        function getLocationVal(id){
+                            var temp = unescape(location.search).split(id+"=")[1] || "";
+                            return temp.indexOf("&")>=0 ? temp.split("&")[0] : temp;
                         }
-                        location.href = "/";
+                        var from = getLocationVal("__from");
+                        if(from != ""){
+                            console.log(from);
+                            window.location.href = from;
+                        }
+                        else{
+                            location.href = "/";
+                        }
                     }
                     else {
                         refresh_captcha();
