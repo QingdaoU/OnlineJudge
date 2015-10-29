@@ -104,6 +104,7 @@ require(["jquery", "avalon", "editor", "uploader", "bsAlert", "csrfToken", "date
                                     bsAlert("您的用户权限只能创建小组内比赛，但是您还没有创建过小组");
                                 return;
                             }
+                            vm.allGroups = [];
                             for (var i = 0; i < data.data.length; i++) {
                                 var item = data.data[i];
                                 item["isSelected"] = false;
