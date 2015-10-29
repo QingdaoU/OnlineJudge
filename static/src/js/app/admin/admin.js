@@ -73,6 +73,8 @@ require(["jquery", "avalon", "csrfToken", "bsAlert", "bootstrap"], function ($, 
             adminNavList: [],
 
             contestId: -1,
+            contestProblemStatus: "edit",
+
             hide_loading: function () {
                 $("#loading-gif").hide();
             },

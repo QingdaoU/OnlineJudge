@@ -27,7 +27,8 @@ require(["jquery", "avalon", "csrfToken", "bsAlert", "editor", "datetimePicker",
                     // todo 修改template_url
                 },
                 showContestProblems: function(contestId){
-                    // todo
+                    avalon.vmodels.admin.contestId = contestId;
+                    avalon.vmodels.admin.template_url = "template/contest/problem_list.html";
                 }
             })
         }
