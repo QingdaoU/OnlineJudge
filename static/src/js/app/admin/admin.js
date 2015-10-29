@@ -53,10 +53,6 @@ require(["jquery", "avalon", "csrfToken", "bsAlert", "bootstrap"], function ($, 
                     children: [{name: "主页", hash: "#index/index"}]
                 },
                 {
-                    name: "通用",
-                    children: [{name: "公告管理", hash: "#announcement/announcement"}]
-                },
-                {
                     name: "比赛管理",
                     children: [{name: "比赛列表", hash: "#contest/contest_list"},
                                {name: "创建比赛", hash: "#contest/add_contest"}]
@@ -75,9 +71,8 @@ require(["jquery", "avalon", "csrfToken", "bsAlert", "bootstrap"], function ($, 
             groupId: -1,
             problemId: -1,
             adminNavList: [],
-            $contestMode: -1,
-            $problemId: -1,
-            $contestId: -1,
+
+            contestId: -1,
             hide_loading: function () {
                 $("#loading-gif").hide();
             },
@@ -111,24 +106,6 @@ require(["jquery", "avalon", "csrfToken", "bsAlert", "bootstrap"], function ($, 
 
         vm.$watch("showGroupListPage", function () {
             vm.template_url = "template/group/group.html";
-        });
-
-        vm.$watch("showContestProblemPage", function (problemId, contestId, contestMode) {
-            vm.$problemId = problemId;
-            vm.$contestId = contestId;
-            vm.$contestMode = contestMode
-            vm.template_url = "template/contest/edit_problem.html";
-        });
-
-        vm.$watch("showContestListPage", function () {
-            vm.template_url = "template/contest/contest_list.html";
-        });
-
-        vm.$watch("showContestSubmissionPage", function (problemId, contestId, contestMode) {
-            vm.$problemId = problemId;
-            vm.$contestId = contestId;
-            vm.$contestMode = contestMode
-            vm.template_url = "template/contest/submission_list.html";
         });
 
         avalon.scan();
