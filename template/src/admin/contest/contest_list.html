@@ -29,8 +29,8 @@
             <td>{{ el.created_by.username }}</td>
             <td ms-text="el.visible?'可见':'不可见'"></td>
             <td>
-                <a class="btn btn-info btn-sm" href="javascript:void(0)" ms-click="showEditContestArea($index+1)">编辑</a>
-                <a class="btn btn-info btn-sm" href="javascript:void(0)" ms-click="showEditProblemArea($index+1)">题目</a>
+                <a class="btn btn-info btn-sm" href="javascript:void(0)" ms-click="editContest(el.id)">编辑</a>
+                <a class="btn btn-info btn-sm" href="javascript:void(0)" ms-click="showContestProblems(el.id)">题目</a>
             </td>
         </tr>
     </table>
