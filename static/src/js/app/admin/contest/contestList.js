@@ -20,6 +20,14 @@ require(["jquery", "avalon", "csrfToken", "bsAlert", "editor", "datetimePicker",
                 search: function () {
                     getPage(1);
                     avalon.vmodels.contestListPager.currentPage = 1;
+                },
+
+                editContest: function(contestId){
+                    avalon.vmodels.admin.contestId = contestId;
+                    // todo 修改template_url
+                },
+                showContestProblems: function(contestId){
+                    // todo
                 }
             })
         }
