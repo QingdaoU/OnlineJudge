@@ -186,8 +186,7 @@ class ContestProblemAdminAPIView(APIView):
                                                             created_by=request.user,
                                                             hint=data["hint"],
                                                             contest=contest,
-                                                            sort_index=data["sort_index"],
-                                                            score=data["score"])
+                                                            sort_index=data["sort_index"])
             return success_response(ContestProblemSerializer(contest_problem).data)
         else:
             return serializer_invalid_response(serializer)
@@ -221,7 +220,6 @@ class ContestProblemAdminAPIView(APIView):
             contest_problem.hint = data["hint"]
             contest_problem.visible = data["visible"]
             contest_problem.sort_index = data["sort_index"]
-            contest_problem.score = data["score"]
             contest_problem.last_update_time = now()
             contest_problem.save()
             return success_response(ContestProblemSerializer(contest_problem).data)
