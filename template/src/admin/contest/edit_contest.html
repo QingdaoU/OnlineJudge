@@ -1,0 +1,107 @@
+<div ms-controller="edit_contest" class="col-md-9">
+    <form id="edit-contest-form">
+        <nav>
+            <ul class="pager">
+                <li class="previous" ms-click="showContestListPage()"><a href="javascript:void(0)"><span
+                        aria-hidden="true">&larr;</span> 返回</a></li>
+            </ul>
+        </nav>
+        <div class="col-md-12">
+            <label>比赛名称</label>
+        </div>
+        <div class="col-md-12">
+            <div class="form-group">
+                <input type="text" name="name" class="form-control" ms-duplex="title"
+                       data-error="请填写比赛名称(名称不能超过50个字)" required>
+
+                <div class="help-block with-errors"></div>
+            </div>
+        </div>
+        <div class="col-md-12">
+            <label>说明</label>
+        </div>
+        <div class="col-md-12">
+            <div class="form-group">
+                <ms:editor $id="contestDescriptionEditor" config="contestDescriptionEditor"></ms:editor>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <label>开始时间</label>
+
+            <div class="form-group">
+                <input type="text" class="form-control" name="start_time" id="contest_start_time"
+                       ms-duplex="startTime" data-error="请填写比赛开始时间" required>
+
+                <div class="help-block with-errors"></div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <label>结束时间</label>
+
+            <div class="form-group">
+                <input type="text" class="form-control" name="end_time" id="contest_end_time"
+                       ms-duplex="endTime" data-error="请填写比赛结束时间" required>
+
+                <div class="help-block with-errors"></div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="form-group">
+                <label>比赛类型</label>
+
+                <div>
+                <span ms-if="showGlobalViewRadio">
+                    <label>
+                        <small><input type="radio" value="true" name="isGlobal" ms-duplex-boolean="isGlobal">全局可见
+                        </small>
+                    </label>
+                </span>
+                <span>
+                    <label>
+                        <small><input type="radio" value="false" name="isGlobal" ms-duplex-boolean="isGlobal">小组内可见
+                        </small>
+                    </label>
+                </span>
+                </div>
+
+            </div>
+        </div>
+        <div class="col-md-6" ms-visible="isGlobal">
+            <label>密码保护</label>
+
+            <div class="form-group">
+                <input type="text" class="form-control" name="password" placeholder="留空就是公开赛" ms-duplex="password">
+            </div>
+        </div>
+        <div class="form-group col-md-12" ms-visible="!isGlobal">
+            <!-- radio 的value 没有用 但是没有的话，表单验证会出错-->
+            <div ms-repeat="allGroups" class="col-md-4">
+                <input type="checkbox" value="group_id" ms-duplex-checked="el.isSelected">&nbsp;&nbsp;{{ el.name }}
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <label>实时排名</label>
+
+            <div class="form-group">
+                <label class="text"><input type="checkbox" ms-duplex-checked="realTimeRank">
+                    <small>不勾选则排名不更新，且只显示自己的提交。</small>
+                </label>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <label>是否可见</label>
+
+            <div class="form-group">
+                <label class="text"><input type="checkbox" ms-duplex-checked="visible">
+                    <small>可见</small>
+                </label>
+            </div>
+        </div>
+        <div class="col-md-12">
+            <input type="submit" class="btn btn-success btn-lg" value="发布比赛">
+        </div>
+    </form>
+</div>
+
+<script src="/static/js/app/admin/contest/editContest.js"></script>
