@@ -68,6 +68,7 @@ require(["jquery", "avalon", "csrfToken", "bsAlert", "bootstrap"], function ($, 
             $id: "admin",
             template_url: "template/" + hash + ".html",
             username: "",
+            adminType: 1,
             groupId: -1,
             problemId: -1,
             adminNavList: [],
@@ -91,6 +92,7 @@ require(["jquery", "avalon", "csrfToken", "bsAlert", "bootstrap"], function ($, 
             success: function(data){
                 if(!data.code){
                     vm.username = data.data.username;
+                    vm.adminType = data.data.admin_type;
                     if (data.data.admin_type == 2){
                         vm.adminNavList = superAdminNav;
                     }

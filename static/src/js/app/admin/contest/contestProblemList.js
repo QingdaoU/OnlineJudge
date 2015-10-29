@@ -8,6 +8,9 @@ require(["jquery", "avalon", "csrfToken", "bsAlert"], function ($, avalon, csrfT
             var vm = avalon.define({
                 $id: "contestProblemList",
                 problemList: [],
+
+                adminType: avalon.vmodels.admin.adminType,
+
                 showEditProblemPage: function (problemId) {
                     avalon.vmodels.admin.contestProblemStatus = "edit";
                     avalon.vmodels.admin.problemId = problemId;
@@ -19,6 +22,24 @@ require(["jquery", "avalon", "csrfToken", "bsAlert"], function ($, avalon, csrfT
                 },
                 goBack: function(){
                     avalon.vmodels.admin.template_url = "template/contest/contest_list.html"
+                },
+
+                makeProblemPublic: function(problem){
+                    $.ajax({
+                        url: "/api/admin/contest_problem/public/",
+                        method: "post",
+                        dataType: "json",
+                        data: {"problem_id": problem.id},
+                        success: function(response){
+                            if(response.code){
+                                bsAlert(response.data);
+                            }
+                            else{
+                                problem.is_public = true;
+                                alert("公开题目成功，现在处于隐藏状态，请添加标签难度等信息。");
+                            }
+                        }
+                    })
                 }
             });
         }
