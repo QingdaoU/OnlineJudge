@@ -145,7 +145,7 @@ require(["jquery", "avalon", "editor", "uploader", "bsAlert", "csrfToken", "tagE
                     }
                 },
                 function (file, percentage) {
-                    vm.uploadProgress = praseInt(percentage * 100);
+                    vm.uploadProgress = parseInt(percentage * 100);
                 });
 
             var tagAutoCompleteList = [];
