@@ -59,7 +59,7 @@
                             {{ request.user.username }}
                             <span class="caret"></span></a>
                         <ul class="dropdown-menu">
-                            {% if request.user.admin_type == 2 %}
+                            {% if request.user.admin_type > 0 %}
                                 <li><a href="/admin/">后台管理</a></li>
                             {% endif %}
                             <li><a href="/submissions/">我的提交</a></li>
