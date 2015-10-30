@@ -61,8 +61,19 @@ require(["jquery", "avalon", "editor", "uploader", "bsAlert", "csrfToken", "date
         });
 
         //editor("#editor");
-        if (avalon.vmodels.add_contest)
+        if (avalon.vmodels.add_contest) {
             var vm = avalon.vmodels.add_contest;
+            vm.title = "";
+            vm.startTime = "";
+            vm.endTime = "";
+            vm.password = "";
+            vm.isGlobal = true;
+            vm.allGroups = [];
+            vm.showGlobalViewRadio = true;
+            vm.realTimeRank = true;
+            avalon.vmodels.contestDescriptionEditor.content = "";
+
+        }
         else
             var vm = avalon.define({
                 $id: "add_contest",

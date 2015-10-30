@@ -130,6 +130,7 @@ require(["jquery", "avalon", "editor", "uploader", "bsAlert", "csrfToken", "date
                                         vm.realTimeRank = contest.real_time_rank;
                                         vm.startTime = contest.start_time.substring(0, 16).replace("T", " ");
                                         vm.endTime = contest.end_time.substring(0, 16).replace("T", " ");
+                                        vm.password = contest.password;
                                         if (contest.contest_type == 0) { //contest_type == 0, 小组内比赛
                                             vm.isGlobal = false;
                                             for (var i = 0; i < vm.allGroups.length; i++) {
