@@ -75,7 +75,7 @@ require(["jquery", "avalon", "editor", "uploader", "bsAlert", "csrfToken", "date
                 showGlobalViewRadio: true,
                 realTimeRank: true,
                 visible: false,
-                showContestListPage: function() {
+                showContestListPage: function () {
                     avalon.vmodels.admin.template_url = "template/contest/contest_list.html";
                 },
 
@@ -84,7 +84,7 @@ require(["jquery", "avalon", "editor", "uploader", "bsAlert", "csrfToken", "date
                     placeholder: "比赛介绍内容"
                 }
             });
-
+        avalon.scan();
         $.ajax({
             url: "/api/user/",
             method: "get",
@@ -111,9 +111,46 @@ require(["jquery", "avalon", "editor", "uploader", "bsAlert", "csrfToken", "date
                             vm.allGroups = [];
                             for (var i = 0; i < data.data.length; i++) {
                                 var item = data.data[i];
-                                item["isSelected"] = false;
+                                item.isSelected = false;
                                 vm.allGroups.push(item);
                             }
+                            $.ajax({
+                                url: "/api/admin/contest/?contest_id=" + avalon.vmodels.admin.contestId,
+                                method: "get",
+                                dataType: "json",
+                                success: function (data) {
+                                    if (data.code) {
+                                        bsAlert(data.data);
+                                    }
+                                    else {
+                                        var contest = data.data;
+                                        vm.title = contest.title;
+                                        avalon.vmodels.contestDescriptionEditor.content = contest.description;
+                                        vm.visible = contest.visible;
+                                        vm.realTimeRank = contest.real_time_rank;
+                                        vm.startTime = contest.start_time.substring(0, 16).replace("T", " ");
+                                        vm.endTime = contest.end_time.substring(0, 16).replace("T", " ");
+                                        if (contest.contest_type == 0) { //contest_type == 0, 小组内比赛
+                                            vm.isGlobal = false;
+                                            for (var i = 0; i < vm.allGroups.length; i++) {
+                                                vm.allGroups[i].isSelected = false;
+                                            }
+                                            for (var i = 0; i < contest.groups.length; i++) {
+                                                var id = contest.groups[i];
+                                                for (var index = 0; vm.allGroups[index]; index++) {
+                                                    if (vm.allGroups[index].id == id) {
+                                                        vm.allGroups[index].isSelected = true;
+                                                        break;
+                                                    }
+                                                }
+                                            }
+                                        }
+                                        else {
+                                            vm.isGlobal = true;
+                                        }
+                                    }
+                                }
+                            });
                         }
                         else {
                             bsAlert(data.data);
@@ -122,48 +159,6 @@ require(["jquery", "avalon", "editor", "uploader", "bsAlert", "csrfToken", "date
                 });
             }
         });
-
-
-        $.ajax({
-            url: "/api/admin/contest/?contest_id=" + avalon.vmodels.admin.contestId,
-            method: "get",
-            dataType: "json",
-            success: function (data) {
-                if (data.code) {
-                    bsAlert(data.data);
-                }
-                else {
-                    var contest = data.data;
-                    vm.title = contest.title;
-                    avalon.vmodels.contestDescriptionEditor.content = contest.description;
-                    vm.visible = contest.visible;
-                    vm.realTimeRank = contest.real_time_rank;
-                    vm.startTime = contest.start_time.substring(0, 16).replace("T", " ");
-                    vm.endTime = contest.end_time.substring(0, 16).replace("T", " ");
-                    if (contest.contest_type == 0) { //contest_type == 0, 小组内比赛
-                        vm.isGlobal = false;
-                        for (var i = 0; i < vm.allGroups.length; i++) {
-                            vm.allGroups[i].isSelected = false;
-                        }
-                        for (var i = 0; i < contest.groups.length; i++) {
-                            var id = parseInt(contest.groups[i]);
-                            console.log(id);
-                            for (var index = 0; vm.allGroups[index]; index++) {
-                                if (vm.allGroups[index].id == id) {
-                                    vm.allGroups[index].isSelected = true;
-                                    console.log(id+"asdf");
-                                    break;
-                                }
-                            }
-                        }
-                    }
-                    else {
-                        vm.isGlobal = true;
-                    }
-                }
-            }
-        });
-        avalon.scan();
 
         $("#contest_start_time").datetimepicker({
             format: "yyyy-mm-dd hh:ii",
