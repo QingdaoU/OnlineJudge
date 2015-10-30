@@ -136,8 +136,8 @@ class ProblemAdminAPIView(APIView):
                 # 普通管理员只能获取自己创建的题目
                 # 超级管理员可以获取全部的题目
                 problem = Problem.objects.get(id=problem_id)
-                if request.user.admin_type != SUPER_ADMIN:
-                    problem = problem.get(created_by=request.user)
+                if request.user.admin_type != SUPER_ADMIN and problem.created_by != request.user:
+                    return error_response(u"题目不存在")
                 return success_response(ProblemSerializer(problem).data)
             except Problem.DoesNotExist:
                 return error_response(u"题目不存在")
