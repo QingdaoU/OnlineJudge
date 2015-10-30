@@ -10,7 +10,7 @@ from judge.judger.result import result
 from submission.models import Submission
 from problem.models import Problem
 from utils.cache import get_cache_redis
-from contest.models import ContestProblem, Contest, ContestSubmission, CONTEST_UNDERWAY, ContestRank
+from contest.models import ContestProblem, Contest, CONTEST_UNDERWAY, ContestRank
 from account.models import User
 
 logger = logging.getLogger("app_info")

@@ -20,6 +20,15 @@ require(["jquery", "avalon", "csrfToken", "bsAlert", "editor", "datetimePicker",
                 search: function () {
                     getPage(1);
                     avalon.vmodels.contestListPager.currentPage = 1;
+                },
+
+                editContest: function(contestId){
+                    avalon.vmodels.admin.contestId = contestId;
+                    avalon.vmodels.admin.template_url = "template/contest/edit_contest.html";
+                },
+                showContestProblems: function(contestId){
+                    avalon.vmodels.admin.contestId = contestId;
+                    avalon.vmodels.admin.template_url = "template/contest/problem_list.html";
                 }
             })
         }
@@ -42,7 +51,6 @@ require(["jquery", "avalon", "csrfToken", "bsAlert", "editor", "datetimePicker",
                 success: function (data) {
                     if (!data.code) {
                         vm.contestList = data.data.results;
-                        vm.announcementList = data.data.results;
                         avalon.vmodels.contestListPager.totalPage = data.data.total_page;
                     }
                     else {

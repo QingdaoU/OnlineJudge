@@ -135,17 +135,17 @@ require(["jquery", "avalon", "editor", "uploader", "bsAlert", "csrfToken", "tagE
                         vm.testCaseId = response.data.test_case_id;
                         vm.uploadSuccess = true;
                         vm.testCaseList = [];
-                        for (var i = 0; i < response.data.file_list.input.length; i++) {
+                        for(var key in response.data.file_list){
                             vm.testCaseList.push({
-                                input: response.data.file_list.input[i],
-                                output: response.data.file_list.output[i]
-                            });
+                                input: response.data.file_list[key].input_name,
+                                output: response.data.file_list[key].output_name
+                            })
                         }
                         bsAlert("测试数据添加成功！共添加" + vm.testCaseList.length + "组测试数据");
                     }
                 },
                 function (file, percentage) {
-                    vm.uploadProgress = percentage;
+                    vm.uploadProgress = parseInt(percentage * 100);
                 });
 
             var tagAutoCompleteList = [];

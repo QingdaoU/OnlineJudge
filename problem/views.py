@@ -136,8 +136,8 @@ class ProblemAdminAPIView(APIView):
                 # 普通管理员只能获取自己创建的题目
                 # 超级管理员可以获取全部的题目
                 problem = Problem.objects.get(id=problem_id)
-                if request.user.admin_type != SUPER_ADMIN:
-                    problem = problem.get(created_by=request.user)
+                if request.user.admin_type != SUPER_ADMIN and problem.created_by != request.user:
+                    return error_response(u"题目不存在")
                 return success_response(ProblemSerializer(problem).data)
             except Problem.DoesNotExist:
                 return error_response(u"题目不存在")
@@ -248,16 +248,30 @@ class TestCaseUploadAPIView(APIView):
                                                        "output_name": str(i + 1) + ".out",
                                                        "output_md5": md5.hexdigest(),
                                                        "striped_output_md5": striped_md5.hexdigest(),
+                                                       "input_size": os.path.getsize(test_case_dir + str(i + 1) + ".in"),
                                                        "output_size": os.path.getsize(test_case_dir + str(i + 1) + ".out")}
                 # 写入配置文件
                 with open(test_case_dir + "info", "w") as f:
                     f.write(json.dumps(file_info))
 
             return success_response({"test_case_id": problem_test_dir,
-                                     "file_list": {"input": l[0::2],
-                                                   "output": l[1::2]}})
+                                     "file_list": file_info["test_cases"]})
         else:
             return error_response(u"测试用例压缩文件格式错误，请保证测试用例文件在根目录下直接压缩")
+
+    def get(self, request):
+        test_case_id = request.GET.get("test_case_id", None)
+        if not test_case_id:
+            return error_response(u"参数错误")
+        test_case_config = settings.TEST_CASE_DIR + test_case_id + "/info"
+        try:
+            f = open(test_case_config)
+            config = json.loads(f.read())
+            f.close()
+        except Exception as e:
+            return error_response(u"读取测试用例出错")
+        return success_response({"file_list": config["test_cases"]})
+
 
 
 def problem_list_page(request, page=1):

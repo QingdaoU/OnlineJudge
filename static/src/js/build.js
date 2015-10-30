@@ -62,17 +62,18 @@
         admin_8_pack: "app/admin/admin",
         login_9_pack: "app/oj/account/login",
         addContest_10_pack: "app/admin/contest/addContest",
-        changePassword_11_pack: "app/oj/account/changePassword",
-        monitor_12_pack: "app/admin/monitor/monitor",
-        editProblem_13_pack: "app/admin/contest/editProblem",
-        joinGroupRequestList_14_pack: "app/admin/group/joinGroupRequestList",
-        group_15_pack: "app/oj/group/group",
-        editProblem_16_pack: "app/admin/problem/editProblem",
-        register_17_pack: "app/oj/account/register",
-        groupDetail_18_pack: "app/admin/group/groupDetail",
-        contestPassword_19_pack: "app/oj/contest/contestPassword",
-        group_20_pack: "app/admin/group/group",
-        submissionList_21_pack: "app/admin/contest/submissionList"
+        contestPassword_11_pack: "app/oj/contest/contestPassword",
+        changePassword_12_pack: "app/oj/account/changePassword",
+        monitor_13_pack: "app/admin/monitor/monitor",
+        editProblem_14_pack: "app/admin/contest/editProblem",
+        joinGroupRequestList_15_pack: "app/admin/group/joinGroupRequestList",
+        group_16_pack: "app/oj/group/group",
+        contestProblemList_17_pack: "app/admin/contest/contestProblemList",
+        editProblem_18_pack: "app/admin/problem/editProblem",
+        register_19_pack: "app/oj/account/register",
+        groupDetail_20_pack: "app/admin/group/groupDetail",
+        editContest_21_pack: "app/admin/contest/editContest",
+        group_22_pack: "app/admin/group/group",
     },
     shim: {
             avalon: {
@@ -123,38 +124,41 @@
             name: "addContest_10_pack"
         },
         {
-            name: "changePassword_11_pack"
+            name: "contestPassword_11_pack"
         },
         {
-            name: "monitor_12_pack"
+            name: "changePassword_12_pack"
         },
         {
-            name: "editProblem_13_pack"
+            name: "monitor_13_pack"
         },
         {
-            name: "joinGroupRequestList_14_pack"
+            name: "editProblem_14_pack"
         },
         {
-            name: "group_15_pack"
+            name: "joinGroupRequestList_15_pack"
         },
         {
-            name: "editProblem_16_pack"
+            name: "group_16_pack"
         },
         {
-            name: "register_17_pack"
+            name: "contestProblemList_17_pack"
         },
         {
-            name: "groupDetail_18_pack"
+            name: "editProblem_18_pack"
         },
         {
-            name: "contestPassword_19_pack"
+            name: "register_19_pack"
         },
         {
-            name: "group_20_pack"
+            name: "groupDetail_20_pack"
         },
         {
-            name: "submissionList_21_pack"
+            name: "editContest_21_pack"
         },
+        {
+            name: "group_22_pack"
+        }
     ],
     optimizeCss: "standard",
 })

@@ -2,17 +2,18 @@ require(["jquery", "avalon", "editor", "uploader", "bsAlert", "csrfToken", "date
         "validator", "editorComponent"],
     function ($, avalon, editor, uploader, bsAlert, csrfTokenHeader) {
 
-        $("#add-contest-form").validator().on('submit', function (e) {
+        $("#edit-contest-form").validator().on('submit', function (e) {
             if (!e.isDefaultPrevented()) {
                 e.preventDefault();
                 var ajaxData = {
+                    id: avalon.vmodels.admin.contestId,
                     title: vm.title,
                     description: avalon.vmodels.contestDescriptionEditor.content,
                     contest_type: 0,
                     real_time_rank: vm.realTimeRank,
                     start_time: vm.startTime,
                     end_time: vm.endTime,
-                    visible: false
+                    visible: vm.visible
                 };
 
                 var selectedGroups = [];
@@ -45,11 +46,11 @@ require(["jquery", "avalon", "editor", "uploader", "bsAlert", "csrfToken", "date
                     dataType: "json",
                     contentType: "application/json;charset=UTF-8",
                     data: JSON.stringify(ajaxData),
-                    method: "post",
+                    method: "put",
                     success: function (data) {
                         if (!data.code) {
-                            bsAlert("添加成功！将转到比赛列表页以便为比赛添加问题(注意比赛当前状态为:隐藏)");
-                            location.hash = "#contest/contest_list";
+                            bsAlert("修改成功！");
+                            vm.showContestListPage();
                         }
                         else {
                             bsAlert(data.data);
@@ -60,12 +61,11 @@ require(["jquery", "avalon", "editor", "uploader", "bsAlert", "csrfToken", "date
             return false;
         });
 
-        //editor("#editor");
-        if (avalon.vmodels.add_contest)
-            var vm = avalon.vmodels.add_contest;
+        if (avalon.vmodels.edit_contest)
+            var vm = avalon.vmodels.edit_contest;
         else
             var vm = avalon.define({
-                $id: "add_contest",
+                $id: "edit_contest",
                 title: "",
                 startTime: "",
                 endTime: "",
@@ -74,13 +74,17 @@ require(["jquery", "avalon", "editor", "uploader", "bsAlert", "csrfToken", "date
                 allGroups: [],
                 showGlobalViewRadio: true,
                 realTimeRank: true,
+                visible: false,
+                showContestListPage: function () {
+                    avalon.vmodels.admin.template_url = "template/contest/contest_list.html";
+                },
 
                 contestDescriptionEditor: {
                     editorId: "contest-description-editor",
                     placeholder: "比赛介绍内容"
                 }
             });
-
+        avalon.scan();
         $.ajax({
             url: "/api/user/",
             method: "get",
@@ -107,9 +111,46 @@ require(["jquery", "avalon", "editor", "uploader", "bsAlert", "csrfToken", "date
                             vm.allGroups = [];
                             for (var i = 0; i < data.data.length; i++) {
                                 var item = data.data[i];
-                                item["isSelected"] = false;
+                                item.isSelected = false;
                                 vm.allGroups.push(item);
                             }
+                            $.ajax({
+                                url: "/api/admin/contest/?contest_id=" + avalon.vmodels.admin.contestId,
+                                method: "get",
+                                dataType: "json",
+                                success: function (data) {
+                                    if (data.code) {
+                                        bsAlert(data.data);
+                                    }
+                                    else {
+                                        var contest = data.data;
+                                        vm.title = contest.title;
+                                        avalon.vmodels.contestDescriptionEditor.content = contest.description;
+                                        vm.visible = contest.visible;
+                                        vm.realTimeRank = contest.real_time_rank;
+                                        vm.startTime = contest.start_time.substring(0, 16).replace("T", " ");
+                                        vm.endTime = contest.end_time.substring(0, 16).replace("T", " ");
+                                        if (contest.contest_type == 0) { //contest_type == 0, 小组内比赛
+                                            vm.isGlobal = false;
+                                            for (var i = 0; i < vm.allGroups.length; i++) {
+                                                vm.allGroups[i].isSelected = false;
+                                            }
+                                            for (var i = 0; i < contest.groups.length; i++) {
+                                                var id = contest.groups[i];
+                                                for (var index = 0; vm.allGroups[index]; index++) {
+                                                    if (vm.allGroups[index].id == id) {
+                                                        vm.allGroups[index].isSelected = true;
+                                                        break;
+                                                    }
+                                                }
+                                            }
+                                        }
+                                        else {
+                                            vm.isGlobal = true;
+                                        }
+                                    }
+                                }
+                            });
                         }
                         else {
                             bsAlert(data.data);
@@ -118,8 +159,6 @@ require(["jquery", "avalon", "editor", "uploader", "bsAlert", "csrfToken", "date
                 });
             }
         });
-
-        avalon.scan();
 
         $("#contest_start_time").datetimepicker({
             format: "yyyy-mm-dd hh:ii",
