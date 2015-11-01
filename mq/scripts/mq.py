@@ -96,7 +96,7 @@ class MessageQueue(object):
                     contest_problem.add_ac_number()
                     problems_status["contest_problems"][str(contest_problem.id)] = 1
                 else:
-                    problems_status["contest_problems"][str(contest_problem.id)] = 1
+                    problems_status["contest_problems"][str(contest_problem.id)] = 0
                 user.problems_status = problems_status
                 user.save()
 
