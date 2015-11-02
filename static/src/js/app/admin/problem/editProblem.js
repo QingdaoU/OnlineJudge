@@ -165,6 +165,7 @@ require(["jquery", "avalon", "editor", "uploader", "bsAlert", "csrfToken", "tagE
                         avalon.vmodels.problemDescriptionEditor.content = problem.description;
                         vm.timeLimit = problem.time_limit;
                         vm.memoryLimit = problem.memory_limit;
+                        vm.samples = [];
                         for (var i = 0; i < problem.samples.length; i++) {
                             vm.samples.push({
                                 input: problem.samples[i].input,
