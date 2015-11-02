@@ -48,7 +48,7 @@ require(["jquery", "avalon", "editor", "uploader", "bsAlert", "csrfToken", "date
                     method: "post",
                     success: function (data) {
                         if (!data.code) {
-                            bsAlert("添加成功！将转到比赛列表页以便为比赛添加问题(注意比赛当前状态为:隐藏)");
+                            bsAlert("添加成功！接下来下需要为比赛添加问题(注意比赛当前状态为:隐藏)");
                             location.hash = "#contest/contest_list";
                         }
                         else {
@@ -61,8 +61,19 @@ require(["jquery", "avalon", "editor", "uploader", "bsAlert", "csrfToken", "date
         });
 
         //editor("#editor");
-        if (avalon.vmodels.add_contest)
+        if (avalon.vmodels.add_contest) {
             var vm = avalon.vmodels.add_contest;
+            vm.title = "";
+            vm.startTime = "";
+            vm.endTime = "";
+            vm.password = "";
+            vm.isGlobal = true;
+            vm.allGroups = [];
+            vm.showGlobalViewRadio = true;
+            vm.realTimeRank = true;
+            avalon.vmodels.contestDescriptionEditor.content = "";
+
+        }
         else
             var vm = avalon.define({
                 $id: "add_contest",

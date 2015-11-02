@@ -49,7 +49,7 @@ require(["jquery", "avalon", "editor", "uploader", "bsAlert", "csrfToken", "tagE
                             ajaxData["id"] = avalon.vmodels.admin.problemId;
                             var alertContent = "题目编辑成功";
                         }
-                        else{
+                        else {
                             var method = "post";
                             var alertContent = "题目创建成功";
                         }
@@ -134,6 +134,19 @@ require(["jquery", "avalon", "editor", "uploader", "bsAlert", "csrfToken", "tagE
                 });
             else {
                 var vm = avalon.vmodels.editProblem;
+                title = "";
+                description = "";
+                timeLimit = 1000;
+                memoryLimit = 128;
+                samples = [];
+                hint = "";
+                sortIndex = "";
+                visible = true;
+                inputDescription = "";
+                outputDescription = "";
+                testCaseId = "";
+                testCaseList = [];
+                uploadSuccess = false;
             }
 
             var testCaseUploader = uploader("#testCaseFile", "/api/admin/test_case_upload/", function (file, response) {
@@ -142,7 +155,7 @@ require(["jquery", "avalon", "editor", "uploader", "bsAlert", "csrfToken", "tagE
                 else {
                     vm.testCaseId = response.data.test_case_id;
                     vm.testCaseList = [];
-                    for(var key in response.data.file_list){
+                    for (var key in response.data.file_list) {
                         vm.testCaseList.push({
                             input: response.data.file_list[key].input_name,
                             output: response.data.file_list[key].output_name
@@ -189,8 +202,8 @@ require(["jquery", "avalon", "editor", "uploader", "bsAlert", "csrfToken", "tagE
                                 url: "/api/admin/test_case_upload/?test_case_id=" + vm.testCaseId,
                                 method: "get",
                                 dataType: "json",
-                                success: function(response){
-                                    if(response.code){
+                                success: function (response) {
+                                    if (response.code) {
                                         bsAlert(response.data);
                                     }
                                     else {
