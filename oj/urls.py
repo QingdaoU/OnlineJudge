@@ -21,8 +21,7 @@ from admin.views import AdminTemplateView
 
 from problem.views import TestCaseUploadAPIView, ProblemTagAdminAPIView, ProblemAdminAPIView
 from submission.views import (SubmissionAPIView, SubmissionAdminAPIView, ContestSubmissionAPIView,
-                              SubmissionShareAPIView, SubmissionRejudgeAdminAPIView,
-                              ContestSubmissionAdminAPIView)
+                              SubmissionShareAPIView, SubmissionRejudgeAdminAPIView)
 from monitor.views import QueueLengthMonitorAPIView
 from utils.views import SimditorImageUploadAPIView
 
@@ -73,8 +72,6 @@ urlpatterns = [
         name="join_group_request_admin_api"),
     url(r'^api/admin/submission/$', SubmissionAdminAPIView.as_view(), name="submission_admin_api_view"),
     url(r'^api/admin/monitor/$', QueueLengthMonitorAPIView.as_view(), name="queue_length_monitor_api"),
-    url(r'^api/admin/contest_submission/$', ContestSubmissionAdminAPIView.as_view(), name="contest_submission_admin_api_view"),
-
 
     url(r'^contest/(?P<contest_id>\d+)/problem/(?P<contest_problem_id>\d+)/$', "contest.views.contest_problem_page",
         name="contest_problem_page"),
