@@ -16,10 +16,11 @@ from rest_framework.views import APIView
 from utils.shortcuts import (serializer_invalid_response, error_response,
                              success_response, paginate, error_page, paginate_data)
 from account.models import SUPER_ADMIN, User
-from account.decorators import login_required
+from account.decorators import login_required, super_admin_required
 from group.models import Group
 from utils.cache import get_cache_redis
 from submission.models import Submission
+from problem.models import Problem
 from .models import (Contest, ContestProblem, CONTEST_ENDED,
                      CONTEST_NOT_START, CONTEST_UNDERWAY, ContestRank)
 from .models import GROUP_CONTEST, PUBLIC_CONTEST, PASSWORD_PROTECTED_CONTEST
@@ -198,8 +199,7 @@ class ContestProblemAdminAPIView(APIView):
                                                             created_by=request.user,
                                                             hint=data["hint"],
                                                             contest=contest,
-                                                            sort_index=data["sort_index"],
-                                                            score=data["score"])
+                                                            sort_index=data["sort_index"])
             return success_response(ContestProblemSerializer(contest_problem).data)
         else:
             return serializer_invalid_response(serializer)
@@ -233,7 +233,6 @@ class ContestProblemAdminAPIView(APIView):
             contest_problem.hint = data["hint"]
             contest_problem.visible = data["visible"]
             contest_problem.sort_index = data["sort_index"]
-            contest_problem.score = data["score"]
             contest_problem.last_update_time = now()
             contest_problem.save()
             return success_response(ContestProblemSerializer(contest_problem).data)
@@ -271,6 +270,26 @@ class ContestProblemAdminAPIView(APIView):
             contest_problems = contest_problems.filter(contest__id=contest_id).order_by("sort_index")
 
         return paginate(request, contest_problems, ContestProblemSerializer)
+
+
+class MakeContestProblemPublicAPIView(APIView):
+    @super_admin_required
+    def post(self, request):
+        problem_id = request.data.get("problem_id", -1)
+        try:
+            problem = ContestProblem.objects.get(id=problem_id)
+        except ContestProblem.DoesNotExist:
+            return error_response(u"比赛不存在")
+        Problem.objects.create(title=problem.title, description=problem.description,
+                               input_description=problem.input_description,
+                               output_description=problem.output_description,
+                               samples=problem.samples,
+                               test_case_id=problem.test_case_id,
+                               hint=problem.hint, created_by=problem.created_by,
+                               time_limit=problem.time_limit, memory_limit=problem.memory_limit,
+                               visible=False, difficulty=-1, source=problem.contest.title)
+        return success_response(u"创建成功")
+
 
 
 class ContestPasswordVerifyAPIView(APIView):

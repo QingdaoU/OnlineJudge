@@ -11,7 +11,8 @@ from account.views import (UserLoginAPIView, UsernameCheckAPIView, UserRegisterA
 from announcement.views import AnnouncementAdminAPIView
 
 from contest.views import (ContestAdminAPIView, ContestProblemAdminAPIView,
-                           ContestPasswordVerifyAPIView, ContestTimeAPIView)
+                           ContestPasswordVerifyAPIView, ContestTimeAPIView,
+                           MakeContestProblemPublicAPIView)
 
 from group.views import (GroupAdminAPIView, GroupMemberAdminAPIView,
                          JoinGroupAPIView, JoinGroupRequestAdminAPIView)
@@ -65,6 +66,7 @@ urlpatterns = [
 
     url(r'^api/admin/problem/$', ProblemAdminAPIView.as_view(), name="problem_admin_api"),
     url(r'^api/admin/contest_problem/$', ContestProblemAdminAPIView.as_view(), name="contest_problem_admin_api"),
+    url(r'^api/admin/contest_problem/public/', MakeContestProblemPublicAPIView.as_view(), name="make_contest_problem_public"),
     url(r'^api/admin/test_case_upload/$', TestCaseUploadAPIView.as_view(), name="test_case_upload_api"),
     url(r'^api/admin/tag/$', ProblemTagAdminAPIView.as_view(), name="problem_tag_admin_api"),
     url(r'^api/admin/join_group_request/$', JoinGroupRequestAdminAPIView.as_view(),

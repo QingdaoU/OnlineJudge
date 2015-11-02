@@ -2,7 +2,7 @@
     <form id="edit-problem-form">
         <nav>
             <ul class="pager">
-                <li class="previous" ms-click="goBack(0)"><a href="javascript:void(0)"><span
+                <li class="previous" ms-click="goBack()"><a href="javascript:void(0)"><span
                         aria-hidden="true">&larr;</span> 返回</a></li>
             </ul>
         </nav>
@@ -22,15 +22,14 @@
 
         <div class="form-group col-md-12">
             <label>题目描述</label>
-            <textarea id="problemDescription" placeholder="这里输入内容(此内容不能为空)" ms-duplex="description"></textarea>
-            <p class="error-info" ms-visible="description==''">请填写题目描述</p>
+            <ms:editor $id="contestProblemDescriptionEditor" config="contestProblemDescriptionEditor"></ms:editor>
         </div>
 
 
         <div class="col-md-3">
             <div class="form-group"><label>时间限制(ms)</label>
                 <input type="number" name="timeLimit" class="form-control" ms-duplex="timeLimit"
-                       data-error="请输入时间限制(保证是一个1000-5000的合法整数)" required>
+                       data-error="请输入时间限制(保证是一个30-5000的合法整数)" required>
                 <div class="help-block with-errors"></div>
             </div>
         </div>
@@ -39,11 +38,6 @@
                 <input type="number" name="memory" class="form-control" ms-duplex="memoryLimit"
                        data-error="请输入内存限制(保证是一个合法整数)" required>
                 <div class="help-block with-errors"></div>
-            </div>
-        </div>
-        <div class="col-md-3" ms-visible="contestMode=='2'">
-            <div class="form-group"><label>分值(仅计分模式)</label>
-                <input type="number" name="score" class="form-control" ms-duplex="score">
             </div>
         </div>
         <div class="col-md-3 form-group">
@@ -103,7 +97,7 @@
             </div>
         </div>
         <div class="col-md-12"><br>
-            <label>测试数据(多次上传将覆盖原有测试用例)</label><br>
+            <label>测试数据<span ms-if="uploadSuccess">（当前已上传，继续上传将覆盖原有测试用例）</span></label><br>
             <small class="text-info">请将所有测试用例打包在一个文件中上传，所有文件要在压缩包的根目录，且输入输出文件名要以从1开始连续数字标识要对应例如：<br>
                 1.in 1.out 2.in 2.out
             </small>
@@ -127,7 +121,7 @@
         </div>
         <div class="form-group col-md-12">
             <label>提示</label>
-            <textarea id="hint" placeholder="这里输入内容" ms-duplex="hint"></textarea>
+            <ms:editor $id="contestProblemHintEditor" config="contestProblemHintEditor"></ms:editor>
         </div>
         <div class="col-md-12">
             <button type="submit" class="btn btn-success btn-lg">发布题目</button>

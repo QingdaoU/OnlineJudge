@@ -27,7 +27,8 @@ require(["jquery", "avalon", "csrfToken", "bsAlert", "editor", "datetimePicker",
                     avalon.vmodels.admin.template_url = "template/contest/edit_contest.html";
                 },
                 showContestProblems: function(contestId){
-                    // todo
+                    avalon.vmodels.admin.contestId = contestId;
+                    avalon.vmodels.admin.template_url = "template/contest/problem_list.html";
                 }
             })
         }
