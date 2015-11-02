@@ -286,24 +286,3 @@ class SubmissionRejudgeAdminAPIView(APIView):
             return success_response(u"任务提交成功")
         else:
             return serializer_invalid_response(serializer)
-
-
-class ContestSubmissionAdminAPIView(APIView):
-    @check_user_contest_permission
-    def get(self, request):
-        """
-        查询比赛提交,单个比赛题目提交的adminAPI
-        ---
-        response_serializer: SubmissionSerializer
-        """
-        problem_id = request.GET.get("problem_id", None)
-        contest_id = request.GET.get("contest_id", None)
-
-        # 需要 problem_id 和 contest_id 两个参数 否则会在check_user_contest_permission 的时候被拦截
-        if problem_id:
-            submissions = Submission.objects.filter(contest_id=contest_id, problem_id=problem_id).order_by("-create_time")
-        # 需要 contest_id 参数
-        else:
-            submissions = Submission.objects.filter(contest_id=contest_id).order_by("-create_time")
-
-        return paginate(request, submissions, SubmissionSerializer)
