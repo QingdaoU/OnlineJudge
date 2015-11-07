@@ -40,6 +40,7 @@ class ProblemTagAdminAPIView(APIView):
     """
     获取所有标签的列表
     """
+
     def get(self, request):
         return success_response(ProblemTagSerializer(ProblemTag.objects.all(), many=True).data)
 
@@ -189,75 +190,61 @@ class TestCaseUploadAPIView(APIView):
             return error_response(u"解压失败")
         name_list = test_case_file.namelist()
 
-        l = []
-
         # 如果文件是直接打包的，那么name_list 就是["1.in", "1.out"]这样的
 
-        if "1.in" in name_list and "1.out" in name_list:
-            for file_name in name_list:
-                if self._is_legal_test_case_file_name(file_name):
-                    name = file_name.split(".")
-                    # 有了.in 判断对应的.out 在不在
-                    if name[1] == "in":
-                        if (name[0] + ".out") in name_list:
-                            l.append(file_name)
-                        else:
-                            return error_response(u"测试用例文件不完整，缺少" + name[0] + ".out")
-                    else:
-                        # 有了.out 判断对应的 .in 在不在
-                        if (name[0] + ".in") in name_list:
-                            l.append(file_name)
-                        else:
-                            return error_response(u"测试用例文件不完整，缺少" + name[0] + ".in")
+        if len(name_list) % 2 == 1:
+            return error_response(u"测试用例文件格式错误，文件数目为奇数")
 
-            problem_test_dir = rand_str()
-            test_case_dir = settings.TEST_CASE_DIR + problem_test_dir + "/"
+        for index in range(1, len(name_list) / 2 + 1):
+            if not (str(index) + ".in" in name_list and str(index) + ".out" in name_list):
+                return error_response(u"测试用例文件格式错误，缺少" + str(index) + u".in/.out文件")
 
-            # 得到了合法的测试用例文件列表 然后去解压缩
-            os.mkdir(test_case_dir)
-            for name in l:
-                f = open(test_case_dir + name, "wb")
-                try:
-                    f.write(test_case_file.read(name).replace("\r\n", "\n"))
-                except MemoryError:
-                    return error_response(u"单个测试数据体积过大!")
-                finally:
-                    f.close()
-            l.sort()
+        problem_test_dir = rand_str()
+        test_case_dir = settings.TEST_CASE_DIR + problem_test_dir + "/"
 
-            file_info = {"test_case_number": len(l) / 2, "test_cases": {}}
+        # 得到了合法的测试用例文件列表 然后去解压缩
+        os.mkdir(test_case_dir)
+        for name in name_list:
+            f = open(test_case_dir + name, "wb")
+            try:
+                f.write(test_case_file.read(name).replace("\r\n", "\n"))
+            except MemoryError:
+                return error_response(u"单个测试数据体积过大!")
+            finally:
+                f.close()
+        name_list.sort()
 
-            # 计算输出文件的md5
-            for i in range(len(l) / 2):
-                md5 = hashlib.md5()
-                striped_md5 = hashlib.md5()
-                f = open(test_case_dir + str(i + 1) + ".out", "r")
-                # 完整文件的md5
-                while True:
-                    data = f.read(2 ** 8)
-                    if not data:
-                        break
-                    md5.update(data)
+        file_info = {"test_case_number": len(name_list) / 2, "test_cases": {}}
 
-                # 删除标准输出最后的空格和换行
-                # 这时只能一次全部读入了，分块读的话，没办法确定文件结尾
-                f.seek(0)
-                striped_md5.update(f.read().rstrip())
+        # 计算输出文件的md5
+        for i in range(1, len(name_list) / 2 + 1):
+            md5 = hashlib.md5()
+            striped_md5 = hashlib.md5()
+            f = open(test_case_dir + str(i) + ".out", "r")
+            # 完整文件的md5
+            while True:
+                data = f.read(2 ** 8)
+                if not data:
+                    break
+                md5.update(data)
 
-                file_info["test_cases"][str(i + 1)] = {"input_name": str(i + 1) + ".in",
-                                                       "output_name": str(i + 1) + ".out",
-                                                       "output_md5": md5.hexdigest(),
-                                                       "striped_output_md5": striped_md5.hexdigest(),
-                                                       "input_size": os.path.getsize(test_case_dir + str(i + 1) + ".in"),
-                                                       "output_size": os.path.getsize(test_case_dir + str(i + 1) + ".out")}
-                # 写入配置文件
-                with open(test_case_dir + "info", "w") as f:
-                    f.write(json.dumps(file_info))
+            # 删除标准输出最后的空格和换行
+            # 这时只能一次全部读入了，分块读的话，没办法确定文件结尾
+            f.seek(0)
+            striped_md5.update(f.read().rstrip())
 
-            return success_response({"test_case_id": problem_test_dir,
-                                     "file_list": file_info["test_cases"]})
-        else:
-            return error_response(u"测试用例压缩文件格式错误，请保证测试用例文件在根目录下直接压缩")
+            file_info["test_cases"][str(i)] = {"input_name": str(i) + ".in",
+                                               "output_name": str(i) + ".out",
+                                               "output_md5": md5.hexdigest(),
+                                               "striped_output_md5": striped_md5.hexdigest(),
+                                               "input_size": os.path.getsize(test_case_dir + str(i) + ".in"),
+                                               "output_size": os.path.getsize(test_case_dir + str(i) + ".out")}
+            # 写入配置文件
+            with open(test_case_dir + "info", "w") as f:
+                f.write(json.dumps(file_info))
+
+        return success_response({"test_case_id": problem_test_dir,
+                                 "file_list": file_info["test_cases"]})
 
     def get(self, request):
         test_case_id = request.GET.get("test_case_id", None)
@@ -271,7 +258,6 @@ class TestCaseUploadAPIView(APIView):
         except Exception as e:
             return error_response(u"读取测试用例出错")
         return success_response({"file_list": config["test_cases"]})
-
 
 
 def problem_list_page(request, page=1):

@@ -264,7 +264,7 @@ class ContestProblemAdminAPIView(APIView):
         keyword = request.GET.get("keyword", None)
         if keyword:
             contest_problems = contest_problems.filter(Q(title__contains=keyword) |
-                                                     Q(description__contains=keyword))
+                                                       Q(description__contains=keyword))
         contest_id = request.GET.get("contest_id", None)
         if contest_id:
             contest_problems = contest_problems.filter(contest__id=contest_id).order_by("sort_index")
@@ -289,7 +289,6 @@ class MakeContestProblemPublicAPIView(APIView):
                                time_limit=problem.time_limit, memory_limit=problem.memory_limit,
                                visible=False, difficulty=-1, source=problem.contest.title)
         return success_response(u"创建成功")
-
 
 
 class ContestPasswordVerifyAPIView(APIView):
@@ -374,7 +373,7 @@ def contest_problems_list_page(request, contest_id):
     比赛所有题目的列表页
     """
     contest = Contest.objects.get(id=contest_id)
-    contest_problems = ContestProblem.objects.filter(contest=contest).select_related("contest").order_by("sort_index")
+    contest_problems = ContestProblem.objects.filter(contest=contest, visible=True).select_related("contest").order_by("sort_index")
     return render(request, "oj/contest/contest_problems_list.html", {"contest_problems": contest_problems,
                                                                      "contest": {"id": contest_id}})
 
@@ -430,9 +429,9 @@ def contest_rank_page(request, contest_id):
     rank = r.get(cache_key)
 
     if not rank:
-        rank = ContestRank.objects.filter(contest_id=contest_id).\
-            select_related("user").\
-            order_by("-total_ac_number", "total_time").\
+        rank = ContestRank.objects.filter(contest_id=contest_id). \
+            select_related("user"). \
+            order_by("-total_ac_number", "total_time"). \
             values("id", "user__id", "user__username", "user__real_name", "contest_id", "submission_info",
                    "total_submission_number", "total_ac_number", "total_time")
         r.set(cache_key, json.dumps([dict(item) for item in rank]))
@@ -459,13 +458,14 @@ def contest_rank_page(request, contest_id):
                    "contest_problems": contest_problems,
                    "paging_info": paging_info,
                    "auto_refresh": request.GET.get("auto_refresh", None) == "true",
-                   "show_real_name": request.GET.get("show_real_name", None) == "true",})
+                   "show_real_name": request.GET.get("show_real_name", None) == "true", })
 
 
 class ContestTimeAPIView(APIView):
     """
     获取比赛开始或者结束的倒计时，返回毫秒数字
     """
+
     def get(self, request):
         contest_id = request.GET.get("contest_id", -1)
         try:
@@ -490,8 +490,8 @@ def contest_problem_my_submissions_list_page(request, contest_id, contest_proble
         contest_problem = ContestProblem.objects.get(id=contest_problem_id, visible=True)
     except ContestProblem.DoesNotExist:
         return error_page(request, u"比赛问题不存在")
-    submissions = Submission.objects.filter(user_id=request.user.id, problem_id=contest_problem.id).\
-        order_by("-create_time").\
+    submissions = Submission.objects.filter(user_id=request.user.id, problem_id=contest_problem.id). \
+        order_by("-create_time"). \
         values("id", "result", "create_time", "accepted_answer_time", "language")
     return render(request, "oj/submission/problem_my_submissions_list.html",
                   {"submissions": submissions, "problem": contest_problem})
@@ -507,7 +507,7 @@ def contest_problem_submissions_list_page(request, contest_id, page=1):
     except Contest.DoesNotExist:
         return error_page(request, u"比赛不存在")
 
-    submissions = Submission.objects.filter(contest_id=contest_id).\
+    submissions = Submission.objects.filter(contest_id=contest_id). \
         values("id", "contest_id", "problem_id", "result", "create_time",
                "accepted_answer_time", "language", "user_id").order_by("-create_time")
 
