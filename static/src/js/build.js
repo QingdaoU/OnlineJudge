@@ -26,6 +26,7 @@
         // ------ admin web 组件 ----------
         pager: "components/pager",
         editorComponent: "components/editorComponent",
+        testCaseUploader: "components/testCaseUploader",
 
         // ------ 下面写的都不要直接用，而是使用上面的封装版本 ------
         //富文本编辑器simditor -> editor
