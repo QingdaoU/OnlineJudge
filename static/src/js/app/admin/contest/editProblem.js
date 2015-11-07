@@ -1,4 +1,5 @@
-require(["jquery", "avalon", "editor", "uploader", "bsAlert", "csrfToken", "tagEditor", "validator", "editorComponent"],
+require(["jquery", "avalon", "editor", "uploader", "bsAlert",
+        "csrfToken", "tagEditor", "validator", "editorComponent", "testCaseUploader"],
     function ($, avalon, editor, uploader, bsAlert, csrfTokenHeader) {
 
         avalon.ready(function () {
@@ -7,7 +8,7 @@ require(["jquery", "avalon", "editor", "uploader", "bsAlert", "csrfToken", "tagE
                 .on('submit', function (e) {
                     if (!e.isDefaultPrevented()) {
                         e.preventDefault();
-                        if (vm.testCaseId == "") {
+                        if (!avalon.vmodels.testCaseUploader.uploaded) {
                             bsAlert("你还没有上传测试数据!");
                             return false;
                         }
@@ -35,7 +36,7 @@ require(["jquery", "avalon", "editor", "uploader", "bsAlert", "csrfToken", "tagE
                             time_limit: vm.timeLimit,
                             memory_limit: vm.memoryLimit,
                             samples: [],
-                            test_case_id: vm.testCaseId,
+                            test_case_id: avalon.vmodels.testCaseUploader.testCaseId,
                             hint: avalon.vmodels.contestProblemHintEditor.content,
                             visible: vm.visible,
                             contest_id: avalon.vmodels.admin.contestId,
@@ -71,6 +72,7 @@ require(["jquery", "avalon", "editor", "uploader", "bsAlert", "csrfToken", "tagE
                             success: function (data) {
                                 if (!data.code) {
                                     bsAlert(alertContent);
+                                    avalon.vmodels.admin.template_url = "template/contest/problem_list.html";
                                 }
                                 else {
                                     bsAlert(data.data);
@@ -97,7 +99,6 @@ require(["jquery", "avalon", "editor", "uploader", "bsAlert", "csrfToken", "tagE
                     outputDescription: "",
                     testCaseId: "",
                     testCaseList: [],
-                    uploadSuccess: false,
 
                     contestProblemDescriptionEditor: {
                         editorId: "contest-problem-description-editor",
@@ -134,37 +135,19 @@ require(["jquery", "avalon", "editor", "uploader", "bsAlert", "csrfToken", "tagE
                 });
             else {
                 var vm = avalon.vmodels.editProblem;
-                title = "";
-                description = "";
-                timeLimit = 1000;
-                memoryLimit = 128;
-                samples = [];
-                hint = "";
-                sortIndex = "";
-                visible = true;
-                inputDescription = "";
-                outputDescription = "";
-                testCaseId = "";
-                testCaseList = [];
-                uploadSuccess = false;
+                vm.title = "";
+                vm.description = "";
+                vm.timeLimit = 1000;
+                vm.memoryLimit = 128;
+                vm.samples = [];
+                vm.hint = "";
+                vm.sortIndex = "";
+                vm.visible = true;
+                vm.inputDescription = "";
+                vm.outputDescription = "";
+                vm.testCaseId = "";
+                vm.testCaseList = [];
             }
-
-            var testCaseUploader = uploader("#testCaseFile", "/api/admin/test_case_upload/", function (file, response) {
-                if (response.code)
-                    bsAlert(response.data);
-                else {
-                    vm.testCaseId = response.data.test_case_id;
-                    vm.testCaseList = [];
-                    for (var key in response.data.file_list) {
-                        vm.testCaseList.push({
-                            input: response.data.file_list[key].input_name,
-                            output: response.data.file_list[key].output_name
-                        })
-                    }
-                    vm.uploadSuccess = true;
-                    bsAlert("测试数据添加成功！共添加" + vm.testCaseList.length + "组测试数据");
-                }
-            });
 
             if (avalon.vmodels.admin.contestProblemStatus == "edit") {
                 $.ajax({
@@ -188,7 +171,7 @@ require(["jquery", "avalon", "editor", "uploader", "bsAlert", "csrfToken", "tagE
                             vm.inputDescription = problem.input_description;
                             vm.outputDescription = problem.output_description;
                             vm.score = problem.score;
-                            vm.testCaseId = problem.test_case_id;
+                            avalon.vmodels.testCaseUploader.setTestCase(problem.test_case_id);
                             vm.samples = [];
                             for (var i = 0; i < problem.samples.length; i++) {
                                 vm.samples.push({
@@ -198,26 +181,6 @@ require(["jquery", "avalon", "editor", "uploader", "bsAlert", "csrfToken", "tagE
                                 })
                             }
                             avalon.vmodels.contestProblemHintEditor.content = problem.hint;
-                            $.ajax({
-                                url: "/api/admin/test_case_upload/?test_case_id=" + vm.testCaseId,
-                                method: "get",
-                                dataType: "json",
-                                success: function (response) {
-                                    if (response.code) {
-                                        bsAlert(response.data);
-                                    }
-                                    else {
-                                        vm.testCaseList = [];
-                                        for (var key in response.data.file_list) {
-                                            vm.testCaseList.push({
-                                                input: response.data.file_list[key].input_name,
-                                                output: response.data.file_list[key].output_name
-                                            })
-                                        }
-                                        vm.uploadSuccess = true;
-                                    }
-                                }
-                            })
                         }
                     }
                 });

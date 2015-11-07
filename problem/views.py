@@ -191,6 +191,8 @@ class TestCaseUploadAPIView(APIView):
         name_list = test_case_file.namelist()
 
         # 如果文件是直接打包的，那么name_list 就是["1.in", "1.out"]这样的
+        if len(name_list) == 0:
+            return error_response(u"压缩包内没有文件")
 
         if len(name_list) % 2 == 1:
             return error_response(u"测试用例文件格式错误，文件数目为奇数")
