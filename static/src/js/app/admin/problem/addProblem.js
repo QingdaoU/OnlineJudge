@@ -1,11 +1,12 @@
-require(["jquery", "avalon", "editor", "uploader", "bsAlert", "csrfToken", "tagEditor", "validator", "jqueryUI", "editorComponent"],
+require(["jquery", "avalon", "editor", "uploader", "bsAlert",
+        "csrfToken", "tagEditor", "validator", "jqueryUI", "editorComponent", "testCaseUploader"],
     function ($, avalon, editor, uploader, bsAlert, csrfTokenHeader) {
         avalon.ready(function () {
 
             $("#add-problem-form").validator()
                 .on('submit', function (e) {
                     if (!e.isDefaultPrevented()) {
-                        if (vm.testCaseId == "") {
+                        if (!avalon.vmodels.testCaseUploader.uploaded) {
                             bsAlert("你还没有上传测试数据!");
                             return false;
                         }
@@ -39,7 +40,7 @@ require(["jquery", "avalon", "editor", "uploader", "bsAlert", "csrfToken", "tagE
                             time_limit: vm.timeLimit,
                             memory_limit: vm.memoryLimit,
                             samples: [],
-                            test_case_id: vm.testCaseId,
+                            test_case_id: avalon.vmodels.testCaseUploader.testCaseId,
                             hint: avalon.vmodels.problemHintEditor.content,
                             source: vm.source,
                             visible: vm.visible,
@@ -137,29 +138,6 @@ require(["jquery", "avalon", "editor", "uploader", "bsAlert", "csrfToken", "tagE
                             return "折叠";
                         return "展开";
                     }
-                });
-
-            var testCaseUploader = uploader("#testCaseFile", "/api/admin/test_case_upload/",
-                function (file, response) {
-                    if (response.code) {
-                        vm.uploadProgress = 0;
-                        bsAlert(response.data);
-                    }
-                    else {
-                        vm.testCaseId = response.data.test_case_id;
-                        vm.uploadSuccess = true;
-                        vm.testCaseList = [];
-                        for (var key in response.data.file_list) {
-                            vm.testCaseList.push({
-                                input: response.data.file_list[key].input_name,
-                                output: response.data.file_list[key].output_name
-                            })
-                        }
-                        bsAlert("测试数据添加成功！共添加" + vm.testCaseList.length + "组测试数据");
-                    }
-                },
-                function (file, percentage) {
-                    vm.uploadProgress = parseInt(percentage * 100);
                 });
 
             var tagAutoCompleteList = [];

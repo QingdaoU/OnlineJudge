@@ -278,6 +278,8 @@ class MakeContestProblemPublicAPIView(APIView):
         problem_id = request.data.get("problem_id", -1)
         try:
             problem = ContestProblem.objects.get(id=problem_id)
+            problem.is_public = True
+            problem.save()
         except ContestProblem.DoesNotExist:
             return error_response(u"比赛不存在")
         Problem.objects.create(title=problem.title, description=problem.description,
