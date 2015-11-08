@@ -72,24 +72,27 @@
                            onchange="if(this.checked){location.href=location.href + '&auto_refresh=true'}else{location.href=location.href=location.href.replace('&auto_refresh=true', '')}">
                     自动刷新
                     <nav>
-            <ul class="pager">
-                {% if paging_info.previous_page %}
-                <li class="previous">
-                    <a href="/contest/{{ contest.id }}/rank/?paging=true&page={{ paging_info.previous_page }}&page_size={{ paging_info.page_size }}{% if auto_refresh %}&auto_refresh=true{% endif %}">
+                        <ul class="pager">
+                            {% if paging_info.previous_page %}
+                            <li class="previous">
+                                <a href="/contest/{{ contest.id }}/rank/?paging=true&page={{ paging_info.previous_page }}&page_size={{ paging_info.page_size }}{% if auto_refresh %}&auto_refresh=true{% endif %}">
 
-                    <span aria-hidden="true">&larr;</span> 上一页
-                    </a></li>
-                {% endif %}
-                {% if paging_info.next_page %}
-                <li class="next">
-                    <a href="/contest/{{ contest.id }}/rank/?paging=true&page={{ paging_info.next_page }}&page_size={{ paging_info.page_size }}{% if auto_refresh %}&auto_refresh=true{% endif %}">
-                        下一页 <span aria-hidden="true">&rarr;</span>
-                    </a></li>
-                {% endif %}
-            </ul>
-        </nav>
+                                <span aria-hidden="true">&larr;</span> 上一页
+                                </a></li>
+                            {% endif %}
+                            {% if paging_info.next_page %}
+                            <li class="next">
+                                <a href="/contest/{{ contest.id }}/rank/?paging=true&page={{ paging_info.next_page }}&page_size={{ paging_info.page_size }}{% if auto_refresh %}&auto_refresh=true{% endif %}">
+                                    下一页 <span aria-hidden="true">&rarr;</span>
+                                </a></li>
+                            {% endif %}
+                        </ul>
+                    </nav>
                 {% else %}
                     <p>还没有结果</p>
+                    <input type="checkbox" id="auto-refresh" {% if auto_refresh %}checked{% endif %}
+                           onchange="if(this.checked){location.href=location.href + '&auto_refresh=true'}else{location.href=location.href=location.href.replace('&auto_refresh=true', '')}">
+                    自动刷新
                 {% endif %}
 
             </div>
