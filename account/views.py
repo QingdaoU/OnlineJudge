@@ -17,7 +17,7 @@ from utils.captcha import Captcha
 from mail.tasks import send_email
 
 from .decorators import login_required
-from .models import User
+from .models import User, UserProfile
 from .serializers import (UserLoginSerializer, UsernameCheckSerializer,
                           UserRegisterSerializer, UserChangePasswordSerializer,
                           EmailCheckSerializer, UserSerializer, EditUserSerializer,
@@ -96,6 +96,7 @@ class UserRegisterAPIView(APIView):
                                            email=data["email"])
                 user.set_password(data["password"])
                 user.save()
+                UserProfile.objects.create(user=user)
                 return success_response(u"注册成功！")
         else:
             return serializer_invalid_response(serializer)
