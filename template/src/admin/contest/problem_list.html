@@ -27,7 +27,7 @@
             <td>{{ el.total_accepted_number }}/{{ el.total_submit_number }}</td>
             <td>
                 <button class="btn-sm btn-info" ms-click="showEditProblemPage(el.id)">编辑</button>
-                <button class="btn-sm btn-primary" ms-if="!el.is_public && adminType == 2" ms-click="makeProblemPublic(el)">公开</button>
+                <button class="btn-sm btn-primary" ms-if="!el.is_public && adminType == 2 && el.visible" ms-click="makeProblemPublic(el)">公开</button>
             </td>
         </tr>
     </table>
