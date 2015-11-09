@@ -18,11 +18,11 @@ from mail.tasks import send_email
 
 from .decorators import login_required
 from .models import User, UserProfile
-from .serializers import (UserLoginSerializer, UsernameCheckSerializer,
-                          UserRegisterSerializer, UserChangePasswordSerializer,
-                          EmailCheckSerializer, UserSerializer, EditUserSerializer,
+from .serializers import (UserLoginSerializer, UserRegisterSerializer,
+                          UserChangePasswordSerializer,
+                          UserSerializer, EditUserSerializer,
                           ApplyResetPasswordSerializer, ResetPasswordSerializer,
-                          SSOSerializer)
+                          SSOSerializer, EditUserProfileSerializer)
 from .decorators import super_admin_required
 
 
@@ -298,6 +298,28 @@ def user_index_page(request, username):
         blog_link = user.userprofile.blog.replace("http://", "").replace("https://", "")
 
     return render(request, "oj/account/user_index.html", {"user": user, "blog_link": blog_link})
+
+
+class UserProfileAPIView(APIView):
+    @login_required
+    def put(self, request):
+        serializer = EditUserProfileSerializer(data=request.data)
+        if serializer.is_valid():
+            data = serializer.data
+            user_profile = request.user.userprofile
+
+            if data["avatar"]:
+                user_profile.avatar = data["avatar"]
+            user_profile.mood = data["mood"]
+            user_profile.hduoj_username = data["hduoj_username"]
+            user_profile.bestcoder_username = data["bestcoder_username"]
+            user_profile.codeforces_username = data["codeforces_username"]
+            user_profile.blog = data["blog"]
+
+            user_profile.save()
+            return success_response(u"修改成功")
+        else:
+            return serializer_invalid_response(serializer)
 
 
 class SSOAPIView(APIView):
