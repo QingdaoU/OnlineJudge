@@ -7,17 +7,19 @@ require(["jquery", "bsAlert", "csrfToken", "validator"], function ($, bsAlert, c
             var codeforces_username = $("#codeforces_username").val();
             var blog = $("#blog").val();
             var mood = $("#mood").val();
+            var school = $("#school").val();
 
             $.ajax({
                 beforeSend: csrfTokenHeader,
                 url: "/api/account/userprofile/",
                 data: {
-                    phone: phone,
+                    phone_number: phone,
                     hduoj_username: hduoj_username,
                     bestcoder_username: bestcoder_username,
                     codeforces_username: codeforces_username,
                     blog: blog,
-                    mood: mood
+                    mood: mood,
+                    school: school
                 },
                 dataType: "json",
                 method: "put",

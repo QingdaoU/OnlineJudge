@@ -36,53 +36,53 @@
                 <div class="form-group col-md-6"><label>手机</label>
                     <input name="phone" type="text" maxlength="11" id="phone"
                            class="form-control"
-                           value="{% if request.user.userprofile.phone %}{{ request.user.userprofile.phone }}{% endif %}">
+                           value="{{ request.user.userprofile.phone_number }}">
                 </div>
                 <div class="help-block with-errors"></div>
             </div>
             <div class="row">
                 <div class="form-group col-md-6">
                     <label>学校</label>
-                    <input name="school" type="text" class="form-control"
-                           value="{{ request.user.hduoj_username }}">
+                    <input name="school" type="text" class="form-control" id="school"
+                           value="{{ request.user.userprofile.school }}">
 
                     <div class="help-block with-errors"></div>
                 </div>
                 <div class="form-group col-md-6">
                     <label>hduoj 用户名</label>
-                    <input name="hduoj" type="text" class="form-control"
-                           value="{{ request.user.hduoj_username }}">
+                    <input name="hduoj" type="text" class="form-control" id="hduoj_username"
+                           value="{{ request.user.userprofile.hduoj_username }}">
 
                     <div class="help-block with-errors"></div>
                 </div>
                 <div class="form-group col-md-6">
                     <label>BestCoder 用户名</label>
-                    <input name="bestcoder" type="text" class="form-control"
-                           value="{{ request.user.bestcoder_username }}">
+                    <input name="bestcoder" type="text" class="form-control" id="bestcoder_username"
+                           value="{{ request.user.userprofile.bestcoder_username }}">
 
                     <div class="help-block with-errors"></div>
                 </div>
                 <div class="form-group col-md-6">
                     <label>Codeforces 用户名</label>
-                    <input name="codeforces" type="text" class="form-control"
-                           value="{{ request.user.bestcoder_username }}">
+                    <input name="codeforces" type="text" class="form-control" id="codeforce_username"
+                           value="{{ request.user.userprofile.bestcoder_username }}">
 
                     <div class="help-block with-errors"></div>
                 </div>
                 <div class="form-group col-md-12"><label>blog</label>
-                    <input name="blog" type="url" class="form-control"
-                           value="{{ request.user.blog }}">
+                    <input name="blog" type="url" class="form-control" id="blog"
+                           value="{{ request.user.userprofile.blog }}">
 
                     <div class="help-block with-errors"></div>
-                    <div class="form-group col-md-12">
-                        <label>签名</label>
-                        <input name="mood" type="text" maxlength="60" class="form-control" id="mood"
-                               value="{% if request.user.userprofile.mood %}{{ request.user.userprofile.mood }}{% endif %}"
-                               data-error="字数限制在30字以内">
 
-                        <div class="help-block with-errors"></div>
-                    </div>
+                </div>
+                <div class="form-group col-md-12">
+                    <label>签名</label>
+                    <input name="mood" type="text" maxlength="60" class="form-control" id="mood"
+                           value="{% if request.user.userprofile.mood %}{{ request.user.userprofile.mood }}{% endif %}"
+                           data-error="字数限制在30字以内">
 
+                    <div class="help-block with-errors"></div>
                 </div>
 
                 <div class="form-group">
