@@ -44,27 +44,32 @@
                 </div>
             </div>
             <div class="row">
-
+                <div class="form-group col-md-6">
+                    <label>学校</label>
+                    <input name="school" type="text" class="form-control"
+                           value="{{ request.user.hduoj_username }}">
+                    <div class="help-block with-errors"></div>
+                </div>
                 <div class="form-group col-md-6">
                     <label>hduoj 用户名</label>
-                    <input name=hduoj" type="text" class="form-control"
+                    <input name="hduoj" type="text" class="form-control"
                            value="{{ request.user.hduoj_username }}">
                     <div class="help-block with-errors"></div>
                 </div>
                 <div class="form-group col-md-6">
                     <label>BestCoder 用户名</label>
-                    <input name=bestcoder" type="text" class="form-control"
+                    <input name="bestcoder" type="text" class="form-control"
                            value="{{ request.user.bestcoder_username }}">
                     <div class="help-block with-errors"></div>
                 </div>
                 <div class="form-group col-md-6">
                     <label>Codeforces 用户名</label>
-                    <input name=codeforces" type="text" class="form-control"
+                    <input name="codeforces" type="text" class="form-control"
                            value="{{ request.user.bestcoder_username }}">
                     <div class="help-block with-errors"></div>
                 </div>
                 <div class="form-group col-md-12"><label>blog</label>
-                    <input name=blog" type="url" class="form-control"
+                    <input name="blog" type="url" class="form-control"
                            value="{{ request.user.blog }}">
                     <div class="help-block with-errors"></div>
                 </div>
