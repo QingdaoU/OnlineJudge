@@ -6,7 +6,7 @@ from django.views.generic import TemplateView
 from account.views import (UserLoginAPIView, UsernameCheckAPIView, UserRegisterAPIView,
                            UserChangePasswordAPIView, EmailCheckAPIView,
                            UserAdminAPIView, UserInfoAPIView,
-                           ApplyResetPasswordAPIView, SSOAPIView)
+                           ApplyResetPasswordAPIView, SSOAPIView, UserProfileAPIView)
 
 from announcement.views import AnnouncementAdminAPIView
 
@@ -127,6 +127,7 @@ urlpatterns = [
     url(r'^account/settings/$', TemplateView.as_view(template_name="oj/account/settings.html"), name="account_setting_page"),
     url(r'^account/settings/avatar/$', TemplateView.as_view(template_name="oj/account/avatar.html"), name="avatar_settings_page"),
     url(r'^account/sso/$', SSOAPIView.as_view(), name="sso_api"),
+    url('^api/account/userprofile/$', UserProfileAPIView.as_view(), name="userprofile_api"),
 ]
 
 
