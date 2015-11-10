@@ -290,6 +290,8 @@ class MakeContestProblemPublicAPIView(APIView):
                                hint=problem.hint, created_by=problem.created_by,
                                time_limit=problem.time_limit, memory_limit=problem.memory_limit,
                                visible=False, difficulty=-1, source=problem.contest.title)
+        problem.is_public = True
+        problem.save()
         return success_response(u"创建成功")
 
 
@@ -424,7 +426,7 @@ def contest_list_page(request, page=1):
 @check_user_contest_permission
 def contest_rank_page(request, contest_id):
     contest = Contest.objects.get(id=contest_id)
-    contest_problems = ContestProblem.objects.filter(contest=contest).order_by("sort_index")
+    contest_problems = ContestProblem.objects.filter(contest=contest, visible=True).order_by("sort_index")
 
     r = get_cache_redis()
     cache_key = str(contest_id) + "_rank_cache"

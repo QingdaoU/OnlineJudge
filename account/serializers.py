@@ -1,7 +1,7 @@
 # coding=utf-8
 from rest_framework import serializers
 
-from .models import User
+from .models import User, UserProfile
 
 
 class UserLoginSerializer(serializers.Serializer):
@@ -65,10 +65,20 @@ class SSOSerializer(serializers.Serializer):
 
 
 class EditUserProfileSerializer(serializers.Serializer):
+
     avatar = serializers.CharField(max_length=50, required=False, default=None)
-    phone = serializers.CharField(min_length=11, max_length=11, required=False, allow_blank=True, default=None)
-    blog = serializers.URLField(required=False, allow_blank=True, default=None)
-    mood = serializers.CharField(max_length=60, required=False, allow_blank=True, default=None)
-    hduoj_username = serializers.CharField(max_length=30, required=False, allow_blank=True, default=None)
-    bestcoder_username = serializers.CharField(max_length=30, required=False, allow_blank=True, default=None)
-    codeforces_username = serializers.CharField(max_length=30, required=False, allow_blank=True, default=None)
+    blog = serializers.URLField(required=False, allow_blank=True, default='')
+    mood = serializers.CharField(max_length=60, required=False, default='')
+    hduoj_username = serializers.CharField(max_length=30, required=False, allow_blank=True, default='')
+    bestcoder_username = serializers.CharField(max_length=30, required=False, allow_blank=True, default='')
+    codeforces_username = serializers.CharField(max_length=30, required=False, allow_blank=True, default='')
+    school = serializers.CharField(max_length=200, required=False, allow_blank=True, default='')
+    phone_number = serializers.CharField(max_length=15, required=False, allow_blank=True, default='')
+
+
+class UserProfileSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = UserProfile
+        fields = ["avatar", "blog", "mood", "hduoj_username", "bestcoder_username", "codeforces_username",
+                  "rank", "accepted_number", "submissions_number", "problems_status", "phone_number", "school"]

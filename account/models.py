@@ -68,6 +68,9 @@ class UserProfile(models.Model):
     submissions_number = models.IntegerField(default=0)
     # JSON字典用来表示该用户的问题的解决状态 1为ac，2为正在进行
     problems_status = JSONField(default={})
+    phone_number = models.CharField(max_length=15, blank=True, null=True)
+    school = models.CharField(max_length=200, blank=True, null=True)
+
 
     class Meta:
         db_table = "user_profile"
