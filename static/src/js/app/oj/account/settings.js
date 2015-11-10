@@ -1,3 +1,41 @@
-/**
- * Created by uzi on 11/7/15.
- */
+require(["jquery", "bsAlert", "csrfToken", "validator"], function ($, bsAlert, csrfTokenHeader) {
+    $('form').validator().on('submit', function (e) {
+        if (!e.isDefaultPrevented()) {
+            var phone = $("#phone").val();
+            var hduoj_username = $("#hduoj_username").val();
+            var bestcoder_username = $("#bestcoder_username").val();
+            var codeforces_username = $("#codeforces_username").val();
+            var blog = $("#blog").val();
+            var mood = $("#mood").val();
+
+            $.ajax({
+                beforeSend: csrfTokenHeader,
+                url: "/api/account/userprofile/",
+                data: {
+                    phone: phone,
+                    hduoj_username: hduoj_username,
+                    bestcoder_username: bestcoder_username,
+                    codeforces_username: codeforces_username,
+                    blog: blog,
+                    mood: mood
+                },
+                dataType: "json",
+                method: "put",
+                success: function (data) {
+                    if (!data.code) {
+                        bsAlert("修改成功");
+                    }
+                    else{
+                        bsAlert(data.data);
+                    }
+                },
+                error: function () {
+                    bsAlert("额 好像出错了，请刷新页面重试。如还有问题，请填写页面导航栏上的反馈。")
+                }
+
+            });
+            return false;
+        }
+    });
+});
+

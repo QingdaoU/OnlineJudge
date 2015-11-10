@@ -19,7 +19,9 @@
                     {% endifequal %}
 
                 </h2>
-                <p id="user-mood">{{ user.userprofile.mood }}</p>
+                {% if user.userprofile.mood %}
+                    <p id="user-mood">{{ user.userprofile.mood }}</p>
+                {% endif %}
             </div>
             <div class="list-group col-lg-9">
 
@@ -32,7 +34,7 @@
                 {% if user.userprofile.hduoj_username %}
                 <p class="list-group-item">
                     <img src="/static/img/oj_logo/hdu_logo.png" id="oj-logo">
-                    <a href="http://bestcoder.hdu.edu.cn/rating.php?user={{ user.userprofile.hduoj_username }}" target="_blank">
+                    <a href="http://acm.hdu.edu.cn/userstatus.php?user={{ user.userprofile.hduoj_username }}" target="_blank">
                         {{ user.userprofile.hduoj_username }}
                     </a>
                 </p>
@@ -61,15 +63,17 @@
                     {{ user.create_time }}
                 </p>
                 <div class="rows">
+                    <!--
                     <div class="col-lg-4 text-center">
                         <strong id="user-data-number">{{ user.userprofile.rank }}</strong>
                         <span id="user-data-text">Rank</span>
                     </div>
-                    <div class="col-lg-4 text-center">
+                    -->
+                    <div class="col-lg-6 text-center">
                         <strong id="user-data-number">{{ user.userprofile.accepted_number }}</strong>
                         <span id="user-data-text">AC</span>
                     </div>
-                    <div class="col-lg-4 text-center">
+                    <div class="col-lg-6 text-center">
                         <strong id="user-data-number">{{ user.userprofile.submissions_number }}</strong>
                         <span id="user-data-text">Submissions</span>
                     </div>
