@@ -8,7 +8,6 @@ require(["jquery", "bsAlert", "csrfToken"], function ($, bsAlert, csrfTokenHeade
     $('.avatar-item').click(changeAvatar);
 
     $('#save_avatar').click(function(){
-        alert("aaa");
         if (avatar)
             $.ajax({
                     beforeSend: csrfTokenHeader,
