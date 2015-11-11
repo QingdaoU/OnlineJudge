@@ -246,13 +246,14 @@ class UserProfileAPIView(APIView):
             user_profile = request.user.userprofile
             if data["avatar"]:
                 user_profile.avatar = data["avatar"]
-            user_profile.mood = data["mood"]
-            user_profile.hduoj_username = data["hduoj_username"]
-            user_profile.bestcoder_username = data["bestcoder_username"]
-            user_profile.codeforces_username = data["codeforces_username"]
-            user_profile.blog = data["blog"]
-            user_profile.school = data["school"]
-            user_profile.phone_number = data["phone_number"]
+            else:
+                user_profile.mood = data["mood"]
+                user_profile.hduoj_username = data["hduoj_username"]
+                user_profile.bestcoder_username = data["bestcoder_username"]
+                user_profile.codeforces_username = data["codeforces_username"]
+                user_profile.blog = data["blog"]
+                user_profile.school = data["school"]
+                user_profile.phone_number = data["phone_number"]
             user_profile.save()
             return success_response(u"修改成功")
         else:
