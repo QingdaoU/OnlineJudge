@@ -36,7 +36,7 @@
                 <div class="form-group col-md-6"><label>手机</label>
                     <input name="phone" type="text" maxlength="11" id="phone"
                            class="form-control"
-                           value="{{ request.user.userprofile.phone_number }}">
+                           value="{% if request.user.userprofile.phone_number %}{{ request.user.userprofile.phone_number }}{% endif %}">
                 </div>
                 <div class="help-block with-errors"></div>
             </div>
@@ -44,7 +44,7 @@
                 <div class="form-group col-md-6">
                     <label>学校</label>
                     <input name="school" type="text" class="form-control" id="school"
-                           value="{{ request.user.userprofile.school }}">
+                           value="{% if request.user.userprofile.school %}{{ request.user.userprofile.school }}{% endif %}">
 
                     <div class="help-block with-errors"></div>
                 </div>
