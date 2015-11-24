@@ -21,6 +21,7 @@ class EmailCheckSerializer(serializers.Serializer):
 class UserRegisterSerializer(serializers.Serializer):
     username = serializers.CharField(max_length=30)
     real_name = serializers.CharField(max_length=30)
+    school = serializers.CharField(max_length=200)
     password = serializers.CharField(max_length=30, min_length=6)
     email = serializers.EmailField(max_length=254)
     captcha = serializers.CharField(max_length=4, min_length=4)

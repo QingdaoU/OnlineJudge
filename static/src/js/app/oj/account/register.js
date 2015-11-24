@@ -3,13 +3,14 @@ require(["jquery", "bsAlert", "csrfToken", "validator"], function ($, bsAlert, c
         if (!e.isDefaultPrevented()) {
             var username = $("#username").val();
             var realName = $("#real_name").val();
+            var school = $('#school').val();
             var password = $("#password").val();
             var email = $("#email").val();
             var captcha = $("#captcha").val();
             $.ajax({
                 beforeSend: csrfTokenHeader,
                 url: "/api/register/",
-                data: {username: username, real_name: realName, password: password, email: email, captcha:captcha},
+                data: {username: username, school: school, real_name: realName, password: password, email: email, captcha:captcha},
                 dataType: "json",
                 method: "post",
                 success: function (data) {

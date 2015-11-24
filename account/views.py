@@ -98,7 +98,7 @@ class UserRegisterAPIView(APIView):
                                            email=data["email"])
                 user.set_password(data["password"])
                 user.save()
-                UserProfile.objects.create(user=user)
+                UserProfile.objects.create(user=user, school=data["school"])
                 return success_response(u"注册成功！")
         else:
             return serializer_invalid_response(serializer)
