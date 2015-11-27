@@ -62,10 +62,9 @@ def index_page(request):
     if not request.user.is_authenticated():
         return render(request, "oj/index.html")
 
-    try:
-        if request.META['HTTP_REFERER']:
+    if request.META.get('HTTP_REFERER') or request.GET.get("index"):
             return render(request, "oj/index.html")
-    except KeyError:
+    else:
         return http.HttpResponseRedirect('/problems/')
 
 
