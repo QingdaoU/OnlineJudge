@@ -1,14 +1,12 @@
 # coding=utf-8
-import sys
-import json
-import MySQLdb
+import os
+import shutil
 
 from client import JudgeClient
 from language import languages
 from compiler import compile_
 from result import result
-from settings import judger_workspace, submission_db
-from logger import logger
+from settings import judger_workspace
 
 
 class JudgeInstanceRunner(object):
@@ -17,16 +15,26 @@ class JudgeInstanceRunner(object):
 
     def run(self, submission_id, language_code, code, time_limit, memory_limit, test_case_id):
         language = languages[language_code]
-        # 将代码写入文件
-        src_path = judger_workspace + "run/" + submission_id + "/" + language["src_name"]
-        f = open(src_path, "w")
-        f.write(code.encode("utf8"))
-        f.close()
+
+        judge_base_path = os.path.join(judger_workspace, "run", submission_id)
+
+        try:
+            os.mkdir(judge_base_path)
+
+            # 将代码写入文件
+            src_path = os.path.join(judge_base_path, language["src_name"])
+            f = open(src_path, "w")
+            f.write(code.encode("utf8"))
+            f.close()
+        except Exception as e:
+            shutil.rmtree(judge_base_path, ignore_errors=True)
+            return {"code": 2, "data": str(e)}
 
         # 编译
         try:
-            exe_path = compile_(language, src_path, judger_workspace + "run/" + submission_id + "/")
+            exe_path = compile_(language, src_path, judge_base_path)
         except Exception as e:
+            shutil.rmtree(judge_base_path, ignore_errors=True)
             return {"code": 1, "data": str(e)}
 
         # 运行
@@ -47,6 +55,7 @@ class JudgeInstanceRunner(object):
                 l = sorted(judge_result["info"], key=lambda k: k["cpu_time"])
                 judge_result["accepted_answer_time"] = l[-1]["cpu_time"]
             return {"code": 0, "data": judge_result}
-
         except Exception as e:
-            return {"code": 1, "data": str(e)}
+            return {"code": 2, "data": str(e)}
+        finally:
+            shutil.rmtree(judge_base_path, ignore_errors=True)
