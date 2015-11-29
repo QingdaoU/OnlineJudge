@@ -7,7 +7,7 @@ require(["jquery", "bsAlert", "csrfToken", "validator"], function ($, bsAlert, c
 
             $.ajax({
                 beforeSend: csrfTokenHeader,
-                url: "/api/reset_password/",
+                url: "/api/apply_reset_password/",
                 data: {email: email, captcha: captcha},
                 dataType: "json",
                 method: "post",
