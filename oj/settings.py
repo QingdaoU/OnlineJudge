@@ -57,7 +57,6 @@ INSTALLED_APPS = (
     'problem',
     'admin',
     'submission',
-    'mq',
     'contest',
     'mail',
     'judge',
