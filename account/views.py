@@ -286,8 +286,8 @@ class ApplyResetPasswordAPIView(APIView):
                 user = User.objects.get(email=data["email"])
             except User.DoesNotExist:
                 return error_response(u"用户不存在")
-            #if user.reset_password_token_create_time and (now() - user.reset_password_token_create_time).total_seconds() < 20 * 60:
-            #    return error_response(u"20分钟内只能找回一次密码")
+            if user.reset_password_token_create_time and (now() - user.reset_password_token_create_time).total_seconds() < 20 * 60:
+                return error_response(u"20分钟内只能找回一次密码")
             user.reset_password_token = rand_str()
             user.reset_password_token_create_time = now()
             user.save()
@@ -329,11 +329,6 @@ class ResetPasswordAPIView(APIView):
             return serializer_invalid_response(serializer)
 
 
-
-
-
-
-
 def user_index_page(request, username):
     try:
         user = User.objects.get(username=username)
@@ -370,3 +365,12 @@ class SSOAPIView(APIView):
         request.user.save()
         return render(request, "oj/account/sso.html", {"redirect_url": callback + "?token=" + token, "callback": callback})
 
+
+def reset_password_page(request, token):
+    try:
+        user = User.objects.get(reset_password_token=token)
+    except User.DoesNotExist:
+        return error_page(request, u"链接已失效")
+    if (now() - user.reset_password_token_create_time).total_seconds() > 30 * 60:
+        return error_page(request, u"链接已过期")
+    return render(request, "oj/account/reset_password.html", {"user": user})
