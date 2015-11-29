@@ -1,7 +1,7 @@
 # coding=utf-8
 from django.db import models
 from utils.shortcuts import rand_str
-from judge.judger.result import result
+from judge.result import result
 
 
 class Submission(models.Model):

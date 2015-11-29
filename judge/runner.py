@@ -21,6 +21,7 @@ class JudgeInstanceRunner(object):
 
         try:
             os.mkdir(judge_base_path)
+            os.chmod(judge_base_path, 0777)
 
             # 将代码写入文件
             src_path = os.path.join(judge_base_path, language["src_name"])

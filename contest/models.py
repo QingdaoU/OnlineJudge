@@ -7,7 +7,7 @@ from problem.models import AbstractProblem
 from group.models import Group
 from utils.models import RichTextField
 from jsonfield import JSONField
-from judge.judger.result import result
+from judge.result import result
 
 
 GROUP_CONTEST = 0

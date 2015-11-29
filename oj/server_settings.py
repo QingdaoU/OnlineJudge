@@ -31,6 +31,11 @@ REDIS_CACHE = {
     "db": 1
 }
 
+# for celery
+REDIS_HOST = os.environ.get("REDIS_PORT_6379_TCP_ADDR", "127.0.0.1")
+REDIS_PORT = 6379
+REDIS_DB = 0
+
 DEBUG = False
 
 ALLOWED_HOSTS = ['*']

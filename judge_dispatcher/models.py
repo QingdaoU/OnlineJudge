@@ -3,7 +3,7 @@ from django.db import models
 
 
 class JudgeServer(models.Model):
-    ip = models.IPAddressField()
+    ip = models.GenericIPAddressField()
     port = models.IntegerField()
     # 这个服务器最大可能运行的判题实例数量
     max_instance_number = models.IntegerField()

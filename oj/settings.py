@@ -22,6 +22,15 @@ if ENV == "local":
 elif ENV == "server":
     from .server_settings import *
 
+import djcelery
+djcelery.setup_loader()
+
+BROKER_BACKEND = "redis"
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+
+
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
@@ -51,9 +60,12 @@ INSTALLED_APPS = (
     'mq',
     'contest',
     'mail',
+    'judge',
+    'judge_dispatcher',
 
     'django_extensions',
     'rest_framework',
+    'djcelery',
 )
 
 if DEBUG:
