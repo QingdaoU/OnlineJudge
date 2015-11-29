@@ -149,17 +149,27 @@ class UsernameCheckAPIView(APIView):
 class EmailCheckAPIView(APIView):
     def get(self, request):
         """
-        检测邮箱是否存在，存在返回状态码400，不存在返回200
+        检测邮箱是否存在，用状态码标识结果
         ---
         """
+        #这里是为了适应前端表单验证空间的要求
+        reset = request.GET.get("reset", None)
+        #如果reset为true说明该请求是重置密码页面发出的，要返回的状态码应正好相反
+        if reset:
+            existed = 200
+            does_not_existed = 400
+        else:
+            existed = 400
+            does_not_existed = 200
+
         email = request.GET.get("email", None)
         if email:
             try:
                 User.objects.get(email=email)
-                return Response(status=400)
+                return Response(status=existed)
             except Exception:
-                return Response(status=200)
-        return Response(status=200)
+                return Response(status=does_not_existed)
+        return Response(status=does_not_existed)
 
 
 class UserAdminAPIView(APIView):
