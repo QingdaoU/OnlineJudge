@@ -2,13 +2,14 @@ require(["jquery", "bsAlert", "csrfToken", "validator"], function ($, bsAlert, c
     var applied_captcha = false;
     $('form').validator().on('submit', function (e) {
         if (!e.isDefaultPrevented()) {
-            var email = $("#email").val();
+            var index = location.href.indexOf("/t/");
+            var token = location.href.substr(36+3, 32);
             var captcha = $("#captcha").val();
-
+            var password = $("#new_password").val();
             $.ajax({
                 beforeSend: csrfTokenHeader,
                 url: "/api/reset_password/",
-                data: {email: email, captcha: captcha},
+                data: {password: password, captcha: captcha, token:token},
                 dataType: "json",
                 method: "post",
                 success: function (data) {
