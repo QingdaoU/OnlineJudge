@@ -128,7 +128,7 @@ urlpatterns = [
     url(r'^account/settings/avatar/$', TemplateView.as_view(template_name="oj/account/avatar.html"), name="avatar_settings_page"),
     url(r'^account/sso/$', SSOAPIView.as_view(), name="sso_api"),
     url(r'^api/account/userprofile/$', UserProfileAPIView.as_view(), name="userprofile_api"),
-    url(r'^resetPassword/$', TemplateView.as_view(template_name="oj/account/reset_password.html"), name="reset_password_page")
+    url(r'^reset_password/$', TemplateView.as_view(template_name="oj/account/reset_password.html"), name="reset_password_page")
 ]
 
 
