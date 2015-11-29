@@ -284,11 +284,11 @@ class ApplyResetPasswordAPIView(APIView):
             if not captcha.check(data["captcha"]):
                 return error_response(u"验证码错误")
             try:
-                user = User.objects.get(username=data["username"], email=data["email"])
+                user = User.objects.get(email=data["email"])
             except User.DoesNotExist:
                 return error_response(u"用户不存在")
-            if user.reset_password_token_create_time and (now() - user.reset_password_token_create_time).total_seconds() < 20 * 60:
-                return error_response(u"20分钟内只能找回一次密码")
+            #if user.reset_password_token_create_time and (now() - user.reset_password_token_create_time).total_seconds() < 20 * 60:
+            #    return error_response(u"20分钟内只能找回一次密码")
             user.reset_password_token = rand_str()
             user.reset_password_token_create_time = now()
             user.save()
@@ -296,14 +296,14 @@ class ApplyResetPasswordAPIView(APIView):
 
             email_template = email_template.replace("{{ username }}", user.username).\
                 replace("{{ website_name }}", settings.WEBSITE_INFO["website_name"]).\
-                replace("{{ link }}", request.scheme + "://" + request.META['HTTP_HOST'] + "/reset_password/?token=" + user.reset_password_token)
+                replace("{{ link }}", request.scheme + "://" + request.META['HTTP_HOST'] + "/reset_password/t/" + user.reset_password_token)
 
             send_email(settings.WEBSITE_INFO["website_name"],
                        user.email,
                        user.username,
-                       settings.WEBSITE_INFO["website_name"] + u" 密码找回邮件",
+                       settings.WEBSITE_INFO["website_name"] + u" 登录信息找回邮件",
                        email_template)
-            return success_response(u"邮件发送成功")
+            return success_response(u"邮件发送成功,请前往您的邮箱查收")
         else:
             return serializer_invalid_response(serializer)
 
@@ -328,6 +328,11 @@ class ResetPasswordAPIView(APIView):
             return success_response(u"密码重置成功")
         else:
             return serializer_invalid_response(serializer)
+
+
+
+
+
 
 
 def user_index_page(request, username):
@@ -365,3 +370,4 @@ class SSOAPIView(APIView):
         request.user.auth_token = token
         request.user.save()
         return render(request, "oj/account/sso.html", {"redirect_url": callback + "?token=" + token, "callback": callback})
+
