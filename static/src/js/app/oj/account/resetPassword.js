@@ -16,6 +16,7 @@ require(["jquery", "bsAlert", "csrfToken", "validator"], function ($, bsAlert, c
                     if (!data.code) {
                         refresh_captcha();
                         bsAlert(data.data);
+                        window.location.href = "/login/";
                     }
                     else {
                         refresh_captcha();
