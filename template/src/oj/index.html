@@ -100,6 +100,15 @@
             max-width: 300px;
         }
 
+        .section{
+            background-size: cover;
+        }
+
+        #section0{
+            background-image: url(/static/img/index/bg/bg3.jpg);
+            padding: 0 0 0 0;
+        }
+
     </style>
     <link rel="stylesheet" href="/static/css/animate/animate.css">
 
@@ -110,12 +119,21 @@
     <script type="text/javascript">
         $(document).ready(function () {
             $('#fullpage').fullpage({
-                sectionsColor: ['#28ac72', '#2f7ddb', '#FAC832', '#B01414'],
+                sectionsColor: ['#ffffff', '#2f7ddb', '#FAC832', '#B01414'],
                 css3: true,
                 navigation: true,
                 loopBottom: true
             });
         });
+
+        /*
+        var c = 0;
+
+        setInterval(function(){
+            //alert(1);
+            $("#section0").css("background-image", "url(/static/img/index/bg/bg" + (c++ % 4).toString() + ".jpg)")
+        }, 1000)
+        */
     </script>
 
 </head>
@@ -172,7 +190,7 @@
         <div class="section-text">
             <img class="icon" id="img3" src="/static/img/index/m.png">
 
-            <h1>自由举办小组赛(10月上线)</h1>
+            <h1>自由举办小组赛(12月上线)</h1>
 
             <h3>内部比赛，日常作业，期末考试，通通搞定</h3>
         </div>

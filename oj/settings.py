@@ -71,7 +71,8 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.security.SecurityMiddleware',
-    'admin.middleware.AdminRequiredMiddleware'
+    'admin.middleware.AdminRequiredMiddleware',
+    'account.middleware.SessionSecurityMiddleware'
 )
 
 ROOT_URLCONF = 'oj.urls'

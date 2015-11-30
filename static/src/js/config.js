@@ -27,6 +27,7 @@ var require = {
         // ------ admin web 组件 ----------
         pager: "components/pager",
         editorComponent: "components/editorComponent",
+        testCaseUploader: "components/testCaseUploader",
 
 
         // ------ 下面写的都不要直接用，而是使用上面的封装版本 ------
@@ -76,6 +77,7 @@ var require = {
         groupDetail_20_pack: "app/admin/group/groupDetail",
         editContest_21_pack: "app/admin/contest/editContest",
         group_22_pack: "app/admin/group/group",
+        settings_23_pack: "app/oj/account/settings"
     },
     shim: {
             avalon: {

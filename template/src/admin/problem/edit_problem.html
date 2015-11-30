@@ -105,30 +105,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-12"><br>
-            <label>测试数据(当前已上传，继续上传将覆盖原有测试用例)</label><br>
-            <small class="text-info">请将所有测试用例打包在一个文件中上传，所有文件要在压缩包的根目录，且输入输出文件名要以从1开始连续数字标识要对应例如：<br>
-                1.in 1.out 2.in 2.out
-            </small>
-            <p>上传进度<span ms-text="uploadProgress"></span>%</p>
-            <table class="table table-striped" ms-visible="uploadSuccess">
-                <tr>
-                    <td>编号</td>
-                    <td>输入文件名</td>
-                    <td>输出文件名</td>
-                </tr>
-                <tr ms-repeat="testCaseList">
-                    <td>{{ $index + 1 }}</td>
-                    <td>{{ el.input }}</td>
-                    <td>{{ el.output }}</td>
-                </tr>
-            </table>
-        </div>
-        <div class="col-md-12">
-            <div class="form-group">
-                <div id="testCaseFile">选择文件</div>
-            </div>
-        </div>
+        <ms:testcaseuploader $id="testCaseUploader"></ms:testcaseuploader>
         <div class="form-group col-md-12">
             <label>提示</label>
             <ms:editor $id="problemHintEditor" config="problemHintEditor"></ms:editor>

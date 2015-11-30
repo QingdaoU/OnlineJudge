@@ -1,7 +1,7 @@
 # coding=utf-8
 from rest_framework import serializers
 
-from .models import User
+from .models import User, UserProfile
 
 
 class UserLoginSerializer(serializers.Serializer):
@@ -21,6 +21,7 @@ class EmailCheckSerializer(serializers.Serializer):
 class UserRegisterSerializer(serializers.Serializer):
     username = serializers.CharField(max_length=30)
     real_name = serializers.CharField(max_length=30)
+    school = serializers.CharField(max_length=200)
     password = serializers.CharField(max_length=30, min_length=6)
     email = serializers.EmailField(max_length=254)
     captcha = serializers.CharField(max_length=4, min_length=4)
@@ -49,7 +50,6 @@ class EditUserSerializer(serializers.Serializer):
 
 
 class ApplyResetPasswordSerializer(serializers.Serializer):
-    username = serializers.CharField(max_length=30)
     email = serializers.EmailField()
     captcha = serializers.CharField(max_length=4, min_length=4)
 
@@ -62,3 +62,23 @@ class ResetPasswordSerializer(serializers.Serializer):
 
 class SSOSerializer(serializers.Serializer):
     token = serializers.CharField(max_length=40)
+
+
+class EditUserProfileSerializer(serializers.Serializer):
+
+    avatar = serializers.CharField(max_length=50, required=False, default=None)
+    blog = serializers.URLField(required=False, allow_blank=True, default='')
+    mood = serializers.CharField(max_length=60, required=False, default='')
+    hduoj_username = serializers.CharField(max_length=30, required=False, allow_blank=True, default='')
+    bestcoder_username = serializers.CharField(max_length=30, required=False, allow_blank=True, default='')
+    codeforces_username = serializers.CharField(max_length=30, required=False, allow_blank=True, default='')
+    school = serializers.CharField(max_length=200, required=False, allow_blank=True, default='')
+    phone_number = serializers.CharField(max_length=15, required=False, allow_blank=True, default='')
+
+
+class UserProfileSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = UserProfile
+        fields = ["avatar", "blog", "mood", "hduoj_username", "bestcoder_username", "codeforces_username",
+                  "rank", "accepted_number", "submissions_number", "problems_status", "phone_number", "school"]
