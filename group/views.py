@@ -217,7 +217,7 @@ class JoinGroupRequestAdminAPIView(APIView, GroupAPIViewBase):
         ---
         response_serializer: JoinGroupRequestSerializer
         """
-        requests = JoinGroupRequest.objects.filter(group=Group.objects.filter(admin=request.user, visible=True),
+        requests = JoinGroupRequest.objects.filter(group__in=Group.objects.filter(admin=request.user, visible=True),
                                                    status=False)
         return paginate(request, requests, JoinGroupRequestSerializer)
 
