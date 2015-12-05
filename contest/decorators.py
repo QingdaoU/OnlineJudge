@@ -9,7 +9,7 @@ from django.core.urlresolvers import reverse
 from utils.shortcuts import error_response, error_page
 
 from account.models import SUPER_ADMIN
-from .models import (Contest, PASSWORD_PROTECTED_CONTEST, PUBLIC_CONTEST, GROUP_CONTEST,
+from .models import (Contest, PASSWORD_PROTECTED_CONTEST, PASSWORD_PROTECTED_GROUP_CONTEST, PUBLIC_CONTEST, GROUP_CONTEST,
                      CONTEST_ENDED, CONTEST_NOT_START, CONTEST_UNDERWAY)
 
 
@@ -66,7 +66,7 @@ def check_user_contest_permission(func):
                 return error_page(request, u"比赛不存在")
 
         # 有密码的公开赛
-        if contest.contest_type == PASSWORD_PROTECTED_CONTEST:
+        if contest.contest_type == PASSWORD_PROTECTED_CONTEST or contest.contest_type == PASSWORD_PROTECTED_GROUP_CONTEST:
             # 没有输入过密码
             if contest.id not in request.session.get("contests", []):
                 if request.is_ajax():
