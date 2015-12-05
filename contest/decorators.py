@@ -66,7 +66,7 @@ def check_user_contest_permission(func):
                 return error_page(request, u"比赛不存在")
 
         # 有密码的公开赛
-        if contest.contest_type == PASSWORD_PROTECTED_CONTEST or contest.contest_type == PASSWORD_PROTECTED_GROUP_CONTEST:
+        if contest.contest_type == PASSWORD_PROTECTED_CONTEST:
             # 没有输入过密码
             if contest.id not in request.session.get("contests", []):
                 if request.is_ajax():
@@ -83,7 +83,15 @@ def check_user_contest_permission(func):
                 else:
                     return render(request, "oj/contest/no_contest_permission.html",
                                   {"reason": "group_limited", "show_tab": False, "contest": contest})
-
+                                  
+        if contest.contest_type == PASSWORD_PROTECTED_GROUP_CONTEST:
+            if not contest.groups.filter(id__in=request.user.group_set.all()).exists():
+                if contest.id not in request.session.get("contests", []):
+                if request.is_ajax():
+                    return error_response(u"请先输入密码")
+                else:
+                    return render(request, "oj/contest/no_contest_permission.html",
+                                  {"reason": "password_protect", "show_tab": False, "contest": contest})
         # 比赛没有开始
         if contest.status == CONTEST_NOT_START:
             if request.is_ajax():
