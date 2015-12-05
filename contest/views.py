@@ -23,7 +23,7 @@ from submission.models import Submission
 from problem.models import Problem
 from .models import (Contest, ContestProblem, CONTEST_ENDED,
                      CONTEST_NOT_START, CONTEST_UNDERWAY, ContestRank)
-from .models import GROUP_CONTEST, PUBLIC_CONTEST, PASSWORD_PROTECTED_CONTEST
+from .models import GROUP_CONTEST, PUBLIC_CONTEST, PASSWORD_PROTECTED_CONTEST, PASSWORD_PROTECTED_GROUP_CONTEST
 from .decorators import check_user_contest_permission
 from .serializers import (CreateContestSerializer, ContestSerializer, EditContestSerializer,
                           CreateContestProblemSerializer, ContestProblemSerializer,
@@ -50,11 +50,11 @@ class ContestAdminAPIView(APIView):
                 if request.user.admin_type != SUPER_ADMIN:
                     return error_response(u"只有超级管理员才可创建公开赛")
 
-            if data["contest_type"] == PASSWORD_PROTECTED_CONTEST:
+            if data["contest_type"] in [PASSWORD_PROTECTED_CONTEST, PASSWORD_PROTECTED_GROUP_CONTEST]:
                 if not data["password"]:
-                    return error_response(u"此比赛为有密码的公开赛，密码不可为空")
+                    return error_response(u"此比赛为有密码的比赛，密码不可为空")
             # 没有密码的公开赛 没有密码的小组赛
-            elif data["contest_type"] == GROUP_CONTEST:
+            if data["contest_type"] == GROUP_CONTEST or data["contest_type"] == PASSWORD_PROTECTED_GROUP_CONTEST:
                 if request.user.admin_type == SUPER_ADMIN:
                     groups = Group.objects.filter(id__in=data["groups"])
                 else:
@@ -107,7 +107,7 @@ class ContestAdminAPIView(APIView):
             if data["contest_type"] == PASSWORD_PROTECTED_CONTEST:
                 if not data["password"]:
                     return error_response(u"此比赛为有密码的公开赛，密码不可为空")
-            elif data["contest_type"] == GROUP_CONTEST:
+            elif data["contest_type"] == GROUP_CONTEST or data["contest_type"] == PASSWORD_PROTECTED_GROUP_CONTEST:
                 if request.user.admin_type == SUPER_ADMIN:
                     groups = Group.objects.filter(id__in=data["groups"])
                 else:
