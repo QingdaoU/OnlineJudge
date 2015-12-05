@@ -53,6 +53,7 @@ require(["jquery", "avalon", "csrfToken", "bsAlert", "validator"], function ($, 
                     })
                 },
                 showGroupListPage: function () {
+                    avalon.vmodels.admin.template_url = "template/group/group.html";
                     vm.$fire("up!showGroupListPage");
                 }
             });
