@@ -87,11 +87,12 @@ def check_user_contest_permission(func):
         if contest.contest_type == PASSWORD_PROTECTED_GROUP_CONTEST:
             if not contest.groups.filter(id__in=request.user.group_set.all()).exists():
                 if contest.id not in request.session.get("contests", []):
-                if request.is_ajax():
-                    return error_response(u"请先输入密码")
-                else:
-                    return render(request, "oj/contest/no_contest_permission.html",
-                                  {"reason": "password_protect", "show_tab": False, "contest": contest})
+                    if request.is_ajax():
+                        return error_response(u"请先输入密码")
+                    else:
+                        return render(request, "oj/contest/no_contest_permission.html",
+                                      {"reason": "password_protect", "show_tab": False, "contest": contest})
+
         # 比赛没有开始
         if contest.status == CONTEST_NOT_START:
             if request.is_ajax():
