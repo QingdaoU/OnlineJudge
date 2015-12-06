@@ -107,7 +107,7 @@ class ContestAdminAPIView(APIView):
             if data["contest_type"] == PASSWORD_PROTECTED_CONTEST:
                 if not data["password"]:
                     return error_response(u"此比赛为有密码的公开赛，密码不可为空")
-            elif data["contest_type"] == GROUP_CONTEST or data["contest_type"] == PASSWORD_PROTECTED_GROUP_CONTEST:
+            elif data["contest_type"] in [GROUP_CONTEST, PASSWORD_PROTECTED_GROUP_CONTEST]:
                 if request.user.admin_type == SUPER_ADMIN:
                     groups = Group.objects.filter(id__in=data["groups"])
                 else:
