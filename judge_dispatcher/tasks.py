@@ -1,6 +1,7 @@
 # coding=utf-8
 import json
 import logging
+import time
 
 from django.db import transaction
 
@@ -17,94 +18,98 @@ from utils.cache import get_cache_redis
 logger = logging.getLogger("app_info")
 
 
-@shared_task
-def create_judge_task(submission_id, code, language_code, time_limit, memory_limit, test_case_id):
-    submission = Submission.objects.get(id=submission_id)
-    try:
-        s = TimeoutServerProxy('http://121.42.198.156:8080', timeout=20)
-        data = s.run(submission_id, language_code, code, time_limit, memory_limit, test_case_id)
-        # 编译错误
-        if data["code"] == 1:
-            submission.result = result["compile_error"]
-            submission.info = data["data"]["error"]
-        # system error
-        elif data["code"] == 2:
-            submission.result = result["system_error"]
-            submission.info = data["data"]["error"]
-        elif data["code"] == 0:
-            submission.result = data["data"]["result"]
-            submission.info = json.dumps(data["data"]["info"])
-            submission.accepted_answer_time = data["data"]["accepted_answer_time"]
-    except Exception as e:
-        submission.result = result["system_error"]
-        submission.info = str(e)
-    finally:
-        submission.save()
-
-    # 更新该用户的解题状态用
-    try:
-        user = User.objects.get(pk=submission.user_id)
-    except User.DoesNotExist:
-        logger.warning("Submission user does not exist, submission_id: " + submission_id)
-        return
-
-    if not submission.contest_id:
+class JudgeDispatcher(object):
+    def __init__(self, submission, time_limit, memory_limit, test_case_id):
+        self.submission = submission
+        self.time_limit = time_limit
+        self.memory_limit = memory_limit
+        self.test_case_id = test_case_id
+        self.user = User.objects.get(id=submission.user_id)
+    
+    def choose_judge_server(self):
+        pass
+    
+    def judge(self):
+        self.submission.judge_start_time = int(time.time() * 1000)
         try:
-            problem = Problem.objects.get(id=submission.problem_id)
-        except Problem.DoesNotExist:
-            logger.warning("Submission problem does not exist, submission_id: " + submission_id)
-            return
+            judge_server = self.choose_judge_server()
 
-        problems_status = user.problems_status
+            s = TimeoutServerProxy(judge_server.ip + ":" + judge_server.port, timeout=20)
+            data = s.run(self.submission.id, self.submission.language_code,
+                         self.submission.code, self.time_limit, self.memory_limit, self.test_case_id)
+            # 编译错误
+            if data["code"] == 1:
+                self.submission.result = result["compile_error"]
+                self.submission.info = data["data"]["error"]
+            # system error
+            elif data["code"] == 2:
+                self.submission.result = result["system_error"]
+                self.submission.info = data["data"]["error"]
+            elif data["code"] == 0:
+                self.submission.result = data["data"]["result"]
+                self.submission.info = json.dumps(data["data"]["info"])
+                self.submission.accepted_answer_time = data["data"]["accepted_answer_time"]
+        except Exception as e:
+            self.submission.result = result["system_error"]
+            self.submission.info = str(e)
+        finally:
+            self.submission.judge_end_time = int(time.time() * 1000)
+            self.submission.save()
+
+        if self.submission.contest_id:
+            self.update_contest_problem_status()
+        else:
+            self.update_problem_status()
+    
+    def update_problem_status(self):
+        problem = Problem.objects.get(id=self.submission.problem_id)
 
         # 更新普通题目的计数器
         problem.add_submission_number()
+
+        # 更新用户做题状态
+        problems_status = self.user.problems_status
         if "problems" not in problems_status:
             problems_status["problems"] = {}
-        if submission.result == result["accepted"]:
+        if self.submission.result == result["accepted"]:
             problem.add_ac_number()
             problems_status["problems"][str(problem.id)] = 1
         else:
             problems_status["problems"][str(problem.id)] = 2
-        user.problems_status = problems_status
-        user.save()
+        self.user.problems_status = problems_status
+        self.user.save()
         # 普通题目的话，到这里就结束了
-        return
 
-    # 能运行到这里的都是比赛题目
-    try:
-        contest = Contest.objects.get(id=submission.contest_id)
+    def update_contest_problem_status(self):
+        # 能运行到这里的都是比赛题目
+        contest = Contest.objects.get(id=self.submission.contest_id)
         if contest.status != CONTEST_UNDERWAY:
-            logger.info("Contest debug mode, id: " + str(contest.id) + ", submission id: " + submission_id)
+            logger.info("Contest debug mode, id: " + str(contest.id) + ", submission id: " + self.submission.id)
             return
-        contest_problem = ContestProblem.objects.get(contest=contest, id=submission.problem_id)
-    except Contest.DoesNotExist:
-        logger.warning("Submission contest does not exist, submission_id: " + submission_id)
-        return
-    except ContestProblem.DoesNotExist:
-        logger.warning("Submission problem does not exist, submission_id: " + submission_id)
-        return
-
-    # 如果比赛现在不是封榜状态，删除比赛的排名缓存
-    if contest.real_time_rank:
-        get_cache_redis().delete(str(contest.id) + "_rank_cache")
-
-    with transaction.atomic():
-        try:
-            contest_rank = ContestRank.objects.get(contest=contest, user=user)
-            contest_rank.update_rank(submission)
-        except ContestRank.DoesNotExist:
-            ContestRank.objects.create(contest=contest, user=user).update_rank(submission)
-
-        problems_status = user.problems_status
+        contest_problem = ContestProblem.objects.get(contest=contest, id=self.submission.problem_id)
 
         contest_problem.add_submission_number()
+
+        problems_status = self.user.problems_status
         if "contest_problems" not in problems_status:
             problems_status["contest_problems"] = {}
-        if submission.result == result["accepted"]:
+        if self.submission.result == result["accepted"]:
             contest_problem.add_ac_number()
             problems_status["contest_problems"][str(contest_problem.id)] = 1
         else:
             problems_status["contest_problems"][str(contest_problem.id)] = 0
-        user.problems_status = problems_status
-        user.save()
+        self.user.problems_status = problems_status
+        self.user.save()
+
+        self.update_contest_rank(contest)
+    
+    def update_contest_rank(self, contest):
+        if contest.real_time_rank:
+            get_cache_redis().delete(str(contest.id) + "_rank_cache")
+
+        with transaction.atomic():
+            try:
+                contest_rank = ContestRank.objects.get(contest=contest, user=self.user)
+                contest_rank.update_rank(self.submission)
+            except ContestRank.DoesNotExist:
+                ContestRank.objects.create(contest=contest, user=self.user).update_rank(self.submission)
