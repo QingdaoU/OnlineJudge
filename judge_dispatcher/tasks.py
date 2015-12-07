@@ -5,7 +5,6 @@ import time
 
 from django.db import transaction
 
-from celery import shared_task
 from rpc_client import TimeoutServerProxy
 
 from judge.result import result
@@ -14,6 +13,7 @@ from problem.models import Problem
 from submission.models import Submission
 from account.models import User
 from utils.cache import get_cache_redis
+from .models import JudgeServer,JudgeWaitingQueue
 
 logger = logging.getLogger("app_info")
 
@@ -27,12 +27,18 @@ class JudgeDispatcher(object):
         self.user = User.objects.get(id=submission.user_id)
     
     def choose_judge_server(self):
-        pass
+        servers = JudgeServer.objects.filter(workload__lt=100, lock=False, status=True).order_by("-workload")
+        if servers.exists():
+            return servers[0]
     
     def judge(self):
         self.submission.judge_start_time = int(time.time() * 1000)
         try:
             judge_server = self.choose_judge_server()
+            # 如果没有合适的判题服务器，就放入等待队列中等待判题
+            if not judge_server:
+                JudgeWaitingQueue.objects.create(submission_id=self.submission.id)
+                return
 
             s = TimeoutServerProxy(judge_server.ip + ":" + judge_server.port, timeout=20)
             data = s.run(self.submission.id, self.submission.language_code,
