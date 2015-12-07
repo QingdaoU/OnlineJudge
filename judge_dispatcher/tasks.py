@@ -42,7 +42,7 @@ class JudgeDispatcher(object):
 
             s = TimeoutServerProxy("http://" + judge_server.ip + ":" + str(judge_server.port), timeout=20)
 
-            data = s.run(self.submission.id, self.submission.language,
+            data = s.run(judge_server.token, self.submission.id, self.submission.language,
                          self.submission.code, self.time_limit, self.memory_limit, self.test_case_id)
             # 编译错误
             if data["code"] == 1:
