@@ -7,24 +7,19 @@ from django.shortcuts import render
 from django.core.paginator import Paginator
 from rest_framework.views import APIView
 
-from judge_dispatcher.tasks import JudgeDispatcher
 from account.decorators import login_required, super_admin_required
 from account.models import SUPER_ADMIN, User
 from problem.models import Problem
 from contest.models import ContestProblem, Contest
 from contest.decorators import check_user_contest_permission
 from utils.shortcuts import serializer_invalid_response, error_response, success_response, error_page, paginate
-from utils.cache import get_cache_redis
+from .task import _judge
 from .models import Submission
 from .serializers import (CreateSubmissionSerializer, SubmissionSerializer,
                           SubmissionhareSerializer, SubmissionRejudgeSerializer,
                           CreateContestSubmissionSerializer)
 
 logger = logging.getLogger("app_info")
-
-
-def _judge(submission, time_limit, memory_limit, test_case_id):
-    JudgeDispatcher(submission, time_limit, memory_limit, test_case_id).judge()
 
 
 class SubmissionAPIView(APIView):

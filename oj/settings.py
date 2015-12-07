@@ -61,7 +61,7 @@ INSTALLED_APPS = (
 
     'django_extensions',
     'rest_framework',
-    'django_rq',
+    'huey.djhuey',
 )
 
 if DEBUG:
@@ -195,17 +195,11 @@ WEBSITE_INFO = {"website_name": "qduoj",
                 "website_footer": u"青岛大学信息工程学院 创新实验室",
                 "url": "https://qduoj.com"}
 
-RQ_QUEUES = {
-    'judge': {
-        'HOST': REDIS_QUEUE["host"],
-        'PORT': REDIS_QUEUE["port"],
-        'DB': 2,
-        'DEFAULT_TIMEOUT': 60,
-    },
-    'mail': {
-        'HOST': REDIS_QUEUE["host"],
-        'PORT': REDIS_QUEUE["port"],
-        'DB': 3,
-        'DEFAULT_TIMEOUT': 60,
-    }
+HUEY = {
+    'backend': 'huey.backends.redis_backend',
+    'name': 'task_queue',
+    'connection': {'host': REDIS_QUEUE["host"], 'port': REDIS_QUEUE["port"], 'db': REDIS_QUEUE["db"]},
+    'always_eager': False, # Defaults to False when running via manage.py run_huey
+    # Options to pass into the consumer when running ``manage.py run_huey``
+    'consumer_options': {'workers': 50},
 }

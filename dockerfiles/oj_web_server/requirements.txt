@@ -11,5 +11,4 @@ supervisor
 pillow
 jsonfield
 Envelopes
-rq
-django-rq
+huey
