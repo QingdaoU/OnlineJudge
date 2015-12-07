@@ -5,7 +5,7 @@ from django.views.generic import TemplateView
 
 from account.views import (UserLoginAPIView, UsernameCheckAPIView, UserRegisterAPIView,
                            UserChangePasswordAPIView, EmailCheckAPIView,
-                           UserAdminAPIView, UserInfoAPIView,
+                           UserAdminAPIView, UserInfoAPIView, ResetPasswordAPIView,
                            ApplyResetPasswordAPIView, SSOAPIView, UserProfileAPIView)
 
 from announcement.views import AnnouncementAdminAPIView
@@ -122,12 +122,14 @@ urlpatterns = [
 
     url(r'^user/(?P<username>.+)/$', "account.views.user_index_page"),
 
-    url(r'^api/reset_password/$', ApplyResetPasswordAPIView.as_view(), name="apply_reset_password_api"),
-
+    url(r'^api/apply_reset_password/$', ApplyResetPasswordAPIView.as_view(), name="apply_reset_password_api"),
+    url(r'^api/reset_password/$', ResetPasswordAPIView.as_view(), name="apply_reset_password_api"),
     url(r'^account/settings/$', TemplateView.as_view(template_name="oj/account/settings.html"), name="account_setting_page"),
     url(r'^account/settings/avatar/$', TemplateView.as_view(template_name="oj/account/avatar.html"), name="avatar_settings_page"),
     url(r'^account/sso/$', SSOAPIView.as_view(), name="sso_api"),
-    url('^api/account/userprofile/$', UserProfileAPIView.as_view(), name="userprofile_api"),
+    url(r'^api/account/userprofile/$', UserProfileAPIView.as_view(), name="userprofile_api"),
+    url(r'^reset_password/$', TemplateView.as_view(template_name="oj/account/apply_reset_password.html"), name="apply_reset_password_page"),
+     url(r'^reset_password/t/(?P<token>\w+)/$', "account.views.reset_password_page", name="reset_password_page")
 ]
 
 
