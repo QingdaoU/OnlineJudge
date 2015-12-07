@@ -14,7 +14,7 @@ from rest_framework.response import Response
 from utils.shortcuts import (serializer_invalid_response, error_response,
                              success_response, error_page, paginate, rand_str)
 from utils.captcha import Captcha
-from mail.tasks import send_email
+from utils.mail import send_email
 
 from .decorators import login_required
 from .models import User, UserProfile
