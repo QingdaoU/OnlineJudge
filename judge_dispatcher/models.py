@@ -17,7 +17,14 @@ class JudgeServer(models.Model):
 
     def use_judge_instance(self):
         self.left_instance_number -= 1
-        self.workload = 100 - int(self.left_instance_number / self.max_instance_number)
+        self.workload = 100 - int(float(self.left_instance_number) / self.max_instance_number * 100)
+        print self.left_instance_number, self.workload
+        self.save()
+
+    def release_judge_instance(self):
+        self.left_instance_number += 1
+        self.workload = 100 - int(float(self.left_instance_number) / self.max_instance_number * 100)
+        print self.left_instance_number, self.workload
         self.save()
 
     class Meta:
@@ -26,6 +33,9 @@ class JudgeServer(models.Model):
 
 class JudgeWaitingQueue(models.Model):
     submission_id = models.CharField(max_length=40)
+    time_limit = models.IntegerField()
+    memory_limit = models.IntegerField()
+    test_case_id = models.CharField(max_length=40)
     create_time = models.DateTimeField(auto_now_add=True)
 
     class Meta:

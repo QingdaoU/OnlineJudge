@@ -13,7 +13,8 @@ from problem.models import Problem
 from submission.models import Submission
 from account.models import User
 from utils.cache import get_cache_redis
-from .models import JudgeServer,JudgeWaitingQueue
+
+from .models import JudgeServer, JudgeWaitingQueue
 
 logger = logging.getLogger("app_info")
 
@@ -25,25 +26,31 @@ class JudgeDispatcher(object):
         self.memory_limit = memory_limit
         self.test_case_id = test_case_id
         self.user = User.objects.get(id=submission.user_id)
-    
+
     def choose_judge_server(self):
         servers = JudgeServer.objects.filter(workload__lt=100, lock=False, status=True).order_by("-workload")
         if servers.exists():
-            return servers[0]
-    
-    def judge(self):
+            server = servers[0]
+            server.use_judge_instance()
+            return server
+
+    def judge(self, is_waiting_task=False):
         self.submission.judge_start_time = int(time.time() * 1000)
         try:
             judge_server = self.choose_judge_server()
             # 如果没有合适的判题服务器，就放入等待队列中等待判题
             if not judge_server:
-                JudgeWaitingQueue.objects.create(submission_id=self.submission.id)
+                if not is_waiting_task:
+                    JudgeWaitingQueue.objects.create(submission_id=self.submission.id, time_limit=self.time_limit,
+                                                     memory_limit=self.memory_limit, test_case_id=self.test_case_id)
                 return
 
             s = TimeoutServerProxy("http://" + judge_server.ip + ":" + str(judge_server.port), timeout=20)
 
             data = s.run(judge_server.token, self.submission.id, self.submission.language,
                          self.submission.code, self.time_limit, self.memory_limit, self.test_case_id)
+
+            judge_server.release_judge_instance()
             # 编译错误
             if data["code"] == 1:
                 self.submission.result = result["compile_error"]
@@ -67,7 +74,19 @@ class JudgeDispatcher(object):
             self.update_contest_problem_status()
         else:
             self.update_problem_status()
-    
+
+        if is_waiting_task:
+            JudgeWaitingQueue.objects.filter(submission_id=self.submission.id).delete()
+
+        waiting_submissions = JudgeWaitingQueue.objects.all()
+        if waiting_submissions.exists():
+            submission = waiting_submissions.first()
+            # 防止循环依赖
+            from submission.tasks import _judge
+            _judge(Submission.objects.get(id=submission.submission_id), time_limit=submission.time_limit,
+                   memory_limit=submission.memory_limit, test_case_id=submission.test_case_id,
+                   is_waiting_task=True)
+
     def update_problem_status(self):
         problem = Problem.objects.get(id=self.submission.problem_id)
 
@@ -109,7 +128,7 @@ class JudgeDispatcher(object):
         self.user.save()
 
         self.update_contest_rank(contest)
-    
+
     def update_contest_rank(self, contest):
         if contest.real_time_rank:
             get_cache_redis().delete(str(contest.id) + "_rank_cache")

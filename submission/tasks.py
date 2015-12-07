@@ -5,5 +5,5 @@ from judge_dispatcher.tasks import JudgeDispatcher
 
 
 @task()
-def _judge(submission, time_limit, memory_limit, test_case_id):
-    JudgeDispatcher(submission, time_limit, memory_limit, test_case_id).judge()
+def _judge(submission, time_limit, memory_limit, test_case_id, is_waiting_task=False):
+    JudgeDispatcher(submission, time_limit, memory_limit, test_case_id).judge(is_waiting_task)
