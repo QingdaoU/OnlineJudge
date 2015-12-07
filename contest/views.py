@@ -515,6 +515,10 @@ def contest_problem_submissions_list_page(request, contest_id, page=1):
         values("id", "contest_id", "problem_id", "result", "create_time",
                "accepted_answer_time", "language", "user_id").order_by("-create_time")
 
+    # 如果比赛已经开始，就不再显示之前测试题目的提交
+    if contest.status != CONTEST_NOT_START:
+        submissions = submissions.filter(create_time__gte=contest.start_time)
+
     user_id = request.GET.get("user_id", None)
     if user_id:
         submissions = submissions.filter(user_id=request.GET.get("user_id"))
