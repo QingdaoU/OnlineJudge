@@ -102,7 +102,7 @@ LANGUAGE_CODE = 'zh-cn'
 
 TIME_ZONE = 'Asia/Shanghai'
 
-USE_I18N = True
+USE_I18N = False
 
 USE_L10N = True
 
@@ -184,5 +184,5 @@ TEST_CASE_DIR = os.path.join(BASE_DIR, 'test_case/')
 IMAGE_UPLOAD_DIR = os.path.join(BASE_DIR, 'upload/')
 
 WEBSITE_INFO = {"website_name": "qduoj",
-                "website_footer": u"青岛大学信息工程学院 创新实验室",
+                "website_footer": u"青岛大学信息工程学院 创新实验室 <a href=\"http://www.miibeian.gov.cn/\">京ICP备15062075号-1</a>",
                 "url": "https://qduoj.com"}
