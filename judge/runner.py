@@ -11,13 +11,14 @@ from settings import judger_workspace
 
 
 class JudgeInstanceRunner(object):
-    def __init__(self):
-        pass
 
-    def run(self, submission_id, language_code, code, time_limit, memory_limit, test_case_id):
+    def run(self, token, submission_id, language_code, code, time_limit, memory_limit, test_case_id):
         language = languages[language_code]
         host_name = socket.gethostname()
         judge_base_path = os.path.join(judger_workspace, "run", submission_id)
+
+        if not token or token != os.environ.get("rpc_token"):
+            return {"code": 2, "data": {"error": "Invalid token", "server": host_name}}
 
         try:
             os.mkdir(judge_base_path)
