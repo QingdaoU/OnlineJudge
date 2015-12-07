@@ -50,7 +50,6 @@ INSTALLED_APPS = (
     'submission',
     'mq',
     'contest',
-    'mail',
 
     'django_extensions',
     'rest_framework',
@@ -117,7 +116,6 @@ STATIC_URL = '/static/'
 AUTH_USER_MODEL = 'account.User'
 
 LOG_PATH = "log/"
-
 
 LOGGING = {
     'version': 1,
@@ -186,3 +184,8 @@ IMAGE_UPLOAD_DIR = os.path.join(BASE_DIR, 'upload/')
 WEBSITE_INFO = {"website_name": "qduoj",
                 "website_footer": u"青岛大学信息工程学院 创新实验室 <a href=\"http://www.miibeian.gov.cn/\">京ICP备15062075号-1</a>",
                 "url": "https://qduoj.com"}
+
+SMTP_CONFIG = {"smtp_server": "smtp.mxhichina.com",
+               "email": "noreply@qduoj.com",
+               "password": os.environ.get("smtp_password", "111111"),
+               "tls": False}
