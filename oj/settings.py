@@ -60,7 +60,8 @@ INSTALLED_APPS = (
     'judge_dispatcher',
 
     'django_extensions',
-    'rest_framework'
+    'rest_framework',
+    'django_rq',
 )
 
 if DEBUG:
@@ -193,3 +194,18 @@ IMAGE_UPLOAD_DIR = os.path.join(BASE_DIR, 'upload/')
 WEBSITE_INFO = {"website_name": "qduoj",
                 "website_footer": u"青岛大学信息工程学院 创新实验室",
                 "url": "https://qduoj.com"}
+
+RQ_QUEUES = {
+    'judge': {
+        'HOST': REDIS_QUEUE["host"],
+        'PORT': REDIS_QUEUE["port"],
+        'DB': 2,
+        'DEFAULT_TIMEOUT': 60,
+    },
+    'mail': {
+        'HOST': REDIS_QUEUE["host"],
+        'PORT': REDIS_QUEUE["port"],
+        'DB': 3,
+        'DEFAULT_TIMEOUT': 60,
+    }
+}
