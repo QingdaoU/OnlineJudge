@@ -31,10 +31,12 @@ REDIS_CACHE = {
     "db": 1
 }
 
-# for celery
-REDIS_HOST = os.environ.get("REDIS_PORT_6379_TCP_ADDR", "127.0.0.1")
-REDIS_PORT = 6379
-REDIS_DB = 0
+REDIS_QUEUE = {
+    "host": os.environ.get("REDIS_PORT_6379_TCP_ADDR", "127.0.0.1"),
+    "port": 6379,
+    "db": 2
+}
+
 
 DEBUG = False
 

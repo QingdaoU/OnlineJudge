@@ -22,10 +22,11 @@ REDIS_CACHE = {
     "db": 1
 }
 
-# for celery
-REDIS_HOST = "localhost"
-REDIS_PORT = 6379
-REDIS_DB = 0
+REDIS_QUEUE = {
+    "host": "127.0.0.1",
+    "port": 6379,
+    "db": 2
+}
 
 DEBUG = True
 

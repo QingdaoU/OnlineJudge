@@ -22,9 +22,6 @@ if ENV == "local":
 elif ENV == "server":
     from .server_settings import *
 
-import djcelery
-djcelery.setup_loader()
-
 BROKER_BACKEND = "redis"
 CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
@@ -63,8 +60,7 @@ INSTALLED_APPS = (
     'judge_dispatcher',
 
     'django_extensions',
-    'rest_framework',
-    'djcelery',
+    'rest_framework'
 )
 
 if DEBUG:
