@@ -71,6 +71,5 @@ class UserProfile(models.Model):
     phone_number = models.CharField(max_length=15, blank=True, null=True)
     school = models.CharField(max_length=200, blank=True, null=True)
 
-
     class Meta:
         db_table = "user_profile"
