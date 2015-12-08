@@ -26,7 +26,6 @@ class JudgeDispatcher(object):
         self.memory_limit = memory_limit
         self.test_case_id = test_case_id
         self.user = User.objects.get(id=submission.user_id)
-        print "init init"
 
     def choose_judge_server(self):
         servers = JudgeServer.objects.filter(workload__lt=100, lock=False, status=True).order_by("-workload")
@@ -35,24 +34,23 @@ class JudgeDispatcher(object):
 
     def judge(self, is_waiting_task=False):
         self.submission.judge_start_time = int(time.time() * 1000)
-        judge_server = self.choose_judge_server()
 
-        # 如果没有合适的判题服务器，就放入等待队列中等待判题
-        if not judge_server:
-            print self.submission.id, "waiting"
-            JudgeWaitingQueue.objects.create(submission_id=self.submission.id, time_limit=self.time_limit,
-                                             memory_limit=self.memory_limit, test_case_id=self.test_case_id)
-            return
+        with transaction.atomic():
+            judge_server = self.choose_judge_server()
 
-        judge_server.use_judge_instance()
+            # 如果没有合适的判题服务器，就放入等待队列中等待判题
+            if not judge_server:
+                JudgeWaitingQueue.objects.create(submission_id=self.submission.id, time_limit=self.time_limit,
+                                                 memory_limit=self.memory_limit, test_case_id=self.test_case_id)
+                return
+
+            judge_server.use_judge_instance()
 
         try:
             s = TimeoutServerProxy("http://" + judge_server.ip + ":" + str(judge_server.port), timeout=20)
 
             data = s.run(judge_server.token, self.submission.id, self.submission.language,
                          self.submission.code, self.time_limit, self.memory_limit, self.test_case_id)
-            print self.submission.id, "finished"
-
             # 编译错误
             if data["code"] == 1:
                 self.submission.result = result["compile_error"]
@@ -69,7 +67,8 @@ class JudgeDispatcher(object):
             self.submission.result = result["system_error"]
             self.submission.info = str(e)
         finally:
-            judge_server.release_judge_instance()
+            with transaction.atomic():
+                judge_server.release_judge_instance()
 
             self.submission.judge_end_time = int(time.time() * 1000)
             self.submission.save()
@@ -79,17 +78,20 @@ class JudgeDispatcher(object):
         else:
             self.update_problem_status()
 
-        waiting_submissions = JudgeWaitingQueue.objects.all()
-        if waiting_submissions.exists():
-            # 防止循环依赖
-            from submission.tasks import _judge
-            waiting_submission = waiting_submissions.first()
-            print self.submission.id, "left queue"
-            _judge(Submission.objects.get(id=waiting_submission.submission_id), time_limit=waiting_submission.time_limit,
-                   memory_limit=waiting_submission.memory_limit, test_case_id=waiting_submission.test_case_id,
-                   is_waiting_task=True)
+        with transaction.atomic():
+            waiting_submissions = JudgeWaitingQueue.objects.select_for_update().all()
+            if waiting_submissions.exists():
+                # 防止循环依赖
+                from submission.tasks import _judge
 
-            waiting_submission.delete()
+                waiting_submission = waiting_submissions.first()
+
+                submission = Submission.objects.get(id=waiting_submission.submission_id)
+                waiting_submission.delete()
+
+                _judge(submission, time_limit=waiting_submission.time_limit,
+                       memory_limit=waiting_submission.memory_limit, test_case_id=waiting_submission.test_case_id,
+                       is_waiting_task=True)
 
     def update_problem_status(self):
         problem = Problem.objects.get(id=self.submission.problem_id)
@@ -116,10 +118,12 @@ class JudgeDispatcher(object):
         if contest.status != CONTEST_UNDERWAY:
             logger.info("Contest debug mode, id: " + str(contest.id) + ", submission id: " + self.submission.id)
             return
-        contest_problem = ContestProblem.objects.get(contest=contest, id=self.submission.problem_id)
+        with transaction.atomic():
+            contest_problem = ContestProblem.objects.select_for_update().get(contest=contest, id=self.submission.problem_id)
 
-        contest_problem.add_submission_number()
+            contest_problem.add_submission_number()
 
+        # todo 事务
         problems_status = self.user.problems_status
         if "contest_problems" not in problems_status:
             problems_status["contest_problems"] = {}
@@ -139,7 +143,7 @@ class JudgeDispatcher(object):
 
         with transaction.atomic():
             try:
-                contest_rank = ContestRank.objects.get(contest=contest, user=self.user)
+                contest_rank = ContestRank.objects.select_for_update().get(contest=contest, user=self.user)
                 contest_rank.update_rank(self.submission)
             except ContestRank.DoesNotExist:
                 ContestRank.objects.create(contest=contest, user=self.user).update_rank(self.submission)

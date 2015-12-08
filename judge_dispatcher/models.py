@@ -20,7 +20,6 @@ class JudgeServer(models.Model):
         server = JudgeServer.objects.select_for_update().get(id=self.id)
         server.left_instance_number -= 1
         server.workload = 100 - int(float(server.left_instance_number) / server.max_instance_number * 100)
-        print "\n ---- use", server.left_instance_number, server.workload
         server.save()
 
     def release_judge_instance(self):
@@ -28,7 +27,6 @@ class JudgeServer(models.Model):
         server = JudgeServer.objects.select_for_update().get(id=self.id)
         server.left_instance_number += 1
         server.workload = 100 - int(float(server.left_instance_number) / server.max_instance_number * 100)
-        print "\n ---- release", server.left_instance_number, server.workload
         server.save()
 
     class Meta:
