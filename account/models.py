@@ -70,6 +70,7 @@ class UserProfile(models.Model):
     problems_status = JSONField(default={})
     phone_number = models.CharField(max_length=15, blank=True, null=True)
     school = models.CharField(max_length=200, blank=True, null=True)
+    student_id = models.CharField(max_length=15, blank=True, null=True)
 
 
     class Meta:
