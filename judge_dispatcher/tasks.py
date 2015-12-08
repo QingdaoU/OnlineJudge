@@ -39,9 +39,9 @@ class JudgeDispatcher(object):
 
         # 如果没有合适的判题服务器，就放入等待队列中等待判题
         if not judge_server:
-            if not is_waiting_task:
-                JudgeWaitingQueue.objects.create(submission_id=self.submission.id, time_limit=self.time_limit,
-                                                 memory_limit=self.memory_limit, test_case_id=self.test_case_id)
+            print self.submission.id, "waiting"
+            JudgeWaitingQueue.objects.create(submission_id=self.submission.id, time_limit=self.time_limit,
+                                             memory_limit=self.memory_limit, test_case_id=self.test_case_id)
             return
 
         judge_server.use_judge_instance()
@@ -51,6 +51,7 @@ class JudgeDispatcher(object):
 
             data = s.run(judge_server.token, self.submission.id, self.submission.language,
                          self.submission.code, self.time_limit, self.memory_limit, self.test_case_id)
+            print self.submission.id, "finished"
 
             # 编译错误
             if data["code"] == 1:
@@ -78,17 +79,17 @@ class JudgeDispatcher(object):
         else:
             self.update_problem_status()
 
-        if is_waiting_task:
-            JudgeWaitingQueue.objects.filter(submission_id=self.submission.id).delete()
-
         waiting_submissions = JudgeWaitingQueue.objects.all()
         if waiting_submissions.exists():
-            submission = waiting_submissions.first()
             # 防止循环依赖
             from submission.tasks import _judge
-            _judge(Submission.objects.get(id=submission.submission_id), time_limit=submission.time_limit,
-                   memory_limit=submission.memory_limit, test_case_id=submission.test_case_id,
+            waiting_submission = waiting_submissions.first()
+            print self.submission.id, "left queue"
+            _judge(Submission.objects.get(id=waiting_submission.submission_id), time_limit=waiting_submission.time_limit,
+                   memory_limit=waiting_submission.memory_limit, test_case_id=waiting_submission.test_case_id,
                    is_waiting_task=True)
+
+            waiting_submission.delete()
 
     def update_problem_status(self):
         problem = Problem.objects.get(id=self.submission.problem_id)
