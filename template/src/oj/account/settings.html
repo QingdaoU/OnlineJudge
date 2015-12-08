@@ -69,9 +69,16 @@
 
                     <div class="help-block with-errors"></div>
                 </div>
+                <div class="form-group col-md-12"><label>学号</label>
+                    <input name="student_id" type="number" class="form-control" id="student_id"
+                           value="{{ request.user.userprofile.student_id }}">
+
+                    <div class="help-block with-errors"></div>
+
+                </div>
                 <div class="form-group col-md-12"><label>blog</label>
                     <input name="blog" type="url" class="form-control" id="blog"
-                           value="{{ request.user.userprofile.blog }}">
+                           value="{% if request.user.userprofile.school %}{{ request.user.userprofile.blog }}{% endif %}">
 
                     <div class="help-block with-errors"></div>
 

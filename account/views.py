@@ -97,7 +97,7 @@ class UserRegisterAPIView(APIView):
                                            email=data["email"])
                 user.set_password(data["password"])
                 user.save()
-                UserProfile.objects.create(user=user, school=data["school"])
+                UserProfile.objects.create(user=user, school=data["school"], student_id=data["student_id"])
                 return success_response(u"注册成功！")
         else:
             return serializer_invalid_response(serializer)
@@ -262,6 +262,7 @@ class UserProfileAPIView(APIView):
                 user_profile.codeforces_username = data["codeforces_username"]
                 user_profile.blog = data["blog"]
                 user_profile.school = data["school"]
+                user_profile.student_id = data["student_id"]
                 user_profile.phone_number = data["phone_number"]
             user_profile.save()
             return success_response(u"修改成功")
