@@ -26,31 +26,32 @@ class JudgeDispatcher(object):
         self.memory_limit = memory_limit
         self.test_case_id = test_case_id
         self.user = User.objects.get(id=submission.user_id)
+        print "init init"
 
     def choose_judge_server(self):
         servers = JudgeServer.objects.filter(workload__lt=100, lock=False, status=True).order_by("-workload")
         if servers.exists():
-            server = servers[0]
-            server.use_judge_instance()
-            return server
+            return servers.first()
 
     def judge(self, is_waiting_task=False):
         self.submission.judge_start_time = int(time.time() * 1000)
-        try:
-            judge_server = self.choose_judge_server()
-            # 如果没有合适的判题服务器，就放入等待队列中等待判题
-            if not judge_server:
-                if not is_waiting_task:
-                    JudgeWaitingQueue.objects.create(submission_id=self.submission.id, time_limit=self.time_limit,
-                                                     memory_limit=self.memory_limit, test_case_id=self.test_case_id)
-                return
+        judge_server = self.choose_judge_server()
 
+        # 如果没有合适的判题服务器，就放入等待队列中等待判题
+        if not judge_server:
+            if not is_waiting_task:
+                JudgeWaitingQueue.objects.create(submission_id=self.submission.id, time_limit=self.time_limit,
+                                                 memory_limit=self.memory_limit, test_case_id=self.test_case_id)
+            return
+
+        judge_server.use_judge_instance()
+
+        try:
             s = TimeoutServerProxy("http://" + judge_server.ip + ":" + str(judge_server.port), timeout=20)
 
             data = s.run(judge_server.token, self.submission.id, self.submission.language,
                          self.submission.code, self.time_limit, self.memory_limit, self.test_case_id)
 
-            judge_server.release_judge_instance()
             # 编译错误
             if data["code"] == 1:
                 self.submission.result = result["compile_error"]
@@ -67,6 +68,8 @@ class JudgeDispatcher(object):
             self.submission.result = result["system_error"]
             self.submission.info = str(e)
         finally:
+            judge_server.release_judge_instance()
+
             self.submission.judge_end_time = int(time.time() * 1000)
             self.submission.save()
 
