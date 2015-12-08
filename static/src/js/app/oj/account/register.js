@@ -12,7 +12,7 @@ require(["jquery", "bsAlert", "csrfToken", "validator"], function ($, bsAlert, c
             $.ajax({
                 beforeSend: csrfTokenHeader,
                 url: "/api/register/",
-                data: {username: username, school: school, student_id: student_id, real_name: realName, password: password, email: email, captcha:captcha},
+                data: {username: username, school: school, student_id: student_id, real_name: realName, password: password, email: email, captcha: captcha},
                 dataType: "json",
                 method: "post",
                 success: function (data) {
