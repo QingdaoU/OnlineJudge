@@ -74,3 +74,7 @@ class EditGroupMemberSerializer(serializers.Serializer):
 class PutJoinGroupRequestSerializer(serializers.Serializer):
     request_id = serializers.IntegerField()
     status = serializers.BooleanField()
+    
+class GroupPromoteAdminSerializer(serializers.Serializer):
+    user_id = serializers.IntegerField()
+    group_id = serializers.IntegerField()
