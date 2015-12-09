@@ -25,7 +25,7 @@ class GroupAPIViewBase(object):
         管理员可以查询所有的小组，其他用户查询自己创建的自傲组
         """
         if request.user.admin_type == SUPER_ADMIN:
-            group = Group.objects.get(id=group_id, visible=True)
+            group = Group.objects.get(id=group_id)
         else:
             group = Group.objects.get(id=group_id, visible=True, admin=request.user)
         return group
@@ -36,7 +36,7 @@ class GroupAPIViewBase(object):
         如果是管理员，就返回他创建的全部小组
         """
         if request.user.admin_type == SUPER_ADMIN:
-            groups = Group.objects.filter(visible=True)
+            groups = Group.objects.filter()
         else:
             groups = Group.objects.filter(admin=request.user, visible=True)
         return groups
@@ -83,6 +83,7 @@ class GroupAdminAPIView(APIView, GroupAPIViewBase):
                 group.name = data["name"]
                 group.description = data["description"]
                 group.join_group_setting = data["join_group_setting"]
+                group.visible = data["visible"]
                 group.save()
             except IntegrityError:
                 return error_response(u"小组名已经存在")

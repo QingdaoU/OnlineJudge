@@ -22,14 +22,16 @@
                 {% if user.userprofile.mood %}
                     <p id="user-mood">{{ user.userprofile.mood }}</p>
                 {% endif %}
-                {% if user.userprofile.school %}
-                    <p id="user-mood">{{ user.userprofile.school }}</p>
-                {% endif %}
+                
             </div>
             <div class="list-group col-lg-9">
-
+                {% if user.userprofile.school %}
+                <p class="list-group-item"> <span class="glyphicon glyphicon-education"></span>
+                    {{ user.userprofile.school }}
+                </p>
+                {% endif %}
                 {% if user.userprofile.blog %}
-                <p class="list-group-item"><span class="glyphicon glyphicon-link"></span>
+                <p class="list-group-item">
                     <a href="{{ user.userprofile.blog }}" target="_blank">{{ blog_link }}</a>
                 </p>
                 {% endif %}
