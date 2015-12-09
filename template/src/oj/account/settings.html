@@ -34,7 +34,7 @@
                            value="{{ request.user.email }}" readonly>
                 </div>
                 <div class="form-group col-md-6"><label>手机</label>
-                    <input name="phone" type="text" maxlength="11" id="phone"
+                    <input name="phone_number" type="text" maxlength="11" id="phone"
                            class="form-control"
                            value="{% if request.user.userprofile.phone_number %}{{ request.user.userprofile.phone_number }}{% endif %}">
                 </div>
@@ -50,28 +50,35 @@
                 </div>
                 <div class="form-group col-md-6">
                     <label>hduoj 用户名</label>
-                    <input name="hduoj" type="text" class="form-control" id="hduoj_username"
-                           value="{{ request.user.userprofile.hduoj_username }}">
+                    <input name="hduoj_username" type="text" class="form-control" id="hduoj_username"
+                           value="{% if request.user.userprofile.hduoj_username %}{{ request.user.userprofile.hduoj_username }}{% endif %}">
 
                     <div class="help-block with-errors"></div>
                 </div>
                 <div class="form-group col-md-6">
                     <label>BestCoder 用户名</label>
-                    <input name="bestcoder" type="text" class="form-control" id="bestcoder_username"
-                           value="{{ request.user.userprofile.bestcoder_username }}">
+                    <input name="bestcoder_username" type="text" class="form-control" id="bestcoder_username"
+                           value="{% if request.user.userprofile.bestcoder_username %}{{ request.user.userprofile.bestcoder_username }}{% endif %}">
 
                     <div class="help-block with-errors"></div>
                 </div>
                 <div class="form-group col-md-6">
                     <label>Codeforces 用户名</label>
-                    <input name="codeforces" type="text" class="form-control" id="codeforce_username"
-                           value="{{ request.user.userprofile.bestcoder_username }}">
+                    <input name="codeforces_username" type="text" class="form-control" id="codeforces_username"
+                           value="{% if request.user.userprofile.codeforce_username %}{{ request.user.userprofile.codeforces_username }}{% endif %}">
 
                     <div class="help-block with-errors"></div>
                 </div>
+                <div class="form-group col-md-12"><label>学号</label>
+                    <input name="student_id" type="number" class="form-control" id="student_id"
+                           value="{% if request.user.userprofile.student_id %}{{ request.user.userprofile.student_id }}{% endif %}">
+
+                    <div class="help-block with-errors"></div>
+
+                </div>
                 <div class="form-group col-md-12"><label>blog</label>
                     <input name="blog" type="url" class="form-control" id="blog"
-                           value="{{ request.user.userprofile.blog }}">
+                           value="{% if request.user.userprofile.blog %}{{ request.user.userprofile.blog }}{% endif %}">
 
                     <div class="help-block with-errors"></div>
 

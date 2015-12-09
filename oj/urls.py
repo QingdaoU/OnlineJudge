@@ -15,7 +15,7 @@ from contest.views import (ContestAdminAPIView, ContestProblemAdminAPIView,
                            MakeContestProblemPublicAPIView)
 
 from group.views import (GroupAdminAPIView, GroupMemberAdminAPIView,
-                         JoinGroupAPIView, JoinGroupRequestAdminAPIView)
+                         JoinGroupAPIView, JoinGroupRequestAdminAPIView, GroupPrometAdminAPIView)
 
 from admin.views import AdminTemplateView
 
@@ -55,6 +55,7 @@ urlpatterns = [
     url(r'^api/contest/submission/$', ContestSubmissionAPIView.as_view(), name="contest_submission_api"),
     url(r'^api/submission/$', SubmissionAPIView.as_view(), name="submission_api"),
     url(r'^api/group_join/$', JoinGroupAPIView.as_view(), name="group_join_api"),
+    
 
     url(r'^api/admin/upload_image/$', SimditorImageUploadAPIView.as_view(), name="simditor_upload_image"),
     url(r'^api/admin/announcement/$', AnnouncementAdminAPIView.as_view(), name="announcement_admin_api"),
@@ -62,6 +63,8 @@ urlpatterns = [
     url(r'^api/admin/user/$', UserAdminAPIView.as_view(), name="user_admin_api"),
     url(r'^api/admin/group/$', GroupAdminAPIView.as_view(), name="group_admin_api"),
     url(r'^api/admin/group_member/$', GroupMemberAdminAPIView.as_view(), name="group_member_admin_api"),
+    url(r'^api/admin/group/promot_as_admin/$', GroupPrometAdminAPIView.as_view(), name="group_promote_admin_api"),
+    
 
     url(r'^api/admin/problem/$', ProblemAdminAPIView.as_view(), name="problem_admin_api"),
     url(r'^api/admin/contest_problem/$', ContestProblemAdminAPIView.as_view(), name="contest_problem_admin_api"),

@@ -23,6 +23,10 @@ require(["jquery", "avalon", "editor", "uploader", "bsAlert", "csrfToken", "date
                             selectedGroups.push(vm.allGroups[i].id);
                         }
                     }
+                    if (vm.password) {
+                        ajaxData.password = vm.password;
+                        ajaxData.contest_type = 3;
+                    }
                     ajaxData.groups = selectedGroups;
                 }
                 else {
@@ -131,7 +135,7 @@ require(["jquery", "avalon", "editor", "uploader", "bsAlert", "csrfToken", "date
                                         vm.startTime = contest.start_time.substring(0, 16).replace("T", " ");
                                         vm.endTime = contest.end_time.substring(0, 16).replace("T", " ");
                                         vm.password = contest.password;
-                                        if (contest.contest_type == 0) { //contest_type == 0, 小组内比赛
+                                        if (contest.contest_type == 0 || contest.contest_type == 3) { //contest_type == 0, 小组内比赛
                                             vm.isGlobal = false;
                                             for (var i = 0; i < vm.allGroups.length; i++) {
                                                 vm.allGroups[i].isSelected = false;
