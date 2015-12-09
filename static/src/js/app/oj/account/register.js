@@ -33,10 +33,8 @@ require(["jquery", "bsAlert", "csrfToken", "validator"], function ($, bsAlert, c
     });
     
     $("#school").blur(function () {
-        var school = $("#school").val();
-        school = $.trim(school).toLowerCase();
-        console.log(school);
-        if (school == "青岛大学" || school == "qdu" || school == "qdu" || school == "青大") {
+        var school = $("#school").val().trim(school).toLowerCase();
+        if (school == "青岛大学" || school == "qdu" || school == "青大") {
             $("#stu_id").show();
             $("#school").val("青岛大学");
         }
