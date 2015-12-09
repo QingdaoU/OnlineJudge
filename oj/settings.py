@@ -22,6 +22,12 @@ if ENV == "local":
 elif ENV == "server":
     from .server_settings import *
 
+BROKER_BACKEND = "redis"
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+
+
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
@@ -48,11 +54,12 @@ INSTALLED_APPS = (
     'problem',
     'admin',
     'submission',
-    'mq',
     'contest',
+    'judge',
+    'judge_dispatcher',
 
-    'django_extensions',
     'rest_framework',
+    'huey.djhuey',
 )
 
 if DEBUG:
@@ -185,7 +192,19 @@ WEBSITE_INFO = {"website_name": "qduoj",
                 "website_footer": u"青岛大学信息工程学院 创新实验室 <a href=\"http://www.miibeian.gov.cn/\">京ICP备15062075号-1</a>",
                 "url": "https://qduoj.com"}
 
+
+HUEY = {
+    'backend': 'huey.backends.redis_backend',
+    'name': 'task_queue',
+    'connection': {'host': REDIS_QUEUE["host"], 'port': REDIS_QUEUE["port"], 'db': REDIS_QUEUE["db"]},
+    'always_eager': False, # Defaults to False when running via manage.py run_huey
+    # Options to pass into the consumer when running ``manage.py run_huey``
+    'consumer_options': {'workers': 50},
+}
+
+
 SMTP_CONFIG = {"smtp_server": "smtp.mxhichina.com",
                "email": "noreply@qduoj.com",
                "password": os.environ.get("smtp_password", "111111"),
                "tls": False}
+

@@ -72,6 +72,5 @@ class UserProfile(models.Model):
     school = models.CharField(max_length=200, blank=True, null=True)
     student_id = models.CharField(max_length=15, blank=True, null=True)
 
-
     class Meta:
         db_table = "user_profile"

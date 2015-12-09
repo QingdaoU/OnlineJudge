@@ -4,7 +4,6 @@ redis
 django-redis-sessions
 djangorestframework
 django-rest-swagger
-celery
 gunicorn
 coverage
 django-extensions
@@ -12,3 +11,4 @@ supervisor
 pillow
 jsonfield
 Envelopes
+huey

@@ -7,16 +7,16 @@ languages = {
         "src_name": "main.c",
         "code": 1,
         "syscalls": "!execve:k,flock:k,ptrace:k,sync:k,fdatasync:k,fsync:k,msync,sync_file_range:k,syncfs:k,unshare:k,setns:k,clone:k,query_module:k,sysinfo:k,syslog:k,sysfs:k",
-        "compile_command": "gcc -DONLINE_JUDGE -O2 -w -std=c99 {src_path} -lm -o {exe_path}main",
-        "execute_command": "{exe_path}main"
+        "compile_command": "gcc -DONLINE_JUDGE -O2 -w -std=c99 {src_path} -lm -o {exe_path}/main",
+        "execute_command": "{exe_path}/main"
     },
     2: {
         "name": "cpp",
         "src_name": "main.cpp",
         "code": 2,
         "syscalls": "!execve:k,flock:k,ptrace:k,sync:k,fdatasync:k,fsync:k,msync,sync_file_range:k,syncfs:k,unshare:k,setns:k,clone:k,query_module:k,sysinfo:k,syslog:k,sysfs:k",
-        "compile_command": "g++ -DONLINE_JUDGE -O2 -w -std=c++11 {src_path} -lm -o {exe_path}main",
-        "execute_command": "{exe_path}main"
+        "compile_command": "g++ -DONLINE_JUDGE -O2 -w -std=c++11 {src_path} -lm -o {exe_path}/main",
+        "execute_command": "{exe_path}/main"
     },
     3: {
         "name": "java",

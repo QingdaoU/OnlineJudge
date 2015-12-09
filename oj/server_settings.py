@@ -31,6 +31,13 @@ REDIS_CACHE = {
     "db": 1
 }
 
+REDIS_QUEUE = {
+    "host": os.environ.get("REDIS_PORT_6379_TCP_ADDR", "127.0.0.1"),
+    "port": 6379,
+    "db": 2
+}
+
+
 DEBUG = False
 
 ALLOWED_HOSTS = ['*']

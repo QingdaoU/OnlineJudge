@@ -1,1 +1,0 @@
-celery -A judge.controller worker -l DEBUG
