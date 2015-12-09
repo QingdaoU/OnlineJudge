@@ -101,7 +101,7 @@ LANGUAGE_CODE = 'zh-hans'
 
 TIME_ZONE = 'Asia/Shanghai'
 
-USE_I18N = False
+USE_I18N = True
 
 USE_L10N = True
 
