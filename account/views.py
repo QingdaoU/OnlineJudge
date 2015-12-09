@@ -14,7 +14,7 @@ from rest_framework.response import Response
 from utils.shortcuts import (serializer_invalid_response, error_response,
                              success_response, error_page, paginate, rand_str)
 from utils.captcha import Captcha
-from mail.tasks import send_email
+from utils.mail import send_email
 
 from .decorators import login_required
 from .models import User, UserProfile
@@ -62,10 +62,9 @@ def index_page(request):
     if not request.user.is_authenticated():
         return render(request, "oj/index.html")
 
-    try:
-        if request.META['HTTP_REFERER']:
+    if request.META.get('HTTP_REFERER') or request.GET.get("index"):
             return render(request, "oj/index.html")
-    except KeyError:
+    else:
         return http.HttpResponseRedirect('/problems/')
 
 
@@ -149,17 +148,27 @@ class UsernameCheckAPIView(APIView):
 class EmailCheckAPIView(APIView):
     def get(self, request):
         """
-        检测邮箱是否存在，存在返回状态码400，不存在返回200
+        检测邮箱是否存在，用状态码标识结果
         ---
         """
+        #这里是为了适应前端表单验证空间的要求
+        reset = request.GET.get("reset", None)
+        #如果reset为true说明该请求是重置密码页面发出的，要返回的状态码应正好相反
+        if reset:
+            existed = 200
+            does_not_existed = 400
+        else:
+            existed = 400
+            does_not_existed = 200
+
         email = request.GET.get("email", None)
         if email:
             try:
                 User.objects.get(email=email)
-                return Response(status=400)
+                return Response(status=existed)
             except Exception:
-                return Response(status=200)
-        return Response(status=200)
+                return Response(status=does_not_existed)
+        return Response(status=does_not_existed)
 
 
 class UserAdminAPIView(APIView):
@@ -274,7 +283,7 @@ class ApplyResetPasswordAPIView(APIView):
             if not captcha.check(data["captcha"]):
                 return error_response(u"验证码错误")
             try:
-                user = User.objects.get(username=data["username"], email=data["email"])
+                user = User.objects.get(email=data["email"])
             except User.DoesNotExist:
                 return error_response(u"用户不存在")
             if user.reset_password_token_create_time and (now() - user.reset_password_token_create_time).total_seconds() < 20 * 60:
@@ -286,14 +295,14 @@ class ApplyResetPasswordAPIView(APIView):
 
             email_template = email_template.replace("{{ username }}", user.username).\
                 replace("{{ website_name }}", settings.WEBSITE_INFO["website_name"]).\
-                replace("{{ link }}", request.scheme + "://" + request.META['HTTP_HOST'] + "/reset_password/?token=" + user.reset_password_token)
+                replace("{{ link }}", request.scheme + "://" + request.META['HTTP_HOST'] + "/reset_password/t/" + user.reset_password_token)
 
             send_email(settings.WEBSITE_INFO["website_name"],
                        user.email,
                        user.username,
-                       settings.WEBSITE_INFO["website_name"] + u" 密码找回邮件",
+                       settings.WEBSITE_INFO["website_name"] + u" 登录信息找回邮件",
                        email_template)
-            return success_response(u"邮件发送成功")
+            return success_response(u"邮件发送成功,请前往您的邮箱查收")
         else:
             return serializer_invalid_response(serializer)
 
@@ -355,3 +364,13 @@ class SSOAPIView(APIView):
         request.user.auth_token = token
         request.user.save()
         return render(request, "oj/account/sso.html", {"redirect_url": callback + "?token=" + token, "callback": callback})
+
+
+def reset_password_page(request, token):
+    try:
+        user = User.objects.get(reset_password_token=token)
+    except User.DoesNotExist:
+        return error_page(request, u"链接已失效")
+    if (now() - user.reset_password_token_create_time).total_seconds() > 30 * 60:
+        return error_page(request, u"链接已过期")
+    return render(request, "oj/account/reset_password.html", {"user": user})
