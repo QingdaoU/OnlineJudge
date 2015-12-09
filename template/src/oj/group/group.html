@@ -28,13 +28,13 @@
     {% if not joined %}
     <hr>
     <div>
-        {% if group.join_group_setting %}
+        {% ifequal group.join_group_setting 1 %}
         <div class="form-group">
             <input id="groupId" value="{{ group.id }" type="hidden">
             <label>申请信息</label>
             <textarea class="form-control" id="applyMessage" rows="10"></textarea>
         </div>
-        {% endif %}
+        {% endifequal %}
         
         <div class="form-group">
             <button class="btn btn-primary" id="sendApplication">{% if group.join_group_setting %}申请{% endif %}加入</button>

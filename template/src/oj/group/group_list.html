@@ -34,11 +34,15 @@
                                 <th scope="row"><a href="/group/{{ item.id }}/" target="_blank">{{ item.id }}</a></th>
                                 <td><a href="/group/{{ item.id }}/" target="_blank">{{ item.name }}</a></td>
                                 <td>
-                                    {% if item.join_group_setting %}
+                                    {% ifequal item.join_group_setting 1 %}
                                         需要申请
-                                    {% else %}
+                                    {% endifequal %}
+                                    {% ifequal item.join_group_setting 0 %}
                                         无需申请
-                                    {% endif %}
+                                    {% endifequal %}
+                                    {% ifequal item.join_group_setting 2 %}
+                                        不允许加入
+                                    {% endifequal %}
                                 </td>
                                 <td>{{ item.created_by }}</td>
                                 <td>{{ item.create_time }}</td>
