@@ -5,14 +5,14 @@ from django.db import IntegrityError
 from rest_framework.views import APIView
 
 from utils.shortcuts import error_response, serializer_invalid_response, success_response, paginate, error_page
-from account.models import REGULAR_USER, ADMIN, SUPER_ADMIN
+from account.models import REGULAR_USER, ADMIN, SUPER_ADMIN, User
 from account.decorators import login_required
 
-from .models import Group, JoinGroupRequest, UserGroupRelation
+from .models import Group, JoinGroupRequest, UserGroupRelation, AdminGroupRelation
 from .serializers import (CreateGroupSerializer, EditGroupSerializer,
                           CreateJoinGroupRequestSerializer, GroupSerializer,
                           GroupMemberSerializer, EditGroupMemberSerializer,
-                          JoinGroupRequestSerializer, PutJoinGroupRequestSerializer)
+                          JoinGroupRequestSerializer, PutJoinGroupRequestSerializer, GroupPromoteAdminSerializer)
 from announcement.models import Announcement
 from django.core.paginator import Paginator
 from django.db.models import Q
@@ -57,9 +57,10 @@ class GroupAdminAPIView(APIView, GroupAPIViewBase):
                 group = Group.objects.create(name=data["name"],
                                              description=data["description"],
                                              join_group_setting=data["join_group_setting"],
-                                             admin=request.user)
+                                             created_by=request.user)
             except IntegrityError:
                 return error_response(u"小组名已经存在")
+            AdminGroupRelation.objects.create(group=group, user=request.user)
             return success_response(GroupSerializer(group).data)
         else:
             return serializer_invalid_response(serializer)
@@ -132,8 +133,13 @@ class GroupMemberAdminAPIView(APIView, GroupAPIViewBase):
             group = self.get_group(request, group_id)
         except Group.DoesNotExist:
             return error_response(u"小组不存在")
-
-        return paginate(request, UserGroupRelation.objects.filter(group=group), GroupMemberSerializer)
+        adminOnly = request.GET.get("adminOnly", None)
+        if adminOnly:
+            members = AdminGroupRelation.objects.filter(group=group)
+        else:
+            members = UserGroupRelation.objects.filter(group=group)
+        
+        return paginate(request, members, GroupMemberSerializer)
 
     def put(self, request):
         """
@@ -314,3 +320,30 @@ def application_page(request, request_id):
         return error_page(request, u"申请不存在")
     return render(request, "oj/group/my_application.html",
                   {"application": application})
+
+
+class GroupPrometAdminAPIView(APIView):
+    def post(self, request):
+        """
+        创建小组管理员的api
+        ---
+        request_serializer: GroupPromoteAdminSerializer
+        """
+        serializer = GroupPromoteAdminSerializer(data=request.data)
+        if serializer.is_valid():
+            data = serializer.data
+            try:
+                group = Group.objects.get(id=data["group_id"])
+            except Group.DoesNotExist:
+                return error_response(u"小组不存在")
+            try:
+                user = User.objects.get(id=data["user_id"])
+            except User.DoesNotExist:
+                return error_response(u"用户不存在")
+            try:
+                AdminGroupRelation.objects.create(user=user, group=group)
+            except IntegrityError:
+                return error_response(u"该用户已经是管理员了")
+            return success_response(u"操作成功")
+        else:
+            return serializer_invalid_response(serializer)
