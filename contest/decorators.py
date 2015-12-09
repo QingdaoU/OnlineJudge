@@ -8,7 +8,7 @@ from django.core.urlresolvers import reverse
 
 from utils.shortcuts import error_response, error_page
 
-from account.models import SUPER_ADMIN
+from account.models import SUPER_ADMIN, ADMIN
 from .models import (Contest, PASSWORD_PROTECTED_CONTEST, PASSWORD_PROTECTED_GROUP_CONTEST, PUBLIC_CONTEST, GROUP_CONTEST,
                      CONTEST_ENDED, CONTEST_NOT_START, CONTEST_UNDERWAY)
 
@@ -57,7 +57,10 @@ def check_user_contest_permission(func):
 
         if request.user.admin_type == SUPER_ADMIN or request.user == contest.created_by:
             return func(*args, **kwargs)
-
+        if request.user.admin_type == ADMIN:
+            contest_set = Contest.objects.filter(groups__in=request.user.managed_groups.all())
+            if contest in contest_set:
+                return func(*args, **kwargs)
         # 管理员可见隐藏的比赛，已经先判断了身份
         if not contest.visible:
             if request.is_ajax():

@@ -17,7 +17,7 @@ from utils.shortcuts import (serializer_invalid_response, error_response,
                              success_response, paginate, error_page, paginate_data)
 from account.models import SUPER_ADMIN, User
 from account.decorators import login_required, super_admin_required
-from group.models import Group
+from group.models import Group, AdminGroupRelation, UserGroupRelation
 from utils.cache import get_cache_redis
 from submission.models import Submission
 from problem.models import Problem
@@ -91,8 +91,10 @@ class ContestAdminAPIView(APIView):
             try:
                 # 超级管理员可以编辑所有的
                 contest = Contest.objects.get(id=data["id"])
-                if request.user.admin_type != SUPER_ADMIN and contest.created_by != request.user:
-                    return error_response(u"无权访问！")
+                if request.user.admin_type != SUPER_ADMIN:
+                    contest_set = Contest.objects.filter(groups__in=request.user.managed_groups.all())
+                    if contest not in contest_set:
+                        return error_response(u"无权访问！")
             except Contest.DoesNotExist:
                 return error_response(u"该比赛不存在！")
             try:
@@ -151,16 +153,18 @@ class ContestAdminAPIView(APIView):
                 # 普通管理员只能获取自己创建的题目
                 # 超级管理员可以获取全部的题目
                 contest = Contest.objects.get(id=contest_id)
-                if request.user.admin_type != SUPER_ADMIN and contest.created_by != request.user:
-                    return error_response(u"题目不存在")
+                if request.user.admin_type != SUPER_ADMIN:
+                    contest_set = Contest.objects.filter(groups__in=request.user.managed_groups.all())
+                    if contest not in contest_set:
+                        return error_response(u"比赛不存在")
                 return success_response(ContestSerializer(contest).data)
             except Contest.DoesNotExist:
-                return error_response(u"题目不存在")
+                return error_response(u"比赛不存在")
 
         if request.user.admin_type == SUPER_ADMIN:
             contest = Contest.objects.all().order_by("-create_time")
         else:
-            contest = Contest.objects.filter(created_by=request.user).order_by("-create_time")
+            contest = Contest.objects.filter(groups__in=request.user.managed_groups.all()).distinct().order_by("-create_time")
         visible = request.GET.get("visible", None)
         if visible:
             contest = contest.filter(visible=(visible == "true"))
@@ -184,8 +188,10 @@ class ContestProblemAdminAPIView(APIView):
             data = serializer.data
             try:
                 contest = Contest.objects.get(id=data["contest_id"])
-                if request.user.admin_type != SUPER_ADMIN and contest.created_by != request.user:
-                    return error_response(u"比赛不存在")
+                if request.user.admin_type != SUPER_ADMIN:
+                    contest_set = Contest.objects.filter(groups__in=request.user.managed_groups.all())
+                    if contest not in contest_set:
+                        return error_response(u"比赛不存在")
             except Contest.DoesNotExist:
                 return error_response(u"比赛不存在")
             contest_problem = ContestProblem.objects.create(title=data["title"],
@@ -362,7 +368,10 @@ def contest_problem_page(request, contest_id, contest_problem_id):
                     request.user.admin_type == SUPER_ADMIN or \
                     request.user == contest.created_by:
         show_submit_code_area = True
-
+    else:
+        contest_set = Contest.objects.filter(groups__in=request.user.managed_groups.all())
+        if contest in contest_set:
+            show_submit_code_area = True
     return render(request, "oj/problem/contest_problem.html", {"problem": problem,
                                                                "contest": contest,
                                                                "samples": json.loads(problem.samples),
