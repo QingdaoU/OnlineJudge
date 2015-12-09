@@ -133,8 +133,8 @@ class GroupMemberAdminAPIView(APIView, GroupAPIViewBase):
             group = self.get_group(request, group_id)
         except Group.DoesNotExist:
             return error_response(u"小组不存在")
-        adminOnly = request.GET.get("adminOnly", None)
-        if adminOnly:
+        admin_only = request.GET.get("admin_only", None)
+        if admin_only:
             members = AdminGroupRelation.objects.filter(group=group)
         else:
             members = UserGroupRelation.objects.filter(group=group)
