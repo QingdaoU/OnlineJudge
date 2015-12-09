@@ -19,4 +19,5 @@ RUN cd lrun && make install
 RUN mkdir -p /var/judger/run/ && mkdir /var/judger/test_case/ && mkdir /var/judger/code/
 RUN chmod -R 777 /var/judger/run/
 COPY policy /var/judger/run/
-WORKDIR /var/judger/code/
+WORKDIR /var/judger/code/judge/
+CMD python server.py
