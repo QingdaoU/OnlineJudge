@@ -22,11 +22,6 @@ if ENV == "local":
 elif ENV == "server":
     from .server_settings import *
 
-BROKER_BACKEND = "redis"
-CELERY_ACCEPT_CONTENT = ['json']
-CELERY_TASK_SERIALIZER = 'json'
-CELERY_RESULT_SERIALIZER = 'json'
-
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
