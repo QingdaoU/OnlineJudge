@@ -1,6 +1,5 @@
 require(["jquery", "avalon", "csrfToken", "bsAlert", "validator"], function ($, avalon, csrfTokenHeader, bsAlert) {
 
-
     // avalon:定义模式 group_list
     avalon.ready(function () {
 
@@ -55,6 +54,18 @@ require(["jquery", "avalon", "csrfToken", "bsAlert", "validator"], function ($, 
                 showGroupListPage: function () {
                     avalon.vmodels.admin.template_url = "template/group/group.html";
                     vm.$fire("up!showGroupListPage");
+                },
+                promotAsAdmin: function (relation) {
+                    $.ajax({
+                        beforeSend: csrfTokenHeader,
+                        url: "/api/admin/group/promot_as_admin/",
+                        method: "post",
+                        data: JSON.stringify({group_id: relation.group, user_id: relation.user.id}),
+                        contentType: "application/json;charset=UTF-8",
+                        success: function (data) {
+                            bsAlert(data.data);
+                        }
+                    })
                 }
             });
         }
