@@ -18,7 +18,7 @@ require(["jquery", "avalon", "csrfToken", "bsAlert", "validator"], function ($, 
                 name: "",
                 description: "",
                 checkedSetting: "0",
-
+                visible: true,
                 getNext: function () {
                     if (!vm.nextPage)
                         return;
@@ -103,6 +103,7 @@ require(["jquery", "avalon", "csrfToken", "bsAlert", "validator"], function ($, 
                     vm.name = data.data.name;
                     vm.description = data.data.description;
                     vm.checkedSetting = data.data.join_group_setting.toString();
+                    vm.visible = data.data.visible;
                 }
                 else {
                     bsAlert(data.data);
@@ -123,7 +124,7 @@ require(["jquery", "avalon", "csrfToken", "bsAlert", "validator"], function ($, 
                         url: "/api/admin/group/",
                         method: "put",
                         data: {group_id: group_id, name: name, description: description,
-                               join_group_setting: join_group_setting},
+                               join_group_setting: join_group_setting, visible:vm.visible},
                         dataType: "json",
                         success: function (data) {
                             if (!data.code) {
