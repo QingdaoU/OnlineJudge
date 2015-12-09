@@ -22,6 +22,10 @@ require(["jquery", "avalon", "editor", "uploader", "bsAlert", "csrfToken", "date
                             selectedGroups.push(vm.allGroups[i].id);
                         }
                     }
+                    if (vm.password) {
+                        ajaxData.password = vm.password;
+                        ajaxData.contest_type = 3;
+                    }
                     ajaxData.groups = selectedGroups;
                 }
                 else {
