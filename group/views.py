@@ -298,7 +298,12 @@ def group_page(request, group_id):
         group = Group.objects.get(id=group_id, visible=True)
     except Group.DoesNotExist:
         return error_page(request, u"小组不存在")
-    return render(request, "oj/group/group.html", {"group": group})
+    joined = True
+    try:
+        UserGroupRelation.objects.get(user=request.user, group=group)
+    except UserGroupRelation.DoesNotExist:
+        joined = False
+    return render(request, "oj/group/group.html", {"group": group, "joined": joined})
 
 
 @login_required
