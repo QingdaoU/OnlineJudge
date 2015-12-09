@@ -1,16 +1,18 @@
 require(["jquery", "bsAlert", "csrfToken", "validator"], function ($, bsAlert, csrfTokenHeader) {
+    $("#stu_id").hide();
     $('form').validator().on('submit', function (e) {
         if (!e.isDefaultPrevented()) {
             var username = $("#username").val();
             var realName = $("#real_name").val();
             var school = $('#school').val();
+            var student_id = $('#student_id').val();
             var password = $("#password").val();
             var email = $("#email").val();
             var captcha = $("#captcha").val();
             $.ajax({
                 beforeSend: csrfTokenHeader,
                 url: "/api/register/",
-                data: {username: username, school: school, real_name: realName, password: password, email: email, captcha:captcha},
+                data: {username: username, school: school, student_id: student_id, real_name: realName, password: password, email: email, captcha: captcha},
                 dataType: "json",
                 method: "post",
                 success: function (data) {
@@ -27,6 +29,14 @@ require(["jquery", "bsAlert", "csrfToken", "validator"], function ($, bsAlert, c
                 }
             });
             return false;
+        }
+    });
+    
+    $("#school").blur(function () {
+        var school = $("#school").val().trim(school).toLowerCase();
+        if (school == "青岛大学" || school == "qdu" || school == "青大") {
+            $("#stu_id").show();
+            $("#school").val("青岛大学");
         }
     });
     function refresh_captcha() {

@@ -1,7 +1,30 @@
-require(["jquery", "avalon", "csrfToken", "bsAlert"], function ($, avalon, csrfTokenHeader, bsAlert) {
+require(["jquery", "avalon", "csrfToken", "bsAlert", "validator"], function ($, avalon, csrfTokenHeader, bsAlert) {
 
     avalon.ready(function () {
-        //avalon.vmodels.group = null;
+        $('#add-group-form').validator().on('submit', function (e) {
+        if (!e.isDefaultPrevented()) {
+            var name = vm.name;
+            var description = vm.description;
+            var join_group_setting = vm.group_type;
+            $.ajax({
+                beforeSend: csrfTokenHeader,
+                url: "/api/admin/group/",
+                method: "post",
+                data: {name: name, description: description, join_group_setting: join_group_setting},
+                dataType: "json",
+                success: function (data) {
+                    if (!data.code) {
+                        getPageData(1);
+                        bsAlert("添加成功");
+                    }
+                    else {
+                        bsAlert(data.data);
+                    }
+                }
+            });
+            return false;
+        }
+        })
         if (avalon.vmodels.group) {
             var vm = avalon.vmodels.group;
         }
@@ -16,7 +39,9 @@ require(["jquery", "avalon", "csrfToken", "bsAlert"], function ($, avalon, csrfT
                 page: 1,                           //    当前页数
                 totalPage: 1,                   //    总页数
                 keyword: "",
-
+                name: "",
+                description: "",
+                group_type: 0,
                 getNext: function () {
                     if (!vm.nextPage)
                         return;
@@ -42,8 +67,10 @@ require(["jquery", "avalon", "csrfToken", "bsAlert"], function ($, avalon, csrfT
                 getGroupSettingString: function (setting) {
                     return {0: "允许任何人加入", 1: "提交请求后管理员审核", 2: "不允许任何人加入"}[setting]
                 },
+  
                 showGroupDetailPage: function (groupId) {
-                    vm.$fire("up!showGroupDetailPage", groupId);
+                    avalon.vmodels.admin.groupId = groupId;
+                    avalon.vmodels.admin.template_url = "template/group/group_detail.html";
                 }
             });
         }

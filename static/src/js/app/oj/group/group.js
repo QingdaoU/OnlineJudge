@@ -3,9 +3,10 @@ require(["jquery", "csrfToken", "bsAlert"], function ($, csrfTokenHeader, bsAler
         var message;
         if ($("#applyMessage").length) {
             message = $("#applyMessage").val();
-            if (!message)
+            if (!message) {
                 bsAlert("提交失败,请填写申请信息!");
                 return false;
+            }
         }
 
         var groupId = window.location.pathname.split("/")[2];

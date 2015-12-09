@@ -103,14 +103,7 @@ require(["jquery", "avalon", "csrfToken", "bsAlert", "bootstrap"], function ($, 
             }
         });
 
-        vm.$watch("showGroupDetailPage", function (groupId) {
-            vm.groupId = groupId;
-            vm.template_url = "template/group/group_detail.html";
-        });
-
-        vm.$watch("showGroupListPage", function () {
-            vm.template_url = "template/group/group.html";
-        });
+       
 
         avalon.scan();
 
