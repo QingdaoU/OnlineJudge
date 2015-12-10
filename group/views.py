@@ -22,7 +22,7 @@ class GroupAPIViewBase(object):
     def get_group(self, request, group_id):
         """
         根据group_id查询指定的小组的信息，结合判断用户权限
-        管理员可以查询所有的小组，其他用户查询自己创建的自傲组
+        管理员可以查询所有的小组，其他用户查询自己创建的小组
         """
         if request.user.admin_type == SUPER_ADMIN:
             group = Group.objects.get(id=group_id)
