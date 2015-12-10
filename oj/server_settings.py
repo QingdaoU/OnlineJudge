@@ -11,7 +11,7 @@ DATABASES = {
         'CONN_MAX_AGE': 0.1,
         'HOST': os.environ.get("MYSQL_PORT_3306_TCP_ADDR", "127.0.0.1"),
         'PORT': 3306,
-        'USER': 'root',
+        'USER': os.environ.get("MYSQL_ENV_MYSQL_USER", "root"),
         'PASSWORD': os.environ.get("MYSQL_ENV_MYSQL_ROOT_PASSWORD", "root")
     },
     'submission': {
@@ -20,7 +20,7 @@ DATABASES = {
         'CONN_MAX_AGE': 0.1,
         'HOST': os.environ.get("MYSQL_PORT_3306_TCP_ADDR", "127.0.0.1"),
         'PORT': 3306,
-        'USER': 'root',
+        'USER': os.environ.get("MYSQL_ENV_MYSQL_USER", "root"),
         'PASSWORD': os.environ.get("MYSQL_ENV_MYSQL_ROOT_PASSWORD", "root")
     }
 }
@@ -29,6 +29,12 @@ REDIS_CACHE = {
     "host": os.environ.get("REDIS_PORT_6379_TCP_ADDR", "127.0.0.1"),
     "port": 6379,
     "db": 1
+}
+
+REDIS_QUEUE = {
+    "host": os.environ.get("REDIS_PORT_6379_TCP_ADDR", "127.0.0.1"),
+    "port": 6379,
+    "db": 2
 }
 
 DEBUG = False

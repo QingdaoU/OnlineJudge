@@ -5,7 +5,7 @@
                     aria-hidden="true">&larr;</span> 返回</a></li>
         </ul>
     </nav>
-    <h1>小组成员管理</h1>
+    <h2>小组成员管理</h2>
     <table class="table table-striped">
         <tr>
             <th>ID</th>
@@ -19,19 +19,19 @@
             <td>{{ el.user.username }}</td>
             <td>{{ el.user.real_name }}</td>
             <td>{{ el.join_time|date("yyyy-MM-dd HH:mm:ss")}}</td>
-
+            
             <td>
+                <button class="btn-sm btn-info" ms-click="promotAsAdmin(el)">设为管理员</button>
                 <button class="btn-sm btn-danger" ms-click="removeMember(el)">移除</button>
             </td>
         </tr>
     </table>
-
     <div class="text-right">
         页数：{{ page }}/{{ totalPage }}&nbsp;&nbsp;
         <button ms-attr-class="getBtnClass('pre')" ms-click="getPrevious">上一页</button>
         <button ms-attr-class="getBtnClass('next')" ms-click="getNext">下一页</button>
     </div>
-    <h1>修改小组信息</h1>
+    <h2>修改小组信息</h2>
 
     <form id="edit_group_form">
         <div class="col-md-12">
@@ -49,18 +49,24 @@
                 <div class="help-block with-errors"></div>
             </div>
         </div>
-        <div class="col-md-12">
+        <div class="col-md-9">
             <div class="form-group">
-
-                <label>加入小组设置</label>
-                <input type="radio" name="join_group_setting" value="0" ms-duplex-string="checkedSetting">允许任何人加入
-                <input type="radio" name="join_group_setting" value="1" ms-duplex-string="checkedSetting">提交请求后管理员审核
-                <input type="radio" name="join_group_setting" value="2" ms-duplex-string="checkedSetting">不允许任何人加入
-
+                <label>加入小组设置</label><br>
+                <label><input type="radio" name="join_group_setting" value="0" ms-duplex-string="checkedSetting"><small>允许任何人加入</small></label>
+                <label><input type="radio" name="join_group_setting" value="1" ms-duplex-string="checkedSetting"><small>提交请求后管理员审核</small></label>
+                <label><input type="radio" name="join_group_setting" value="2" ms-duplex-string="checkedSetting"><small>不允许任何人加入</small></label>
             </div>
+            
+        </div>
+        <div class="col-md-3 form-group">
+            <label>前台是否可见</label><br>
+            <label><input type="checkbox" ms-duplex-checked="visible">
+                <small>可见</small>
+            </label>
+        </div>
+        <div class="col-md-12">
             <button class="btn btn-primary" type="submit">提交</button>
         </div>
-
     </form>
 </div>
 <script src="/static/js/app/admin/group/groupDetail.js"></script>

@@ -37,13 +37,16 @@
                                 <td>{{ item.start_time }}</td>
 
                                 {% ifequal item.contest_type 0 %}
-                                    <td>小组赛</td>
+                                    <td>私有小组赛</td>
                                 {% endifequal %}
                                 {% ifequal item.contest_type 1 %}
                                     <td>公开赛</td>
                                 {% endifequal %}
                                 {% ifequal item.contest_type 2 %}
                                     <td>公开赛(密码保护)</td>
+                                {% endifequal %}
+                                {% ifequal item.contest_type 3 %}
+                                    <td>小组邀请赛</td>
                                 {% endifequal %}
 
                                 <td class="{{ item|contest_status_color }}">{{ item|contest_status }}</td>

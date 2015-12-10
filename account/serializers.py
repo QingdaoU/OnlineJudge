@@ -25,6 +25,7 @@ class UserRegisterSerializer(serializers.Serializer):
     password = serializers.CharField(max_length=30, min_length=6)
     email = serializers.EmailField(max_length=254)
     captcha = serializers.CharField(max_length=4, min_length=4)
+    student_id = serializers.CharField(max_length=15, required=False, default=None)
 
 
 class UserChangePasswordSerializer(serializers.Serializer):
@@ -74,6 +75,7 @@ class EditUserProfileSerializer(serializers.Serializer):
     codeforces_username = serializers.CharField(max_length=30, required=False, allow_blank=True, default='')
     school = serializers.CharField(max_length=200, required=False, allow_blank=True, default='')
     phone_number = serializers.CharField(max_length=15, required=False, allow_blank=True, default='')
+    student_id = serializers.CharField(max_length=15, required=False, default="")
 
 
 class UserProfileSerializer(serializers.ModelSerializer):
@@ -81,4 +83,4 @@ class UserProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserProfile
         fields = ["avatar", "blog", "mood", "hduoj_username", "bestcoder_username", "codeforces_username",
-                  "rank", "accepted_number", "submissions_number", "problems_status", "phone_number", "school"]
+                  "rank", "accepted_number", "submissions_number", "problems_status", "phone_number", "school", "student_id"]

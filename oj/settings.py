@@ -48,12 +48,12 @@ INSTALLED_APPS = (
     'problem',
     'admin',
     'submission',
-    'mq',
     'contest',
-    'mail',
+    'judge',
+    'judge_dispatcher',
 
-    'django_extensions',
     'rest_framework',
+    'huey.djhuey',
 )
 
 if DEBUG:
@@ -98,11 +98,11 @@ WSGI_APPLICATION = 'oj.wsgi.application'
 # Internationalization
 # https://docs.djangoproject.com/en/1.8/topics/i18n/
 
-LANGUAGE_CODE = 'zh-cn'
+LANGUAGE_CODE = 'zh-hans'
 
 TIME_ZONE = 'Asia/Shanghai'
 
-USE_I18N = False
+USE_I18N = True
 
 USE_L10N = True
 
@@ -117,7 +117,6 @@ STATIC_URL = '/static/'
 AUTH_USER_MODEL = 'account.User'
 
 LOG_PATH = "log/"
-
 
 LOGGING = {
     'version': 1,
@@ -186,3 +185,17 @@ IMAGE_UPLOAD_DIR = os.path.join(BASE_DIR, 'upload/')
 WEBSITE_INFO = {"website_name": "qduoj",
                 "website_footer": u"青岛大学信息工程学院 创新实验室 <a href=\"http://www.miibeian.gov.cn/\">京ICP备15062075号-1</a>",
                 "url": "https://qduoj.com"}
+
+HUEY = {
+    'backend': 'huey.backends.redis_backend',
+    'name': 'task_queue',
+    'connection': {'host': REDIS_QUEUE["host"], 'port': REDIS_QUEUE["port"], 'db': REDIS_QUEUE["db"]},
+    'always_eager': False,  # Defaults to False when running via manage.py run_huey
+    # Options to pass into the consumer when running ``manage.py run_huey``
+    'consumer_options': {'workers': 50},
+}
+
+SMTP_CONFIG = {"smtp_server": "smtp.mxhichina.com",
+               "email": "noreply@qduoj.com",
+               "password": os.environ.get("smtp_password", "111111"),
+               "tls": False}

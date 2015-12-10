@@ -2,8 +2,8 @@ require(["jquery", "bsAlert", "csrfToken", "validator"], function ($, bsAlert, c
     var applied_captcha = false;
     $('form').validator().on('submit', function (e) {
         if (!e.isDefaultPrevented()) {
-            var index = location.href.indexOf("/t/");
-            var token = location.href.substr(36+3, 32);
+            var loca = location.href.split("/");
+            var token = loca[loca.length-2];
             var captcha = $("#captcha").val();
             var password = $("#new_password").val();
             $.ajax({

@@ -7,25 +7,19 @@ from django.shortcuts import render
 from django.core.paginator import Paginator
 from rest_framework.views import APIView
 
-from judge.judger_controller.tasks import judge
 from account.decorators import login_required, super_admin_required
 from account.models import SUPER_ADMIN, User
 from problem.models import Problem
 from contest.models import ContestProblem, Contest
 from contest.decorators import check_user_contest_permission
 from utils.shortcuts import serializer_invalid_response, error_response, success_response, error_page, paginate
-from utils.cache import get_cache_redis
+from .tasks import _judge
 from .models import Submission
 from .serializers import (CreateSubmissionSerializer, SubmissionSerializer,
                           SubmissionhareSerializer, SubmissionRejudgeSerializer,
                           CreateContestSubmissionSerializer)
 
 logger = logging.getLogger("app_info")
-
-
-def _judge(submission_id, time_limit, memory_limit, test_case_id):
-    judge.delay(submission_id, time_limit, memory_limit, test_case_id)
-    get_cache_redis().incr("judge_queue_length")
 
 
 class SubmissionAPIView(APIView):
@@ -49,7 +43,7 @@ class SubmissionAPIView(APIView):
                                                    problem_id=problem.id)
 
             try:
-                _judge(submission.id, problem.time_limit, problem.memory_limit, problem.test_case_id)
+                _judge(submission, problem.time_limit, problem.memory_limit, problem.test_case_id)
             except Exception as e:
                 logger.error(e)
                 return error_response(u"提交判题任务失败")
@@ -94,7 +88,7 @@ class ContestSubmissionAPIView(APIView):
                                                    code=data["code"],
                                                    problem_id=problem.id)
             try:
-                _judge(submission.id, problem.time_limit, problem.memory_limit, problem.test_case_id)
+                _judge(submission, problem.time_limit, problem.memory_limit, problem.test_case_id)
             except Exception as e:
                 logger.error(e)
                 return error_response(u"提交判题任务失败")
@@ -279,7 +273,7 @@ class SubmissionRejudgeAdminAPIView(APIView):
             except Problem.DoesNotExist:
                 return error_response(u"题目不存在")
             try:
-                _judge(submission.id, problem.time_limit, problem.memory_limit, problem.test_case_id)
+                _judge(submission, problem.time_limit, problem.memory_limit, problem.test_case_id)
             except Exception as e:
                 logger.error(e)
                 return error_response(u"提交判题任务失败")

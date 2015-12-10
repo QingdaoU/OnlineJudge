@@ -22,6 +22,12 @@ REDIS_CACHE = {
     "db": 1
 }
 
+REDIS_QUEUE = {
+    "host": "127.0.0.1",
+    "port": 6379,
+    "db": 2
+}
+
 DEBUG = True
 
 ALLOWED_HOSTS = []

@@ -1,13 +1,17 @@
 # coding=utf-8
 from django.db import models
 from utils.shortcuts import rand_str
-from judge.judger.result import result
+from judge.result import result
 
 
 class Submission(models.Model):
     id = models.CharField(max_length=32, default=rand_str, primary_key=True, db_index=True)
     user_id = models.IntegerField(db_index=True)
     create_time = models.DateTimeField(auto_now_add=True)
+    # 判题开始时间
+    judge_start_time = models.BigIntegerField(blank=True, null=True)
+    # 判题结束时间
+    judge_end_time = models.BigIntegerField(blank=True, null=True)
     result = models.IntegerField(default=result["waiting"])
     language = models.IntegerField()
     code = models.TextField()
@@ -24,3 +28,6 @@ class Submission(models.Model):
 
     class Meta:
         db_table = "submission"
+
+    def __unicode__(self):
+        return self.id
