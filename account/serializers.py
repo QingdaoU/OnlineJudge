@@ -86,5 +86,5 @@ class UserProfileSerializer(serializers.ModelSerializer):
                   "rank", "accepted_number", "submissions_number", "problems_status", "phone_number", "school", "student_id"]
 
 
-class ApplyTwoFactorAuthSerializer(serializers.Serializer):
+class TwoFactorAuthCodeSerializer(serializers.Serializer):
     code = serializers.IntegerField()

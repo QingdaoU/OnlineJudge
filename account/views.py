@@ -27,7 +27,7 @@ from .serializers import (UserLoginSerializer, UserRegisterSerializer,
                           UserSerializer, EditUserSerializer,
                           ApplyResetPasswordSerializer, ResetPasswordSerializer,
                           SSOSerializer, EditUserProfileSerializer,
-                          UserProfileSerializer, ApplyTwoFactorAuthSerializer)
+                          UserProfileSerializer, TwoFactorAuthCodeSerializer)
 
 from .decorators import super_admin_required
 
@@ -405,7 +405,7 @@ class TwoFactorAuthAPIView(APIView):
         """
         开启两步验证
         """
-        serializer = ApplyTwoFactorAuthSerializer(data=request.data)
+        serializer = TwoFactorAuthCodeSerializer(data=request.data)
         if serializer.is_valid():
             code = serializer.data["code"]
             user = request.user
@@ -413,6 +413,20 @@ class TwoFactorAuthAPIView(APIView):
                 user.two_factor_auth = True
                 user.save()
                 return success_response(u"开启两步验证成功")
+            else:
+                return error_response(u"验证码错误")
+        else:
+            return serializer_invalid_response(serializer)
+
+    @login_required
+    def put(self, request):
+        serializer = TwoFactorAuthCodeSerializer(data=request.data)
+        if serializer.is_valid():
+            user = request.user
+            code = serializer.data["code"]
+            if OtpAuth(user.tfa_token).valid_totp(code):
+                user.two_factor_auth = False
+                user.save()
             else:
                 return error_response(u"验证码错误")
         else:
