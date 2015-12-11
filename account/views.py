@@ -350,7 +350,9 @@ class SSOAPIView(APIView):
         if serializer.is_valid():
             try:
                 user = User.objects.get(auth_token=serializer.data["token"])
-                return success_response({"username": user.username})
+                user.auth_token = None
+                user.save()
+                return success_response({"username": user.username, "admin_type": user.admin_type, "avatar": user.userprofile.avatar})
             except User.DoesNotExist:
                 return error_response(u"用户不存在")
         else:
