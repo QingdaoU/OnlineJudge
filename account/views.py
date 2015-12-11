@@ -1,11 +1,13 @@
 # coding=utf-8
 import codecs
+import qrcode
+import StringIO
 from django import http
 from django.contrib import auth
 from django.shortcuts import render
 from django.db.models import Q
 from django.conf import settings
-from django.http import HttpResponseRedirect
+from django.http import HttpResponse
 from django.core.exceptions import MultipleObjectsReturned
 from django.utils.timezone import now
 
@@ -15,6 +17,7 @@ from utils.shortcuts import (serializer_invalid_response, error_response,
                              success_response, error_page, paginate, rand_str)
 from utils.captcha import Captcha
 from utils.mail import send_email
+from utils.otp_auth import OtpAuth
 
 from .decorators import login_required
 from .models import User, UserProfile
@@ -23,7 +26,8 @@ from .serializers import (UserLoginSerializer, UserRegisterSerializer,
                           UserChangePasswordSerializer,
                           UserSerializer, EditUserSerializer,
                           ApplyResetPasswordSerializer, ResetPasswordSerializer,
-                          SSOSerializer, EditUserProfileSerializer, UserProfileSerializer)
+                          SSOSerializer, EditUserProfileSerializer,
+                          UserProfileSerializer, ApplyTwoFactorAuthSerializer)
 
 from .decorators import super_admin_required
 
@@ -151,9 +155,9 @@ class EmailCheckAPIView(APIView):
         检测邮箱是否存在，用状态码标识结果
         ---
         """
-        #这里是为了适应前端表单验证空间的要求
+        # 这里是为了适应前端表单验证空间的要求
         reset = request.GET.get("reset", None)
-        #如果reset为true说明该请求是重置密码页面发出的，要返回的状态码应正好相反
+        # 如果reset为true说明该请求是重置密码页面发出的，要返回的状态码应正好相反
         if reset:
             existed = 200
             does_not_existed = 400
@@ -375,3 +379,41 @@ def reset_password_page(request, token):
     if (now() - user.reset_password_token_create_time).total_seconds() > 30 * 60:
         return error_page(request, u"链接已过期")
     return render(request, "oj/account/reset_password.html", {"user": user})
+
+
+class TwoFactorAuthAPIView(APIView):
+    @login_required
+    def get(self, request):
+        """
+        获取绑定二维码
+        """
+        user = request.user
+        if user.two_factor_auth:
+            return error_response(u"已经开启两步验证了")
+        token = rand_str()
+        user.tfa_token = token
+        user.save()
+
+        image = qrcode.make(OtpAuth(token).to_uri("totp", "OnlineJudge", "OnlineJudge"))
+        buf = StringIO.StringIO()
+        image.save(buf, 'gif')
+
+        return HttpResponse(buf.getvalue(), 'image/gif')
+
+    @login_required
+    def post(self, request):
+        """
+        开启两步验证
+        """
+        serializer = ApplyTwoFactorAuthSerializer(data=request.data)
+        if serializer.is_valid():
+            code = serializer.data["code"]
+            user = request.user
+            if OtpAuth(user.tfa_token).valid_totp(code):
+                user.two_factor_auth = True
+                user.save()
+                return success_response(u"开启两步验证成功")
+            else:
+                return error_response(u"验证码错误")
+        else:
+            return serializer_invalid_response(serializer)

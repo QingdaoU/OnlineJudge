@@ -84,3 +84,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
         model = UserProfile
         fields = ["avatar", "blog", "mood", "hduoj_username", "bestcoder_username", "codeforces_username",
                   "rank", "accepted_number", "submissions_number", "problems_status", "phone_number", "school", "student_id"]
+
+
+class ApplyTwoFactorAuthSerializer(serializers.Serializer):
+    code = serializers.IntegerField()
