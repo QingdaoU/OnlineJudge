@@ -135,6 +135,7 @@ urlpatterns = [
     url(r'^reset_password/$', TemplateView.as_view(template_name="oj/account/apply_reset_password.html"), name="apply_reset_password_page"),
     url(r'^reset_password/t/(?P<token>\w+)/$', "account.views.reset_password_page", name="reset_password_page"),
     url(r'^api/two_factor_auth/$', TwoFactorAuthAPIView.as_view(), name="two_factor_auth_api"),
+    url(r'^two_factor_auth/$', TemplateView.as_view(template_name="oj/account/two_factor_auth.html"), name="two_factor_auth_page"),
 ]
 
 

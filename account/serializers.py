@@ -7,7 +7,7 @@ from .models import User, UserProfile
 class UserLoginSerializer(serializers.Serializer):
     username = serializers.CharField(max_length=30)
     password = serializers.CharField(max_length=30)
-    captcha = serializers.CharField(min_length=4, max_length=4)
+    tfa_code = serializers.CharField(min_length=6, max_length=6, required=False)
 
 
 class UsernameCheckSerializer(serializers.Serializer):

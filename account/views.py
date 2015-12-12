@@ -42,14 +42,23 @@ class UserLoginAPIView(APIView):
         serializer = UserLoginSerializer(data=request.data)
         if serializer.is_valid():
             data = serializer.data
-            captcha = Captcha(request)
-            if not captcha.check(data["captcha"]):
-                return error_response(u"验证码错误")
+            print data
             user = auth.authenticate(username=data["username"], password=data["password"])
             # 用户名或密码错误的话 返回None
             if user:
-                auth.login(request, user)
-                return success_response(u"登录成功")
+                if not user.two_factor_auth:
+                    auth.login(request, user)
+                    return success_response(u"登录成功")
+
+                # 没有输入两步验证的验证码
+                if user.two_factor_auth and "tfa_code" not in data:
+                    return success_response("tfa_required")
+
+                if OtpAuth(user.tfa_token).valid_totp(data["tfa_code"]):
+                    auth.login(request, user)
+                    return success_response(u"登录成功")
+                else:
+                    return error_response(u"验证码错误")
             else:
                 return error_response(u"用户名或密码错误")
         else:
