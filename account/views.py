@@ -14,7 +14,7 @@ from rest_framework.response import Response
 from utils.shortcuts import (serializer_invalid_response, error_response,
                              success_response, error_page, paginate, rand_str)
 from utils.captcha import Captcha
-from utils.mail import send_email
+from .tasks import _send_email
 
 from .decorators import login_required
 from .models import User, UserProfile
@@ -63,7 +63,7 @@ def index_page(request):
         return render(request, "oj/index.html")
 
     if request.META.get('HTTP_REFERER') or request.GET.get("index"):
-            return render(request, "oj/index.html")
+        return render(request, "oj/index.html")
     else:
         return http.HttpResponseRedirect('/problems/')
 
@@ -151,9 +151,9 @@ class EmailCheckAPIView(APIView):
         检测邮箱是否存在，用状态码标识结果
         ---
         """
-        #这里是为了适应前端表单验证空间的要求
+        # 这里是为了适应前端表单验证空间的要求
         reset = request.GET.get("reset", None)
-        #如果reset为true说明该请求是重置密码页面发出的，要返回的状态码应正好相反
+        # 如果reset为true说明该请求是重置密码页面发出的，要返回的状态码应正好相反
         if reset:
             existed = 200
             does_not_existed = 400
@@ -287,22 +287,25 @@ class ApplyResetPasswordAPIView(APIView):
                 user = User.objects.get(email=data["email"])
             except User.DoesNotExist:
                 return error_response(u"用户不存在")
-            if user.reset_password_token_create_time and (now() - user.reset_password_token_create_time).total_seconds() < 20 * 60:
+            if user.reset_password_token_create_time and (
+                now() - user.reset_password_token_create_time).total_seconds() < 20 * 60:
                 return error_response(u"20分钟内只能找回一次密码")
             user.reset_password_token = rand_str()
             user.reset_password_token_create_time = now()
             user.save()
-            email_template = codecs.open(settings.TEMPLATES[0]["DIRS"][0] + "utils/reset_password_email.html", "r", "utf-8").read()
+            email_template = codecs.open(settings.TEMPLATES[0]["DIRS"][0] + "utils/reset_password_email.html", "r",
+                                         "utf-8").read()
 
-            email_template = email_template.replace("{{ username }}", user.username).\
-                replace("{{ website_name }}", settings.WEBSITE_INFO["website_name"]).\
-                replace("{{ link }}", request.scheme + "://" + request.META['HTTP_HOST'] + "/reset_password/t/" + user.reset_password_token)
+            email_template = email_template.replace("{{ username }}", user.username). \
+                replace("{{ website_name }}", settings.WEBSITE_INFO["website_name"]). \
+                replace("{{ link }}", request.scheme + "://" + request.META[
+                'HTTP_HOST'] + "/reset_password/t/" + user.reset_password_token)
 
-            send_email(settings.WEBSITE_INFO["website_name"],
-                       user.email,
-                       user.username,
-                       settings.WEBSITE_INFO["website_name"] + u" 登录信息找回邮件",
-                       email_template)
+            _send_email.delay(settings.WEBSITE_INFO["website_name"],
+                              user.email,
+                              user.username,
+                              settings.WEBSITE_INFO["website_name"] + u" 登录信息找回邮件",
+                              email_template)
             return success_response(u"邮件发送成功,请前往您的邮箱查收")
         else:
             return serializer_invalid_response(serializer)
@@ -352,7 +355,8 @@ class SSOAPIView(APIView):
                 user = User.objects.get(auth_token=serializer.data["token"])
                 user.auth_token = None
                 user.save()
-                return success_response({"username": user.username, "admin_type": user.admin_type, "avatar": user.userprofile.avatar})
+                return success_response(
+                    {"username": user.username, "admin_type": user.admin_type, "avatar": user.userprofile.avatar})
             except User.DoesNotExist:
                 return error_response(u"用户不存在")
         else:
@@ -366,7 +370,8 @@ class SSOAPIView(APIView):
         token = rand_str()
         request.user.auth_token = token
         request.user.save()
-        return render(request, "oj/account/sso.html", {"redirect_url": callback + "?token=" + token, "callback": callback})
+        return render(request, "oj/account/sso.html",
+                      {"redirect_url": callback + "?token=" + token, "callback": callback})
 
 
 def reset_password_page(request, token):

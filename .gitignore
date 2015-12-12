@@ -52,7 +52,7 @@ db.db
 #redis dump
 *.rdb
 #*.out
-db.sqlite3
+*.sqlite3
 .DS_Store
 log/
 static/release/css
