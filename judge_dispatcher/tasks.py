@@ -32,7 +32,7 @@ class JudgeDispatcher(object):
         if servers.exists():
             return servers.first()
 
-    def judge(self, is_waiting_task=False):
+    def judge(self):
         self.submission.judge_start_time = int(time.time() * 1000)
 
         with transaction.atomic():
@@ -89,7 +89,7 @@ class JudgeDispatcher(object):
                 submission = Submission.objects.get(id=waiting_submission.submission_id)
                 waiting_submission.delete()
 
-                _judge(submission, time_limit=waiting_submission.time_limit,
+                _judge.delay(submission, time_limit=waiting_submission.time_limit,
                        memory_limit=waiting_submission.memory_limit, test_case_id=waiting_submission.test_case_id,
                        is_waiting_task=True)
 

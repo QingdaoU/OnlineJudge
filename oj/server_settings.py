@@ -37,6 +37,12 @@ REDIS_QUEUE = {
     "db": 2
 }
 
+
+# for celery
+BROKER_URL = 'redis://%s:%s/%s' % (REDIS_QUEUE["host"], str(REDIS_QUEUE["port"]), str(REDIS_QUEUE["db"]))
+ACCEPT_CONTENT = ['json']
+
+
 DEBUG = False
 
 ALLOWED_HOSTS = ['*']
