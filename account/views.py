@@ -411,7 +411,7 @@ class TwoFactorAuthAPIView(APIView):
         user.tfa_token = token
         user.save()
 
-        image = qrcode.make(OtpAuth(token).to_uri("totp", "OnlineJudge", "OnlineJudge"))
+        image = qrcode.make(OtpAuth(token).to_uri("totp", "OnlineJudgeAdmin", settings.WEBSITE_INFO["url"]))
         buf = StringIO.StringIO()
         image.save(buf, 'gif')
 
