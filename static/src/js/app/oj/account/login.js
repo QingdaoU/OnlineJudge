@@ -4,23 +4,31 @@ require(["jquery", "bsAlert", "csrfToken", "validator"], function ($, bsAlert, c
         if (!e.isDefaultPrevented()) {
             var username = $("#username").val();
             var password = $("#password").val();
-            var captcha = $("#captcha").val();
+            var tfaCode = $("#tfa-code").val();
+            console.log(tfaCode);
+            if(tfaCode.length && tfaCode.length != 6){
+                bsAlert("验证码为六位数字");
+                return false;
+            }
 
             $.ajax({
                 beforeSend: csrfTokenHeader,
                 url: "/api/login/",
-                data: {username: username, password: password, captcha: captcha},
+                data: {username: username, password: password, tfa_code: tfaCode},
                 dataType: "json",
                 method: "post",
                 success: function (data) {
                     if (!data.code) {
+                        if(data.data == "tfa_required"){
+                            $("#tfa-area").show();
+                            return false;
+                        }
                         function getLocationVal(id){
                             var temp = unescape(location.search).split(id+"=")[1] || "";
                             return temp.indexOf("&")>=0 ? temp.split("&")[0] : temp;
                         }
                         var from = getLocationVal("__from");
                         if(from != ""){
-                            console.log(from);
                             window.location.href = from;
                         }
                         else{
@@ -28,7 +36,6 @@ require(["jquery", "bsAlert", "csrfToken", "validator"], function ($, bsAlert, c
                         }
                     }
                     else {
-                        refresh_captcha();
                         bsAlert(data.data);
                     }
                 },
@@ -40,11 +47,5 @@ require(["jquery", "bsAlert", "csrfToken", "validator"], function ($, bsAlert, c
             return false;
         }
     });
-    function refresh_captcha(){
-        $("#captcha-img")[0].src = "/captcha/?" + Math.random();
-        $("#captcha")[0].value = "";
-    }
-    $("#captcha-img").click(function(){
-        refresh_captcha();
-    });
+
 });

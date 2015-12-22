@@ -110,7 +110,8 @@ class ContestRank(models.Model):
                 # 之前已经提交过，但是是错误的，这次提交是正确的。错误的题目不计入罚时
                 self.total_time += (info["ac_time"] + info["error_number"] * 20 * 60)
                 problem = ContestProblem.objects.get(id=submission.problem_id)
-                if problem.total_accepted_number == 0:
+                # 更新题目计数器在前 所以是1
+                if problem.total_accepted_number == 1:
                     info["is_first_ac"] = True
 
             else:
@@ -128,7 +129,7 @@ class ContestRank(models.Model):
                 self.total_time += info["ac_time"]
                 problem = ContestProblem.objects.get(id=submission.problem_id)
 
-                if problem.total_accepted_number == 0:
+                if problem.total_accepted_number == 1:
                     info["is_first_ac"] = True
 
             else:

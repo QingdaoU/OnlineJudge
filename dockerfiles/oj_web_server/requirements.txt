@@ -11,4 +11,6 @@ supervisor
 pillow
 jsonfield
 Envelopes
-huey
+celery
+django-celery
+qrcode

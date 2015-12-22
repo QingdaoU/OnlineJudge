@@ -3,6 +3,7 @@ from django.db import models
 
 
 class JudgeServer(models.Model):
+    name = models.CharField(max_length=30)
     ip = models.GenericIPAddressField()
     port = models.IntegerField()
     # 这个服务器最大可能运行的判题实例数量
@@ -14,6 +15,7 @@ class JudgeServer(models.Model):
     lock = models.BooleanField(default=False)
     # status 为 false 的时候代表不使用这个服务器
     status = models.BooleanField(default=True)
+    create_time = models.DateTimeField(auto_now_add=True, blank=True, null=True)
 
     def use_judge_instance(self):
         # 因为use 和 release 中间是判题时间，可能这个 model 的数据已经被修改了，所以不能直接使用self.xxx，否则取到的是旧数据
