@@ -308,7 +308,7 @@ class ContestPasswordVerifyAPIView(APIView):
         if serializer.is_valid():
             data = request.data
             try:
-                contest = Contest.objects.get(id=data["contest_id"], contest_type=PASSWORD_PROTECTED_CONTEST)
+                contest = Contest.objects.get(id=data["contest_id"], contest_type__in=[PASSWORD_PROTECTED_CONTEST,PASSWORD_PROTECTED_GROUP_CONTEST])
             except Contest.DoesNotExist:
                 return error_response(u"比赛不存在")
 

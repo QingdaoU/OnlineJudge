@@ -90,8 +90,8 @@ class JudgeDispatcher(object):
                 waiting_submission.delete()
 
                 _judge.delay(submission, time_limit=waiting_submission.time_limit,
-                       memory_limit=waiting_submission.memory_limit, test_case_id=waiting_submission.test_case_id,
-                       is_waiting_task=True)
+                             memory_limit=waiting_submission.memory_limit,
+                             test_case_id=waiting_submission.test_case_id, is_waiting_task=True)
 
     def update_problem_status(self):
         problem = Problem.objects.get(id=self.submission.problem_id)
@@ -119,7 +119,8 @@ class JudgeDispatcher(object):
             logger.info("Contest debug mode, id: " + str(contest.id) + ", submission id: " + self.submission.id)
             return
         with transaction.atomic():
-            contest_problem = ContestProblem.objects.select_for_update().get(contest=contest, id=self.submission.problem_id)
+            contest_problem = ContestProblem.objects.select_for_update().get(contest=contest,
+                                                                             id=self.submission.problem_id)
 
             contest_problem.add_submission_number()
 

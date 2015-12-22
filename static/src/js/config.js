@@ -70,7 +70,6 @@ var require = {
         addContest_13_pack: "app/admin/contest/addContest",
         contestPassword_14_pack: "app/oj/contest/contestPassword",
         changePassword_15_pack: "app/oj/account/changePassword",
-        monitor_16_pack: "app/admin/monitor/monitor",
         editProblem_17_pack: "app/admin/contest/editProblem",
         joinGroupRequestList_18_pack: "app/admin/group/joinGroupRequestList",
         group_19_pack: "app/oj/group/group",
