@@ -2,11 +2,15 @@
 import hashlib
 import time
 import random
+import logging
 
 from django.shortcuts import render
 from django.core.paginator import Paginator
 
 from rest_framework.response import Response
+
+
+logger = logging.getLogger("app_info")
 
 
 def error_page(request, error_reason):
@@ -96,7 +100,8 @@ def paginate_data(request, query_set, object_serializer):
 def paginate(request, query_set, object_serializer=None):
     try:
         data= paginate_data(request, query_set, object_serializer)
-    except Exception:
+    except Exception as e:
+        logger.error(str(e))
         return error_response(u"参数错误")
     return success_response(data)
 

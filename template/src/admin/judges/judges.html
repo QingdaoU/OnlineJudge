@@ -1,0 +1,131 @@
+<div ms-controller="judges" class="col-md-9">
+    <h1>判题服务器管理</h1>
+    <table class="table table-striped">
+        <tr>
+            <th>编号</th>
+            <th>名字</th>
+            <th>最大实例数量</th>
+            <th>负载</th>
+            <th>创建时间</th>
+            <th>状态</th>
+            <th></th>
+        </tr>
+        <tr ms-repeat="judgesList">
+            <td>{{ el.id }}</td>
+            <td>{{ el.name }}</td>
+            <td>{{ el.max_instance_number }}</td>
+            <td>{{ el.workload }}</td>
+            <td>{{ el.create_time|date("yyyy-MM-dd HH:mm:ss")}}</td>
+            <td ms-text="el.status?'启用':'停用'"></td>
+            <td>
+                <button class="btn-sm btn-info" ms-click="editJudges(el)">编辑</button>
+            </td>
+        </tr>
+    </table>
+    <div class="form-group">
+        <label>仅显示启用 <input ms-duplex-checked="showEnableOnly" type="checkbox"/></label>
+    </div>
+    <div class="right">
+        <ms:pager $id="judgesPager" config="pager"></ms:pager>
+    </div>
+
+    <div ms-visible="isEditing">
+        <h3>编辑判题服务器</h3>
+
+        <form id="edit-judges-form">
+            <div class="col-md-12">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label>名字</label>
+                        <input name="title" type="text" class="form-control" placeholder="名字" maxlength="30" ms-duplex="name" required data-error="请填写合法的服务器名称">
+                        <div class="help-block with-errors"></div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label>口令</label>
+                        <input name="title" type="text" class="form-control" ms-duplex="token" placeholder="口令" maxlength="30" required data-error="请填写合法的口令">
+                        <div class="help-block with-errors"></div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label>IP</label>
+                        <input name="ip" type="text" class="form-control" ms-duplex="ipAddress" placeholder="IP" required data-error="请填写合法的IP地址">
+                        <div class="help-block with-errors"></div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label>端口</label>
+                        <input name="port" type="number" class="form-control" ms-duplex="port" placeholder="端口" required data-error="请填写合法的端口号">
+                        <div class="help-block with-errors"></div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label>最大实例数量</label>
+                        <input type="number" class="form-control" placeholder="最大实例数量" ms-duplex="max_instance_number" required data-error="请填写合法的最大实例数量">
+                        <div class="help-block with-errors"></div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>启用 <input ms-duplex-checked="status" type="checkbox"/></label>
+                </div>
+
+                <div class="form-group">
+                    <button class="btn btn-success">保存修改</button>
+                    &nbsp;&nbsp;
+                    <a ms-click="cancelEdit()" class="btn btn-danger">取消</a>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <h3>添加判题服务器</h3>
+
+    <form id="judges-form">
+        <div class="form-group">
+            <div class="col-md-12">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label>名字</label>
+                        <input name="title" type="text" class="form-control" id="name" placeholder="名字" maxlength="30" required data-error="请填写合法的服务器名称">
+                        <div class="help-block with-errors"></div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label>口令</label>
+                        <input name="title" type="text" class="form-control" id="token" placeholder="口令" maxlength="30" required data-error="请填写合法的口令">
+                        <div class="help-block with-errors"></div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label>IP</label>
+                        <input name="ip" type="text" class="form-control" id="ipAddress" placeholder="IP" required data-error="请填写合法的IP地址">
+                        <div class="help-block with-errors"></div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label>端口</label>
+                        <input name="port" type="number" class="form-control" id="port" placeholder="端口" required data-error="请填写合法的端口号">
+                        <div class="help-block with-errors"></div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label>最大实例数量</label>
+                        <input type="number" class="form-control" placeholder="最大实例数量" id="max_instance_number" required data-error="请填写合法的最大实例数量">
+                        <div class="help-block with-errors"></div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <button type="submit" class="btn btn-success">添加</button>
+                </div>
+            </div>
+    </form>
+</div>
+<script src="/static/js/app/admin/judges/judges.js"></script>

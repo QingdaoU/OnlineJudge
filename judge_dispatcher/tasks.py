@@ -32,7 +32,7 @@ class JudgeDispatcher(object):
         if servers.exists():
             return servers.first()
 
-    def judge(self, is_waiting_task=False):
+    def judge(self):
         self.submission.judge_start_time = int(time.time() * 1000)
 
         with transaction.atomic():
@@ -89,9 +89,9 @@ class JudgeDispatcher(object):
                 submission = Submission.objects.get(id=waiting_submission.submission_id)
                 waiting_submission.delete()
 
-                _judge(submission, time_limit=waiting_submission.time_limit,
-                       memory_limit=waiting_submission.memory_limit, test_case_id=waiting_submission.test_case_id,
-                       is_waiting_task=True)
+                _judge.delay(submission, time_limit=waiting_submission.time_limit,
+                             memory_limit=waiting_submission.memory_limit, test_case_id=waiting_submission.test_case_id,
+                             is_waiting_task=True)
 
     def update_problem_status(self):
         problem = Problem.objects.get(id=self.submission.problem_id)
@@ -113,13 +113,14 @@ class JudgeDispatcher(object):
         # 普通题目的话，到这里就结束了
 
     def update_contest_problem_status(self):
-        # 能运行到这里的都是比赛题目
+        # 能运行到这里的都是比赛题目a
         contest = Contest.objects.get(id=self.submission.contest_id)
         if contest.status != CONTEST_UNDERWAY:
             logger.info("Contest debug mode, id: " + str(contest.id) + ", submission id: " + self.submission.id)
             return
         with transaction.atomic():
-            contest_problem = ContestProblem.objects.select_for_update().get(contest=contest, id=self.submission.problem_id)
+            contest_problem = ContestProblem.objects.select_for_update().get(contest=contest,
+                                                                             id=self.submission.problem_id)
 
             contest_problem.add_submission_number()
 

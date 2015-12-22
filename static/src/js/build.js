@@ -54,31 +54,31 @@
         //以下都是页面 script 标签引用的js
         announcement_0_pack: "app/admin/announcement/announcement",
         userList_1_pack: "app/admin/user/userList",
-        problem_2_pack: "app/oj/problem/problem",
-        submissionList_3_pack: "app/admin/problem/submissionList",
-        contestCountdown_4_pack: "app/oj/contest/contestCountdown",
-        avatar_5_pack: "app/oj/account/avatar",
-        addProblem_6_pack: "app/admin/problem/addProblem",
-        problem_7_pack: "app/admin/problem/problem",
-        contestList_8_pack: "app/admin/contest/contestList",
-        admin_9_pack: "app/admin/admin",
-        login_10_pack: "app/oj/account/login",
-        applyResetPassword_11_pack: "app/oj/account/applyResetPassword",
-        addContest_12_pack: "app/admin/contest/addContest",
-        contestPassword_13_pack: "app/oj/contest/contestPassword",
-        changePassword_14_pack: "app/oj/account/changePassword",
-        monitor_15_pack: "app/admin/monitor/monitor",
-        editProblem_16_pack: "app/admin/contest/editProblem",
-        joinGroupRequestList_17_pack: "app/admin/group/joinGroupRequestList",
-        group_18_pack: "app/oj/group/group",
-        contestProblemList_19_pack: "app/admin/contest/contestProblemList",
-        editProblem_20_pack: "app/admin/problem/editProblem",
-        register_21_pack: "app/oj/account/register",
-        groupDetail_22_pack: "app/admin/group/groupDetail",
-        editContest_23_pack: "app/admin/contest/editContest",
-        resetPassword_24_pack: "app/oj/account/resetPassword",
-        group_25_pack: "app/admin/group/group",
-        settings_26_pack: "app/oj/account/settings"
+        twoFactorAuth_2_pack: "app/oj/account/twoFactorAuth",
+        problem_3_pack: "app/oj/problem/problem",
+        submissionList_4_pack: "app/admin/problem/submissionList",
+        contestCountdown_5_pack: "app/oj/contest/contestCountdown",
+        avatar_6_pack: "app/oj/account/avatar",
+        addProblem_7_pack: "app/admin/problem/addProblem",
+        problem_8_pack: "app/admin/problem/problem",
+        contestList_9_pack: "app/admin/contest/contestList",
+        admin_10_pack: "app/admin/admin",
+        login_11_pack: "app/oj/account/login",
+        applyResetPassword_12_pack: "app/oj/account/applyResetPassword",
+        addContest_13_pack: "app/admin/contest/addContest",
+        contestPassword_14_pack: "app/oj/contest/contestPassword",
+        changePassword_15_pack: "app/oj/account/changePassword",
+        editProblem_17_pack: "app/admin/contest/editProblem",
+        joinGroupRequestList_18_pack: "app/admin/group/joinGroupRequestList",
+        group_19_pack: "app/oj/group/group",
+        contestProblemList_20_pack: "app/admin/contest/contestProblemList",
+        editProblem_21_pack: "app/admin/problem/editProblem",
+        register_22_pack: "app/oj/account/register",
+        groupDetail_23_pack: "app/admin/group/groupDetail",
+        editContest_24_pack: "app/admin/contest/editContest",
+        resetPassword_25_pack: "app/oj/account/resetPassword",
+        group_26_pack: "app/admin/group/group",
+        settings_27_pack: "app/oj/account/settings"
     },
     shim: {
             avalon: {
@@ -96,79 +96,79 @@
             name: "userList_1_pack"
         },
         {
-            name: "problem_2_pack"
+            name: "twoFactorAuth_2_pack"
         },
         {
-            name: "submissionList_3_pack"
+            name: "problem_3_pack"
         },
         {
-            name: "contestCountdown_4_pack"
+            name: "submissionList_4_pack"
         },
         {
-            name: "avatar_5_pack"
+            name: "contestCountdown_5_pack"
         },
         {
-            name: "addProblem_6_pack"
+            name: "avatar_6_pack"
         },
         {
-            name: "problem_7_pack"
+            name: "addProblem_7_pack"
         },
         {
-            name: "contestList_8_pack"
+            name: "problem_8_pack"
         },
         {
-            name: "admin_9_pack"
+            name: "contestList_9_pack"
         },
         {
-            name: "login_10_pack"
+            name: "admin_10_pack"
         },
         {
-            name: "applyResetPassword_11_pack"
+            name: "login_11_pack"
         },
         {
-            name: "addContest_12_pack"
+            name: "applyResetPassword_12_pack"
         },
         {
-            name: "contestPassword_13_pack"
+            name: "addContest_13_pack"
         },
         {
-            name: "changePassword_14_pack"
+            name: "contestPassword_14_pack"
         },
         {
-            name: "monitor_15_pack"
+            name: "changePassword_15_pack"
         },
         {
-            name: "editProblem_16_pack"
+            name: "editProblem_17_pack"
         },
         {
-            name: "joinGroupRequestList_17_pack"
+            name: "joinGroupRequestList_18_pack"
         },
         {
-            name: "group_18_pack"
+            name: "group_19_pack"
         },
         {
-            name: "contestProblemList_19_pack"
+            name: "contestProblemList_20_pack"
         },
         {
-            name: "editProblem_20_pack"
+            name: "editProblem_21_pack"
         },
         {
-            name: "register_21_pack"
+            name: "register_22_pack"
         },
         {
-            name: "groupDetail_22_pack"
+            name: "groupDetail_23_pack"
         },
         {
-            name: "editContest_23_pack"
+            name: "editContest_24_pack"
         },
         {
-            name: "resetPassword_24_pack"
+            name: "resetPassword_25_pack"
         },
         {
-            name: "group_25_pack"
+            name: "group_26_pack"
         },
         {
-            name: "settings_26_pack"
+            name: "settings_27_pack"
         }
     ],
     optimizeCss: "standard",

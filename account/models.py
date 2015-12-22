@@ -40,6 +40,9 @@ class User(AbstractBaseUser):
     reset_password_token_create_time = models.DateTimeField(blank=True, null=True)
     # 论坛授权token
     auth_token = models.CharField(max_length=40, blank=True, null=True)
+    # 是否开启两步验证
+    two_factor_auth = models.BooleanField(default=False)
+    tfa_token = models.CharField(max_length=40, blank=True, null=True)
 
     USERNAME_FIELD = 'username'
     REQUIRED_FIELDS = []
