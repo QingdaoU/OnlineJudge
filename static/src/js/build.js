@@ -52,6 +52,7 @@
         //"_datetimePicker": "lib/datetime_picker/bootstrap-datetimepicker",
 
         //以下都是页面 script 标签引用的js
+        //以下都是页面 script 标签引用的js
         announcement_0_pack: "app/admin/announcement/announcement",
         userList_1_pack: "app/admin/user/userList",
         twoFactorAuth_2_pack: "app/oj/account/twoFactorAuth",
@@ -68,6 +69,7 @@
         addContest_13_pack: "app/admin/contest/addContest",
         contestPassword_14_pack: "app/oj/contest/contestPassword",
         changePassword_15_pack: "app/oj/account/changePassword",
+        judges_16_pack: "app/admin/judges/judges",
         editProblem_17_pack: "app/admin/contest/editProblem",
         joinGroupRequestList_18_pack: "app/admin/group/joinGroupRequestList",
         group_19_pack: "app/oj/group/group",
@@ -89,6 +91,11 @@
     appDir: "../",
     dir: "../../release/",
     modules: [
+        // 提交脚本提取的模块的时候不要删掉这个
+        {
+            name: "bootstrap",
+        },
+        /////////////////////////////////
         {
             name: "announcement_0_pack"
         },
@@ -136,6 +143,9 @@
         },
         {
             name: "changePassword_15_pack"
+        },
+        {
+            name: "judges_16_pack"
         },
         {
             name: "editProblem_17_pack"
