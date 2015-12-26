@@ -59,11 +59,13 @@
                                 </td>
                                 <td>{{ item.total_ac_number }} / {{ item.total_submission_number }}</td>
                                 <td>{% if item.total_time %}{{ item.total_time|format_seconds }}{% else %}--{% endif %}</td>
+                                {% autoescape off %}
                                 {% for problem in contest_problems %}
                                     <td class="{% get_submission_class item problem %}">
                                     {% get_submission_content item problem %}
                                     </td>
                                 {% endfor %}
+                                {% endautoescape %}
                             </tr>
                         {% endfor %}
                         </tbody>
