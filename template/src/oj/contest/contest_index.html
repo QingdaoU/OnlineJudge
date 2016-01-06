@@ -15,31 +15,13 @@
                 <a href="/contest/{{ contest.id }}/submissions/">提交</a>
             </li>
             <li role="presentation">
-                <a href="/contest/{{ contest.id }}/rank/?paging=true&page=1&page_size=40">排名</a>
+                <a href="/contest/{{ contest.id }}/rank/">排名</a>
             </li>
         </ul>
         {% include "oj/contest/_contest_header.html" %}
     </div>
 {% endblock %}
 {% block js_block %}
-    <script type="x-template" id="template">
-        {% if contest.status %}
-            <strong><span>距离比赛开始还有：</span></strong>
-        {% else %}
-            <strong><span>距离比赛结束还有：</span></strong>
-        {% endif %}
-        <div class="day-timer timer-section">
-            <span class="time">%d</span> <span>%td</span>
-        </div>
-        <div class="hour-timer timer-section">
-            <span class="time">%h</span><span>%th</span>
-        </div>
-        <div class="min-timer timer-section">
-            <span class="time">%i</span><span>%ti</span>
-        </div>
-        <div class="second-timer timer-section">
-            <span class="time">%s</span><span>%ts</span>
-        </div>
-    </script>
+    {% include "oj/contest/_countdown_template.html" %}
     <script src="/static/js/app/oj/contest/contestCountdown.js"></script>
 {% endblock %}
