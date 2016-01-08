@@ -152,7 +152,12 @@ LOGGING = {
         'app_info': {
             'handlers': ['app_info', "console"],
             'level': 'DEBUG',
-            'propagate': True
+            'propagate': true
+        },
+        'runserver_info': {
+            'handlers': ["console"],
+            'level': 'INFO',
+            'propagate': true
         },
         'django.request': {
             'handlers': ['django_error', 'console'],

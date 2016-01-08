@@ -3,6 +3,10 @@ import hashlib
 import re
 import os
 import shutil
+import logging
+
+
+logger = logging.getLogger('runserver_info')
 
 template_src_path = "template/src/"
 template_release_path = "template/release/"
@@ -10,9 +14,11 @@ template_release_path = "template/release/"
 static_src_path = "static/src/"
 static_release_path = "static/release/"
 
-print "Begin to compress js"
+
+logger.info('Begin to compress js')
+
 if os.system("node static/src/js/r.js -o static/src/js/build.js"):
-    print "Failed to compress js, exit"
+    logger.error('Failed to compress js, exit')
     exit()
 
 try:
@@ -54,11 +60,11 @@ def process(match):
         return match.group(0)
 
 
-print "Begin to add md5 stamp in html"
+logger.info('Begin to add md5 stamp in html')
 for root, dirs, files in os.walk(template_release_path):
     for name in files:
         html_path = os.path.join(root, name)
-        print "Processing: " + html_path
+        logger.info('Processing: ' + html_path)
         html_content = open(html_path, "r").read()
         js_replaced_html_content = re.sub(js_re, process, html_content)
         css_replaced_html_content = re.sub(css_re, process, js_replaced_html_content)
@@ -67,4 +73,4 @@ for root, dirs, files in os.walk(template_release_path):
         f.write(css_replaced_html_content)
         f.close()
 
-print "Done"
+logger.info('Done')

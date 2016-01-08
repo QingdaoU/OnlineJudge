@@ -1,16 +1,20 @@
 # coding=utf-8
-import hashlib
+import json
 import re
 import os
-import shutil
+import logging
+
+
+logger = logging.getLogger('runserver_info')
 
 template_src_path = "template/src/"
 
 total_file = []
 module_list = []
 
-print "\n\n-------------\n\n"
-print u"        //以下都是页面 script 标签引用的js"
+logger.info("\n\n-------------\n\n")
+logger.info(u"        //以下都是页面 script 标签引用的js")
+
 for root, dirs, files in os.walk(template_src_path):
     for name in files:
         html_path = os.path.join(root, name)
@@ -26,12 +30,16 @@ for item in set(total_file):
     module_name = item.replace("/static/js/", "").split("/")[-1].replace(".js", "") + "_" + str(i)
 
     module_list.append(module_name)
-    print "        " + module_name + "_pack" + ": \"" + item.replace("/static/js/", "").replace(".js", "") + "\","
+    logger.info("        " +
+                module_name + "_pack" +
+                ": \"" + item.replace("/static/js/", "").replace(".js", "") +
+                "\",")
     i += 1
 
-print "\n\n-------------\n\n"
+logger.info("\n\n-------------\n\n")
 
+result = []
 for item in module_list:
-    print "        {"
-    print "            name: \"" + item + "_pack\""
-    print "        },"
+    result.append({"name": item + "_pack"})
+
+logger.info(json.dumps(result, indent=4, separators=(',', ': ')))

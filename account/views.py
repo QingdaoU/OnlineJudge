@@ -20,7 +20,6 @@ from utils.otp_auth import OtpAuth
 
 from .tasks import _send_email
 
-from .decorators import login_required
 from .models import User, UserProfile
 
 from .serializers import (UserLoginSerializer, UserRegisterSerializer,
@@ -28,9 +27,10 @@ from .serializers import (UserLoginSerializer, UserRegisterSerializer,
                           UserSerializer, EditUserSerializer,
                           ApplyResetPasswordSerializer, ResetPasswordSerializer,
                           SSOSerializer, EditUserProfileSerializer,
-                          UserProfileSerializer, TwoFactorAuthCodeSerializer)
+                          TwoFactorAuthCodeSerializer)
 
-from .decorators import super_admin_required
+from .decorators import (login_required,
+                         LoginRequired, SuperAdminRequired)
 
 
 class UserLoginAPIView(APIView):
@@ -43,7 +43,6 @@ class UserLoginAPIView(APIView):
         serializer = UserLoginSerializer(data=request.data)
         if serializer.is_valid():
             data = serializer.data
-            print data
             user = auth.authenticate(username=data["username"], password=data["password"])
             # 用户名或密码错误的话 返回None
             if user:
@@ -118,7 +117,8 @@ class UserRegisterAPIView(APIView):
 
 
 class UserChangePasswordAPIView(APIView):
-    @login_required
+    permission_class = (LoginRequired, )
+
     def post(self, request):
         """
         用户修改密码json api接口
@@ -186,7 +186,8 @@ class EmailCheckAPIView(APIView):
 
 
 class UserAdminAPIView(APIView):
-    @super_admin_required
+    permission_class = (LoginRequired, SuperAdminRequired)
+
     def put(self, request):
         """
         用户编辑json api接口
@@ -218,7 +219,6 @@ class UserAdminAPIView(APIView):
         else:
             return serializer_invalid_response(serializer)
 
-    @super_admin_required
     def get(self, request):
         """
         用户分页json api接口
@@ -241,7 +241,8 @@ class UserAdminAPIView(APIView):
 
 
 class UserInfoAPIView(APIView):
-    @login_required
+    permission_class = (LoginRequired, )
+
     def get(self, request):
         """
         返回这个用户的个人信息
@@ -252,7 +253,8 @@ class UserInfoAPIView(APIView):
 
 
 class UserProfileAPIView(APIView):
-    @login_required
+    permission_class = (LoginRequired, )
+
     def get(self, request):
         """
         返回这个用户的个人信息
@@ -261,7 +263,6 @@ class UserProfileAPIView(APIView):
         """
         return success_response(UserSerializer(request.user).data)
 
-    @login_required
     def put(self, request):
         serializer = EditUserProfileSerializer(data=request.data)
         if serializer.is_valid():
@@ -302,7 +303,7 @@ class ApplyResetPasswordAPIView(APIView):
             except User.DoesNotExist:
                 return error_response(u"用户不存在")
             if user.reset_password_token_create_time and (
-                now() - user.reset_password_token_create_time).total_seconds() < 20 * 60:
+                    now() - user.reset_password_token_create_time).total_seconds() < 20 * 60:
                 return error_response(u"20分钟内只能找回一次密码")
             user.reset_password_token = rand_str()
             user.reset_password_token_create_time = now()
@@ -313,7 +314,7 @@ class ApplyResetPasswordAPIView(APIView):
             email_template = email_template.replace("{{ username }}", user.username). \
                 replace("{{ website_name }}", settings.WEBSITE_INFO["website_name"]). \
                 replace("{{ link }}", request.scheme + "://" + request.META[
-                'HTTP_HOST'] + "/reset_password/t/" + user.reset_password_token)
+                    'HTTP_HOST'] + "/reset_password/t/" + user.reset_password_token)
 
             _send_email.delay(settings.WEBSITE_INFO["website_name"],
                               user.email,
@@ -389,17 +390,19 @@ class SSOAPIView(APIView):
 
 
 def reset_password_page(request, token):
-    try:
-        user = User.objects.get(reset_password_token=token)
-    except User.DoesNotExist:
-        return error_page(request, u"链接已失效")
-    if (now() - user.reset_password_token_create_time).total_seconds() > 30 * 60:
-        return error_page(request, u"链接已过期")
-    return render(request, "oj/account/reset_password.html", {"user": user})
+    if request.method == 'POST':
+        try:
+            user = User.objects.get(reset_password_token=token)
+        except User.DoesNotExist:
+            return error_page(request, u"链接已失效")
+        if (now() - user.reset_password_token_create_time).total_seconds() > 30 * 60:
+            return error_page(request, u"链接已过期")
+        return render(request, "oj/account/reset_password.html", {"user": user})
 
 
 class TwoFactorAuthAPIView(APIView):
-    @login_required
+    permission_class = (LoginRequired, )
+
     def get(self, request):
         """
         获取绑定二维码
@@ -417,7 +420,6 @@ class TwoFactorAuthAPIView(APIView):
 
         return HttpResponse(buf.getvalue(), 'image/gif')
 
-    @login_required
     def post(self, request):
         """
         开启两步验证
@@ -435,7 +437,6 @@ class TwoFactorAuthAPIView(APIView):
         else:
             return serializer_invalid_response(serializer)
 
-    @login_required
     def put(self, request):
         serializer = TwoFactorAuthCodeSerializer(data=request.data)
         if serializer.is_valid():
