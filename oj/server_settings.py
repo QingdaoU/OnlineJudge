@@ -57,3 +57,13 @@ TEMPLATE_DIRS = [os.path.join(BASE_DIR, 'template/release/')]
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 SSO = {"callback": "https://discuss.acmer.site/login"}
+
+WEBSITE_INFO = {"website_name": "qduoj",
+                "website_footer": u"青岛大学信息工程学院 创新实验室 <a href=\"http://www.miibeian.gov.cn/\">京ICP备15062075号-1</a>",
+                "url": "https://qduoj.com"}
+
+
+SMTP_CONFIG = {"smtp_server": "smtp.mxhichina.com",
+               "email": "noreply@qduoj.com",
+               "password": os.environ.get("smtp_password", "111111"),
+               "tls": False}
