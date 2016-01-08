@@ -1,5 +1,4 @@
 # coding=utf-8
-import json
 from django.db import models
 
 from utils.xss_filter import XssHtml

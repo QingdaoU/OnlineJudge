@@ -40,7 +40,6 @@ class ProblemTagAdminAPIView(APIView):
     """
     获取所有标签的列表
     """
-
     def get(self, request):
         return success_response(ProblemTagSerializer(ProblemTag.objects.all(), many=True).data)
 

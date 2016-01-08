@@ -1,9 +1,10 @@
 # coding=utf-8
 import urllib
 import functools
-from functools import wraps
 
 from django.http import HttpResponseRedirect
+
+from rest_framework import permissions
 
 from utils.shortcuts import error_response
 from .models import SUPER_ADMIN, ADMIN
@@ -47,3 +48,15 @@ class super_admin_required(BasePermissionDecorator):
 class admin_required(BasePermissionDecorator):
     def check_permission(self):
         return self.request.user.is_authenticated() and self.request.user.admin_type in [SUPER_ADMIN, ADMIN]
+
+
+# Permission check for RESTful view
+
+class LoginRequired(permissions.BasePermission):
+    def has_permission(self, request, view):
+        return self.request.user.is_authenticated()
+
+
+class SuperAdminRequired(permissions.BasePermission):
+    def has_permission(self, request, view):
+        return self.request.user.admin_type in [SUPER_ADMIN, ADMIN]

@@ -27,7 +27,7 @@ class SubmissionhareSerializer(serializers.Serializer):
 
 
 class SubmissionRejudgeSerializer(serializers.Serializer):
-    submission_id  = serializers.CharField(max_length=40)
+    submission_id = serializers.CharField(max_length=40)
 
 
 class CreateContestSubmissionSerializer(serializers.Serializer):
@@ -35,5 +35,3 @@ class CreateContestSubmissionSerializer(serializers.Serializer):
     problem_id = serializers.IntegerField()
     language = serializers.IntegerField()
     code = serializers.CharField(max_length=20000)
-
-

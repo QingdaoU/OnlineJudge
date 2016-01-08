@@ -8,6 +8,7 @@ from django.shortcuts import render
 from django.core.paginator import Paginator
 
 from rest_framework.response import Response
+from rest_framework import status
 
 
 logger = logging.getLogger("app_info")
@@ -18,7 +19,7 @@ def error_page(request, error_reason):
 
 
 def error_response(error_reason):
-    return Response(data={"code": 1, "data": error_reason})
+    return Response(data={"code": 1, "data": error_reason}, status=status.HTTP_400_BAD_REQUEST)
 
 
 def serializer_invalid_response(serializer):
@@ -99,7 +100,7 @@ def paginate_data(request, query_set, object_serializer):
 
 def paginate(request, query_set, object_serializer=None):
     try:
-        data= paginate_data(request, query_set, object_serializer)
+        data = paginate_data(request, query_set, object_serializer)
     except Exception as e:
         logger.error(str(e))
         return error_response(u"参数错误")
