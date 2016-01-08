@@ -1,5 +1,4 @@
 FROM ubuntu:14.04
-MAINTAINER virusdefender<qduliyang@outlook.com>
 RUN mkdir /var/install/
 WORKDIR /var/install/
 ENV DEBIAN_FRONTEND noninteractive
