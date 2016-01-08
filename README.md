@@ -8,10 +8,7 @@ demo: https://qduoj.com
 
 TODO：
 
- - 将判题服务器改为 rpc 通信
- - 重构消息队列
  - 完善测试
- - 完善小组功能
 
 ![oj_previewindex.png][1]
 
