@@ -3,8 +3,10 @@ import json
 import logging
 
 import redis
+
 from django.shortcuts import render
 from django.core.paginator import Paginator
+from django.conf import settings
 from rest_framework.views import APIView
 
 from account.decorators import login_required, super_admin_required
@@ -13,6 +15,7 @@ from problem.models import Problem
 from contest.models import ContestProblem, Contest
 from contest.decorators import check_user_contest_permission
 from utils.shortcuts import serializer_invalid_response, error_response, success_response, error_page, paginate
+from utils.throttling import TokenBucket, BucketController
 from .tasks import _judge
 from .models import Submission
 from .serializers import (CreateSubmissionSerializer, SubmissionSerializer,
@@ -30,6 +33,20 @@ class SubmissionAPIView(APIView):
         ---
         request_serializer: CreateSubmissionSerializer
         """
+        controller = BucketController(user_id=request.user.id,
+                                      redis_conn=redis.Redis(host=settings.REDIS_CACHE["host"],
+                                                             port=settings.REDIS_CACHE["port"],
+                                                             db=settings.REDIS_CACHE["db"]),
+                                      default_capacity=settings.TOKEN_BUCKET_DEFAULT_CAPACITY)
+        bucket = TokenBucket(fill_rate=settings.TOKEN_BUCKET_FILL_RATE,
+                             capacity=settings.TOKEN_BUCKET_DEFAULT_CAPACITY,
+                             last_capacity=controller.last_capacity,
+                             last_timestamp=controller.last_timestamp)
+        if bucket.consume():
+            controller.last_capacity -= 1
+        else:
+            return error_response(u"您提交的频率过快, 请等待%d秒" % int(bucket.expected_time() + 1))
+
         serializer = CreateSubmissionSerializer(data=request.data)
         if serializer.is_valid():
             data = serializer.data
@@ -107,7 +124,7 @@ def problem_my_submissions_list_page(request, problem_id):
     except Problem.DoesNotExist:
         return error_page(request, u"问题不存在")
 
-    submissions = Submission.objects.filter(user_id=request.user.id, problem_id=problem.id,contest_id__isnull=True).\
+    submissions = Submission.objects.filter(user_id=request.user.id, problem_id=problem.id, contest_id__isnull=True). \
         order_by("-create_time"). \
         values("id", "result", "create_time", "accepted_answer_time", "language")
 

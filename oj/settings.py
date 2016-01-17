@@ -185,3 +185,8 @@ TEST_CASE_DIR = os.path.join(BASE_DIR, 'test_case/')
 
 IMAGE_UPLOAD_DIR = os.path.join(BASE_DIR, 'upload/')
 
+# 用于限制用户恶意提交大量代码
+TOKEN_BUCKET_DEFAULT_CAPACITY = 50
+
+# 单位:每分钟
+TOKEN_BUCKET_FILL_RATE = 2
