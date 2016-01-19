@@ -1,10 +1,13 @@
 # OnlineJudge
 
-基于 Python 和 Django的在线评测平台。
 
-文档：http://qingdaou.github.io/OnlineJudge/
+基于 Python 和 Django 的在线评测平台。
 
-demo: https://qduoj.com
+文档: http://qingdaou.github.io/OnlineJudge/
+
+Demo: https://qduoj.com
+
+License: The Star And Thank Author License
 
 TODO：
 
