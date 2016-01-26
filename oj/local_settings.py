@@ -43,7 +43,7 @@ ALLOWED_HOSTS = []
 STATICFILES_DIRS = [os.path.join(BASE_DIR, "static/src/"), BASE_DIR]
 
 # 模板文件夹
-TEMPLATE_DIRS = [os.path.join(BASE_DIR, 'template/src/')]
+OJ_TEMPLATE_DIRS = [os.path.join(BASE_DIR, 'template/src/')]
 
 SSO = {"callback": "http://localhost:8765/login"}
 

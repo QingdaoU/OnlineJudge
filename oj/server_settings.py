@@ -52,7 +52,7 @@ ALLOWED_HOSTS = ['*']
 STATICFILES_DIRS = [os.path.join(BASE_DIR, "static/release/"), os.path.join(BASE_DIR, "static/release/")]
 
 # 模板文件夹
-TEMPLATE_DIRS = [os.path.join(BASE_DIR, 'template/release/')]
+OJ_TEMPLATE_DIRS = [os.path.join(BASE_DIR, 'template/release/')]
 
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
