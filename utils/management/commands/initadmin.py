@@ -1,5 +1,5 @@
 # coding=utf-8
-from django.core.management.base import BaseCommand, CommandError
+from django.core.management.base import BaseCommand
 from account.models import User, SUPER_ADMIN, UserProfile
 from utils.shortcuts import rand_str
 
@@ -11,6 +11,6 @@ class Command(BaseCommand):
         user.set_password(rand_password)
         user.save()
         UserProfile.objects.create(user=user)
-        self.stdout.write("Successfully created super admin user.\nUsername: root\nPassword: %s\n"
-                          "Remember to change password and turn on two factors auth "
-                          "after installation." % rand_password)
+        self.stdout.write(self.style.SUCCESS("Successfully created super admin user.\nUsername: root\nPassword: %s\n"
+                                             "Remember to change password and turn on two factors auth "
+                                             "after installation." % rand_password))
