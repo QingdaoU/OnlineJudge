@@ -22,6 +22,8 @@ if ENV == "local":
 elif ENV == "server":
     from .server_settings import *
 
+from .custom_settings import *
+
 import djcelery
 djcelery.setup_loader()
 
@@ -30,10 +32,6 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.8/howto/deployment/checklist/
-
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'hzfp^8mbgapc&x%$#xv)0=t8s7_ilingw(q3!@h&2fty6v6fxz'
-
 
 # Application definition
 

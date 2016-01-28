@@ -64,3 +64,4 @@ tmp/
 test_case/
 release/
 upload/
+custom_settings.py

@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html>
-
+{% load website_info %}
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-    <title>青岛大学在线评测平台 - 首页</title>
+    <title>{% show_website_info "website_name" %} - 首页</title>
 
     <link href="/static/css/fullpage/jquery.fullPage.css" rel="stylesheet">
     <link rel="shortcut icon" href="/static/img/favicon.ico">
@@ -125,21 +125,12 @@
                 loopBottom: true
             });
         });
-
-        /*
-        var c = 0;
-
-        setInterval(function(){
-            //alert(1);
-            $("#section0").css("background-image", "url(/static/img/index/bg/bg" + (c++ % 4).toString() + ".jpg)")
-        }, 1000)
-        */
     </script>
 
 </head>
 <body>
 <div id="header">
-    <span id="name">qduoj</span>
+    <span id="name">{% show_website_info "website_name_shortcut" %}</span>
     <a href="/problems/">题目</a>&nbsp;&nbsp;
     <a href="/submissions/">提交</a>&nbsp;&nbsp;
     <a href="/contests/">比赛</a>&nbsp;&nbsp;
@@ -158,7 +149,7 @@
 <div id="fullpage">
     <div class="section" id="section0">
         <div class="index-section-text animated bounceInUp">
-            <h1>青岛大学 Online Judge</h1>
+            <h1>{% show_website_info "website_name" %}</h1>
 
             <h3>新的面貌，新的开始~</h3>
         </div>

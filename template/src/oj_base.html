@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="zh-cn">
+{% load website_info %}
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -8,7 +9,7 @@
     <link rel="shortcut icon" href="/static/img/favicon.ico">
     <title>
         {% block title %}
-            在线评测系统
+            {% show_website_info "website_name" %}
         {% endblock %}
     </title>
 
@@ -20,7 +21,7 @@
     {% block css_block %}{% endblock %}
     <!-- custom css end -->
 </head>
-{% load website_info %}
+
 
 <body>
 
@@ -40,7 +41,7 @@
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
             </button>
-            <a class="navbar-brand" href="/">{% show_website_info "website_name" %}</a>
+            <a class="navbar-brand" href="/">{% show_website_info "website_name_shortcut" %}</a>
         </div>
         <div id="navbar" class="navbar-collapse collapse">
             <ul class="nav navbar-nav">
@@ -49,7 +50,6 @@
                 <li><a href="/contests/">比赛</a></li>
                 <li><a href="/groups/">小组</a></li>
                 <li><a href="/about/">关于</a></li>
-                <li><a href="http://form.mikecrm.com/f.php?t=lREqa0">反馈</a></li>
             </ul>
             {% if request.user.is_authenticated %}
                 <ul class="nav navbar-nav navbar-right">

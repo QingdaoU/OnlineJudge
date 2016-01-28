@@ -3,7 +3,6 @@ import os
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-# 注意这是web 服务器访问的地址，判题端访问的地址不一定一样，因为可能不在一台机器上
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
@@ -44,16 +43,4 @@ STATICFILES_DIRS = [os.path.join(BASE_DIR, "static/src/"), BASE_DIR]
 
 # 模板文件夹
 OJ_TEMPLATE_DIRS = [os.path.join(BASE_DIR, 'template/src/')]
-
-SSO = {"callback": "http://localhost:8765/login"}
-
-WEBSITE_INFO = {"website_name": "qduoj",
-                "website_footer": u"青岛大学信息工程学院 创新实验室 <a href=\"http://www.miibeian.gov.cn/\">京ICP备15062075号-1</a>",
-                "url": "https://qduoj.com"}
-
-
-SMTP_CONFIG = {"smtp_server": "smtp.mxhichina.com",
-               "email": "noreply@qduoj.com",
-               "password": os.environ.get("smtp_password", "111111"),
-               "tls": False}
 

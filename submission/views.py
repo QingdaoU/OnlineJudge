@@ -180,7 +180,7 @@ def my_submission(request, submission_id):
     user = User.objects.get(id=submission.user_id)
     return render(request, "oj/submission/my_submission.html",
                   {"submission": submission, "problem": problem, "info": info,
-                   "user": user, "can_share": result["can_share"]})
+                   "user": user, "can_share": result["can_share"], "website_base_url": settings.WEBSITE_INFO["url"]})
 
 
 class SubmissionAdminAPIView(APIView):
