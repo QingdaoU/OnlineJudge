@@ -14,11 +14,3 @@ lrun_gid = 1002
 
 # judger工作目录
 judger_workspace = "/var/judger/"
-
-submission_db = {
-    "host": os.environ.get("MYSQL_PORT_3306_TCP_ADDR", "127.0.0.1"),
-    "port": 3306,
-    "db": "oj_submission",
-    "user": "root",
-    "password": os.environ.get("MYSQL_ENV_MYSQL_ROOT_PASSWORD", "root")
-}
