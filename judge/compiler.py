@@ -2,7 +2,6 @@
 import time
 import os
 import judger
-import commands
 from judge_exceptions import CompileError, JudgeClientError
 from logger import logger
 from settings import judger_workspace
@@ -14,11 +13,11 @@ def compile_(language_item, src_path, exe_path):
     compile_args = compile_command[1:]
     compiler_output_file = os.path.join(judger_workspace, str(time.time()) + ".out")
 
-    compile_result = judger.run(exe_path=compiler,
+    compile_result = judger.run(path=compiler,
                                 in_file="/dev/null",
                                 out_file=compiler_output_file,
                                 max_cpu_time=2000,
-                                max_memory=200000000,
+                                max_memory=2000000000,
                                 args=compile_args,
                                 env=["PATH=" + os.environ["PATH"]],
                                 use_sandbox=False)
