@@ -35,7 +35,7 @@ class JudgeInstanceRunner(object):
 
         # 编译
         try:
-            exe_path = compile_(language, src_path, judge_base_path)
+            exe_path = compile_(language, src_path, judge_base_path, judge_base_path)
         except Exception as e:
             shutil.rmtree(judge_base_path, ignore_errors=True)
             return {"code": 1, "data": {"error": str(e), "server": host_name}}
@@ -45,14 +45,14 @@ class JudgeInstanceRunner(object):
             client = JudgeClient(language_code=language_code,
                                  exe_path=exe_path,
                                  max_cpu_time=int(time_limit),
-                                 max_real_time=int(time_limit) * 2,
-                                 max_memory=int(memory_limit),
-                                 test_case_dir=judger_workspace + "test_case/" + test_case_id + "/")
+                                 max_memory=int(memory_limit) * 1024 * 1024,
+                                 test_case_dir=judger_workspace + "test_case/" + test_case_id + "/",
+                                 judge_base_path=judge_base_path)
             judge_result = {"result": result["accepted"], "info": client.run(),
                             "accepted_answer_time": None, "server": host_name}
 
             for item in judge_result["info"]:
-                if item["result"]:
+                if item["result"] != 0:
                     judge_result["result"] = item["result"]
                     break
             else:
