@@ -91,7 +91,7 @@ class JudgeClient(object):
                                 out_file=os.path.join(self._judge_base_path, str(test_case_id) + ".out"),
                                 args=execute_command[1:],
                                 env=["PATH=" + os.environ["PATH"]],
-                                use_sandbox=True)
+                                use_sandbox=self._language["use_sandbox"])
         if run_result["flag"] == 0:
             output_md5, r = self._compare_output(test_case_id)
             if r:
