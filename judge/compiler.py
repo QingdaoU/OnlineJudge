@@ -23,14 +23,17 @@ def compile_(language_item, src_path, exe_path, judge_base_path):
                                 use_sandbox=False)
 
     compile_output_handler = open(compiler_output_file)
-    compile_output = compile_output_handler.read()
+    compile_output = compile_output_handler.read().strip()
     compile_output_handler.close()
 
     if compile_result["flag"] != 0:
         logger.error("Compiler error")
         logger.error(compile_output)
         logger.error(str(compile_result))
-        raise CompileError("Compile error, info: " + str(compile_result))
+        if compile_output:
+            raise CompileError(compile_output)
+        else:
+            raise CompileError("Compile error, info: " + str(compile_result))
     else:
         if "error" in compile_output:
             raise CompileError(compile_output)
