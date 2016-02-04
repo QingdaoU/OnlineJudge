@@ -22,7 +22,7 @@ languages = {
         "name": "java",
         "src_name": "Main.java",
         "code": 3,
-        "compile_command": "/usr/bin/javac {src_path} -d {exe_path}",
+        "compile_command": "/usr/bin/javac {src_path} -d {exe_path} -encoding UTF8",
         "execute_command": "/usr/bin/java -cp {exe_path} -Djava.security.manager -Djava.security.policy==policy Main",
         "use_sandbox": False
     }
