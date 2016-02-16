@@ -1,7 +1,9 @@
 # coding=utf-8
 import os
 
-SECRET_KEY = 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'
+# please set your own SECRET_KEY to a long random string
+SECRET_KEY = None
+
 
 SSO = {"callback": "https://xxxxxxxxx/login"}
 
