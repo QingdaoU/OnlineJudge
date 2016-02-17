@@ -20,9 +20,55 @@ from .tasks import _judge
 from .models import Submission
 from .serializers import (CreateSubmissionSerializer, SubmissionSerializer,
                           SubmissionhareSerializer, SubmissionRejudgeSerializer,
-                          CreateContestSubmissionSerializer)
+                          CreateContestSubmissionSerializer, OpenAPICreateSubmissionSerializer)
 
 logger = logging.getLogger("app_info")
+
+
+def _submit_code(user, problem_id, language, code):
+    controller = BucketController(user_id=user.id,
+                                  redis_conn=redis.Redis(host=settings.REDIS_CACHE["host"],
+                                                         port=settings.REDIS_CACHE["port"],
+                                                         db=settings.REDIS_CACHE["db"]),
+                                  default_capacity=settings.TOKEN_BUCKET_DEFAULT_CAPACITY)
+    bucket = TokenBucket(fill_rate=settings.TOKEN_BUCKET_FILL_RATE,
+                         capacity=settings.TOKEN_BUCKET_DEFAULT_CAPACITY,
+                         last_capacity=controller.last_capacity,
+                         last_timestamp=controller.last_timestamp)
+    if bucket.consume():
+        controller.last_capacity -= 1
+    else:
+        return error_response(u"您提交的频率过快, 请等待%d秒" % int(bucket.expected_time() + 1))
+
+    try:
+        problem = Problem.objects.get(id=problem_id)
+    except Problem.DoesNotExist:
+        return error_response(u"题目不存在")
+    submission = Submission.objects.create(user_id=user.id,
+                                           language=language,
+                                           code=code,
+                                           problem_id=problem.id)
+
+    try:
+        _judge.delay(submission, problem.time_limit, problem.memory_limit, problem.test_case_id)
+    except Exception as e:
+        logger.error(e)
+        return error_response(u"提交判题任务失败")
+    return success_response({"submission_id": submission.id})
+
+
+class OpenAPISubmitCodeAPI(APIView):
+    def post(self, request):
+        serializer = OpenAPICreateSubmissionSerializer(data=request.data)
+        if serializer.is_valid():
+            data = serializer.data
+            try:
+                user = User.objects.get(openapi_appkey=data["appkey"])
+            except User.DoesNotExist:
+                return error_response(u"appkey无效")
+            return _submit_code(user, data["problem_id"], data["language"], data["code"])
+        else:
+            return serializer_invalid_response(serializer)
 
 
 class SubmissionAPIView(APIView):
@@ -33,38 +79,10 @@ class SubmissionAPIView(APIView):
         ---
         request_serializer: CreateSubmissionSerializer
         """
-        controller = BucketController(user_id=request.user.id,
-                                      redis_conn=redis.Redis(host=settings.REDIS_CACHE["host"],
-                                                             port=settings.REDIS_CACHE["port"],
-                                                             db=settings.REDIS_CACHE["db"]),
-                                      default_capacity=settings.TOKEN_BUCKET_DEFAULT_CAPACITY)
-        bucket = TokenBucket(fill_rate=settings.TOKEN_BUCKET_FILL_RATE,
-                             capacity=settings.TOKEN_BUCKET_DEFAULT_CAPACITY,
-                             last_capacity=controller.last_capacity,
-                             last_timestamp=controller.last_timestamp)
-        if bucket.consume():
-            controller.last_capacity -= 1
-        else:
-            return error_response(u"您提交的频率过快, 请等待%d秒" % int(bucket.expected_time() + 1))
-
         serializer = CreateSubmissionSerializer(data=request.data)
         if serializer.is_valid():
             data = serializer.data
-            try:
-                problem = Problem.objects.get(id=data["problem_id"])
-            except Problem.DoesNotExist:
-                return error_response(u"题目不存在")
-            submission = Submission.objects.create(user_id=request.user.id,
-                                                   language=int(data["language"]),
-                                                   code=data["code"],
-                                                   problem_id=problem.id)
-
-            try:
-                _judge.delay(submission, problem.time_limit, problem.memory_limit, problem.test_case_id)
-            except Exception as e:
-                logger.error(e)
-                return error_response(u"提交判题任务失败")
-            return success_response({"submission_id": submission.id})
+            return _submit_code(request.user, data["problem_id"], data["language"], data["code"])
         else:
             return serializer_invalid_response(serializer)
 

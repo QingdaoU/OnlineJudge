@@ -22,7 +22,7 @@ from admin.views import AdminTemplateView
 
 from problem.views import TestCaseUploadAPIView, ProblemTagAdminAPIView, ProblemAdminAPIView, OpenAPIProblemAPI
 from submission.views import (SubmissionAPIView, SubmissionAdminAPIView, ContestSubmissionAPIView,
-                              SubmissionShareAPIView, SubmissionRejudgeAdminAPIView)
+                              SubmissionShareAPIView, SubmissionRejudgeAdminAPIView, OpenAPISubmitCodeAPI)
 from judge_dispatcher.views import AdminJudgeServerAPIView
 from utils.views import SimditorImageUploadAPIView
 
@@ -99,6 +99,8 @@ urlpatterns = [
     url(r'^problems/(?P<page>\d+)/$', "problem.views.problem_list_page", name="problem_list_page"),
     url(r'^problem/(?P<problem_id>\d+)/submissions/$', "submission.views.problem_my_submissions_list_page",
         name="problem_my_submissions_page"),
+
+    url(r'^api/open/submission/$', OpenAPISubmitCodeAPI.as_view(), name="openapi_submit_code"),
 
     url(r'^submission/(?P<submission_id>\w+)/$', "submission.views.my_submission", name="my_submission_page"),
     url(r'^submissions/$', "submission.views.my_submission_list_page", name="my_submission_list_page"),
