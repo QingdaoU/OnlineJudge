@@ -7,6 +7,7 @@ import redis
 from django.shortcuts import render
 from django.core.paginator import Paginator
 from django.conf import settings
+from django.views.decorators.csrf import csrf_exempt
 from rest_framework.views import APIView
 
 from account.decorators import login_required, super_admin_required
@@ -20,7 +21,8 @@ from .tasks import _judge
 from .models import Submission
 from .serializers import (CreateSubmissionSerializer, SubmissionSerializer,
                           SubmissionhareSerializer, SubmissionRejudgeSerializer,
-                          CreateContestSubmissionSerializer, OpenAPICreateSubmissionSerializer)
+                          CreateContestSubmissionSerializer, OpenAPICreateSubmissionSerializer,
+                          OpenAPISubmissionSerializer)
 
 logger = logging.getLogger("app_info")
 
@@ -59,6 +61,9 @@ def _submit_code(user, problem_id, language, code):
 
 class OpenAPISubmitCodeAPI(APIView):
     def post(self, request):
+        """
+        openapi 创建提交
+        """
         serializer = OpenAPICreateSubmissionSerializer(data=request.data)
         if serializer.is_valid():
             data = serializer.data
@@ -69,6 +74,24 @@ class OpenAPISubmitCodeAPI(APIView):
             return _submit_code(user, data["problem_id"], data["language"], data["code"])
         else:
             return serializer_invalid_response(serializer)
+
+    def get(self, request):
+        """
+        openapi 获取提交详情
+        """
+        submission_id = request.GET.get("submission_id", None)
+        appkey = request.GET.get("appkey", None)
+        if not (submission_id and appkey):
+            return error_response(u"参数错误")
+        try:
+            user = User.objects.get(openapi_appkey=appkey)
+        except User.DoesNotExist:
+            return error_response(u"appkey无效")
+        try:
+            submission = Submission.objects.get(id=submission_id, user_id=user.id)
+            return success_response(SubmissionSerializer(submission).data)
+        except Submission.DoesNotExist:
+            return error_response(u"提交不存在")
 
 
 class SubmissionAPIView(APIView):

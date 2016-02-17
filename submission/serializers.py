@@ -29,6 +29,13 @@ class SubmissionSerializer(serializers.ModelSerializer):
         return User.objects.get(id=obj.user_id).username
 
 
+class OpenAPISubmissionSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Submission
+        fields = ["id", "result", "create_time", "language"]
+
+
 class SubmissionhareSerializer(serializers.Serializer):
     submission_id = serializers.CharField(max_length=40)
 
