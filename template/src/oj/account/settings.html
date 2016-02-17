@@ -92,6 +92,11 @@
 
                     <div class="help-block with-errors"></div>
                 </div>
+                <div class="form-group col-md-12">
+                    <label>OpenAPI Appkey(<a href="https://github.com/QingdaoU/OnlineJudgeOpenAPI" target="_blank">如何使用?</a>)</label>
+                    <input type="text" class="form-control"
+                           value="{% if request.user.openapi_appkey %}{{ request.user.openapi_appkey }}{% else %}功能未开启 请联系管理员{% endif %}" readonly>
+                </div>
 
                 <div class="form-group">
                     <button type="submit" class="btn btn-primary">提交</button>

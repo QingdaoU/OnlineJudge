@@ -69,16 +69,15 @@ class SSOSerializer(serializers.Serializer):
 
 
 class EditUserProfileSerializer(serializers.Serializer):
-
     avatar = serializers.CharField(max_length=50, required=False, default=None)
     blog = serializers.URLField(required=False, allow_blank=True, default='')
-    mood = serializers.CharField(max_length=60, required=False, default='')
+    mood = serializers.CharField(max_length=60, required=False, allow_blank=True, default='')
     hduoj_username = serializers.CharField(max_length=30, required=False, allow_blank=True, default='')
     bestcoder_username = serializers.CharField(max_length=30, required=False, allow_blank=True, default='')
     codeforces_username = serializers.CharField(max_length=30, required=False, allow_blank=True, default='')
     school = serializers.CharField(max_length=200, required=False, allow_blank=True, default='')
     phone_number = serializers.CharField(max_length=15, required=False, allow_blank=True, default='')
-    student_id = serializers.CharField(max_length=15, required=False, default="")
+    student_id = serializers.CharField(max_length=15, required=False, allow_blank=True, default="")
 
 
 class UserProfileSerializer(serializers.ModelSerializer):
