@@ -18,7 +18,7 @@ class Submission(models.Model):
     contest_id = models.IntegerField(blank=True, null=True)
     problem_id = models.IntegerField(db_index=True)
     # 这个字段可能存储很多数据 比如编译错误、系统错误的时候，存储错误原因字符串
-    # 正常运行的时候存储 lrun 的判题结果，比如cpu时间内存之类的
+    # 正常运行的时候存储判题结果，比如cpu时间内存之类的
     info = models.TextField(blank=True, null=True)
     accepted_answer_time = models.IntegerField(blank=True, null=True)
     # 这个字段只有在题目是accepted 的时候才会用到，比赛题目的提交可能还会有得分等信息，存储在这里面

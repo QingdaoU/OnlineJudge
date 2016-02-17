@@ -33,7 +33,7 @@ class OpenAPISubmissionSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Submission
-        fields = ["id", "result", "create_time", "language"]
+        fields = ["id", "result", "create_time", "language", "info"]
 
 
 class SubmissionhareSerializer(serializers.Serializer):
