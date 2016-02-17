@@ -89,7 +89,7 @@ class OpenAPISubmitCodeAPI(APIView):
             return error_response(u"appkey无效")
         try:
             submission = Submission.objects.get(id=submission_id, user_id=user.id)
-            return success_response(SubmissionSerializer(submission).data)
+            return success_response(OpenAPISubmissionSerializer(submission).data)
         except Submission.DoesNotExist:
             return error_response(u"提交不存在")
 
