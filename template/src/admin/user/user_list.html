@@ -48,7 +48,7 @@
                     <input name="id" type="number" class="form-control" readonly ms-duplex="userId">
                 </div>
                 <div class="form-group col-md-4"><label>用户名</label>
-                    <input name="username" type="text" class="form-control" ms-duplex="username"
+                    <input type="text" class="form-control" ms-duplex="username"
                            data-minlength="3" data-minlength-error="用户名不得少于3位" required>
                     <div class="help-block with-errors"></div>
                 </div>
@@ -60,12 +60,12 @@
             </div>
             <div class="row">
                 <div class="form-group col-md-4"><label>新密码（留空则保留原密码）</label>
-                    <input name="password" type="password" class="form-control" id="password" autocomplete="off"
+                    <input type="password" class="form-control" autocomplete="off"
                            placeholder="此项留空则保留原密码" data-minlength="6" data-minlength-error="密码不得少于6位">
                     <div class="help-block with-errors"></div>
                 </div>
                 <div class="form-group col-md-4"><label>电子邮箱</label>
-                    <input name="email" type="email" class="form-control" ms-duplex="email"
+                    <input type="email" class="form-control" ms-duplex="email"
                            data-error="请填写邮箱地址(并保证是正确的邮箱格式)" required>
                     <div class="help-block with-errors"></div>
                 </div>
@@ -73,6 +73,16 @@
                     <select name="admin_type" class="form-control" ms-duplex="adminType">
                         <option ms-repeat="userType" ms-attr-value="$index">{{ el }}</option>
                     </select>
+                </div>
+            </div>
+            <div class="row">
+                <div class="form-group col-md-3">
+                    <label>是否开放API功能</label>
+                    <input name="openapi" type="checkbox" class="form-control" ms-duplex-checked="openAPI">
+                </div>
+                <div class="form-group col-md-3">
+                    <label>两步验证</label>
+                    <input name="tfa_auth" type="checkbox" class="form-control" ms-duplex-checked="tfa_auth">
                 </div>
             </div>
             <div class="form-group">

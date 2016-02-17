@@ -210,8 +210,24 @@ class UserAdminAPIView(APIView):
             user.real_name = data["real_name"]
             user.email = data["email"]
             user.admin_type = data["admin_type"]
+
             if data["password"]:
                 user.set_password(data["password"])
+
+            # 后台控制用户是否可以使用openapi
+            if data["openapi"] is False:
+                user.openapi_appkey = None
+            elif data["openapi"] and user.openapi_appkey is None:
+                user.openapi_appkey = rand_str()
+
+            # 后台控制用户是否使用两步验证
+            # 注意:用户没开启,后台开启的话,用户没有绑定过两步验证token,会造成无法登陆的!
+            if data["tfa_auth"] is False:
+                user.two_factor_auth = False
+            elif data["tfa_auth"] and user.two_factor_auth is False:
+                user.two_factor_auth = True
+                user.tfa_token = rand_str()
+
             user.save()
             return success_response(UserSerializer(user).data)
         else:
@@ -368,8 +384,9 @@ class SSOAPIView(APIView):
                 user = User.objects.get(auth_token=serializer.data["token"])
                 user.auth_token = None
                 user.save()
-                return success_response(
-                    {"username": user.username, "admin_type": user.admin_type, "avatar": user.userprofile.avatar})
+                return success_response({"username": user.username,
+                                         "admin_type": user.admin_type,
+                                         "avatar": user.userprofile.avatar})
             except User.DoesNotExist:
                 return error_response(u"用户不存在")
         else:

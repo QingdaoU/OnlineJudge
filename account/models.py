@@ -5,10 +5,6 @@ from django.contrib.auth.models import AbstractBaseUser
 from jsonfield import JSONField
 
 
-class AdminGroup(models.Model):
-    pass
-
-
 class UserManager(models.Manager):
     use_in_migrations = True
 
@@ -38,11 +34,13 @@ class User(AbstractBaseUser):
     reset_password_token = models.CharField(max_length=40, blank=True, null=True)
     # token 生成时间
     reset_password_token_create_time = models.DateTimeField(blank=True, null=True)
-    # 论坛授权token
+    # SSO授权token
     auth_token = models.CharField(max_length=40, blank=True, null=True)
     # 是否开启两步验证
     two_factor_auth = models.BooleanField(default=False)
     tfa_token = models.CharField(max_length=40, blank=True, null=True)
+    # open api key
+    openapi_appkey = models.CharField(max_length=35, blank=True, null=True)
 
     USERNAME_FIELD = 'username'
     REQUIRED_FIELDS = []

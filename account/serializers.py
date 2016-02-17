@@ -38,7 +38,8 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ["id", "username", "real_name", "email", "admin_type", "create_time", "last_login"]
+        fields = ["id", "username", "real_name", "email", "admin_type",
+                  "create_time", "last_login", "two_factor_auth", "openapi_appkey"]
 
 
 class EditUserSerializer(serializers.Serializer):
@@ -48,6 +49,8 @@ class EditUserSerializer(serializers.Serializer):
     password = serializers.CharField(max_length=30, min_length=6, required=False, default=None)
     email = serializers.EmailField(max_length=254)
     admin_type = serializers.IntegerField(default=0)
+    openapi = serializers.BooleanField()
+    tfa_auth = serializers.BooleanField()
 
 
 class ApplyResetPasswordSerializer(serializers.Serializer):
