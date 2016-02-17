@@ -13,12 +13,12 @@ from django.utils.timezone import now
 from django.conf import settings
 from rest_framework.views import APIView
 
-from account.models import SUPER_ADMIN
+from account.models import SUPER_ADMIN, User
 from account.decorators import super_admin_required
 from utils.shortcuts import (serializer_invalid_response, error_response,
                              success_response, paginate, rand_str, error_page)
 from .serizalizers import (CreateProblemSerializer, EditProblemSerializer, ProblemSerializer,
-                           ProblemTagSerializer)
+                           ProblemTagSerializer, OpenAPIProblemSerializer)
 from .models import Problem, ProblemTag
 from .decorators import check_user_problem_permission
 
@@ -34,6 +34,26 @@ def problem_page(request, problem_id):
     except Problem.DoesNotExist:
         return error_page(request, u"题目不存在")
     return render(request, "oj/problem/problem.html", {"problem": problem, "samples": json.loads(problem.samples)})
+
+
+class OpenAPIProblemAPI(APIView):
+    def get(sell, request):
+        """
+        openapi 获取题目内容
+        """
+        problem_id = request.GET.get("problem_id", None)
+        appkey = request.GET.get("appkey", None)
+        if not (problem_id and appkey):
+            return error_response(u"参数错误")
+        try:
+            User.objects.get(openapi_appkey=appkey)
+        except User.DoesNotExist:
+            return error_response(u"appkey无效")
+        try:
+            problem = Problem.objects.get(id=problem_id, visible=True)
+        except Problem.DoesNotExist:
+            return error_page(request, u"题目不存在")
+        return success_response(OpenAPIProblemSerializer(problem).data)
 
 
 class ProblemTagAdminAPIView(APIView):

@@ -20,7 +20,7 @@ from group.views import (GroupAdminAPIView, GroupMemberAdminAPIView,
 
 from admin.views import AdminTemplateView
 
-from problem.views import TestCaseUploadAPIView, ProblemTagAdminAPIView, ProblemAdminAPIView
+from problem.views import TestCaseUploadAPIView, ProblemTagAdminAPIView, ProblemAdminAPIView, OpenAPIProblemAPI
 from submission.views import (SubmissionAPIView, SubmissionAdminAPIView, ContestSubmissionAPIView,
                               SubmissionShareAPIView, SubmissionRejudgeAdminAPIView)
 from judge_dispatcher.views import AdminJudgeServerAPIView
@@ -91,6 +91,8 @@ urlpatterns = [
 
     url(r'^contests/$', "contest.views.contest_list_page", name="contest_list_page"),
     url(r'^contests/(?P<page>\d+)/$', "contest.views.contest_list_page", name="contest_list_page"),
+
+    url(r'^api/open/problem/$', OpenAPIProblemAPI.as_view(), name="openapi_problem_api"),
 
     url(r'^problem/(?P<problem_id>\d+)/$', "problem.views.problem_page", name="problem_page"),
     url(r'^problems/$', "problem.views.problem_list_page", name="problem_list_page"),
