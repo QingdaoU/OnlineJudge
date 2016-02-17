@@ -3,6 +3,13 @@
 
 基于 Python 和 Django 的在线评测平台。
 
+主要特点:
+ 
+ - 基于 Docker，急速部署
+ - 超级管理员管理全局，普通管理员任意创建小组和小组内比赛，方便布置作业和考试使用
+ - 提供 Virtual Judge 使用 API，不再繁琐的进行模拟登陆
+ - 后台管理判题服务器，轻松分离 web 和判题服务器
+
 文档: http://qingdaou.github.io/OnlineJudge/
 
 Demo: https://qduoj.com
