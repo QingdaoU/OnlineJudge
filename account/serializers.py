@@ -65,6 +65,7 @@ class ResetPasswordSerializer(serializers.Serializer):
 
 
 class SSOSerializer(serializers.Serializer):
+    appkey = serializers.CharField(max_length=35)
     token = serializers.CharField(max_length=40)
 
 

@@ -327,8 +327,9 @@ class ApplyResetPasswordAPIView(APIView):
 
             email_template = email_template.replace("{{ username }}", user.username). \
                 replace("{{ website_name }}", settings.WEBSITE_INFO["website_name"]). \
-                replace("{{ link }}", request.scheme + "://" + request.META[
-                'HTTP_HOST'] + "/reset_password/t/" + user.reset_password_token)
+                replace("{{ link }}", request.scheme + "://"
+                        + request.META['HTTP_HOST'] + "/reset_password/t/" +
+                        user.reset_password_token)
 
             _send_email.delay(settings.WEBSITE_INFO["website_name"],
                               user.email,
@@ -381,10 +382,15 @@ class SSOAPIView(APIView):
         serializer = SSOSerializer(data=request.data)
         if serializer.is_valid():
             try:
+                User.objects.get(openapi_appkey=serializer.data["appkey"])
+            except User.DoesNotExist:
+                return error_response(u"appkey无效")
+            try:
                 user = User.objects.get(auth_token=serializer.data["token"])
                 user.auth_token = None
                 user.save()
                 return success_response({"username": user.username,
+                                         "id": user.id,
                                          "admin_type": user.admin_type,
                                          "avatar": user.userprofile.avatar})
             except User.DoesNotExist:
@@ -395,7 +401,7 @@ class SSOAPIView(APIView):
     @login_required
     def get(self, request):
         callback = request.GET.get("callback", None)
-        if not callback or callback != settings.SSO["callback"]:
+        if not callback:
             return error_page(request, u"参数错误")
         token = rand_str()
         request.user.auth_token = token

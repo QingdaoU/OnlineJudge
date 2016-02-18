@@ -5,12 +5,10 @@ import os
 SECRET_KEY = None
 
 
-SSO = {"callback": "https://xxxxxxxxx/login"}
-
-WEBSITE_INFO = {"website_name": u"xx大学 OnlineJudge",
-                "website_name_shortcut": u"qduoj",
-                "website_footer": u"xx大学xx学院<a href=\"http://www.miibeian.gov.cn/\">京ICP备xxxxx号-1</a>",
-                "url": u"https://your-domain.com"}
+WEBSITE_INFO = {"website_name": u"example大学 OnlineJudge",
+                "website_name_shortcut": u"example oj",
+                "website_footer": u"example大学信息学院<a href=\"http://www.miibeian.gov.cn/\">京ICP备xxxxx号-1</a>",
+                "url": u"https://your-domain-or-ip.com"}
 
 
 SMTP_CONFIG = {"smtp_server": "smtp.xxx.com",
