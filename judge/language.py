@@ -6,7 +6,7 @@ languages = {
         "name": "c",
         "src_name": "main.c",
         "code": 1,
-        "compile_command": "/usr/bin/gcc -DONLINE_JUDGE -O2 -w -std=c99 {src_path} -lm -o {exe_path}/main",
+        "compile_command": "/usr/bin/gcc -DONLINE_JUDGE -O2 -w -fmax-errors=3 -std=c99 {src_path} -lm -o {exe_path}/main",
         "execute_command": "{exe_path}/main",
         "use_sandbox": True
     },
@@ -14,7 +14,7 @@ languages = {
         "name": "cpp",
         "src_name": "main.cpp",
         "code": 2,
-        "compile_command": "/usr/bin/g++ -DONLINE_JUDGE -O2 -w -std=c++11 {src_path} -lm -o {exe_path}/main",
+        "compile_command": "/usr/bin/g++ -DONLINE_JUDGE -O2 -w -fmax-errors=3 -std=c++11 {src_path} -lm -o {exe_path}/main",
         "execute_command": "{exe_path}/main",
         "use_sandbox": True
     },
