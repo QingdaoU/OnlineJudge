@@ -11,4 +11,5 @@ RUN apt-get -y install nodejs
 ADD gunicorn.conf /etc
 ADD supervisord.conf /etc
 ADD task_queue.conf /etc
+EXPOSE 8080
 CMD bash /code/dockerfiles/oj_web_server/run.sh
