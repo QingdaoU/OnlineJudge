@@ -290,7 +290,7 @@ def problem_list_page(request, page=1):
     problems = Problem.objects.filter(visible=True)
 
     # 搜索的情况
-    keyword = request.GET.get("keyword", None)
+    keyword = request.GET.get("keyword", "").strip()
     if keyword:
         problems = problems.filter(Q(title__contains=keyword) | Q(description__contains=keyword))
 

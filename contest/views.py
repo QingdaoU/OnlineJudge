@@ -399,7 +399,7 @@ def contest_list_page(request, page=1):
     contests = Contest.objects.filter(visible=True).order_by("-create_time")
 
     # 搜索的情况
-    keyword = request.GET.get("keyword", None)
+    keyword = request.GET.get("keyword", "").strip()
     if keyword:
         contests = contests.filter(Q(title__contains=keyword) | Q(description__contains=keyword))
 
