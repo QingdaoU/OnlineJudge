@@ -18,12 +18,8 @@ oj_web_server:
     links:
         - redis:redis
         - mysql:mysql
-    depends_on:
-        - redis
-        - mysql
     ports:
         - "127.0.0.1:8080:8080"
     environment:
         - oj_env=server
-        - smtp_password={YOUR_PASSWORD}
         - MYSQL_ENV_MYSQL_USER=root
