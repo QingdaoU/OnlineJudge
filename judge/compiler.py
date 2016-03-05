@@ -20,7 +20,8 @@ def compile_(language_item, src_path, exe_path, judge_base_path):
                                 max_memory=2000000000,
                                 args=compile_args,
                                 env=["PATH=" + os.environ["PATH"]],
-                                use_sandbox=False)
+                                use_sandbox=False,
+                                use_nobody=True)
 
     compile_output_handler = open(compiler_output_file)
     compile_output = compile_output_handler.read().strip()
