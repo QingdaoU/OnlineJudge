@@ -7,6 +7,11 @@
             </ul>
         </nav>
 
+        <div class="form-group col-md-12" ms-if="isVJ">
+            <label>OJ</label>
+            <a ms-attr-href="VJProblemUrl" target="_blank">{{ VJProblemUrl }}</a>
+        </div>
+
         <div class="form-group col-md-3">
             <label>题目编号</label>
             <input type="text" name="title" autofocus class="form-control" ms-duplex="sortIndex"

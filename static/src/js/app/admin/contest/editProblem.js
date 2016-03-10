@@ -114,6 +114,7 @@ require(["jquery", "avalon", "editor", "uploader", "bsAlert",
                     testCaseId: "",
                     testCaseList: [],
                     isVJ: false,
+                    VJProblemUrl: "",
 
                     contestProblemDescriptionEditor: {
                         editorId: "contest-problem-description-editor",
@@ -187,6 +188,7 @@ require(["jquery", "avalon", "editor", "uploader", "bsAlert",
                             vm.inputDescription = problem.input_description;
                             vm.outputDescription = problem.output_description;
                             vm.isVJ = problem.test_case_id == null;
+                            vm.VJProblemUrl = problem.vj_problem_url;
                             // vj题目不需要上传数据
                             if (!vm.isVJ) {
                                 avalon.vmodels.testCaseUploader.setTestCase(problem.test_case_id);
