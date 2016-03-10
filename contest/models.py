@@ -67,6 +67,11 @@ class ContestProblem(AbstractProblem):
     sort_index = models.CharField(max_length=30)
     # 是否已经公开了题目，防止重复公开
     is_public = models.BooleanField(default=False)
+    spj = models.BooleanField(default=False)
+    # 如果是vj题目才会使用
+    vj_name = models.CharField(max_length=20, blank=True, null=True)
+    vj_problem_id = models.CharField(max_length=40, blank=True, null=True)
+    vj_problem_url = models.URLField(blank=True, null=True)
 
     class Meta:
         db_table = "contest_problem"

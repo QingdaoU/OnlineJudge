@@ -20,7 +20,7 @@
             <td></td>
         </tr>
         <tr ms-repeat="problemList">
-            <td>{{ el.sort_index }}</td>
+            <td><span ms-if="el.vj_name" class="glyphicon glyphicon-send" title="Virtual Judge"></span> {{ el.sort_index }}</td>
             <td>{{ el.title }}</td>
             <td>{{ el.create_time|date("yyyy-MM-dd HH:mm:ss")}}</td>
             <td ms-text="el.visible?'可见':'不可见'"></td>

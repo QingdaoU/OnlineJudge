@@ -105,9 +105,26 @@ class EditContestProblemSerializer(serializers.Serializer):
     hint = serializers.CharField(max_length=3000, allow_blank=True)
     visible = serializers.BooleanField()
     sort_index = serializers.CharField(max_length=30)
-    score = serializers.IntegerField(required=False, default=0)
 
 
 class ContestPasswordVerifySerializer(serializers.Serializer):
     contest_id = serializers.IntegerField()
     password = serializers.CharField(max_length=30)
+
+
+class CreateContestVJProblemSerializer(serializers.Serializer):
+    contest_id = serializers.IntegerField()
+    oj = serializers.CharField(max_length=30)
+    url = serializers.URLField()
+
+
+class EditContestVJProblemSerializer(serializers.Serializer):
+    id = serializers.IntegerField()
+    title = serializers.CharField(max_length=50)
+    description = serializers.CharField(max_length=10000)
+    input_description = serializers.CharField(max_length=10000)
+    output_description = serializers.CharField(max_length=10000)
+    samples = ContestProblemSampleSerializer()
+    hint = serializers.CharField(max_length=3000, allow_blank=True)
+    visible = serializers.BooleanField()
+    sort_index = serializers.CharField(max_length=30)

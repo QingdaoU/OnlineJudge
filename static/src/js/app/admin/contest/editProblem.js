@@ -8,18 +8,25 @@ require(["jquery", "avalon", "editor", "uploader", "bsAlert",
                 .on('submit', function (e) {
                     if (!e.isDefaultPrevented()) {
                         e.preventDefault();
-                        if (!avalon.vmodels.testCaseUploader.uploaded) {
-                            bsAlert("你还没有上传测试数据!");
-                            return false;
+                        if(!vm.isVJ) {
+                            if (!avalon.vmodels.testCaseUploader.uploaded) {
+                                bsAlert("你还没有上传测试数据!");
+                                return false;
+                            }
+                            if (vm.timeLimit < 30 || vm.timeLimit > 5000) {
+                                bsAlert("保证时间限制是一个30-5000的合法整数");
+                                return false;
+                            }
+                            if (vm.memoryLimit < 32) {
+                                bsAlert("内存不得小于32M");
+                                return false;
+                            }
                         }
                         if (avalon.vmodels.contestProblemDescriptionEditor.content == "") {
                             bsAlert("题目描述不能为空!");
                             return false;
                         }
-                        if (vm.timeLimit < 30 || vm.timeLimit > 5000) {
-                            bsAlert("保证时间限制是一个30-5000的合法整数");
-                            return false;
-                        }
+
                         if (vm.samples.length == 0) {
                             bsAlert("请至少添加一组样例!");
                             return false;
@@ -55,6 +62,13 @@ require(["jquery", "avalon", "editor", "uploader", "bsAlert",
                             var alertContent = "题目创建成功";
                         }
 
+                        if(vm.isVJ) {
+                            var url = "/api/admin/contest_vj_problem/";
+                        }
+                        else {
+                            var url = "/api/admin/contest_problem/";
+                        }
+
                         for (var i = 0; i < vm.samples.$model.length; i++) {
                             ajaxData.samples.push({
                                 input: vm.samples.$model[i].input,
@@ -64,7 +78,7 @@ require(["jquery", "avalon", "editor", "uploader", "bsAlert",
 
                         $.ajax({
                             beforeSend: csrfTokenHeader,
-                            url: "/api/admin/contest_problem/",
+                            url: url,
                             dataType: "json",
                             data: JSON.stringify(ajaxData),
                             method: method,
@@ -99,6 +113,7 @@ require(["jquery", "avalon", "editor", "uploader", "bsAlert",
                     outputDescription: "",
                     testCaseId: "",
                     testCaseList: [],
+                    isVJ: false,
 
                     contestProblemDescriptionEditor: {
                         editorId: "contest-problem-description-editor",
@@ -147,6 +162,7 @@ require(["jquery", "avalon", "editor", "uploader", "bsAlert",
                 vm.outputDescription = "";
                 vm.testCaseId = "";
                 vm.testCaseList = [];
+                vm.isVJ = false;
             }
 
             if (avalon.vmodels.admin.contestProblemStatus == "edit") {
@@ -170,8 +186,11 @@ require(["jquery", "avalon", "editor", "uploader", "bsAlert",
                             vm.visible = problem.visible;
                             vm.inputDescription = problem.input_description;
                             vm.outputDescription = problem.output_description;
-                            vm.score = problem.score;
-                            avalon.vmodels.testCaseUploader.setTestCase(problem.test_case_id);
+                            vm.isVJ = problem.test_case_id == null;
+                            // vj题目不需要上传数据
+                            if (!vm.isVJ) {
+                                avalon.vmodels.testCaseUploader.setTestCase(problem.test_case_id);
+                            }
                             vm.samples = [];
                             for (var i = 0; i < problem.samples.length; i++) {
                                 vm.samples.push({

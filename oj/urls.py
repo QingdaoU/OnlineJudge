@@ -13,7 +13,7 @@ from announcement.views import AnnouncementAdminAPIView
 
 from contest.views import (ContestAdminAPIView, ContestProblemAdminAPIView,
                            ContestPasswordVerifyAPIView, ContestTimeAPIView,
-                           MakeContestProblemPublicAPIView)
+                           MakeContestProblemPublicAPIView, ContestVJProblemAPIView)
 
 from group.views import (GroupAdminAPIView, GroupMemberAdminAPIView,
                          JoinGroupAPIView, JoinGroupRequestAdminAPIView, GroupPrometAdminAPIView)
@@ -65,6 +65,7 @@ urlpatterns = [
 
     url(r'^api/admin/problem/$', ProblemAdminAPIView.as_view(), name="problem_admin_api"),
     url(r'^api/admin/contest_problem/$', ContestProblemAdminAPIView.as_view(), name="contest_problem_admin_api"),
+    url(r'^api/admin/contest_vj_problem/$', ContestVJProblemAPIView.as_view(), name="contest_vj_problem_admin_api"),
     url(r'^api/admin/contest_problem/public/', MakeContestProblemPublicAPIView.as_view(),
         name="make_contest_problem_public"),
     url(r'^api/admin/test_case_upload/$', TestCaseUploadAPIView.as_view(), name="test_case_upload_api"),

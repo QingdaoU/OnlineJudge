@@ -25,21 +25,23 @@ require(["jquery", "avalon", "csrfToken", "bsAlert"], function ($, avalon, csrfT
                 },
 
                 makeProblemPublic: function(problem){
-                    $.ajax({
-                        url: "/api/admin/contest_problem/public/",
-                        method: "post",
-                        dataType: "json",
-                        data: {"problem_id": problem.id},
-                        success: function(response){
-                            if(response.code){
-                                bsAlert(response.data);
+                    if(confirm("您确定要公开题目么? 请勿在比赛未结束的时候公开题目。")) {
+                        $.ajax({
+                            url: "/api/admin/contest_problem/public/",
+                            method: "post",
+                            dataType: "json",
+                            data: {"problem_id": problem.id},
+                            success: function (response) {
+                                if (response.code) {
+                                    bsAlert(response.data);
+                                }
+                                else {
+                                    problem.is_public = true;
+                                    bsAlert("公开题目成功，现在处于隐藏状态，请添加标签难度等信息。");
+                                }
                             }
-                            else{
-                                problem.is_public = true;
-                                alert("公开题目成功，现在处于隐藏状态，请添加标签难度等信息。");
-                            }
-                        }
-                    })
+                        })
+                    }
                 }
             });
         }

@@ -29,14 +29,15 @@
         <div class="col-md-3">
             <div class="form-group"><label>时间限制(ms)</label>
                 <input type="number" name="timeLimit" class="form-control" ms-duplex="timeLimit"
-                       data-error="请输入时间限制(保证是一个30-5000的合法整数)" required>
+                       data-error="请输入时间限制(保证是一个30-5000的合法整数)" required ms-attr-disabled="isVJ">
                 <div class="help-block with-errors"></div>
             </div>
         </div>
         <div class="col-md-3">
             <div class="form-group"><label>内存限制(MB)</label>
-                <input type="number" name="memory" class="form-control" ms-duplex="memoryLimit"
-                       data-error="请输入内存限制(保证是一个合法整数)" required>
+                <input type="number" name="memory" class="form-control"
+                       title="非VJ的题目内存低于512M可能会造成Java代码无法启动" ms-duplex="memoryLimit"
+                       data-error="请输入内存限制(保证是一个合法整数)" required ms-attr-disabled="isVJ">
                 <div class="help-block with-errors"></div>
             </div>
         </div>
@@ -96,7 +97,9 @@
                 </div>
             </div>
         </div>
-        <ms:testcaseuploader $id="testCaseUploader"></ms:testcaseuploader>
+        <div ms-if="!isVJ">
+            <ms:testcaseuploader $id="testCaseUploader"></ms:testcaseuploader>
+        </div>
         <div class="form-group col-md-12">
             <label>提示</label>
             <ms:editor $id="contestProblemHintEditor" config="contestProblemHintEditor"></ms:editor>

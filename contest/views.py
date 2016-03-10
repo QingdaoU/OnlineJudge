@@ -1,7 +1,8 @@
 # coding=utf-8
 import json
 import datetime
-import redis
+import logging
+import requests
 
 from django.shortcuts import render
 from django.db import IntegrityError
@@ -28,7 +29,11 @@ from .decorators import check_user_contest_permission
 from .serializers import (CreateContestSerializer, ContestSerializer, EditContestSerializer,
                           CreateContestProblemSerializer, ContestProblemSerializer,
                           ContestPasswordVerifySerializer,
-                          EditContestProblemSerializer)
+                          EditContestProblemSerializer, CreateContestVJProblemSerializer,
+                          EditContestVJProblemSerializer)
+
+
+logger = logging.getLogger("app_info")
 
 
 class ContestAdminAPIView(APIView):
@@ -278,12 +283,98 @@ class ContestProblemAdminAPIView(APIView):
         return paginate(request, contest_problems, ContestProblemSerializer)
 
 
+class ContestVJProblemAPIView(APIView):
+    def post(self, request):
+        serializer = CreateContestVJProblemSerializer(data=request.data)
+        if serializer.is_valid():
+            data = serializer.data
+            try:
+                contest = Contest.objects.get(id=data["contest_id"])
+                if request.user.admin_type != SUPER_ADMIN:
+                    contest_set = Contest.objects.filter(groups__in=request.user.managed_groups.all())
+                    if contest not in contest_set:
+                        return error_response(u"比赛不存在")
+            except Contest.DoesNotExist:
+                return error_response(u"比赛不存在")
+
+            url = "http://127.0.0.1:8000/problem/?oj=%s&url=%s" % (data["oj"], data["url"])
+            try:
+                r = requests.get(url).json()
+            except Exception as e:
+                logger.error("Exception %s when fetching url: %s" % (str(e), url))
+                return error_response(u"请求VJ API失败")
+            if r["code"] == 0:
+                # 爬取完成
+                if r["data"]["status"] == 0:
+                    vj_problem = r["data"]
+                    try:
+                        ContestProblem.objects.get(contest=contest, vj_problem_id=vj_problem["id"])
+                        return error_response(u"该VJ题目已经存在")
+                    except ContestProblem.DoesNotExist:
+                        pass
+                    ContestProblem.objects.create(contest=contest,
+                                                  title=vj_problem["title"],
+                                                  description=vj_problem["description"],
+                                                  input_description=vj_problem["input_description"],
+                                                  output_description=vj_problem["output_description"],
+                                                  samples=json.dumps(vj_problem["samples"]),
+                                                  time_limit=vj_problem["time_limit"],
+                                                  memory_limit=vj_problem["memory_limit"],
+                                                  created_by=request.user,
+                                                  is_public=True,
+                                                  spj=vj_problem["spj"],
+                                                  hint=vj_problem["hint"],
+                                                  sort_index="_vj", vj_name=data["oj"],
+                                                  vj_problem_id=vj_problem["id"],
+                                                  vj_problem_url=data["url"])
+                    return success_response(r)
+                # 正在爬取
+                elif r["data"]["status"] == 1:
+                    return success_response({"status": 1})
+                # 失败
+                elif r["data"]["status"] == 2:
+                    return error_response(u"VJ 题目爬取失败")
+            else:
+                logger.error("VJ API return %s" % json.dumps(r))
+                return error_response(u"请求VJ API失败, 返回信息: " + r["data"])
+        else:
+            return serializer_invalid_response(serializer)
+
+    def put(self, request):
+        serializer = EditContestVJProblemSerializer(data=request.data)
+        if serializer.is_valid():
+            data = serializer.data
+
+            try:
+                contest_problem = ContestProblem.objects.get(id=data["id"])
+            except ContestProblem.DoesNotExist:
+                return error_response(u"该比赛题目不存在！")
+            contest = Contest.objects.get(id=contest_problem.contest_id)
+            if request.user.admin_type != SUPER_ADMIN and contest.created_by != request.user:
+                return error_response(u"比赛不存在")
+            contest_problem.title = data["title"]
+            contest_problem.description = data["description"]
+            contest_problem.input_description = data["input_description"]
+            contest_problem.output_description = data["output_description"]
+            contest_problem.samples = json.dumps(data["samples"])
+            contest_problem.hint = data["hint"]
+            contest_problem.visible = data["visible"]
+            contest_problem.sort_index = data["sort_index"]
+            contest_problem.last_update_time = now()
+            contest_problem.save()
+            return success_response(ContestProblemSerializer(contest_problem).data)
+        else:
+            return serializer_invalid_response(serializer)
+
+
 class MakeContestProblemPublicAPIView(APIView):
     @super_admin_required
     def post(self, request):
         problem_id = request.data.get("problem_id", -1)
         try:
             problem = ContestProblem.objects.get(id=problem_id)
+            if problem.is_public:
+                return error_response(u"题目已经公开")
             problem.is_public = True
             problem.save()
         except ContestProblem.DoesNotExist:
@@ -296,8 +387,6 @@ class MakeContestProblemPublicAPIView(APIView):
                                hint=problem.hint, created_by=problem.created_by,
                                time_limit=problem.time_limit, memory_limit=problem.memory_limit,
                                visible=False, difficulty=-1, source=problem.contest.title)
-        problem.is_public = True
-        problem.save()
         return success_response(u"创建成功")
 
 

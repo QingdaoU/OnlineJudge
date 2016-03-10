@@ -107,10 +107,9 @@ require(["jquery", "avalon", "editor", "uploader", "bsAlert", "csrfToken", "date
                     dataType: "json",
                     success: function (data) {
                         if (!data.code) {
-                            if (!data.data.length) {
-                                if (admin_type != 2)
+                            if (!data.data.length && admin_type != 2) {
                                     bsAlert("您的用户权限只能创建小组内比赛，但是您还没有创建过小组");
-                                return;
+                                    return;
                             }
                             vm.allGroups = [];
                             for (var i = 0; i < data.data.length; i++) {

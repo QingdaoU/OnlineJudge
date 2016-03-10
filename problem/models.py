@@ -24,7 +24,7 @@ class AbstractProblem(models.Model):
     # 样例输入 可能会存储 json 格式的数据
     samples = models.TextField(blank=True)
     # 测试用例id 这个id 可以用来拼接得到测试用例的文件存储位置
-    test_case_id = models.CharField(max_length=40)
+    test_case_id = models.CharField(max_length=40, blank=True, null=True)
     # 提示
     hint = RichTextField(blank=True, null=True)
     # 创建时间
