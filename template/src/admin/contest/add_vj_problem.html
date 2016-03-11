@@ -1,0 +1,41 @@
+<div class="col-md-9" ms-controller="addVJProblem">
+    <form>
+        <nav>
+            <ul class="pager">
+                <li class="previous" ms-click="goBack()"><a href="javascript:void(0)"><span
+                        aria-hidden="true">&larr;</span>返回</a></li>
+            </ul>
+        </nav>
+        <h2>创建Virtual Judge题目</h2>
+        <p>Virtual Judge是一种特殊的OJ系统。Virtual Judge系统本身并没有任何测试数据，
+            而是通过在其他OJ系统中的机器人账号进行提交并抓取结果。因此可以在只有题目而没有测试数据的前提下建立比赛。</p>
+        <p>因为是使用爬虫获取题目信息和提交代码，整个过程受到网络条件、对方安全策略等因素的影响比较大，可能会出现题目抓取失败、
+            题目提交失败或者获取提交结果失败等情况，不建议使用Virtual Judge创建重要的比赛。</p>
+        <h4>目前支持的OJ</h4>
+        <ul>
+            <li ms-repeat="VJConfig">
+                <span ms-text="el.name"></span>
+                <a ms-attr-href="el.url" target="_blank">{{ el.url }}</a>
+            </li>
+
+        </ul>
+        <hr>
+        <div>
+            <form>
+                <div class="form-group">
+                    <label>题目URL</label>
+                    <input type="url" class="form-control" maxlength="100" placeholder="题目url">
+                </div>
+                <label class="radio-inline" ms-repeat="VJConfig">
+                    <input type="radio" name="vj_name" ms-attr-value="el.value"> {{ el.name }}
+                </label>
+                <div class="form-group">
+                    <button type="submit" class="btn btn-primary">提交</button>
+                </div>
+            </form>
+        </div>
+    </form>
+</div>
+
+
+<script src="/static/js/app/admin/contest/addVJProblem.js"></script>

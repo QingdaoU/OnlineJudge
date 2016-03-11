@@ -20,6 +20,10 @@ require(["jquery", "avalon", "csrfToken", "bsAlert"], function ($, avalon, csrfT
                     avalon.vmodels.admin.contestProblemStatus = "add";
                     avalon.vmodels.admin.template_url = "template/contest/edit_problem.html";
                 },
+                addVJProblem: function(){
+                    avalon.vmodels.admin.contestProblemStatus = "add";
+                    avalon.vmodels.admin.template_url = "template/contest/add_vj_problem.html";
+                },
                 goBack: function(){
                     avalon.vmodels.admin.template_url = "template/contest/contest_list.html"
                 },
