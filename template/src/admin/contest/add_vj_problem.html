@@ -1,5 +1,4 @@
 <div class="col-md-9" ms-controller="addVJProblem">
-    <form>
         <nav>
             <ul class="pager">
                 <li class="previous" ms-click="goBack()"><a href="javascript:void(0)"><span
@@ -21,20 +20,20 @@
         </ul>
         <hr>
         <div>
-            <form>
+            <form id="add-vj-problem-form">
                 <div class="form-group">
                     <label>题目URL</label>
-                    <input type="url" class="form-control" maxlength="100" placeholder="题目url">
+                    <input type="url" class="form-control" maxlength="100" placeholder="题目url" ms-duplex="VJProblemUrl" data-error="填写一个正确的URL" required>
+                    <div class="help-block with-errors"></div>
                 </div>
                 <label class="radio-inline" ms-repeat="VJConfig">
-                    <input type="radio" name="vj_name" ms-attr-value="el.value"> {{ el.name }}
+                    <input type="radio" name="vj_name" ms-attr-value="el.value" ms-duplex-string="VJName"> {{ el.name }}
                 </label>
                 <div class="form-group">
                     <button type="submit" class="btn btn-primary">提交</button>
                 </div>
             </form>
         </div>
-    </form>
 </div>
 
 
