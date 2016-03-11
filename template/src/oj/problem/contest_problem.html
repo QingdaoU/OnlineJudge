@@ -39,4 +39,17 @@
 {% endblock %}
 {% block js_block %}
     <script src="/static/js/app/oj/problem/problem.js"></script>
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        extensions: ["tex2jax.js"],
+        jax: ["input/TeX", "output/HTML-CSS"],
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+          displayMath: [ ['$$','$$'], ["\\[","\\]"] ],
+          processEscapes: true
+        },
+        "HTML-CSS": { availableFonts: ["TeX"] }
+      });
+    </script>
+    <script src="//cdn.bootcss.com/mathjax/2.6.1/MathJax.js"></script>
 {% endblock %}
