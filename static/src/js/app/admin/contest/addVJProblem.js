@@ -14,6 +14,7 @@ require(["jquery", "avalon", "bsAlert", "csrfToken", "validator"],
                             return;
                         }
                         function _addVJProblem() {
+                            bsAlert("正在请求API，请不要关闭页面");
                             $.ajax({
                                 url: "/api/admin/contest_vj_problem/",
                                 method: "post",
@@ -47,15 +48,20 @@ require(["jquery", "avalon", "bsAlert", "csrfToken", "validator"],
                 {name: "ZOJ", value: "zoj", url: "http://acm.zju.edu.cn/onlinejudge/showProblemsets.do"},
                 {name: "PAT", value: "pat", url: "https://www.patest.cn/contests"}];
 
-            var vm = avalon.define({
-                $id: "addVJProblem",
-                VJConfig: VJConfig,
-                VJProblemUrl: "",
-                VJName: "",
-                goBack: function (check) {
-                    avalon.vmodels.admin.template_url = "template/contest/problem_list.html";
-                }
-            });
+            if(avalon.vmodels.addVJProblem){
+                var vm = avalon.vmodels.addVJProblem;
+            }
+            else {
+                var vm = avalon.define({
+                    $id: "addVJProblem",
+                    VJConfig: VJConfig,
+                    VJProblemUrl: "",
+                    VJName: "",
+                    goBack: function (check) {
+                        avalon.vmodels.admin.template_url = "template/contest/problem_list.html";
+                    }
+                });
+            }
         });
         avalon.scan();
 
