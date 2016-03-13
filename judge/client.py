@@ -93,6 +93,7 @@ class JudgeClient(object):
                                 env=["PATH=" + os.environ["PATH"]],
                                 use_sandbox=self._language["use_sandbox"],
                                 use_nobody=True)
+        run_result["test_case"] = test_case_id
         if run_result["flag"] == 0:
             output_md5, r = self._compare_output(test_case_id)
             if r:

@@ -59,12 +59,36 @@
             {% ifequal submission.result 7 %}
                 <pre>System Error: {{ submission.info }}</pre>
             {% else %}
-                <pre>{{ info }}</pre>
+                {% ifequal submission.result 4 %}
+                    <pre>Compile error: {{ info }}</pre>
+                {% else %}
+                    {% ifequal submission.result 8 %}
+                        <pre>Waiting</pre>
+                    {% else %}
+                        <table class="table">
+                          <thead>
+                            <tr>
+                              <th>测试用例</th>
+                              <th>CPU时间</th>
+                              <th>内存</th>
+                              <th>结果</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                          {% for item in info %}
+                            <tr>
+                              <th scope="row">{{ item.test_case }}</th>
+                              <td>{{ item.cpu_time }} ms</td>
+                              <td>{{ item.memory }} Byte</td>
+                              <td class="{{ item.result|translate_result_class }}">{{ item.result|translate_result }}</td>
+                            </tr>
+                          {% endfor %}
+                          </tbody>
+                        </table>
+                    {% endifequal %}
+                {% endifequal %}
             {% endifequal %}
-
         {% endifequal %}
-
-
         <div id="code-field">
             <textarea id="code-editor">{{ submission.code }}</textarea>
         </div>

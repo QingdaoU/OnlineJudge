@@ -17,6 +17,7 @@ from contest.models import ContestProblem, Contest
 from contest.decorators import check_user_contest_permission
 from utils.shortcuts import serializer_invalid_response, error_response, success_response, error_page, paginate
 from utils.throttling import TokenBucket, BucketController
+from judge.result import result as judge_result
 from .tasks import _judge
 from .models import Submission
 from .serializers import (CreateSubmissionSerializer, SubmissionSerializer,
@@ -211,13 +212,13 @@ def my_submission(request, submission_id):
     except Exception:
         return error_page(request, u"提交不存在")
 
-    if submission.info:
-        try:
-            info = json.loads(submission.info)
-        except Exception:
-            info = submission.info
+    if submission.result in [judge_result["compile_error"], judge_result["system_error"], judge_result["waiting"]]:
+        info = submission.info
     else:
-        info = None
+        info = json.loads(submission.info)
+        if "test_case" in info[0]:
+            info = sorted(info, key=lambda x: x["test_case"])
+
     user = User.objects.get(id=submission.user_id)
     return render(request, "oj/submission/my_submission.html",
                   {"submission": submission, "problem": problem, "info": info,
