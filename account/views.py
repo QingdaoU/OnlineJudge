@@ -65,7 +65,7 @@ class UserLoginAPIView(APIView):
             return serializer_invalid_response(serializer)
 
 
-@login_required
+#@login_required
 def logout(request):
     auth.logout(request)
     return http.HttpResponseRedirect("/")
@@ -227,6 +227,12 @@ class UserAdminAPIView(APIView):
             elif data["tfa_auth"] and user.two_factor_auth is False:
                 user.two_factor_auth = True
                 user.tfa_token = rand_str()
+
+            # 后台控制用户是否被禁用
+            if data["is_forbidden_user"] is False:
+                user.is_forbidden = False
+            else:
+                user.is_forbidden = True
 
             user.save()
             return success_response(UserSerializer(user).data)

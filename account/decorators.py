@@ -5,7 +5,7 @@ from functools import wraps
 
 from django.http import HttpResponseRedirect
 
-from utils.shortcuts import error_response
+from utils.shortcuts import error_response, error_page
 from .models import SUPER_ADMIN, ADMIN
 
 
@@ -23,6 +23,8 @@ class BasePermissionDecorator(object):
             self.request = args[0]
 
         if self.check_permission():
+            if self.request.user.is_forbidden is True:
+                return error_page(self.request, u"用户被禁用,请联系管理员")
             return self.func(*args, **kwargs)
         else:
             if self.request.is_ajax():

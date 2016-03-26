@@ -39,7 +39,7 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ["id", "username", "real_name", "email", "admin_type",
-                  "create_time", "last_login", "two_factor_auth", "openapi_appkey"]
+                  "create_time", "last_login", "two_factor_auth", "openapi_appkey", "is_forbidden"]
 
 
 class EditUserSerializer(serializers.Serializer):
@@ -51,6 +51,7 @@ class EditUserSerializer(serializers.Serializer):
     admin_type = serializers.IntegerField(default=0)
     openapi = serializers.BooleanField()
     tfa_auth = serializers.BooleanField()
+    is_forbidden_user = serializers.BooleanField()
 
 
 class ApplyResetPasswordSerializer(serializers.Serializer):
