@@ -51,7 +51,7 @@ class EditUserSerializer(serializers.Serializer):
     admin_type = serializers.IntegerField(default=0)
     openapi = serializers.BooleanField()
     tfa_auth = serializers.BooleanField()
-    is_forbidden_user = serializers.BooleanField()
+    is_forbidden = serializers.BooleanField()
 
 
 class ApplyResetPasswordSerializer(serializers.Serializer):

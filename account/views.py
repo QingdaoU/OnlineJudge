@@ -229,10 +229,7 @@ class UserAdminAPIView(APIView):
                 user.tfa_token = rand_str()
 
             # 后台控制用户是否被禁用
-            if data["is_forbidden_user"] is False:
-                user.is_forbidden = False
-            else:
-                user.is_forbidden = True
+            user.is_forbidden = data["is_forbidden"]
 
             user.save()
             return success_response(UserSerializer(user).data)

@@ -24,7 +24,10 @@ class BasePermissionDecorator(object):
 
         if self.check_permission():
             if self.request.user.is_forbidden is True:
-                return error_page(self.request, u"用户被禁用,请联系管理员")
+                if self.request.is_ajax():
+                    return error_response(u"您已被禁用,请联系管理员")
+                else:
+                    return error_page(self.request, u"您已被禁用,请联系管理员")
             return self.func(*args, **kwargs)
         else:
             if self.request.is_ajax():

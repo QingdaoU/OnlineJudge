@@ -22,7 +22,7 @@ require(["jquery", "avalon", "csrfToken", "bsAlert", "pager", "validator"],
                     userId: -1,
                     openAPI: false,
                     tfa_auth: false,
-					is_forbidden_user: false,
+                     is_forbidden: false,
 
                     pager: {
                         getPage: function (page) {
@@ -37,7 +37,7 @@ require(["jquery", "avalon", "csrfToken", "bsAlert", "pager", "validator"],
                         vm.userId = user.id;
                         vm.tfa_auth = user.two_factor_auth;
                         vm.openAPI = user.openapi_appkey ? true: false;
-						vm.is_forbidden_user = user.is_forbidden ? true: false;
+                        vm.is_forbidden = user.is_forbidden ? true: false;
 
                         vm.isEditing = true;
                     },
@@ -86,7 +86,7 @@ require(["jquery", "avalon", "csrfToken", "bsAlert", "pager", "validator"],
                             admin_type: vm.adminType,
                             openapi: vm.openAPI,
                             tfa_auth: vm.tfa_auth,
-							is_forbidden_user: vm.is_forbidden_user
+                            is_forbidden : vm.is_forbidden
                         };
                         if ($("#password").val() !== "")
                             data.password = $("#password").val();
