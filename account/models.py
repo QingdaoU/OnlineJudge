@@ -41,6 +41,8 @@ class User(AbstractBaseUser):
     tfa_token = models.CharField(max_length=40, blank=True, null=True)
     # open api key
     openapi_appkey = models.CharField(max_length=35, blank=True, null=True)
+    # 是否禁用用户
+    is_forbidden = models.BooleanField(default=False)
 
     USERNAME_FIELD = 'username'
     REQUIRED_FIELDS = []
