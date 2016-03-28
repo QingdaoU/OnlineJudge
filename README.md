@@ -1,4 +1,4 @@
-# OnlineJudge
+# OnlineJudge [![Build Status](https://travis-ci.org/QingdaoU/OnlineJudge.svg?branch=master)](https://travis-ci.org/QingdaoU/OnlineJudge)
 
 
 基于 Python 和 Django 的在线评测平台。
@@ -17,6 +17,8 @@ OpenAPI文档: https://github.com/QingdaoU/OnlineJudgeOpenAPI
 Demo: https://qduoj.com
 
 License: The Star And Thank Author License
+
+交流QQ群: https://github.com/QingdaoU/OnlineJudge/issues/27
 
 TODO：
 
