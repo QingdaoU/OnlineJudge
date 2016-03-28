@@ -55,11 +55,7 @@
                         </tbody>
                     </table>
                     {% if request.user.is_authenticated  %}
-                    <div class="form-group">
-                        <label>仅显示当前可参加的比赛
-                            <input id="join" type="checkbox" {% if join %}checked{% endif %} onchange="if(this.checked){location.href='/contests/?join=True'}else{location.href='/contests/'}">
-                        </label>
-                    </div>
+                    {% include "oj/contest/_contest_filter.html" %}
                     {% endif %}
                     <nav>
                         <ul class="pager">
@@ -77,6 +73,7 @@
                     </nav>
                     {% else %}
                         <p>当前没有合适的比赛,你可以尝试到<a href="/groups/">小组列表</a>申请加入一些小组,以便参加小组内部的比赛</p>
+                        {% include "oj/contest/_contest_filter.html" %}
                     {% endif %}
                 </div>
             </div>

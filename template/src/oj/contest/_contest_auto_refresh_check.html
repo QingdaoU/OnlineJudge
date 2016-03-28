@@ -1,0 +1,3 @@
+<input type="checkbox" id="auto-refresh" {% if auto_refresh %}checked{% endif %}
+       onchange="if(this.checked){location.href+='?auto_refresh=true'}else{location.href=location.href.replace('?auto_refresh=true', '')}">
+自动刷新
