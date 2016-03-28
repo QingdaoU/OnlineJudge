@@ -283,11 +283,13 @@ class MakeContestProblemPublicAPIView(APIView):
     def post(self, request):
         problem_id = request.data.get("problem_id", -1)
         try:
-            problem = ContestProblem.objects.get(id=problem_id)
+            problem = ContestProblem.objects.get(id=problem_id, is_public=False)
             problem.is_public = True
             problem.save()
         except ContestProblem.DoesNotExist:
             return error_response(u"比赛不存在")
+        if problem.contest.status != CONTEST_ENDED:
+            return error_response(u"比赛还没有结束，不能公开题目")
         Problem.objects.create(title=problem.title, description=problem.description,
                                input_description=problem.input_description,
                                output_description=problem.output_description,
