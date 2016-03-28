@@ -330,8 +330,7 @@ class ApplyResetPasswordAPIView(APIView):
 
             email_template = email_template.replace("{{ username }}", user.username). \
                 replace("{{ website_name }}", settings.WEBSITE_INFO["website_name"]). \
-                replace("{{ link }}", request.scheme + "://"
-                        + request.META['HTTP_HOST'] + "/reset_password/t/" +
+                replace("{{ link }}", settings.WEBSITE_INFO["url"] + "/reset_password/t/" +
                         user.reset_password_token)
 
             _send_email.delay(settings.WEBSITE_INFO["website_name"],
