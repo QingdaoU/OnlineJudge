@@ -108,9 +108,13 @@ require(["jquery", "avalon", "editor", "uploader", "bsAlert", "csrfToken", "date
                     success: function (data) {
                         if (!data.code) {
                             if (!data.data.length) {
-                                if (admin_type != 2)
+                                if (admin_type == 1) {
                                     bsAlert("您的用户权限只能创建小组内比赛，但是您还没有创建过小组");
-                                return;
+                                    return;
+                                }
+                                else if(admin_type == 2) {
+                                    bsAlert("当前系统中没有小组，创建或编辑小组赛功能将不可用。");
+                                }
                             }
                             vm.allGroups = [];
                             for (var i = 0; i < data.data.length; i++) {
