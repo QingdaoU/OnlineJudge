@@ -25,7 +25,7 @@ class JudgeClient(object):
         :param language_code: 语言编号
         :param exe_path: 可执行文件路径
         :param max_cpu_time: 最大cpu时间，单位ms
-        :param max_memory: 最大内存，单位MB
+        :param max_memory: 最大内存，单位字节，直接传给judger.run方法
         :param test_case_dir: 测试用例文件夹路径
         :return:返回结果list
         """
