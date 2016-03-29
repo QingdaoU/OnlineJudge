@@ -18,7 +18,7 @@ Demo: https://qduoj.com
 
 License: The Star And Thank Author License
 
-交流QQ群: https://github.com/QingdaoU/OnlineJudge/issues/27
+交流QQ群: https://github.com/QingdaoU/OnlineJudge/wiki/QQ群
 
 TODO：
 
