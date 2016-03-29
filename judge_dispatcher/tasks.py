@@ -89,9 +89,9 @@ class JudgeDispatcher(object):
                 submission = Submission.objects.get(id=waiting_submission.submission_id)
                 waiting_submission.delete()
 
-                _judge.delay(submission, time_limit=waiting_submission.time_limit,
+                _judge.delay(submission=submission, time_limit=waiting_submission.time_limit,
                              memory_limit=waiting_submission.memory_limit,
-                             test_case_id=waiting_submission.test_case_id, is_waiting_task=True)
+                             test_case_id=waiting_submission.test_case_id)
 
     def update_problem_status(self):
         problem = Problem.objects.get(id=self.submission.problem_id)
