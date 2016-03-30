@@ -17,13 +17,13 @@ from utils.shortcuts import (serializer_invalid_response, error_response,
                              success_response, paginate, error_page, paginate_data)
 from account.models import SUPER_ADMIN, User
 from account.decorators import login_required, super_admin_required
-from group.models import Group
+from group.models import Group, AdminGroupRelation, UserGroupRelation
 from utils.cache import get_cache_redis
 from submission.models import Submission
 from problem.models import Problem
 from .models import (Contest, ContestProblem, CONTEST_ENDED,
                      CONTEST_NOT_START, CONTEST_UNDERWAY, ContestRank)
-from .models import GROUP_CONTEST, PUBLIC_CONTEST, PASSWORD_PROTECTED_CONTEST
+from .models import GROUP_CONTEST, PUBLIC_CONTEST, PASSWORD_PROTECTED_CONTEST, PASSWORD_PROTECTED_GROUP_CONTEST
 from .decorators import check_user_contest_permission
 from .serializers import (CreateContestSerializer, ContestSerializer, EditContestSerializer,
                           CreateContestProblemSerializer, ContestProblemSerializer,
@@ -50,11 +50,11 @@ class ContestAdminAPIView(APIView):
                 if request.user.admin_type != SUPER_ADMIN:
                     return error_response(u"只有超级管理员才可创建公开赛")
 
-            if data["contest_type"] == PASSWORD_PROTECTED_CONTEST:
+            if data["contest_type"] in [PASSWORD_PROTECTED_CONTEST, PASSWORD_PROTECTED_GROUP_CONTEST]:
                 if not data["password"]:
-                    return error_response(u"此比赛为有密码的公开赛，密码不可为空")
+                    return error_response(u"此比赛为有密码的比赛，密码不可为空")
             # 没有密码的公开赛 没有密码的小组赛
-            elif data["contest_type"] == GROUP_CONTEST:
+            if data["contest_type"] == GROUP_CONTEST or data["contest_type"] == PASSWORD_PROTECTED_GROUP_CONTEST:
                 if request.user.admin_type == SUPER_ADMIN:
                     groups = Group.objects.filter(id__in=data["groups"])
                 else:
@@ -91,8 +91,10 @@ class ContestAdminAPIView(APIView):
             try:
                 # 超级管理员可以编辑所有的
                 contest = Contest.objects.get(id=data["id"])
-                if request.user.admin_type != SUPER_ADMIN and contest.created_by != request.user:
-                    return error_response(u"无权访问！")
+                if request.user.admin_type != SUPER_ADMIN:
+                    contest_set = Contest.objects.filter(groups__in=request.user.managed_groups.all())
+                    if contest not in contest_set:
+                        return error_response(u"无权访问！")
             except Contest.DoesNotExist:
                 return error_response(u"该比赛不存在！")
             try:
@@ -107,7 +109,7 @@ class ContestAdminAPIView(APIView):
             if data["contest_type"] == PASSWORD_PROTECTED_CONTEST:
                 if not data["password"]:
                     return error_response(u"此比赛为有密码的公开赛，密码不可为空")
-            elif data["contest_type"] == GROUP_CONTEST:
+            elif data["contest_type"] in [GROUP_CONTEST, PASSWORD_PROTECTED_GROUP_CONTEST]:
                 if request.user.admin_type == SUPER_ADMIN:
                     groups = Group.objects.filter(id__in=data["groups"])
                 else:
@@ -151,16 +153,18 @@ class ContestAdminAPIView(APIView):
                 # 普通管理员只能获取自己创建的题目
                 # 超级管理员可以获取全部的题目
                 contest = Contest.objects.get(id=contest_id)
-                if request.user.admin_type != SUPER_ADMIN and contest.created_by != request.user:
-                    return error_response(u"题目不存在")
+                if request.user.admin_type != SUPER_ADMIN:
+                    contest_set = Contest.objects.filter(groups__in=request.user.managed_groups.all())
+                    if contest not in contest_set:
+                        return error_response(u"比赛不存在")
                 return success_response(ContestSerializer(contest).data)
             except Contest.DoesNotExist:
-                return error_response(u"题目不存在")
+                return error_response(u"比赛不存在")
 
         if request.user.admin_type == SUPER_ADMIN:
             contest = Contest.objects.all().order_by("-create_time")
         else:
-            contest = Contest.objects.filter(created_by=request.user).order_by("-create_time")
+            contest = Contest.objects.filter(groups__in=request.user.managed_groups.all()).distinct().order_by("-create_time")
         visible = request.GET.get("visible", None)
         if visible:
             contest = contest.filter(visible=(visible == "true"))
@@ -184,8 +188,10 @@ class ContestProblemAdminAPIView(APIView):
             data = serializer.data
             try:
                 contest = Contest.objects.get(id=data["contest_id"])
-                if request.user.admin_type != SUPER_ADMIN and contest.created_by != request.user:
-                    return error_response(u"比赛不存在")
+                if request.user.admin_type != SUPER_ADMIN:
+                    contest_set = Contest.objects.filter(groups__in=request.user.managed_groups.all())
+                    if contest not in contest_set:
+                        return error_response(u"比赛不存在")
             except Contest.DoesNotExist:
                 return error_response(u"比赛不存在")
             contest_problem = ContestProblem.objects.create(title=data["title"],
@@ -277,11 +283,13 @@ class MakeContestProblemPublicAPIView(APIView):
     def post(self, request):
         problem_id = request.data.get("problem_id", -1)
         try:
-            problem = ContestProblem.objects.get(id=problem_id)
+            problem = ContestProblem.objects.get(id=problem_id, is_public=False)
             problem.is_public = True
             problem.save()
         except ContestProblem.DoesNotExist:
             return error_response(u"比赛不存在")
+        if problem.contest.status != CONTEST_ENDED:
+            return error_response(u"比赛还没有结束，不能公开题目")
         Problem.objects.create(title=problem.title, description=problem.description,
                                input_description=problem.input_description,
                                output_description=problem.output_description,
@@ -302,7 +310,7 @@ class ContestPasswordVerifyAPIView(APIView):
         if serializer.is_valid():
             data = request.data
             try:
-                contest = Contest.objects.get(id=data["contest_id"], contest_type=PASSWORD_PROTECTED_CONTEST)
+                contest = Contest.objects.get(id=data["contest_id"], contest_type__in=[PASSWORD_PROTECTED_CONTEST,PASSWORD_PROTECTED_GROUP_CONTEST])
             except Contest.DoesNotExist:
                 return error_response(u"比赛不存在")
 
@@ -362,7 +370,10 @@ def contest_problem_page(request, contest_id, contest_problem_id):
                     request.user.admin_type == SUPER_ADMIN or \
                     request.user == contest.created_by:
         show_submit_code_area = True
-
+    else:
+        contest_set = Contest.objects.filter(groups__in=request.user.managed_groups.all())
+        if contest in contest_set:
+            show_submit_code_area = True
     return render(request, "oj/problem/contest_problem.html", {"problem": problem,
                                                                "contest": contest,
                                                                "samples": json.loads(problem.samples),
@@ -390,7 +401,7 @@ def contest_list_page(request, page=1):
     contests = Contest.objects.filter(visible=True).order_by("-create_time")
 
     # 搜索的情况
-    keyword = request.GET.get("keyword", None)
+    keyword = request.GET.get("keyword", "").strip()
     if keyword:
         contests = contests.filter(Q(title__contains=keyword) | Q(description__contains=keyword))
 
@@ -442,25 +453,9 @@ def contest_rank_page(request, contest_id):
     else:
         rank = json.loads(rank)
 
-    try:
-        paging_rank = paginate_data(request, rank, None)
-        if request.GET.get("paging", None):
-            rank = paging_rank["results"]
-        else:
-            rank = paging_rank
-    except Exception as e:
-        return error_page(request, e.message)
-
-    if request.GET.get("paging", None):
-        paging_info = paging_rank
-        paging_info["offset"] = paging_rank["page_size"] * (int(paging_rank["current_page"]) - 1)
-    else:
-        paging_info = {"previous_page": None, "next_page": None, "count": 0, "total_page": 0, "offset": 0}
-
     return render(request, "oj/contest/contest_rank.html",
                   {"rank": rank, "contest": contest,
                    "contest_problems": contest_problems,
-                   "paging_info": paging_info,
                    "auto_refresh": request.GET.get("auto_refresh", None) == "true",
                    "show_real_name": request.GET.get("show_real_name", None) == "true", })
 
@@ -514,6 +509,10 @@ def contest_problem_submissions_list_page(request, contest_id, page=1):
     submissions = Submission.objects.filter(contest_id=contest_id). \
         values("id", "contest_id", "problem_id", "result", "create_time",
                "accepted_answer_time", "language", "user_id").order_by("-create_time")
+
+    # 如果比赛已经开始，就不再显示之前测试题目的提交
+    if contest.status != CONTEST_NOT_START:
+        submissions = submissions.filter(create_time__gte=contest.start_time)
 
     user_id = request.GET.get("user_id", None)
     if user_id:

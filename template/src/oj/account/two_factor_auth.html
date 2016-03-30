@@ -1,0 +1,41 @@
+{% extends "oj_base.html" %}
+{% block title %}
+    两步验证
+{% endblock %}
+{% block body %}
+    <div class="container main">
+
+        <div class="col-lg-2">
+            <ul class="list-group">
+                <li class="list-group-header">通用设置</li>
+                <li class="list-group-item"><a href="/account/settings/">个人信息</a></li>
+                <li class="list-group-item"><a href="/account/settings/avatar/">更换头像</a></li>
+                <li class="list-group-item active"><a href="/two_factor_auth/">两步验证</a></li>
+                <li class="list-group-item"><a href="/change_password/">修改密码</a></li>
+            </ul>
+        </div>
+
+        <div class="col-lg-8">
+            {% if not request.user.two_factor_auth %}
+                <h3>扫描二维码开启两步验证</h3>
+                <img src="/api/two_factor_auth/" id="tfa-qrcode">
+
+                <div class="form-inline">
+                    <div class="form-group">
+                        <label for="tfa_code">验证码</label>
+                        <input type="text" maxlength="6" class="form-control" id="tfa_code"
+                               placeholder="输入 app 上显示的验证码">
+                    </div>
+                    <button type="button" class="btn btn-primary" id="tfa_submit">确定</button>
+                </div>
+
+            {% else %}
+                <div class="alert alert-success" role="alert">两步验证已经开启</div>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}
+
+{% block js_block %}
+    <script src="/static/js/app/oj/account/twoFactorAuth.js"></script>
+{% endblock %}

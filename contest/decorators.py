@@ -8,8 +8,8 @@ from django.core.urlresolvers import reverse
 
 from utils.shortcuts import error_response, error_page
 
-from account.models import SUPER_ADMIN
-from .models import (Contest, PASSWORD_PROTECTED_CONTEST, PUBLIC_CONTEST, GROUP_CONTEST,
+from account.models import SUPER_ADMIN, ADMIN
+from .models import (Contest, PASSWORD_PROTECTED_CONTEST, PASSWORD_PROTECTED_GROUP_CONTEST, PUBLIC_CONTEST, GROUP_CONTEST,
                      CONTEST_ENDED, CONTEST_NOT_START, CONTEST_UNDERWAY)
 
 
@@ -57,7 +57,10 @@ def check_user_contest_permission(func):
 
         if request.user.admin_type == SUPER_ADMIN or request.user == contest.created_by:
             return func(*args, **kwargs)
-
+        if request.user.admin_type == ADMIN:
+            contest_set = Contest.objects.filter(groups__in=request.user.managed_groups.all())
+            if contest in contest_set:
+                return func(*args, **kwargs)
         # 管理员可见隐藏的比赛，已经先判断了身份
         if not contest.visible:
             if request.is_ajax():
@@ -83,6 +86,15 @@ def check_user_contest_permission(func):
                 else:
                     return render(request, "oj/contest/no_contest_permission.html",
                                   {"reason": "group_limited", "show_tab": False, "contest": contest})
+                                  
+        if contest.contest_type == PASSWORD_PROTECTED_GROUP_CONTEST:
+            if not contest.groups.filter(id__in=request.user.group_set.all()).exists():
+                if contest.id not in request.session.get("contests", []):
+                    if request.is_ajax():
+                        return error_response(u"请先输入密码")
+                    else:
+                        return render(request, "oj/contest/no_contest_permission.html",
+                                      {"reason": "password_protect", "show_tab": False, "contest": contest})
 
         # 比赛没有开始
         if contest.status == CONTEST_NOT_START:

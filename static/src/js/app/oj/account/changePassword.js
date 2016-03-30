@@ -10,7 +10,7 @@ require(["jquery", "bsAlert", "csrfToken", "validator"], function ($, bsAlert, c
 
     $('form').validator().on('submit', function (e) {
         e.preventDefault();
-        var newPassword = $("#new_password ").val();
+        var newPassword = $("#new_password").val();
         var password = $("#password").val();
         var captcha = $("#captcha").val();
         $.ajax({

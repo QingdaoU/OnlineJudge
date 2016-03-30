@@ -20,6 +20,10 @@ require(["jquery", "avalon", "csrfToken", "bsAlert", "pager", "validator"],
                     email: "",
                     adminType: 0,
                     userId: -1,
+                    openAPI: false,
+                    tfa_auth: false,
+                    is_forbidden: false,
+                    password: "",
 
                     pager: {
                         getPage: function (page) {
@@ -32,6 +36,9 @@ require(["jquery", "avalon", "csrfToken", "bsAlert", "pager", "validator"],
                         vm.adminType = user.admin_type;
                         vm.email = user.email;
                         vm.userId = user.id;
+                        vm.tfa_auth = user.two_factor_auth;
+                        vm.openAPI = user.openapi_appkey ? true: false;
+                        vm.is_forbidden = user.is_forbidden ? true: false;
 
                         vm.isEditing = true;
                     },
@@ -41,6 +48,7 @@ require(["jquery", "avalon", "csrfToken", "bsAlert", "pager", "validator"],
                     }
                 });
             }
+
             vm.$watch("showAdminOnly", function () {
                 getPage(1);
                 avalon.vmodels.userPager.currentPage = 1;
@@ -77,10 +85,13 @@ require(["jquery", "avalon", "csrfToken", "bsAlert", "pager", "validator"],
                             real_name: vm.realName,
                             email: vm.email,
                             id: vm.userId,
-                            admin_type: vm.adminType
+                            admin_type: vm.adminType,
+                            openapi: vm.openAPI,
+                            tfa_auth: vm.tfa_auth,
+                            is_forbidden : vm.is_forbidden
                         };
-                        if ($("#password").val() !== "")
-                            data.password = $("#password").val();
+                        if (vm.password != "")
+                            data.password = vm.password;
                         $.ajax({
                             url: "/api/admin/user/",
                             data: data,
@@ -90,7 +101,7 @@ require(["jquery", "avalon", "csrfToken", "bsAlert", "pager", "validator"],
                                 if (!data.code) {
                                     bsAlert("编辑成功！");
                                     getPage(1);
-                                    $("#password").val("");
+                                    vm.password = "";
                                     vm.isEditing = false;
                                 } else {
                                     bsAlert(data.data);

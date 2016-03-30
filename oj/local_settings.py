@@ -3,7 +3,6 @@ import os
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-# 注意这是web 服务器访问的地址，判题端访问的地址不一定一样，因为可能不在一台机器上
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
@@ -22,6 +21,18 @@ REDIS_CACHE = {
     "db": 1
 }
 
+REDIS_QUEUE = {
+    "host": "127.0.0.1",
+    "port": 6379,
+    "db": 2
+}
+
+
+# for celery
+BROKER_URL = 'redis://%s:%s/%s' % (REDIS_QUEUE["host"], str(REDIS_QUEUE["port"]), str(REDIS_QUEUE["db"]))
+ACCEPT_CONTENT = ['json']
+
+
 DEBUG = True
 
 ALLOWED_HOSTS = []
@@ -31,6 +42,5 @@ ALLOWED_HOSTS = []
 STATICFILES_DIRS = [os.path.join(BASE_DIR, "static/src/"), BASE_DIR]
 
 # 模板文件夹
-TEMPLATE_DIRS = [os.path.join(BASE_DIR, 'template/src/')]
+OJ_TEMPLATE_DIRS = [os.path.join(BASE_DIR, 'template/src/')]
 
-SSO = {"callback": "http://localhost:8765/login"}

@@ -1,12 +1,17 @@
 # coding=utf-8
+import os
 import hashlib
 import time
 import random
+import logging
 
 from django.shortcuts import render
 from django.core.paginator import Paginator
 
 from rest_framework.response import Response
+
+
+logger = logging.getLogger("app_info")
 
 
 def error_page(request, error_reason):
@@ -96,11 +101,13 @@ def paginate_data(request, query_set, object_serializer):
 def paginate(request, query_set, object_serializer=None):
     try:
         data= paginate_data(request, query_set, object_serializer)
-    except Exception:
+    except Exception as e:
+        logger.error(str(e))
         return error_response(u"参数错误")
     return success_response(data)
 
 
 def rand_str(length=32):
-    string = hashlib.md5(str(time.time()) + str(random.randrange(1, 987654321234567)) + str(random.randrange(1, 987654321234567))).hexdigest()
-    return string[0:length]
+    if length > 128:
+        raise ValueError("length must <= 128")
+    return hashlib.sha512(os.urandom(128)).hexdigest()[0:length]

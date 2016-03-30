@@ -1,0 +1,19 @@
+<script type="x-template" id="template">
+    {% if contest.status %}
+        <strong><span>距离比赛开始还有：</span></strong>
+    {% else %}
+        <strong><span>距离比赛结束还有：</span></strong>
+    {% endif %}
+    <div class="day-timer timer-section">
+        <span class="time">%d</span><span>%td</span>
+    </div>
+    <div class="hour-timer timer-section">
+        <span class="time">%h</span><span>%th</span>
+    </div>
+    <div class="min-timer timer-section">
+        <span class="time">%i</span><span>%ti</span>
+    </div>
+    <div class="second-timer timer-section">
+        <span class="time">%s</span><span>%ts</span>
+    </div>
+</script>

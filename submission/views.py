@@ -3,29 +3,96 @@ import json
 import logging
 
 import redis
+
 from django.shortcuts import render
 from django.core.paginator import Paginator
+from django.conf import settings
+from django.views.decorators.csrf import csrf_exempt
 from rest_framework.views import APIView
 
-from judge.judger_controller.tasks import judge
 from account.decorators import login_required, super_admin_required
 from account.models import SUPER_ADMIN, User
 from problem.models import Problem
 from contest.models import ContestProblem, Contest
 from contest.decorators import check_user_contest_permission
 from utils.shortcuts import serializer_invalid_response, error_response, success_response, error_page, paginate
-from utils.cache import get_cache_redis
+from utils.throttling import TokenBucket, BucketController
+from judge.result import result as judge_result
+from .tasks import _judge
 from .models import Submission
 from .serializers import (CreateSubmissionSerializer, SubmissionSerializer,
                           SubmissionhareSerializer, SubmissionRejudgeSerializer,
-                          CreateContestSubmissionSerializer)
+                          CreateContestSubmissionSerializer, OpenAPICreateSubmissionSerializer,
+                          OpenAPISubmissionSerializer)
 
 logger = logging.getLogger("app_info")
 
 
-def _judge(submission_id, time_limit, memory_limit, test_case_id):
-    judge.delay(submission_id, time_limit, memory_limit, test_case_id)
-    get_cache_redis().incr("judge_queue_length")
+def _submit_code(user, problem_id, language, code):
+    controller = BucketController(user_id=user.id,
+                                  redis_conn=redis.Redis(host=settings.REDIS_CACHE["host"],
+                                                         port=settings.REDIS_CACHE["port"],
+                                                         db=settings.REDIS_CACHE["db"]),
+                                  default_capacity=settings.TOKEN_BUCKET_DEFAULT_CAPACITY)
+    bucket = TokenBucket(fill_rate=settings.TOKEN_BUCKET_FILL_RATE,
+                         capacity=settings.TOKEN_BUCKET_DEFAULT_CAPACITY,
+                         last_capacity=controller.last_capacity,
+                         last_timestamp=controller.last_timestamp)
+    if bucket.consume():
+        controller.last_capacity -= 1
+    else:
+        return error_response(u"您提交的频率过快, 请等待%d秒" % int(bucket.expected_time() + 1))
+
+    try:
+        problem = Problem.objects.get(id=problem_id)
+    except Problem.DoesNotExist:
+        return error_response(u"题目不存在")
+    submission = Submission.objects.create(user_id=user.id,
+                                           language=language,
+                                           code=code,
+                                           problem_id=problem.id)
+
+    try:
+        _judge.delay(submission, problem.time_limit, problem.memory_limit, problem.test_case_id)
+    except Exception as e:
+        logger.error(e)
+        return error_response(u"提交判题任务失败")
+    return success_response({"submission_id": submission.id})
+
+
+class OpenAPISubmitCodeAPI(APIView):
+    def post(self, request):
+        """
+        openapi 创建提交
+        """
+        serializer = OpenAPICreateSubmissionSerializer(data=request.data)
+        if serializer.is_valid():
+            data = serializer.data
+            try:
+                user = User.objects.get(openapi_appkey=data["appkey"])
+            except User.DoesNotExist:
+                return error_response(u"appkey无效")
+            return _submit_code(user, data["problem_id"], data["language"], data["code"])
+        else:
+            return serializer_invalid_response(serializer)
+
+    def get(self, request):
+        """
+        openapi 获取提交详情
+        """
+        submission_id = request.GET.get("submission_id", None)
+        appkey = request.GET.get("appkey", None)
+        if not (submission_id and appkey):
+            return error_response(u"参数错误")
+        try:
+            user = User.objects.get(openapi_appkey=appkey)
+        except User.DoesNotExist:
+            return error_response(u"appkey无效")
+        try:
+            submission = Submission.objects.get(id=submission_id, user_id=user.id)
+            return success_response(OpenAPISubmissionSerializer(submission).data)
+        except Submission.DoesNotExist:
+            return error_response(u"提交不存在")
 
 
 class SubmissionAPIView(APIView):
@@ -39,21 +106,7 @@ class SubmissionAPIView(APIView):
         serializer = CreateSubmissionSerializer(data=request.data)
         if serializer.is_valid():
             data = serializer.data
-            try:
-                problem = Problem.objects.get(id=data["problem_id"])
-            except Problem.DoesNotExist:
-                return error_response(u"题目不存在")
-            submission = Submission.objects.create(user_id=request.user.id,
-                                                   language=int(data["language"]),
-                                                   code=data["code"],
-                                                   problem_id=problem.id)
-
-            try:
-                _judge(submission.id, problem.time_limit, problem.memory_limit, problem.test_case_id)
-            except Exception as e:
-                logger.error(e)
-                return error_response(u"提交判题任务失败")
-            return success_response({"submission_id": submission.id})
+            return _submit_code(request.user, data["problem_id"], data["language"], data["code"])
         else:
             return serializer_invalid_response(serializer)
 
@@ -94,7 +147,7 @@ class ContestSubmissionAPIView(APIView):
                                                    code=data["code"],
                                                    problem_id=problem.id)
             try:
-                _judge(submission.id, problem.time_limit, problem.memory_limit, problem.test_case_id)
+                _judge.delay(submission, problem.time_limit, problem.memory_limit, problem.test_case_id)
             except Exception as e:
                 logger.error(e)
                 return error_response(u"提交判题任务失败")
@@ -113,7 +166,7 @@ def problem_my_submissions_list_page(request, problem_id):
     except Problem.DoesNotExist:
         return error_page(request, u"问题不存在")
 
-    submissions = Submission.objects.filter(user_id=request.user.id, problem_id=problem.id,contest_id__isnull=True).\
+    submissions = Submission.objects.filter(user_id=request.user.id, problem_id=problem.id, contest_id__isnull=True). \
         order_by("-create_time"). \
         values("id", "result", "create_time", "accepted_answer_time", "language")
 
@@ -159,17 +212,17 @@ def my_submission(request, submission_id):
     except Exception:
         return error_page(request, u"提交不存在")
 
-    if submission.info:
-        try:
-            info = json.loads(submission.info)
-        except Exception:
-            info = submission.info
+    if submission.result in [judge_result["compile_error"], judge_result["system_error"], judge_result["waiting"]]:
+        info = submission.info
     else:
-        info = None
+        info = json.loads(submission.info)
+        if "test_case" in info[0]:
+            info = sorted(info, key=lambda x: x["test_case"])
+
     user = User.objects.get(id=submission.user_id)
     return render(request, "oj/submission/my_submission.html",
                   {"submission": submission, "problem": problem, "info": info,
-                   "user": user, "can_share": result["can_share"]})
+                   "user": user, "can_share": result["can_share"], "website_base_url": settings.WEBSITE_INFO["url"]})
 
 
 class SubmissionAdminAPIView(APIView):
@@ -279,7 +332,7 @@ class SubmissionRejudgeAdminAPIView(APIView):
             except Problem.DoesNotExist:
                 return error_response(u"题目不存在")
             try:
-                _judge(submission.id, problem.time_limit, problem.memory_limit, problem.test_case_id)
+                _judge.delay(submission, problem.time_limit, problem.memory_limit, problem.test_case_id)
             except Exception as e:
                 logger.error(e)
                 return error_response(u"提交判题任务失败")

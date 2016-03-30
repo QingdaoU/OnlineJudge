@@ -39,7 +39,7 @@ class ProblemTagSerializer(serializers.ModelSerializer):
         model = ProblemTag
 
 
-class ProblemSerializer(serializers.ModelSerializer):
+class BaseProblemSerializer(serializers.ModelSerializer):
     samples = JSONField()
     tags = ProblemTagSerializer(many=True)
 
@@ -50,8 +50,17 @@ class ProblemSerializer(serializers.ModelSerializer):
 
     created_by = UserSerializer()
 
+
+class ProblemSerializer(BaseProblemSerializer):
     class Meta:
         model = Problem
+
+
+class OpenAPIProblemSerializer(BaseProblemSerializer):
+
+    class Meta:
+        model = Problem
+        exclude = ["visible", "test_case_id"]
 
 
 class EditProblemSerializer(serializers.Serializer):

@@ -3,33 +3,44 @@ import os
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-# 注意这是web 服务器访问的地址，判题端访问的地址不一定一样，因为可能不在一台机器上
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': "oj",
         'CONN_MAX_AGE': 0.1,
-        'HOST': os.environ.get("MYSQL_PORT_3306_TCP_ADDR", "127.0.0.1"),
+        'HOST': os.environ["MYSQL_PORT_3306_TCP_ADDR"],
         'PORT': 3306,
-        'USER': 'root',
-        'PASSWORD': os.environ.get("MYSQL_ENV_MYSQL_ROOT_PASSWORD", "root")
+        'USER': os.environ["MYSQL_ENV_MYSQL_USER"],
+        'PASSWORD': os.environ["MYSQL_ENV_MYSQL_ROOT_PASSWORD"]
     },
     'submission': {
         'NAME': 'oj_submission',
         'ENGINE': 'django.db.backends.mysql',
         'CONN_MAX_AGE': 0.1,
-        'HOST': os.environ.get("MYSQL_PORT_3306_TCP_ADDR", "127.0.0.1"),
+        'HOST': os.environ["MYSQL_PORT_3306_TCP_ADDR"],
         'PORT': 3306,
-        'USER': 'root',
-        'PASSWORD': os.environ.get("MYSQL_ENV_MYSQL_ROOT_PASSWORD", "root")
+        'USER': os.environ["MYSQL_ENV_MYSQL_USER"],
+        'PASSWORD': os.environ["MYSQL_ENV_MYSQL_ROOT_PASSWORD"]
     }
 }
 
 REDIS_CACHE = {
-    "host": os.environ.get("REDIS_PORT_6379_TCP_ADDR", "127.0.0.1"),
+    "host": os.environ["REDIS_PORT_6379_TCP_ADDR"],
     "port": 6379,
     "db": 1
 }
+
+REDIS_QUEUE = {
+    "host": os.environ["REDIS_PORT_6379_TCP_ADDR"],
+    "port": 6379,
+    "db": 2
+}
+
+
+# for celery
+BROKER_URL = 'redis://%s:%s/%s' % (REDIS_QUEUE["host"], str(REDIS_QUEUE["port"]), str(REDIS_QUEUE["db"]))
+ACCEPT_CONTENT = ['json']
+
 
 DEBUG = False
 
@@ -40,8 +51,6 @@ ALLOWED_HOSTS = ['*']
 STATICFILES_DIRS = [os.path.join(BASE_DIR, "static/release/"), os.path.join(BASE_DIR, "static/release/")]
 
 # 模板文件夹
-TEMPLATE_DIRS = [os.path.join(BASE_DIR, 'template/release/')]
+OJ_TEMPLATE_DIRS = [os.path.join(BASE_DIR, 'template/release/')]
 
-SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
-SSO = {"callback": "https://discuss.acmer.site/login"}

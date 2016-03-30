@@ -22,11 +22,16 @@
                 {% if user.userprofile.mood %}
                     <p id="user-mood">{{ user.userprofile.mood }}</p>
                 {% endif %}
+                
             </div>
             <div class="list-group col-lg-9">
-
+                {% if user.userprofile.school %}
+                <p class="list-group-item"> <span class="glyphicon glyphicon-education"></span>
+                    {{ user.userprofile.school }}
+                </p>
+                {% endif %}
                 {% if user.userprofile.blog %}
-                <p class="list-group-item"><span class="glyphicon glyphicon-link"></span>
+                <p class="list-group-item"> <span class="glyphicon glyphicon-link"></span>
                     <a href="{{ user.userprofile.blog }}" target="_blank">{{ blog_link }}</a>
                 </p>
                 {% endif %}
@@ -57,7 +62,7 @@
                     </a>
                 </p>
                 {% endif %}
-
+                
                 <p class="list-group-item">
                     <span class="glyphicon glyphicon-calendar"></span>
                     {{ user.create_time }}
@@ -68,7 +73,7 @@
                         <strong id="user-data-number">{{ user.userprofile.rank }}</strong>
                         <span id="user-data-text">Rank</span>
                     </div>
-                    -->
+                    
                     <div class="col-lg-6 text-center">
                         <strong id="user-data-number">{{ user.userprofile.accepted_number }}</strong>
                         <span id="user-data-text">AC</span>
@@ -77,6 +82,7 @@
                         <strong id="user-data-number">{{ user.userprofile.submissions_number }}</strong>
                         <span id="user-data-text">Submissions</span>
                     </div>
+                    -->
                 </div>
             </div>
         </div>

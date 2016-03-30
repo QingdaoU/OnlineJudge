@@ -1,0 +1,25 @@
+redis:
+    image: redis
+    volumes:
+        - /home/data/redis:/data
+mysql:
+    image: mysql
+    volumes:
+        - /home/data/mysql:/var/lib/mysql
+    environment:
+        - MYSQL_ROOT_PASSWORD={YOUR_PASSWORD}
+oj_web_server:
+    image: qduoj/oj_web_server
+    volumes:
+        - /home/OnlineJudge:/code
+        - /home/test_case:/code/test_case
+        - /home/upload:/code/upload
+        - /home/log:/code/log
+    links:
+        - redis:redis
+        - mysql:mysql
+    ports:
+        - "127.0.0.1:8080:8080"
+    environment:
+        - oj_env=server
+        - MYSQL_ENV_MYSQL_USER=root

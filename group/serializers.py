@@ -17,6 +17,7 @@ class EditGroupSerializer(serializers.Serializer):
     name = serializers.CharField(max_length=20)
     description = serializers.CharField(max_length=300)
     join_group_setting = serializers.IntegerField()
+    visible = serializers.BooleanField()
 
 
 class CreateJoinGroupRequestSerializer(serializers.Serializer):
@@ -74,3 +75,7 @@ class EditGroupMemberSerializer(serializers.Serializer):
 class PutJoinGroupRequestSerializer(serializers.Serializer):
     request_id = serializers.IntegerField()
     status = serializers.BooleanField()
+    
+class GroupPromoteAdminSerializer(serializers.Serializer):
+    user_id = serializers.IntegerField()
+    group_id = serializers.IntegerField()

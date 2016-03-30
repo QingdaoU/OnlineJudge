@@ -1,0 +1,5 @@
+<div class="form-group">
+    <label>仅显示当前可参加的比赛
+        <input id="join" type="checkbox" {% if join %}checked{% endif %} onchange="if(this.checked){location.href='/contests/?join=True'}else{location.href='/contests/'}">
+    </label>
+</div>

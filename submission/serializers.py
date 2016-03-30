@@ -11,6 +11,13 @@ class CreateSubmissionSerializer(serializers.Serializer):
     code = serializers.CharField(max_length=20000)
 
 
+class OpenAPICreateSubmissionSerializer(serializers.Serializer):
+    appkey = serializers.CharField(max_length=35)
+    problem_id = serializers.IntegerField()
+    language = serializers.IntegerField()
+    code = serializers.CharField(max_length=20000)
+
+
 class SubmissionSerializer(serializers.ModelSerializer):
     user = serializers.SerializerMethodField("_get_submission_user")
 
@@ -20,6 +27,13 @@ class SubmissionSerializer(serializers.ModelSerializer):
 
     def _get_submission_user(self, obj):
         return User.objects.get(id=obj.user_id).username
+
+
+class OpenAPISubmissionSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Submission
+        fields = ["id", "result", "create_time", "language", "info"]
 
 
 class SubmissionhareSerializer(serializers.Serializer):

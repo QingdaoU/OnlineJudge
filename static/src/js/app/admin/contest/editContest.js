@@ -23,6 +23,10 @@ require(["jquery", "avalon", "editor", "uploader", "bsAlert", "csrfToken", "date
                             selectedGroups.push(vm.allGroups[i].id);
                         }
                     }
+                    if (vm.password) {
+                        ajaxData.password = vm.password;
+                        ajaxData.contest_type = 3;
+                    }
                     ajaxData.groups = selectedGroups;
                 }
                 else {
@@ -104,9 +108,13 @@ require(["jquery", "avalon", "editor", "uploader", "bsAlert", "csrfToken", "date
                     success: function (data) {
                         if (!data.code) {
                             if (!data.data.length) {
-                                if (admin_type != 2)
+                                if (admin_type == 1) {
                                     bsAlert("您的用户权限只能创建小组内比赛，但是您还没有创建过小组");
-                                return;
+                                    return;
+                                }
+                                else if(admin_type == 2) {
+                                    bsAlert("当前系统中没有小组，创建或编辑小组赛功能将不可用。");
+                                }
                             }
                             vm.allGroups = [];
                             for (var i = 0; i < data.data.length; i++) {
@@ -131,7 +139,7 @@ require(["jquery", "avalon", "editor", "uploader", "bsAlert", "csrfToken", "date
                                         vm.startTime = contest.start_time.substring(0, 16).replace("T", " ");
                                         vm.endTime = contest.end_time.substring(0, 16).replace("T", " ");
                                         vm.password = contest.password;
-                                        if (contest.contest_type == 0) { //contest_type == 0, 小组内比赛
+                                        if (contest.contest_type == 0 || contest.contest_type == 3) { //contest_type == 0, 小组内比赛
                                             vm.isGlobal = false;
                                             for (var i = 0; i < vm.allGroups.length; i++) {
                                                 vm.allGroups[i].isSelected = false;

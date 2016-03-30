@@ -1,0 +1,13 @@
+language: python
+python:
+  - "2.7"
+install:
+ - pip install -r dockerfiles/oj_web_server/requirements.txt
+ - mkdir log test_case upload
+ - cp oj/custom_settings.example.py oj/custom_settings.py
+ - echo "SECRET_KEY=\"`cat /dev/urandom | head -1 | md5sum | head -c 32`\"" >> oj/custom_settings.py
+ - python manage.py migrate
+ - python manage.py migrate --database=submission
+ - python manage.py initadmin
+script:
+ - python manage.py test

@@ -10,7 +10,7 @@ https://docs.djangoproject.com/en/1.8/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/1.8/ref/settings/
 """
-
+from __future__ import absolute_import
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
 
@@ -22,15 +22,16 @@ if ENV == "local":
 elif ENV == "server":
     from .server_settings import *
 
+from .custom_settings import *
+
+import djcelery
+djcelery.setup_loader()
+
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.8/howto/deployment/checklist/
-
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'hzfp^8mbgapc&x%$#xv)0=t8s7_ilingw(q3!@h&2fty6v6fxz'
-
 
 # Application definition
 
@@ -48,12 +49,12 @@ INSTALLED_APPS = (
     'problem',
     'admin',
     'submission',
-    'mq',
     'contest',
-    'mail',
+    'judge',
+    'judge_dispatcher',
 
-    'django_extensions',
     'rest_framework',
+    'djcelery',
 )
 
 if DEBUG:
@@ -80,7 +81,7 @@ ROOT_URLCONF = 'oj.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': TEMPLATE_DIRS,
+        'DIRS': OJ_TEMPLATE_DIRS,
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -98,7 +99,7 @@ WSGI_APPLICATION = 'oj.wsgi.application'
 # Internationalization
 # https://docs.djangoproject.com/en/1.8/topics/i18n/
 
-LANGUAGE_CODE = 'zh-cn'
+LANGUAGE_CODE = 'zh-hans'
 
 TIME_ZONE = 'Asia/Shanghai'
 
@@ -117,7 +118,6 @@ STATIC_URL = '/static/'
 AUTH_USER_MODEL = 'account.User'
 
 LOG_PATH = "log/"
-
 
 LOGGING = {
     'version': 1,
@@ -183,6 +183,8 @@ TEST_CASE_DIR = os.path.join(BASE_DIR, 'test_case/')
 
 IMAGE_UPLOAD_DIR = os.path.join(BASE_DIR, 'upload/')
 
-WEBSITE_INFO = {"website_name": "qduoj",
-                "website_footer": u"青岛大学信息工程学院 创新实验室",
-                "url": "https://qduoj.com"}
+# 用于限制用户恶意提交大量代码
+TOKEN_BUCKET_DEFAULT_CAPACITY = 50
+
+# 单位:每分钟
+TOKEN_BUCKET_FILL_RATE = 2

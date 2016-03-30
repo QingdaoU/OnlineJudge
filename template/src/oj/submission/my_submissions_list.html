@@ -62,7 +62,7 @@
                     {{ item.language|translate_language }}
                 </td>
                 <td>
-                    {% if item.accepted_answer_time %}
+                    {% if item.accepted_answer_time != None %}
                     {{ item.accepted_answer_time }}ms
                     {% else %}
                     --

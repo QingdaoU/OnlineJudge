@@ -118,3 +118,13 @@ li.problem-tag {
     padding-top: 7.5px;
     padding-bottom: 7.5px;
 }
+
+
+#tfa-qrcode{
+    height: 40%;
+    width: 40%;
+}
+
+#tfa-area{
+    display: none;
+}

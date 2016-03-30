@@ -5,8 +5,9 @@ from django.views.generic import TemplateView
 
 from account.views import (UserLoginAPIView, UsernameCheckAPIView, UserRegisterAPIView,
                            UserChangePasswordAPIView, EmailCheckAPIView,
-                           UserAdminAPIView, UserInfoAPIView,
-                           ApplyResetPasswordAPIView, SSOAPIView, UserProfileAPIView)
+                           UserAdminAPIView, UserInfoAPIView, ResetPasswordAPIView,
+                           ApplyResetPasswordAPIView, SSOAPIView, UserProfileAPIView,
+                           TwoFactorAuthAPIView)
 
 from announcement.views import AnnouncementAdminAPIView
 
@@ -15,17 +16,15 @@ from contest.views import (ContestAdminAPIView, ContestProblemAdminAPIView,
                            MakeContestProblemPublicAPIView)
 
 from group.views import (GroupAdminAPIView, GroupMemberAdminAPIView,
-                         JoinGroupAPIView, JoinGroupRequestAdminAPIView)
+                         JoinGroupAPIView, JoinGroupRequestAdminAPIView, GroupPrometAdminAPIView)
 
 from admin.views import AdminTemplateView
 
-from problem.views import TestCaseUploadAPIView, ProblemTagAdminAPIView, ProblemAdminAPIView
+from problem.views import TestCaseUploadAPIView, ProblemTagAdminAPIView, ProblemAdminAPIView, OpenAPIProblemAPI
 from submission.views import (SubmissionAPIView, SubmissionAdminAPIView, ContestSubmissionAPIView,
-                              SubmissionShareAPIView, SubmissionRejudgeAdminAPIView)
-from monitor.views import QueueLengthMonitorAPIView
+                              SubmissionShareAPIView, SubmissionRejudgeAdminAPIView, OpenAPISubmitCodeAPI)
+from judge_dispatcher.views import AdminJudgeServerAPIView
 from utils.views import SimditorImageUploadAPIView
-
-
 
 urlpatterns = [
     url("^$", "account.views.index_page", name="index_page"),
@@ -62,16 +61,19 @@ urlpatterns = [
     url(r'^api/admin/user/$', UserAdminAPIView.as_view(), name="user_admin_api"),
     url(r'^api/admin/group/$', GroupAdminAPIView.as_view(), name="group_admin_api"),
     url(r'^api/admin/group_member/$', GroupMemberAdminAPIView.as_view(), name="group_member_admin_api"),
+    url(r'^api/admin/group/promot_as_admin/$', GroupPrometAdminAPIView.as_view(), name="group_promote_admin_api"),
 
     url(r'^api/admin/problem/$', ProblemAdminAPIView.as_view(), name="problem_admin_api"),
     url(r'^api/admin/contest_problem/$', ContestProblemAdminAPIView.as_view(), name="contest_problem_admin_api"),
-    url(r'^api/admin/contest_problem/public/', MakeContestProblemPublicAPIView.as_view(), name="make_contest_problem_public"),
+    url(r'^api/admin/contest_problem/public/', MakeContestProblemPublicAPIView.as_view(),
+        name="make_contest_problem_public"),
     url(r'^api/admin/test_case_upload/$', TestCaseUploadAPIView.as_view(), name="test_case_upload_api"),
     url(r'^api/admin/tag/$', ProblemTagAdminAPIView.as_view(), name="problem_tag_admin_api"),
     url(r'^api/admin/join_group_request/$', JoinGroupRequestAdminAPIView.as_view(),
         name="join_group_request_admin_api"),
     url(r'^api/admin/submission/$', SubmissionAdminAPIView.as_view(), name="submission_admin_api_view"),
-    url(r'^api/admin/monitor/$', QueueLengthMonitorAPIView.as_view(), name="queue_length_monitor_api"),
+
+    url(r'^api/admin/judges/$', AdminJudgeServerAPIView.as_view(), name="judges_admin_api"),
 
     url(r'^contest/(?P<contest_id>\d+)/problem/(?P<contest_problem_id>\d+)/$', "contest.views.contest_problem_page",
         name="contest_problem_page"),
@@ -90,6 +92,7 @@ urlpatterns = [
     url(r'^contests/$', "contest.views.contest_list_page", name="contest_list_page"),
     url(r'^contests/(?P<page>\d+)/$', "contest.views.contest_list_page", name="contest_list_page"),
 
+    url(r'^api/open/problem/$', OpenAPIProblemAPI.as_view(), name="openapi_problem_api"),
 
     url(r'^problem/(?P<problem_id>\d+)/$', "problem.views.problem_page", name="problem_page"),
     url(r'^problems/$', "problem.views.problem_list_page", name="problem_list_page"),
@@ -97,6 +100,7 @@ urlpatterns = [
     url(r'^problem/(?P<problem_id>\d+)/submissions/$', "submission.views.problem_my_submissions_list_page",
         name="problem_my_submissions_page"),
 
+    url(r'^api/open/submission/$', OpenAPISubmitCodeAPI.as_view(), name="openapi_submit_code"),
 
     url(r'^submission/(?P<submission_id>\w+)/$', "submission.views.my_submission", name="my_submission_page"),
     url(r'^submissions/$', "submission.views.my_submission_list_page", name="my_submission_list_page"),
@@ -122,12 +126,18 @@ urlpatterns = [
 
     url(r'^user/(?P<username>.+)/$', "account.views.user_index_page"),
 
-    url(r'^api/reset_password/$', ApplyResetPasswordAPIView.as_view(), name="apply_reset_password_api"),
-
-    url(r'^account/settings/$', TemplateView.as_view(template_name="oj/account/settings.html"), name="account_setting_page"),
-    url(r'^account/settings/avatar/$', TemplateView.as_view(template_name="oj/account/avatar.html"), name="avatar_settings_page"),
+    url(r'^api/apply_reset_password/$', ApplyResetPasswordAPIView.as_view(), name="apply_reset_password_api"),
+    url(r'^api/reset_password/$', ResetPasswordAPIView.as_view(), name="apply_reset_password_api"),
+    url(r'^account/settings/$', TemplateView.as_view(template_name="oj/account/settings.html"),
+        name="account_setting_page"),
+    url(r'^account/settings/avatar/$', TemplateView.as_view(template_name="oj/account/avatar.html"),
+        name="avatar_settings_page"),
     url(r'^account/sso/$', SSOAPIView.as_view(), name="sso_api"),
-    url('^api/account/userprofile/$', UserProfileAPIView.as_view(), name="userprofile_api"),
+    url(r'^api/account/userprofile/$', UserProfileAPIView.as_view(), name="userprofile_api"),
+    url(r'^reset_password/$', TemplateView.as_view(template_name="oj/account/apply_reset_password.html"), name="apply_reset_password_page"),
+    url(r'^reset_password/t/(?P<token>\w+)/$', "account.views.reset_password_page", name="reset_password_page"),
+    url(r'^api/two_factor_auth/$', TwoFactorAuthAPIView.as_view(), name="two_factor_auth_api"),
+    url(r'^two_factor_auth/$', TemplateView.as_view(template_name="oj/account/two_factor_auth.html"), name="two_factor_auth_page"),
 ]
 
 

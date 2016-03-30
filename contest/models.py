@@ -1,4 +1,6 @@
 # coding=utf-8
+import logging
+
 from django.db import models
 from django.utils.timezone import now
 
@@ -7,16 +9,20 @@ from problem.models import AbstractProblem
 from group.models import Group
 from utils.models import RichTextField
 from jsonfield import JSONField
-from judge.judger.result import result
+from judge.result import result
 
 
 GROUP_CONTEST = 0
 PUBLIC_CONTEST = 1
 PASSWORD_PROTECTED_CONTEST = 2
+PASSWORD_PROTECTED_GROUP_CONTEST = 3
 
 CONTEST_NOT_START = 1
 CONTEST_ENDED = -1
 CONTEST_UNDERWAY = 0
+
+
+logger = logging.getLogger("app_info")
 
 
 class Contest(models.Model):
@@ -90,6 +96,10 @@ class ContestRank(models.Model):
         if not submission.contest_id or submission.contest_id != self.contest_id:
             raise ValueError("Error submission type")
 
+        if submission.result == result["system_error"]:
+            logger.warning("submission " + submission.id + " result is system error, update rank operation is ignored")
+            return
+
         # 这道题以前提交过
         if str(submission.problem_id) in self.submission_info:
             info = self.submission_info[str(submission.problem_id)]
@@ -109,7 +119,8 @@ class ContestRank(models.Model):
                 # 之前已经提交过，但是是错误的，这次提交是正确的。错误的题目不计入罚时
                 self.total_time += (info["ac_time"] + info["error_number"] * 20 * 60)
                 problem = ContestProblem.objects.get(id=submission.problem_id)
-                if problem.total_accepted_number == 0:
+                # 更新题目计数器在前 所以是1
+                if problem.total_accepted_number == 1:
                     info["is_first_ac"] = True
 
             else:
@@ -127,7 +138,7 @@ class ContestRank(models.Model):
                 self.total_time += info["ac_time"]
                 problem = ContestProblem.objects.get(id=submission.problem_id)
 
-                if problem.total_accepted_number == 0:
+                if problem.total_accepted_number == 1:
                     info["is_first_ac"] = True
 
             else:

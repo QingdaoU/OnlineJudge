@@ -1,11 +1,13 @@
 # coding=utf-8
 import codecs
+import qrcode
+import StringIO
 from django import http
 from django.contrib import auth
 from django.shortcuts import render
 from django.db.models import Q
 from django.conf import settings
-from django.http import HttpResponseRedirect
+from django.http import HttpResponse
 from django.core.exceptions import MultipleObjectsReturned
 from django.utils.timezone import now
 
@@ -14,7 +16,9 @@ from rest_framework.response import Response
 from utils.shortcuts import (serializer_invalid_response, error_response,
                              success_response, error_page, paginate, rand_str)
 from utils.captcha import Captcha
-from mail.tasks import send_email
+from utils.otp_auth import OtpAuth
+
+from .tasks import _send_email
 
 from .decorators import login_required
 from .models import User, UserProfile
@@ -23,7 +27,8 @@ from .serializers import (UserLoginSerializer, UserRegisterSerializer,
                           UserChangePasswordSerializer,
                           UserSerializer, EditUserSerializer,
                           ApplyResetPasswordSerializer, ResetPasswordSerializer,
-                          SSOSerializer, EditUserProfileSerializer, UserProfileSerializer)
+                          SSOSerializer, EditUserProfileSerializer,
+                          UserProfileSerializer, TwoFactorAuthCodeSerializer)
 
 from .decorators import super_admin_required
 
@@ -38,21 +43,29 @@ class UserLoginAPIView(APIView):
         serializer = UserLoginSerializer(data=request.data)
         if serializer.is_valid():
             data = serializer.data
-            captcha = Captcha(request)
-            if not captcha.check(data["captcha"]):
-                return error_response(u"验证码错误")
             user = auth.authenticate(username=data["username"], password=data["password"])
             # 用户名或密码错误的话 返回None
             if user:
-                auth.login(request, user)
-                return success_response(u"登录成功")
+                if not user.two_factor_auth:
+                    auth.login(request, user)
+                    return success_response(u"登录成功")
+
+                # 没有输入两步验证的验证码
+                if user.two_factor_auth and "tfa_code" not in data:
+                    return success_response("tfa_required")
+
+                if OtpAuth(user.tfa_token).valid_totp(data["tfa_code"]):
+                    auth.login(request, user)
+                    return success_response(u"登录成功")
+                else:
+                    return error_response(u"验证码错误")
             else:
                 return error_response(u"用户名或密码错误")
         else:
             return serializer_invalid_response(serializer)
 
 
-@login_required
+#@login_required
 def logout(request):
     auth.logout(request)
     return http.HttpResponseRedirect("/")
@@ -62,10 +75,9 @@ def index_page(request):
     if not request.user.is_authenticated():
         return render(request, "oj/index.html")
 
-    try:
-        if request.META['HTTP_REFERER']:
-            return render(request, "oj/index.html")
-    except KeyError:
+    if request.META.get('HTTP_REFERER') or request.GET.get("index"):
+        return render(request, "oj/index.html")
+    else:
         return http.HttpResponseRedirect('/problems/')
 
 
@@ -98,7 +110,7 @@ class UserRegisterAPIView(APIView):
                                            email=data["email"])
                 user.set_password(data["password"])
                 user.save()
-                UserProfile.objects.create(user=user)
+                UserProfile.objects.create(user=user, school=data["school"], student_id=data["student_id"])
                 return success_response(u"注册成功！")
         else:
             return serializer_invalid_response(serializer)
@@ -149,17 +161,27 @@ class UsernameCheckAPIView(APIView):
 class EmailCheckAPIView(APIView):
     def get(self, request):
         """
-        检测邮箱是否存在，存在返回状态码400，不存在返回200
+        检测邮箱是否存在，用状态码标识结果
         ---
         """
+        # 这里是为了适应前端表单验证空间的要求
+        reset = request.GET.get("reset", None)
+        # 如果reset为true说明该请求是重置密码页面发出的，要返回的状态码应正好相反
+        if reset:
+            existed = 200
+            does_not_existed = 400
+        else:
+            existed = 400
+            does_not_existed = 200
+
         email = request.GET.get("email", None)
         if email:
             try:
                 User.objects.get(email=email)
-                return Response(status=400)
+                return Response(status=existed)
             except Exception:
-                return Response(status=200)
-        return Response(status=200)
+                return Response(status=does_not_existed)
+        return Response(status=does_not_existed)
 
 
 class UserAdminAPIView(APIView):
@@ -188,8 +210,27 @@ class UserAdminAPIView(APIView):
             user.real_name = data["real_name"]
             user.email = data["email"]
             user.admin_type = data["admin_type"]
+
             if data["password"]:
                 user.set_password(data["password"])
+
+            # 后台控制用户是否可以使用openapi
+            if data["openapi"] is False:
+                user.openapi_appkey = None
+            elif data["openapi"] and user.openapi_appkey is None:
+                user.openapi_appkey = rand_str()
+
+            # 后台控制用户是否使用两步验证
+            # 注意:用户没开启,后台开启的话,用户没有绑定过两步验证token,会造成无法登陆的!
+            if data["tfa_auth"] is False:
+                user.two_factor_auth = False
+            elif data["tfa_auth"] and user.two_factor_auth is False:
+                user.two_factor_auth = True
+                user.tfa_token = rand_str()
+
+            # 后台控制用户是否被禁用
+            user.is_forbidden = data["is_forbidden"]
+
             user.save()
             return success_response(UserSerializer(user).data)
         else:
@@ -246,13 +287,15 @@ class UserProfileAPIView(APIView):
             user_profile = request.user.userprofile
             if data["avatar"]:
                 user_profile.avatar = data["avatar"]
-            user_profile.mood = data["mood"]
-            user_profile.hduoj_username = data["hduoj_username"]
-            user_profile.bestcoder_username = data["bestcoder_username"]
-            user_profile.codeforces_username = data["codeforces_username"]
-            user_profile.blog = data["blog"]
-            user_profile.school = data["school"]
-            user_profile.phone_number = data["phone_number"]
+            else:
+                user_profile.mood = data["mood"]
+                user_profile.hduoj_username = data["hduoj_username"]
+                user_profile.bestcoder_username = data["bestcoder_username"]
+                user_profile.codeforces_username = data["codeforces_username"]
+                user_profile.blog = data["blog"]
+                user_profile.school = data["school"]
+                user_profile.student_id = data["student_id"]
+                user_profile.phone_number = data["phone_number"]
             user_profile.save()
             return success_response(u"修改成功")
         else:
@@ -273,26 +316,29 @@ class ApplyResetPasswordAPIView(APIView):
             if not captcha.check(data["captcha"]):
                 return error_response(u"验证码错误")
             try:
-                user = User.objects.get(username=data["username"], email=data["email"])
+                user = User.objects.get(email=data["email"])
             except User.DoesNotExist:
                 return error_response(u"用户不存在")
-            if user.reset_password_token_create_time and (now() - user.reset_password_token_create_time).total_seconds() < 20 * 60:
+            if user.reset_password_token_create_time and (
+                now() - user.reset_password_token_create_time).total_seconds() < 20 * 60:
                 return error_response(u"20分钟内只能找回一次密码")
             user.reset_password_token = rand_str()
             user.reset_password_token_create_time = now()
             user.save()
-            email_template = codecs.open(settings.TEMPLATES[0]["DIRS"][0] + "utils/reset_password_email.html", "r", "utf-8").read()
+            email_template = codecs.open(settings.TEMPLATES[0]["DIRS"][0] + "utils/reset_password_email.html", "r",
+                                         "utf-8").read()
 
-            email_template = email_template.replace("{{ username }}", user.username).\
-                replace("{{ website_name }}", settings.WEBSITE_INFO["website_name"]).\
-                replace("{{ link }}", request.scheme + "://" + request.META['HTTP_HOST'] + "/reset_password/?token=" + user.reset_password_token)
+            email_template = email_template.replace("{{ username }}", user.username). \
+                replace("{{ website_name }}", settings.WEBSITE_INFO["website_name"]). \
+                replace("{{ link }}", settings.WEBSITE_INFO["url"] + "/reset_password/t/" +
+                        user.reset_password_token)
 
-            send_email(settings.WEBSITE_INFO["website_name"],
-                       user.email,
-                       user.username,
-                       settings.WEBSITE_INFO["website_name"] + u" 密码找回邮件",
-                       email_template)
-            return success_response(u"邮件发送成功")
+            _send_email.delay(settings.WEBSITE_INFO["website_name"],
+                              user.email,
+                              user.username,
+                              settings.WEBSITE_INFO["website_name"] + u" 登录信息找回邮件",
+                              email_template)
+            return success_response(u"邮件发送成功,请前往您的邮箱查收")
         else:
             return serializer_invalid_response(serializer)
 
@@ -338,8 +384,17 @@ class SSOAPIView(APIView):
         serializer = SSOSerializer(data=request.data)
         if serializer.is_valid():
             try:
+                User.objects.get(openapi_appkey=serializer.data["appkey"])
+            except User.DoesNotExist:
+                return error_response(u"appkey无效")
+            try:
                 user = User.objects.get(auth_token=serializer.data["token"])
-                return success_response({"username": user.username})
+                user.auth_token = None
+                user.save()
+                return success_response({"username": user.username,
+                                         "id": user.id,
+                                         "admin_type": user.admin_type,
+                                         "avatar": user.userprofile.avatar})
             except User.DoesNotExist:
                 return error_response(u"用户不存在")
         else:
@@ -348,9 +403,72 @@ class SSOAPIView(APIView):
     @login_required
     def get(self, request):
         callback = request.GET.get("callback", None)
-        if not callback or callback != settings.SSO["callback"]:
+        if not callback:
             return error_page(request, u"参数错误")
         token = rand_str()
         request.user.auth_token = token
         request.user.save()
-        return render(request, "oj/account/sso.html", {"redirect_url": callback + "?token=" + token, "callback": callback})
+        return render(request, "oj/account/sso.html",
+                      {"redirect_url": callback + "?token=" + token, "callback": callback})
+
+
+def reset_password_page(request, token):
+    try:
+        user = User.objects.get(reset_password_token=token)
+    except User.DoesNotExist:
+        return error_page(request, u"链接已失效")
+    if (now() - user.reset_password_token_create_time).total_seconds() > 30 * 60:
+        return error_page(request, u"链接已过期")
+    return render(request, "oj/account/reset_password.html", {"user": user})
+
+
+class TwoFactorAuthAPIView(APIView):
+    @login_required
+    def get(self, request):
+        """
+        获取绑定二维码
+        """
+        user = request.user
+        if user.two_factor_auth:
+            return error_response(u"已经开启两步验证了")
+        token = rand_str()
+        user.tfa_token = token
+        user.save()
+
+        image = qrcode.make(OtpAuth(token).to_uri("totp", settings.WEBSITE_INFO["url"], "OnlineJudgeAdmin"))
+        buf = StringIO.StringIO()
+        image.save(buf, 'gif')
+
+        return HttpResponse(buf.getvalue(), 'image/gif')
+
+    @login_required
+    def post(self, request):
+        """
+        开启两步验证
+        """
+        serializer = TwoFactorAuthCodeSerializer(data=request.data)
+        if serializer.is_valid():
+            code = serializer.data["code"]
+            user = request.user
+            if OtpAuth(user.tfa_token).valid_totp(code):
+                user.two_factor_auth = True
+                user.save()
+                return success_response(u"开启两步验证成功")
+            else:
+                return error_response(u"验证码错误")
+        else:
+            return serializer_invalid_response(serializer)
+
+    @login_required
+    def put(self, request):
+        serializer = TwoFactorAuthCodeSerializer(data=request.data)
+        if serializer.is_valid():
+            user = request.user
+            code = serializer.data["code"]
+            if OtpAuth(user.tfa_token).valid_totp(code):
+                user.two_factor_auth = False
+                user.save()
+            else:
+                return error_response(u"验证码错误")
+        else:
+            return serializer_invalid_response(serializer)

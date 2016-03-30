@@ -52,30 +52,35 @@
         //"_datetimePicker": "lib/datetime_picker/bootstrap-datetimepicker",
 
         //以下都是页面 script 标签引用的js
+        //以下都是页面 script 标签引用的js
         announcement_0_pack: "app/admin/announcement/announcement",
         userList_1_pack: "app/admin/user/userList",
-        problem_2_pack: "app/oj/problem/problem",
-        submissionList_3_pack: "app/admin/problem/submissionList",
-        contestCountdown_4_pack: "app/oj/contest/contestCountdown",
-        addProblem_5_pack: "app/admin/problem/addProblem",
-        problem_6_pack: "app/admin/problem/problem",
-        contestList_7_pack: "app/admin/contest/contestList",
-        admin_8_pack: "app/admin/admin",
-        login_9_pack: "app/oj/account/login",
-        addContest_10_pack: "app/admin/contest/addContest",
-        contestPassword_11_pack: "app/oj/contest/contestPassword",
-        changePassword_12_pack: "app/oj/account/changePassword",
-        monitor_13_pack: "app/admin/monitor/monitor",
-        editProblem_14_pack: "app/admin/contest/editProblem",
-        joinGroupRequestList_15_pack: "app/admin/group/joinGroupRequestList",
-        group_16_pack: "app/oj/group/group",
-        contestProblemList_17_pack: "app/admin/contest/contestProblemList",
-        editProblem_18_pack: "app/admin/problem/editProblem",
-        register_19_pack: "app/oj/account/register",
-        groupDetail_20_pack: "app/admin/group/groupDetail",
-        editContest_21_pack: "app/admin/contest/editContest",
-        group_22_pack: "app/admin/group/group",
-        settings_23_pack: "app/oj/account/settings"
+        twoFactorAuth_2_pack: "app/oj/account/twoFactorAuth",
+        problem_3_pack: "app/oj/problem/problem",
+        submissionList_4_pack: "app/admin/problem/submissionList",
+        contestCountdown_5_pack: "app/oj/contest/contestCountdown",
+        avatar_6_pack: "app/oj/account/avatar",
+        addProblem_7_pack: "app/admin/problem/addProblem",
+        problem_8_pack: "app/admin/problem/problem",
+        contestList_9_pack: "app/admin/contest/contestList",
+        admin_10_pack: "app/admin/admin",
+        login_11_pack: "app/oj/account/login",
+        applyResetPassword_12_pack: "app/oj/account/applyResetPassword",
+        addContest_13_pack: "app/admin/contest/addContest",
+        contestPassword_14_pack: "app/oj/contest/contestPassword",
+        changePassword_15_pack: "app/oj/account/changePassword",
+        judges_16_pack: "app/admin/judges/judges",
+        editProblem_17_pack: "app/admin/contest/editProblem",
+        joinGroupRequestList_18_pack: "app/admin/group/joinGroupRequestList",
+        group_19_pack: "app/oj/group/group",
+        contestProblemList_20_pack: "app/admin/contest/contestProblemList",
+        editProblem_21_pack: "app/admin/problem/editProblem",
+        register_22_pack: "app/oj/account/register",
+        groupDetail_23_pack: "app/admin/group/groupDetail",
+        editContest_24_pack: "app/admin/contest/editContest",
+        resetPassword_25_pack: "app/oj/account/resetPassword",
+        group_26_pack: "app/admin/group/group",
+        settings_27_pack: "app/oj/account/settings"
     },
     shim: {
             avalon: {
@@ -86,12 +91,11 @@
     appDir: "../",
     dir: "../../release/",
     modules: [
+        // 提交脚本提取的模块的时候不要删掉这个
         {
             name: "bootstrap",
         },
-        {
-            name: "codeMirror"
-        },
+        /////////////////////////////////
         {
             name: "announcement_0_pack"
         },
@@ -99,71 +103,83 @@
             name: "userList_1_pack"
         },
         {
-            name: "problem_2_pack"
+            name: "twoFactorAuth_2_pack"
         },
         {
-            name: "submissionList_3_pack"
+            name: "problem_3_pack"
         },
         {
-            name: "contestCountdown_4_pack"
+            name: "submissionList_4_pack"
         },
         {
-            name: "addProblem_5_pack"
+            name: "contestCountdown_5_pack"
         },
         {
-            name: "problem_6_pack"
+            name: "avatar_6_pack"
         },
         {
-            name: "contestList_7_pack"
+            name: "addProblem_7_pack"
         },
         {
-            name: "admin_8_pack"
+            name: "problem_8_pack"
         },
         {
-            name: "login_9_pack"
+            name: "contestList_9_pack"
         },
         {
-            name: "addContest_10_pack"
+            name: "admin_10_pack"
         },
         {
-            name: "contestPassword_11_pack"
+            name: "login_11_pack"
         },
         {
-            name: "changePassword_12_pack"
+            name: "applyResetPassword_12_pack"
         },
         {
-            name: "monitor_13_pack"
+            name: "addContest_13_pack"
         },
         {
-            name: "editProblem_14_pack"
+            name: "contestPassword_14_pack"
         },
         {
-            name: "joinGroupRequestList_15_pack"
+            name: "changePassword_15_pack"
         },
         {
-            name: "group_16_pack"
+            name: "judges_16_pack"
         },
         {
-            name: "contestProblemList_17_pack"
+            name: "editProblem_17_pack"
         },
         {
-            name: "editProblem_18_pack"
+            name: "joinGroupRequestList_18_pack"
         },
         {
-            name: "register_19_pack"
+            name: "group_19_pack"
         },
         {
-            name: "groupDetail_20_pack"
+            name: "contestProblemList_20_pack"
         },
         {
-            name: "editContest_21_pack"
+            name: "editProblem_21_pack"
         },
         {
-            name: "group_22_pack"
+            name: "register_22_pack"
         },
         {
-            name: "settings_23_pack"
+            name: "groupDetail_23_pack"
         },
+        {
+            name: "editContest_24_pack"
+        },
+        {
+            name: "resetPassword_25_pack"
+        },
+        {
+            name: "group_26_pack"
+        },
+        {
+            name: "settings_27_pack"
+        }
     ],
     optimizeCss: "standard",
 })

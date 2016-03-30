@@ -56,7 +56,7 @@ def get_submission_content(rank, problem):
         if submission["is_ac"]:
             r = get_the_formatted_time(submission["ac_time"])
             if submission["error_number"]:
-                r += "（-" + str(submission["error_number"]) + "）"
+                r += "<br>（-" + str(submission["error_number"]) + "）"
             return r
         else:
             return "（-" + str(submission["error_number"]) + "）"

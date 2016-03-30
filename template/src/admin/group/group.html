@@ -38,6 +38,35 @@
         <button ms-attr-class="getBtnClass('pre')" ms-click="getPrevious">上一页</button>
         <button ms-attr-class="getBtnClass('next')" ms-click="getNext">下一页</button>
     </div>
+    <h2>创建小组</h2>
+    <form id="add-group-form">
+        <div class="col-md-12">
+            <div class="form-group"><label>小组名</label>
+                <input type="text" name="name" class="form-control" ms-duplex="name"
+                        data-error="请填写小组名(名称不能超过20字)" maxlength="20" required>
+                <div class="help-block with-errors"></div>
+            </div>
+        </div>
+        <div class="col-md-12">
+            <div class="form-group"><label>描述</label>
+                <textarea rows="3" name="description" class="form-control" ms-duplex="description"
+                          data-error="请填写描述" maxlength="300" required>
+                </textarea>
+                <div class="help-block with-errors"></div>
+            </div>
+        </div>
+        
+        <div class="col-md-12">
+            <div class="form-group">
+                <label>加入小组设置</label>
+                <input type="radio" name="join_group_setting" value="0" ms-duplex-string="group_type">允许任何人加入
+                <input type="radio" name="join_group_setting" value="1" ms-duplex-string="group_type">提交请求后管理员审核
+                <input type="radio" name="join_group_setting" value="2" ms-duplex-string="group_type">不允许任何人加入
+
+            </div>
+            <input type="submit" class="btn btn-success btn-lg" value="创建小组" id="submitBtn">
+        </div>
+    </form>
 
 </div>
 <script src="/static/js/app/admin/group/group.js"></script>
