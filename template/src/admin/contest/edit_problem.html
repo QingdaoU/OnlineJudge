@@ -26,17 +26,17 @@
         </div>
 
 
-        <div class="col-md-3">
-            <div class="form-group"><label>时间限制(ms)</label>
+        <div class="col-md-6">
+            <div class="form-group"><label>时间限制(ms, 范围1-10000ms)</label>
                 <input type="number" name="timeLimit" class="form-control" ms-duplex="timeLimit"
-                       data-error="请输入时间限制(保证是一个30-5000的合法整数)" required>
+                       data-error="请输入时间限制" required>
                 <div class="help-block with-errors"></div>
             </div>
         </div>
-        <div class="col-md-3">
-            <div class="form-group"><label>内存限制(MB)</label>
+        <div class="col-md-6">
+            <div class="form-group"><label>请输入内存限制(MB, 最低16M, Java不能低于32M)</label>
                 <input type="number" name="memory" class="form-control" ms-duplex="memoryLimit"
-                       data-error="请输入内存限制(保证是一个合法整数)" required>
+                       data-error="请输入内存限制" required>
                 <div class="help-block with-errors"></div>
             </div>
         </div>

@@ -25,8 +25,8 @@ class CreateProblemSerializer(serializers.Serializer):
     # [{"input": "1 1", "output": "2"}]
     samples = ProblemSampleSerializer()
     test_case_id = serializers.CharField(max_length=40)
-    time_limit = serializers.IntegerField(min_value=1)
-    memory_limit = serializers.IntegerField(min_value=1)
+    time_limit = serializers.IntegerField(min_value=1, max_value=10000)
+    memory_limit = serializers.IntegerField(min_value=16)
     difficulty = serializers.IntegerField()
     tags = serializers.ListField(child=serializers.CharField(max_length=10))
     hint = serializers.CharField(max_length=3000, allow_blank=True)

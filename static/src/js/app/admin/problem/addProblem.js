@@ -14,8 +14,12 @@ require(["jquery", "avalon", "editor", "uploader", "bsAlert",
                             bsAlert("题目描述不能为空!");
                             return false;
                         }
-                        if (vm.timeLimit < 30 || vm.timeLimit > 5000) {
-                            bsAlert("保证时间限制是一个30-5000的合法整数");
+                        if (vm.timeLimit < 1 || vm.timeLimit > 10000) {
+                            bsAlert("保证时间限制是一个1-10000的整数");
+                            return false;
+                        }
+                        if (vm.memoryLimit < 16) {
+                            bsAlert("最低内存不能低于16M(注意:Java最低需要内存32M)");
                             return false;
                         }
                         if (vm.samples.length == 0) {
