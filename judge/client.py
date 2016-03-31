@@ -32,7 +32,21 @@ class JudgeClient(object):
         self._language = languages[language_code]
         self._exe_path = exe_path
         self._max_cpu_time = max_cpu_time
-        self._max_memory = max_memory
+
+        # 如果是Java, 就不在judger中限制内存分配了, 而是转移到Java运行参数中,
+        # 参见 https://github.com/QingdaoU/OnlineJudge/issues/23
+        # 这里给出3倍的限制, 是为了防止出现OutOfMemory异常导致误判为Runtime Error,
+        # 如果实际使用超过了3倍, 就只能得到Runtime Error的结果了
+        # 而最后会比较Java实际使用的内存和1.5倍的设定内存的大小
+        self._real_max_memory = max_memory
+        if self._language["name"] == "java":
+            self._max_memory = judger.MEMORY_UNLIMITED
+            self.execute_command = self._language["execute_command"].\
+                format(exe_path=self._exe_path, max_memory=max_memory * 3).split(" ")
+        else:
+            self._max_memory = self._real_max_memory
+            self.execute_command = self._language["execute_command"].format(exe_path=self._exe_path).split(" ")
+
         self._test_case_dir = test_case_dir
         # 进程池
         self._pool = Pool(processes=max_running_number)
@@ -82,18 +96,22 @@ class JudgeClient(object):
             return output_md5, output_md5 == test_case_config["striped_output_md5"]
 
     def _judge_one(self, test_case_id):
-        execute_command = self._language["execute_command"].format(exe_path=self._exe_path).split(" ")
-
-        run_result = judger.run(path=execute_command[0],
+        run_result = judger.run(path=self.execute_command[0],
                                 max_cpu_time=self._max_cpu_time,
                                 max_memory=self._max_memory,
                                 in_file=os.path.join(self._test_case_dir, str(test_case_id) + ".in"),
                                 out_file=os.path.join(self._judge_base_path, str(test_case_id) + ".out"),
-                                args=execute_command[1:],
+                                args=self.execute_command[1:],
                                 env=["PATH=" + os.environ["PATH"]],
                                 use_sandbox=self._language["use_sandbox"],
                                 use_nobody=True)
         run_result["test_case"] = test_case_id
+        
+        # 对Java的特殊处理, 详见__init__函数中注释
+        if self._language["name"] == "java" and run_result["memory"] > self._real_max_memory * 1.5:
+            run_result["flag"] = 3
+
+        # 将judger返回的结果标志转换为本系统中使用的
         if run_result["flag"] == 0:
             output_md5, r = self._compare_output(test_case_id)
             if r:

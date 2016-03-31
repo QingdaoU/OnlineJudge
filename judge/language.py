@@ -23,7 +23,9 @@ languages = {
         "src_name": "Main.java",
         "code": 3,
         "compile_command": "/usr/bin/javac {src_path} -d {exe_path} -encoding UTF8",
-        "execute_command": "/usr/bin/java -cp {exe_path} -Djava.security.manager -Djava.security.policy==policy Main",
+        "execute_command": "/usr/bin/java -cp {exe_path} -Xss1M -XX:MaxPermSize=16M "
+                           "-XX:PermSize=8M -Xms16M -Xmx{max_memory} -Djava.security.manager "
+                           "-Djava.security.policy==policy -Djava.awt.headless=true Main",
         "use_sandbox": False
     }
 }
