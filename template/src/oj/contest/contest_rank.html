@@ -23,13 +23,12 @@
 
         <div class="row">
             <div class="col-lg-12 table-responsive">
-                <h2 class="text-center">排名(
-                    {% if contest.real_time_rank %}
-                        实时
-                    {% else %}
-                        已封榜
-                    {% endif %})
+                <h2 class="text-center">排名({% if contest.real_time_rank %}实时{% else %}已封榜{% endif %})
                 </h2>
+                {% if force_real_time_rank %}
+                    <div class="alert alert-warning" role="alert">当前您使用了force_real_time_rank=true参数, 将强制显示实时结果。
+                        此提示仅管理员可见。</div>
+                {% endif %}
                 {% if rank %}
                     <table class="table table-bordered table-condensed text-center">
                         <thead>
