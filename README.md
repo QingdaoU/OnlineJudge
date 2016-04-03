@@ -10,7 +10,7 @@
  - 提供 Virtual Judge 和单点登录使用 API，不再繁琐的进行模拟登陆
  - 后台管理判题服务器，轻松分离 web 和判题服务器
 
-安装文档: http://qingdaou.github.io/OnlineJudge/
+安装文档: https://github.com/QingdaoU/OnlineJudge/wiki
 
 OpenAPI文档: https://github.com/QingdaoU/OnlineJudgeOpenAPI
 
