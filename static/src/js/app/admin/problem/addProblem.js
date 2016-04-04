@@ -1,5 +1,5 @@
 require(["jquery", "avalon", "editor", "uploader", "bsAlert",
-        "csrfToken", "tagEditor", "validator", "jqueryUI", "editorComponent", "testCaseUploader"],
+        "csrfToken", "tagEditor", "validator", "jqueryUI", "editorComponent", "testCaseUploader", "spj"],
     function ($, avalon, editor, uploader, bsAlert, csrfTokenHeader) {
         avalon.ready(function () {
 
@@ -37,6 +37,11 @@ require(["jquery", "avalon", "editor", "uploader", "bsAlert",
                             bsAlert("请至少添加一个标签，这将有利于用户发现你的题目!");
                             return false;
                         }
+                        var spjVM = avalon.vmodels.spjConfig;
+                        if (spjVM.spj && spjVM.spjCode == ""){
+                            bsAlert("请填写Special Judge的代码");
+                            return false;
+                        }
                         var ajaxData = {
                             id: avalon.vmodels.admin.problemId,
                             title: vm.title,
@@ -51,8 +56,13 @@ require(["jquery", "avalon", "editor", "uploader", "bsAlert",
                             tags: tags,
                             input_description: vm.inputDescription,
                             output_description: vm.outputDescription,
-                            difficulty: vm.difficulty
+                            difficulty: vm.difficulty,
+                            spj: spjVM.spj
                         };
+                        if (spjVM.spj) {
+                            ajaxData.spj_language = spjVM.spjLanguage;
+                            ajaxData.spj_code = spjVM.spjCode;
+                        }
 
                         for (var i = 0; i < vm.samples.$model.length; i++) {
                             ajaxData.samples.push({

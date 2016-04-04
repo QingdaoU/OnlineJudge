@@ -38,6 +38,10 @@ class AbstractProblem(models.Model):
     time_limit = models.IntegerField()
     # 内存限制 单位是MB
     memory_limit = models.IntegerField()
+    # special judge
+    spj = models.BooleanField(default=False)
+    spj_language = models.IntegerField(blank=True, null=True)
+    spj_code = models.TextField(blank=True, null=True)
     # 是否可见 false的话相当于删除
     visible = models.BooleanField(default=True)
     # 总共提交数量
