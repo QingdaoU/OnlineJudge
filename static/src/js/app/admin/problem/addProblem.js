@@ -38,7 +38,7 @@ require(["jquery", "avalon", "editor", "uploader", "bsAlert",
                             return false;
                         }
                         var spjVM = avalon.vmodels.spjConfig;
-                        if (spjVM.spj && spjVM.spjCode == ""){
+                        if (spjVM.spj && !spjVM.spjCode){
                             bsAlert("请填写Special Judge的代码");
                             return false;
                         }

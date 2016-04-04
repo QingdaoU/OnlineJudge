@@ -128,6 +128,9 @@ class ProblemAdminAPIView(APIView):
             problem.source = data["source"]
             problem.time_limit = data["time_limit"]
             problem.memory_limit = data["memory_limit"]
+            problem.spj = data["spj"]
+            problem.spj_language = data["spj_language"]
+            problem.spj_code = data["spj_code"]
             problem.difficulty = data["difficulty"]
             problem.samples = json.dumps(data["samples"])
             problem.hint = data["hint"]
