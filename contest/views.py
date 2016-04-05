@@ -202,6 +202,9 @@ class ContestProblemAdminAPIView(APIView):
                                                             samples=json.dumps(data["samples"]),
                                                             time_limit=data["time_limit"],
                                                             memory_limit=data["memory_limit"],
+                                                            spj=data["spj"],
+                                                            spj_language=data["spj_language"],
+                                                            spj_code=data["spj_code"],
                                                             created_by=request.user,
                                                             hint=data["hint"],
                                                             contest=contest,
@@ -235,6 +238,9 @@ class ContestProblemAdminAPIView(APIView):
             contest_problem.test_case_id = data["test_case_id"]
             contest_problem.time_limit = data["time_limit"]
             contest_problem.memory_limit = data["memory_limit"]
+            contest_problem.spj = data["spj"]
+            contest_problem.spj_language = data["spj_language"]
+            contest_problem.spj_code = data["spj_code"]
             contest_problem.samples = json.dumps(data["samples"])
             contest_problem.hint = data["hint"]
             contest_problem.visible = data["visible"]

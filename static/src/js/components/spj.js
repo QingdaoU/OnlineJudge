@@ -26,7 +26,6 @@ define("spj", ["avalon", "bsAlert"], function (avalon, bsAlert) {
         checkboxDisabled: false,
         $init: function(vm, el) {
             vm.$watch("testCaseUploadFinished", function (spj) {
-                console.log("watch" + spj);
                 vm.spj = spj;
                 vm.checkboxDisabled = true;
             });

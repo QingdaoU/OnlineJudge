@@ -48,7 +48,6 @@ define("testCaseUploader", ["avalon", "uploader", "bsAlert", "jquery"], function
                             }
                             vm.uploaded = true;
                             vm.uploadProgress = 100;
-                            console.log(data.data.spj);
                             vm.$fire("all!testCaseUploadFinished", data.data.spj);
                         }
                     }
