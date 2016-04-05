@@ -48,6 +48,8 @@ define("testCaseUploader", ["avalon", "uploader", "bsAlert", "jquery"], function
                             }
                             vm.uploaded = true;
                             vm.uploadProgress = 100;
+                            console.log(data.data.spj);
+                            vm.$fire("all!testCaseUploadFinished", data.data.spj);
                         }
                     }
                 });
@@ -72,7 +74,7 @@ define("testCaseUploader", ["avalon", "uploader", "bsAlert", "jquery"], function
                                 output: response.data.file_list[key].output_name
                             })
                         }
-                        bsAlert("测试数据添加成功！共添加" + vm.testCaseList.length + "组测试数据");
+                        vm.$fire("all!testCaseUploadFinished", response.data.spj);
                     }
                 },
                 function (file, percentage) {

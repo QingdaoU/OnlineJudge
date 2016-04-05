@@ -96,7 +96,7 @@ require(["jquery", "avalon", "editor", "uploader", "bsAlert",
             if (avalon.vmodels.editProblem) {
                 var vm = avalon.vmodels.editProblem;
             }
-            else
+            else {
                 var vm = avalon.define({
                     $id: "editProblem",
                     title: "",
@@ -142,6 +142,7 @@ require(["jquery", "avalon", "editor", "uploader", "bsAlert",
                         avalon.vmodels.admin.template_url = "template/problem/problem_list.html";
                     }
                 });
+            }
 
             $.ajax({
                 url: "/api/admin/problem/?problem_id=" + avalon.vmodels.admin.problemId,

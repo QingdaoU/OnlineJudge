@@ -109,7 +109,7 @@ require(["jquery", "avalon", "editor", "uploader", "bsAlert",
                 vm.source = "";
                 vm.uploadProgress = 0;
             }
-            else
+            else {
                 var vm = avalon.define({
                     $id: "addProblem",
                     title: "",
@@ -153,6 +153,7 @@ require(["jquery", "avalon", "editor", "uploader", "bsAlert",
                         return "展开";
                     }
                 });
+            }
 
             var tagAutoCompleteList = [];
 
