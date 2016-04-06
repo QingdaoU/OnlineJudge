@@ -6,6 +6,7 @@ import hashlib
 import json
 import logging
 
+from django.http import StreamingHttpResponse
 from django.shortcuts import render
 from django.db.models import Q, Count
 from django.core.paginator import Paginator
@@ -14,7 +15,8 @@ from django.conf import settings
 from rest_framework.views import APIView
 
 from account.models import SUPER_ADMIN, User
-from account.decorators import super_admin_required
+from account.decorators import super_admin_required, admin_required
+from contest.models import ContestProblem
 from utils.shortcuts import (serializer_invalid_response, error_response,
                              success_response, paginate, rand_str, error_page)
 from .serizalizers import (CreateProblemSerializer, EditProblemSerializer, ProblemSerializer,
@@ -280,6 +282,61 @@ class TestCaseUploadAPIView(APIView):
         except Exception as e:
             return error_response(u"读取测试用例出错")
         return success_response({"file_list": config["test_cases"]})
+
+
+class TestCaseDownloadAPIView(APIView):
+    """
+    下载题目的测试数据
+    """
+
+    def _is_legal_test_case_file_name(self, file_name):
+        regex = r"^[1-9]\d*\.(in|out)$"
+        return re.compile(regex).match(file_name) is not None
+
+    def file_iterator(self, big_file, chunk_size=512):
+        with open(big_file) as f:
+            while True:
+                c = f.read(chunk_size)
+                if c:
+                    yield c
+                else:
+                    break
+
+    @admin_required
+    def get(self, request):
+        test_case_id = request.GET.get("test_case_id", None)
+        if not test_case_id:
+            return error_response(u"参数错误")
+        # 防止URL./../../.上层目录遍历
+        if not re.compile(r"^[1-9a-zA-Z]+$").match(test_case_id):
+            return error_response(u"参数错误")
+
+        try:
+            # 超级管理员可以下载全部的题目的测试数据
+            # 普通管理员只能下载自己创建的题目的测试数据
+            if request.user.admin_type != SUPER_ADMIN:
+                ContestProblem.objects.get(test_case_id=test_case_id, created_by=request.user)
+
+            test_case_dir = os.path.join(settings.TEST_CASE_DIR, test_case_id)
+            if not os.path.exists(test_case_dir):
+                return error_response(u"测试用例不存在")
+
+            # 压缩测试用例,命名规则为 "test_case" + test_case_id + ".zip"
+            test_case_zip = os.path.join("/tmp", "test_case-" + test_case_id + ".zip")
+
+            zf = zipfile.ZipFile(test_case_zip, "w", zipfile.ZIP_DEFLATED)
+            for filename in os.listdir(test_case_dir):
+                if self._is_legal_test_case_file_name(filename):
+                    zf.write(os.path.join(test_case_dir, filename), filename)
+            zf.close()
+
+            # 大文件传输
+            response = StreamingHttpResponse(self.file_iterator(test_case_zip))
+            response['Content-Type'] = 'application/octet-stream'
+            response['Content-Disposition'] = 'attachment;filename=test_case-%s.zip' % test_case_id
+            return response
+        except ContestProblem.DoesNotExist:
+            return error_response(u"题目不存在")
 
 
 def problem_list_page(request, page=1):
