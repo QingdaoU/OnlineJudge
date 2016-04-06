@@ -66,6 +66,11 @@ class ProblemTagAdminAPIView(APIView):
 
 
 class ProblemAdminAPIView(APIView):
+    def _spj_version(self, code):
+        if code is None:
+            return None
+        return hashlib.md5(code.encode("utf-8")).hexdigest()
+
     @super_admin_required
     def post(self, request):
         """
@@ -94,6 +99,7 @@ class ProblemAdminAPIView(APIView):
                                              spj=data["spj"],
                                              spj_language=data["spj_language"],
                                              spj_code=data["spj_code"],
+                                             spj_version=self._spj_version(data["spj_code"]),
                                              difficulty=data["difficulty"],
                                              created_by=request.user,
                                              hint=data["hint"],
@@ -120,6 +126,7 @@ class ProblemAdminAPIView(APIView):
         if serializer.is_valid():
             data = serializer.data
             problem = Problem.objects.get(id=data["id"])
+
             problem.title = data["title"]
             problem.description = data["description"]
             problem.input_description = data["input_description"]
@@ -131,6 +138,7 @@ class ProblemAdminAPIView(APIView):
             problem.spj = data["spj"]
             problem.spj_language = data["spj_language"]
             problem.spj_code = data["spj_code"]
+            problem.spj_version = self._spj_version(data["spj_code"])
             problem.difficulty = data["difficulty"]
             problem.samples = json.dumps(data["samples"])
             problem.hint = data["hint"]
@@ -146,7 +154,9 @@ class ProblemAdminAPIView(APIView):
                 except ProblemTag.DoesNotExist:
                     tag = ProblemTag.objects.create(name=tag)
                 problem.tags.add(tag)
+
             problem.save()
+
             return success_response(ProblemSerializer(problem).data)
         else:
             return serializer_invalid_response(serializer)
@@ -236,8 +246,6 @@ class TestCaseUploadAPIView(APIView):
         else:
             # 否则就应该是spj的测试用例
             spj = True
-
-        print name_list, spj
 
         if not spj:
             if len(name_list) % 2 == 1:

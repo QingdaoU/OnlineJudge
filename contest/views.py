@@ -1,7 +1,8 @@
 # coding=utf-8
 import json
+import os
 import datetime
-import redis
+import hashlib
 
 from django.shortcuts import render
 from django.db import IntegrityError
@@ -176,6 +177,11 @@ class ContestAdminAPIView(APIView):
 
 
 class ContestProblemAdminAPIView(APIView):
+    def _spj_version(self, code):
+        if code is None:
+            return None
+        return hashlib.md5(code.encode("utf-8")).hexdigest()
+
     def post(self, request):
         """
         比赛题目发布json api接口
@@ -205,6 +211,7 @@ class ContestProblemAdminAPIView(APIView):
                                                             spj=data["spj"],
                                                             spj_language=data["spj_language"],
                                                             spj_code=data["spj_code"],
+                                                            spj_version=self._spj_version(data["spj_code"]),
                                                             created_by=request.user,
                                                             hint=data["hint"],
                                                             contest=contest,
@@ -228,6 +235,7 @@ class ContestProblemAdminAPIView(APIView):
                 contest_problem = ContestProblem.objects.get(id=data["id"])
             except ContestProblem.DoesNotExist:
                 return error_response(u"该比赛题目不存在！")
+
             contest = Contest.objects.get(id=contest_problem.contest_id)
             if request.user.admin_type != SUPER_ADMIN and contest.created_by != request.user:
                 return error_response(u"比赛不存在")
@@ -241,6 +249,7 @@ class ContestProblemAdminAPIView(APIView):
             contest_problem.spj = data["spj"]
             contest_problem.spj_language = data["spj_language"]
             contest_problem.spj_code = data["spj_code"]
+            contest_problem.spj_version = self._spj_version(data["spj_code"])
             contest_problem.samples = json.dumps(data["samples"])
             contest_problem.hint = data["hint"]
             contest_problem.visible = data["visible"]
