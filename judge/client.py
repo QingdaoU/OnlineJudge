@@ -1,12 +1,13 @@
 # coding=utf-8
 import os
 import json
-import commands
 import hashlib
 import judger
+import spj_client
+
 from multiprocessing import Pool
 
-from settings import max_running_number, lrun_gid, lrun_uid, judger_workspace
+from settings import max_running_number
 from language import languages
 from result import result
 from judge_exceptions import JudgeClientError
@@ -20,7 +21,7 @@ def _run(instance, test_case_id):
 
 
 class JudgeClient(object):
-    def __init__(self, language_code, exe_path, max_cpu_time,  max_memory, test_case_dir, judge_base_path):
+    def __init__(self, language_code, exe_path, max_cpu_time,  max_memory, test_case_dir, judge_base_path, spj_path):
         """
         :param language_code: 语言编号
         :param exe_path: 可执行文件路径
@@ -53,11 +54,12 @@ class JudgeClient(object):
         # 测试用例配置项
         self._test_case_info = self._load_test_case_info()
         self._judge_base_path = judge_base_path
+        self._spj_path = spj_path
 
     def _load_test_case_info(self):
         # 读取测试用例信息 转换为dict
         try:
-            f = open(self._test_case_dir + "info")
+            f = open(os.path.join(self._test_case_dir, "info"))
             return json.loads(f.read())
         except IOError:
             raise JudgeClientError("Test case config file not found")
@@ -96,11 +98,13 @@ class JudgeClient(object):
             return output_md5, output_md5 == test_case_config["striped_output_md5"]
 
     def _judge_one(self, test_case_id):
+        in_file = os.path.join(self._test_case_dir, str(test_case_id) + ".in")
+        out_file = os.path.join(self._judge_base_path, str(test_case_id) + ".out")
         run_result = judger.run(path=self.execute_command[0],
                                 max_cpu_time=self._max_cpu_time,
                                 max_memory=self._max_memory,
-                                in_file=os.path.join(self._test_case_dir, str(test_case_id) + ".in"),
-                                out_file=os.path.join(self._judge_base_path, str(test_case_id) + ".out"),
+                                in_file=in_file,
+                                out_file=out_file,
                                 args=self.execute_command[1:],
                                 env=["PATH=" + os.environ["PATH"]],
                                 use_sandbox=self._language["use_sandbox"],
@@ -113,12 +117,27 @@ class JudgeClient(object):
 
         # 将judger返回的结果标志转换为本系统中使用的
         if run_result["flag"] == 0:
-            output_md5, r = self._compare_output(test_case_id)
-            if r:
-                run_result["result"] = result["accepted"]
+            if self._spj_path is None:
+                output_md5, r = self._compare_output(test_case_id)
+                if r:
+                    run_result["result"] = result["accepted"]
+                else:
+                    run_result["result"] = result["wrong_answer"]
+                run_result["output_md5"] = output_md5
             else:
-                run_result["result"] = result["wrong_answer"]
-            run_result["output_md5"] = output_md5
+                spj_result = spj_client.spj(path=self._spj_path, max_cpu_time=3 * self._max_cpu_time,
+                                            max_memory=3 * self._max_memory,
+                                            in_path=in_file,
+                                            user_out_path=out_file)
+                if spj_result["spj_result"] == spj_client.AC:
+                    run_result["result"] = result["accepted"]
+                elif spj_result["spj_result"] == spj_client.WA:
+                    run_result["result"] = result["wrong_answer"]
+                else:
+                    run_result["result"] = result["system_error"]
+                    run_result["error"] = "SPJ Crashed, return: %d, signal: %d" % \
+                                          (spj_result["spj_result"], spj_result["signal"])
+
         elif run_result["flag"] in [1, 2]:
             run_result["result"] = result["time_limit_exceeded"]
         elif run_result["flag"] == 3:

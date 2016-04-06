@@ -53,7 +53,8 @@ def _submit_code(user, problem_id, language, code):
                                            problem_id=problem.id)
 
     try:
-        _judge.delay(submission, problem.time_limit, problem.memory_limit, problem.test_case_id)
+        _judge.delay(submission.id, problem.time_limit, problem.memory_limit, problem.test_case_id,
+                     problem.spj, problem.spj_language, problem.spj_code, problem.spj_version)
     except Exception as e:
         logger.error(e)
         return error_response(u"提交判题任务失败")
@@ -147,7 +148,8 @@ class ContestSubmissionAPIView(APIView):
                                                    code=data["code"],
                                                    problem_id=problem.id)
             try:
-                _judge.delay(submission, problem.time_limit, problem.memory_limit, problem.test_case_id)
+                _judge.delay(submission.id, problem.time_limit, problem.memory_limit, problem.test_case_id,
+                             problem.spj. problem.spj_language, problem.spj_code, problem.spj_version)
             except Exception as e:
                 logger.error(e)
                 return error_response(u"提交判题任务失败")
@@ -332,7 +334,8 @@ class SubmissionRejudgeAdminAPIView(APIView):
             except Problem.DoesNotExist:
                 return error_response(u"题目不存在")
             try:
-                _judge.delay(submission, problem.time_limit, problem.memory_limit, problem.test_case_id)
+                _judge.delay(submission.id, problem.time_limit, problem.memory_limit, problem.test_case_id,
+                             problem.spj. problem.spj_language, problem.spj_code, problem.spj_version)
             except Exception as e:
                 logger.error(e)
                 return error_response(u"提交判题任务失败")

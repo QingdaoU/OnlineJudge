@@ -7,8 +7,9 @@ from logger import logger
 from settings import judger_workspace
 
 
-def compile_(language_item, src_path, exe_path, judge_base_path):
-    compile_command = language_item["compile_command"].format(src_path=src_path, exe_path=exe_path).split(" ")
+def compile_(language_item, src_path, exe_path, judge_base_path, compile_spj=False):
+    command_item = "spj_compile_command" if compile_spj else "compile_command"
+    compile_command = language_item[command_item].format(src_path=src_path, exe_path=exe_path).split(" ")
     compiler = compile_command[0]
     compile_args = compile_command[1:]
     compiler_output_file = os.path.join(judge_base_path, "compiler.out")
