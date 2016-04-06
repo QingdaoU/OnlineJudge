@@ -65,7 +65,7 @@ class UserLoginAPIView(APIView):
             return serializer_invalid_response(serializer)
 
 
-@login_required
+#@login_required
 def logout(request):
     auth.logout(request)
     return http.HttpResponseRedirect("/")
@@ -228,6 +228,9 @@ class UserAdminAPIView(APIView):
                 user.two_factor_auth = True
                 user.tfa_token = rand_str()
 
+            # 后台控制用户是否被禁用
+            user.is_forbidden = data["is_forbidden"]
+
             user.save()
             return success_response(UserSerializer(user).data)
         else:
@@ -327,8 +330,7 @@ class ApplyResetPasswordAPIView(APIView):
 
             email_template = email_template.replace("{{ username }}", user.username). \
                 replace("{{ website_name }}", settings.WEBSITE_INFO["website_name"]). \
-                replace("{{ link }}", request.scheme + "://"
-                        + request.META['HTTP_HOST'] + "/reset_password/t/" +
+                replace("{{ link }}", settings.WEBSITE_INFO["url"] + "/reset_password/t/" +
                         user.reset_password_token)
 
             _send_email.delay(settings.WEBSITE_INFO["website_name"],

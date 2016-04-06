@@ -1,4 +1,6 @@
 # coding=utf-8
+import logging
+
 from django.db import models
 from django.utils.timezone import now
 
@@ -18,6 +20,9 @@ PASSWORD_PROTECTED_GROUP_CONTEST = 3
 CONTEST_NOT_START = 1
 CONTEST_ENDED = -1
 CONTEST_UNDERWAY = 0
+
+
+logger = logging.getLogger("app_info")
 
 
 class Contest(models.Model):
@@ -90,6 +95,10 @@ class ContestRank(models.Model):
     def update_rank(self, submission):
         if not submission.contest_id or submission.contest_id != self.contest_id:
             raise ValueError("Error submission type")
+
+        if submission.result == result["system_error"]:
+            logger.warning("submission " + submission.id + " result is system error, update rank operation is ignored")
+            return
 
         # 这道题以前提交过
         if str(submission.problem_id) in self.submission_info:

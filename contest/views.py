@@ -283,11 +283,13 @@ class MakeContestProblemPublicAPIView(APIView):
     def post(self, request):
         problem_id = request.data.get("problem_id", -1)
         try:
-            problem = ContestProblem.objects.get(id=problem_id)
+            problem = ContestProblem.objects.get(id=problem_id, is_public=False)
             problem.is_public = True
             problem.save()
         except ContestProblem.DoesNotExist:
             return error_response(u"比赛不存在")
+        if problem.contest.status != CONTEST_ENDED:
+            return error_response(u"比赛还没有结束，不能公开题目")
         Problem.objects.create(title=problem.title, description=problem.description,
                                input_description=problem.input_description,
                                output_description=problem.output_description,
@@ -432,30 +434,41 @@ def contest_list_page(request, page=1):
                    "keyword": keyword, "join": join})
 
 
+def _get_rank(contest_id):
+    rank = ContestRank.objects.filter(contest_id=contest_id). \
+            select_related("user"). \
+            order_by("-total_ac_number", "total_time"). \
+            values("id", "user__id", "user__username", "user__real_name", "user__userprofile__student_id",
+                   "contest_id", "submission_info", "total_submission_number", "total_ac_number", "total_time")
+    return rank
+
+
 @check_user_contest_permission
 def contest_rank_page(request, contest_id):
     contest = Contest.objects.get(id=contest_id)
     contest_problems = ContestProblem.objects.filter(contest=contest, visible=True).order_by("sort_index")
 
-    r = get_cache_redis()
-    cache_key = str(contest_id) + "_rank_cache"
-    rank = r.get(cache_key)
-
-    if not rank:
-        rank = ContestRank.objects.filter(contest_id=contest_id). \
-            select_related("user"). \
-            order_by("-total_ac_number", "total_time"). \
-            values("id", "user__id", "user__username", "user__real_name", "contest_id", "submission_info",
-                   "total_submission_number", "total_ac_number", "total_time")
-        r.set(cache_key, json.dumps([dict(item) for item in rank]))
+    force_real_time_rank = False
+    if request.GET.get("force_real_time_rank") == "true" and (request.user.admin_type == SUPER_ADMIN or request.user == contest.created_by):
+        rank = _get_rank(contest_id)
+        force_real_time_rank = True
     else:
-        rank = json.loads(rank)
+        r = get_cache_redis()
+        cache_key = str(contest_id) + "_rank_cache"
+        rank = r.get(cache_key)
+
+        if not rank:
+            rank = _get_rank(contest_id)
+            r.set(cache_key, json.dumps([dict(item) for item in rank]))
+        else:
+            rank = json.loads(rank)
 
     return render(request, "oj/contest/contest_rank.html",
                   {"rank": rank, "contest": contest,
                    "contest_problems": contest_problems,
                    "auto_refresh": request.GET.get("auto_refresh", None) == "true",
-                   "show_real_name": request.GET.get("show_real_name", None) == "true", })
+                   "show_real_name": request.GET.get("show_real_name", None) == "true",
+                   "force_real_time_rank": force_real_time_rank})
 
 
 class ContestTimeAPIView(APIView):
