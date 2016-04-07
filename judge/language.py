@@ -7,7 +7,7 @@ languages = {
         "src_name": "main.c",
         "code": 1,
         "compile_command": "/usr/bin/gcc -DONLINE_JUDGE -O2 -w -fmax-errors=3 -std=c99 {src_path} -lm -o {exe_path}/main",
-        "spj_compile_command": "/usr/bin/gcc -DONLINE_JUDGE -O2 -w -fmax-errors=3 -std=c99 {src_path} -lm -o {exe_path}",
+        "spj_compile_command": "/usr/bin/gcc -DONLINE_JUDGE -O2 -Werror -fmax-errors=3 -std=c99 {src_path} -lm -o {exe_path}",
         "execute_command": "{exe_path}/main",
         "use_sandbox": True
     },
@@ -16,7 +16,7 @@ languages = {
         "src_name": "main.cpp",
         "code": 2,
         "compile_command": "/usr/bin/g++ -DONLINE_JUDGE -O2 -w -fmax-errors=3 -std=c++11 {src_path} -lm -o {exe_path}/main",
-        "spj_compile_command": "/usr/bin/g++ -DONLINE_JUDGE -O2 -w -fmax-errors=3 -std=c++11 {src_path} -lm -o {exe_path}",
+        "spj_compile_command": "/usr/bin/g++ -DONLINE_JUDGE -O2 -Werror -fmax-errors=3 -std=c++11 {src_path} -lm -o {exe_path}",
         "execute_command": "{exe_path}/main",
         "use_sandbox": True
     },
