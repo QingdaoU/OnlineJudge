@@ -1,5 +1,5 @@
 require(["jquery", "avalon", "editor", "uploader", "bsAlert",
-        "csrfToken", "tagEditor", "validator", "editorComponent", "testCaseUploader"],
+        "csrfToken", "tagEditor", "validator", "editorComponent", "testCaseUploader", "spj"],
     function ($, avalon, editor, uploader, bsAlert, csrfTokenHeader) {
 
         avalon.ready(function () {
@@ -34,6 +34,11 @@ require(["jquery", "avalon", "editor", "uploader", "bsAlert",
                                 return false;
                             }
                         }
+                        var spjVM = avalon.vmodels.spjConfig;
+                        if (spjVM.spj && !spjVM.spjCode){
+                            bsAlert("请填写Special Judge的代码");
+                            return false;
+                        }
                         var ajaxData = {
                             title: vm.title,
                             description: avalon.vmodels.contestProblemDescriptionEditor.content,
@@ -46,8 +51,13 @@ require(["jquery", "avalon", "editor", "uploader", "bsAlert",
                             contest_id: avalon.vmodels.admin.contestId,
                             input_description: vm.inputDescription,
                             output_description: vm.outputDescription,
-                            sort_index: vm.sortIndex
+                            sort_index: vm.sortIndex,
+                            spj: spjVM.spj
                         };
+                        if (spjVM.spj) {
+                            ajaxData.spj_language = spjVM.spjLanguage;
+                            ajaxData.spj_code = spjVM.spjCode;
+                        }
 
                         if (avalon.vmodels.admin.contestProblemStatus == "edit") {
                             var method = "put";
@@ -185,6 +195,11 @@ require(["jquery", "avalon", "editor", "uploader", "bsAlert",
                                 })
                             }
                             avalon.vmodels.contestProblemHintEditor.content = problem.hint;
+                            var spjVM = avalon.vmodels.spjConfig;
+                            spjVM.spj = problem.spj;
+                            // spjLanguage可能是null
+                            spjVM.spjLanguage = problem.spj_language=="2"?"2":"1";
+                            spjVM.spjCode = problem.spj_code;
                         }
                     }
                 });

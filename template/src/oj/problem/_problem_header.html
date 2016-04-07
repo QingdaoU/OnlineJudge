@@ -5,4 +5,7 @@
     {% if problem.last_update_time %}最后更新: {{ problem.last_update_time }}&nbsp;&nbsp;{% endif %}
     时间限制: {{ problem.time_limit }}ms&nbsp;&nbsp;
     内存限制: {{ problem.memory_limit }}M
+    {% if problem.spj %}
+        &nbsp;&nbsp;<span class="label label-info">SPJ</span>
+    {% endif %}
 </p>

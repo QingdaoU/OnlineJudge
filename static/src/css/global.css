@@ -1,9 +1,10 @@
 @font-face{
     font-family: 'source_code_pro';
-    font-weight: 500;
+    font-weight: 400;
     font-style: normal;
     font-stretch: normal;
-    src: url('/static/css/fonts/source_code_pro/EOT/SourceCodePro-Regular.eot') format('embedded-opentype'),
+    src: local('Source Code Pro'),
+         url('/static/css/fonts/source_code_pro/EOT/SourceCodePro-Regular.eot') format('embedded-opentype'),
          url('/static/css/fonts/source_code_pro/WOFF2/TTF/SourceCodePro-Regular.ttf.woff2') format('woff2'),
          url('/static/css/fonts/source_code_pro/WOFF/OTF/SourceCodePro-Regular.otf.woff') format('woff'),
          url('/static/css/fonts/source_code_pro/OTF/SourceCodePro-Regular.otf') format('opentype'),
@@ -11,7 +12,7 @@
 }
 
 body, button, input, select, textarea, h1, h2, h3, h4, h5, h6 {
-    font-family: "source_code_pro", Georgia, STHeiti, "Microsoft Yahei", SimSun, "Droid Sans";
+    font-family: source_code_pro, "PingFangSC-Regular", "Heiti SC", "Microsoft Yahei", monospace;
 }
 
 html {
