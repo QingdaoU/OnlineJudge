@@ -11,7 +11,7 @@
          url('/static/css/fonts/source_code_pro/TTF/SourceCodePro-Regular.ttf') format('truetype');
 }
 
-body, button, input, select, textarea, h1, h2, h3, h4, h5, h6 {
+body, button, input, select, textarea, h1, h2, h3, h4, h5, h6, pre, code, .CodeMirror-code {
     font-family: source_code_pro, "PingFangSC-Regular", "Heiti SC", "Microsoft Yahei", monospace;
 }
 
@@ -53,14 +53,12 @@ label {
 
 
 pre, code {
-    font-family: "source_code_pro";
     background-color: white;
     white-space: pre-wrap;
     word-wrap: break-word;
 }
 
 .CodeMirror-code{
-    font-family: "source_code_pro";
     background-color: white;
 }
 
