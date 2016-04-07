@@ -356,7 +356,7 @@ class TestCaseDownloadAPIView(APIView):
         if not test_case_id:
             return error_response(u"参数错误")
         # 防止URL./../../.上层目录遍历
-        if not re.compile(r"^[1-9a-zA-Z]+$").match(test_case_id):
+        if not re.compile(r"^[0-9a-zA-Z]+$").match(test_case_id):
             return error_response(u"参数错误")
 
         try:
