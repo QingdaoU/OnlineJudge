@@ -66,6 +66,11 @@ class ProblemTagAdminAPIView(APIView):
 
 
 class ProblemAdminAPIView(APIView):
+    def _spj_version(self, code):
+        if code is None:
+            return None
+        return hashlib.md5(code.encode("utf-8")).hexdigest()
+
     @super_admin_required
     def post(self, request):
         """
@@ -91,6 +96,10 @@ class ProblemAdminAPIView(APIView):
                                              samples=json.dumps(data["samples"]),
                                              time_limit=data["time_limit"],
                                              memory_limit=data["memory_limit"],
+                                             spj=data["spj"],
+                                             spj_language=data["spj_language"],
+                                             spj_code=data["spj_code"],
+                                             spj_version=self._spj_version(data["spj_code"]),
                                              difficulty=data["difficulty"],
                                              created_by=request.user,
                                              hint=data["hint"],
@@ -117,6 +126,7 @@ class ProblemAdminAPIView(APIView):
         if serializer.is_valid():
             data = serializer.data
             problem = Problem.objects.get(id=data["id"])
+
             problem.title = data["title"]
             problem.description = data["description"]
             problem.input_description = data["input_description"]
@@ -125,6 +135,10 @@ class ProblemAdminAPIView(APIView):
             problem.source = data["source"]
             problem.time_limit = data["time_limit"]
             problem.memory_limit = data["memory_limit"]
+            problem.spj = data["spj"]
+            problem.spj_language = data["spj_language"]
+            problem.spj_code = data["spj_code"]
+            problem.spj_version = self._spj_version(data["spj_code"])
             problem.difficulty = data["difficulty"]
             problem.samples = json.dumps(data["samples"])
             problem.hint = data["hint"]
@@ -140,7 +154,9 @@ class ProblemAdminAPIView(APIView):
                 except ProblemTag.DoesNotExist:
                     tag = ProblemTag.objects.create(name=tag)
                 problem.tags.add(tag)
+
             problem.save()
+
             return success_response(ProblemSerializer(problem).data)
         else:
             return serializer_invalid_response(serializer)
@@ -214,72 +230,104 @@ class TestCaseUploadAPIView(APIView):
         if len(name_list) == 0:
             return error_response(u"压缩包内没有文件")
 
-        if len(name_list) % 2 == 1:
-            return error_response(u"测试用例文件格式错误，文件数目为奇数")
+        for item in name_list:
+            if not self._is_legal_test_case_file_name(item):
+                return error_response(u"%s 文件名不符合规范" % item)
 
-        for index in range(1, len(name_list) / 2 + 1):
-            if not (str(index) + ".in" in name_list and str(index) + ".out" in name_list):
-                return error_response(u"测试用例文件格式错误，缺少" + str(index) + u".in/.out文件")
+        # 排序,这样name_list就是[1.in, 1.out, 2.in, 2.out]的形式了
+        name_list.sort()
+
+        spj = False
+
+        for item in name_list:
+            # 代表里面有.out文件,所以应该是普通题目的测试用例
+            if item.endswith(".out"):
+                break
+        else:
+            # 否则就应该是spj的测试用例
+            spj = True
+
+        if not spj:
+            if len(name_list) % 2 == 1:
+                return error_response(u"测试用例文件格式错误，文件数目为奇数")
+
+            for index in range(1, len(name_list) / 2 + 1):
+                if not (str(index) + ".in" in name_list and str(index) + ".out" in name_list):
+                    return error_response(u"测试用例文件格式错误，缺少" + str(index) + u".in/.out文件")
+            test_case_number = len(name_list) / 2
+        else:
+            for index in range(1, len(name_list) + 1):
+                if str(index) + ".in" not in name_list:
+                    return error_response(u"测试用例文件格式错误，缺少" + str(index) + u".in文件")
+            test_case_number = len(name_list)
 
         problem_test_dir = rand_str()
-        test_case_dir = settings.TEST_CASE_DIR + problem_test_dir + "/"
+        test_case_dir = os.path.join(settings.TEST_CASE_DIR, problem_test_dir)
 
         # 得到了合法的测试用例文件列表 然后去解压缩
         os.mkdir(test_case_dir)
         for name in name_list:
-            f = open(test_case_dir + name, "wb")
+            f = open(os.path.join(test_case_dir, name), "wb")
             try:
                 f.write(test_case_file.read(name).replace("\r\n", "\n"))
             except MemoryError:
                 return error_response(u"单个测试数据体积过大!")
             finally:
                 f.close()
-        name_list.sort()
 
-        file_info = {"test_case_number": len(name_list) / 2, "test_cases": {}}
+        file_info = {"test_case_number": test_case_number, "test_cases": {}, "spj": spj}
 
         # 计算输出文件的md5
-        for i in range(1, len(name_list) / 2 + 1):
-            md5 = hashlib.md5()
-            striped_md5 = hashlib.md5()
-            f = open(test_case_dir + str(i) + ".out", "r")
-            # 完整文件的md5
-            while True:
-                data = f.read(2 ** 8)
-                if not data:
-                    break
-                md5.update(data)
+        for i in range(1, test_case_number + 1):
+            if not spj:
+                md5 = hashlib.md5()
+                striped_md5 = hashlib.md5()
+                f = open(os.path.join(test_case_dir, str(i) + ".out"), "r")
+                # 完整文件的md5
+                while True:
+                    data = f.read(2 ** 8)
+                    if not data:
+                        break
+                    md5.update(data)
 
-            # 删除标准输出最后的空格和换行
-            # 这时只能一次全部读入了，分块读的话，没办法确定文件结尾
-            f.seek(0)
-            striped_md5.update(f.read().rstrip())
+                # 删除标准输出最后的空格和换行
+                # 这时只能一次全部读入了，分块读的话，没办法确定文件结尾
+                f.seek(0)
+                striped_md5.update(f.read().rstrip())
+
+                output_md5 = md5.hexdigest()
+                striped_output_md5 = striped_md5.hexdigest()
+                output_name = str(i) + ".out"
+                output_size = os.path.getsize(os.path.join(test_case_dir, output_name))
+            else:
+                output_md5 = striped_output_md5 = output_name = output_size = None
 
             file_info["test_cases"][str(i)] = {"input_name": str(i) + ".in",
-                                               "output_name": str(i) + ".out",
-                                               "output_md5": md5.hexdigest(),
-                                               "striped_output_md5": striped_md5.hexdigest(),
-                                               "input_size": os.path.getsize(test_case_dir + str(i) + ".in"),
-                                               "output_size": os.path.getsize(test_case_dir + str(i) + ".out")}
+                                               "output_name": output_name,
+                                               "output_md5": output_md5,
+                                               "striped_output_md5": striped_output_md5,
+                                               "input_size": os.path.getsize(os.path.join(test_case_dir, str(i) + ".in")),
+                                               "output_size": output_size}
             # 写入配置文件
-            with open(test_case_dir + "info", "w") as f:
-                f.write(json.dumps(file_info))
+        with open(os.path.join(test_case_dir, "info"), "w") as f:
+            f.write(json.dumps(file_info))
 
         return success_response({"test_case_id": problem_test_dir,
-                                 "file_list": file_info["test_cases"]})
+                                 "file_list": file_info["test_cases"],
+                                 "spj": spj})
 
     def get(self, request):
         test_case_id = request.GET.get("test_case_id", None)
         if not test_case_id:
             return error_response(u"参数错误")
-        test_case_config = settings.TEST_CASE_DIR + test_case_id + "/info"
+        test_case_config = os.path.join(settings.TEST_CASE_DIR, test_case_id, "info")
         try:
             f = open(test_case_config)
             config = json.loads(f.read())
             f.close()
         except Exception as e:
             return error_response(u"读取测试用例出错")
-        return success_response({"file_list": config["test_cases"]})
+        return success_response({"file_list": config["test_cases"], "spj": config.get("spj", False)})
 
 
 def problem_list_page(request, page=1):
