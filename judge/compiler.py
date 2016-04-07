@@ -1,10 +1,8 @@
 # coding=utf-8
-import time
 import os
 import judger
-from judge_exceptions import CompileError, JudgeClientError
+from judge_exceptions import CompileError
 from logger import logger
-from settings import judger_workspace
 
 
 def compile_(language_item, src_path, exe_path, judge_base_path, compile_spj=False):

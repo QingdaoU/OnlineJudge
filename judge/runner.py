@@ -3,6 +3,7 @@ import os
 import socket
 import shutil
 
+from logger import logger
 from client import JudgeClient
 from language import languages
 from compiler import compile_
@@ -19,6 +20,8 @@ class JudgeInstanceRunner(object):
         judge_base_path = os.path.join(judger_workspace, "run", submission_id)
 
         if not token or token != os.environ.get("rpc_token"):
+            if token:
+                logger.info("Invalid token: " + token)
             return {"code": 2, "data": {"error": "Invalid token", "server": host_name}}
 
         try:
@@ -78,8 +81,6 @@ class JudgeInstanceRunner(object):
             for item in judge_result["info"]:
                 if item["result"] != 0:
                     judge_result["result"] = item["result"]
-                    if item.get("error"):
-                        judge_result["info"] = item["error"]
                     break
             else:
                 l = sorted(judge_result["info"], key=lambda k: k["cpu_time"])
