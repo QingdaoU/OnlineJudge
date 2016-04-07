@@ -125,8 +125,9 @@ class JudgeClient(object):
                     run_result["result"] = result["wrong_answer"]
                 run_result["output_md5"] = output_md5
             else:
-                spj_result = spj_client.spj(path=self._spj_path, max_cpu_time=3 * self._max_cpu_time,
-                                            max_memory=3 * self._max_memory,
+                spj_result = spj_client.spj(path=self._spj_path,
+                                            max_cpu_time=3 * self._max_cpu_time,
+                                            max_memory=3 * self._real_max_memory,
                                             in_path=in_file,
                                             user_out_path=out_file)
                 if spj_result["spj_result"] == spj_client.AC:
