@@ -2,7 +2,7 @@ define("testCaseUploader", ["avalon", "uploader", "bsAlert", "jquery"], function
     avalon.component("ms:testcaseuploader", {
         $template: '<div class="col-md-12">' +
         '<br> ' +
-        '<label>测试数据</label><br> ' +
+        '<label>测试数据 <a ms-if="downloadUrl" ms-attr-href="downloadUrl">下载</a></label><br> ' +
         '<small class="text-info">' +
         '请将所有测试用例打包在一个文件中上传，' +
         '所有文件要在压缩包的根目录，' +
@@ -26,6 +26,7 @@ define("testCaseUploader", ["avalon", "uploader", "bsAlert", "jquery"], function
         testCaseList: [],
         uploaded: false,
         uploadProgress: 0,
+        downloadUrl: "",
 
         setTestCaseId: function(){},
 
@@ -48,6 +49,7 @@ define("testCaseUploader", ["avalon", "uploader", "bsAlert", "jquery"], function
                             }
                             vm.uploaded = true;
                             vm.uploadProgress = 100;
+                            vm.downloadUrl = "/api/admin/test_case_download/?test_case_id=" + vm.testCaseId;
                             vm.$fire("all!testCaseUploadFinished", data.data.spj);
                         }
                     }
