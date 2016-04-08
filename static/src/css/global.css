@@ -90,3 +90,10 @@ pre, code {
 #user-data-text{
     display: block;
 }
+
+#browser-unsupported{
+    padding: 15px 0;
+    background: #FBE3E4;
+    color: #8A1F11;
+    text-align: center;
+}
