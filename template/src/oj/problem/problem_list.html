@@ -77,10 +77,9 @@
                     </div>
                     <ul class="list-group">
                         {% for item in tags %}
-                            <li class="list-group-item problem-tag"
-                                onclick="location.href='/problems/?tag={{ item.name }}'">
-                                <span class="badge">{{ item.problem_number }}</span>
-                                {{ item.name }}
+                            <li class="list-group-item problem-tag">
+                            <a href="/problems/?tag={{ item.name }}">{{ item.name }}</a>
+                            <span class="badge">{{ item.problem_number }}</span>
                             </li>
                         {% endfor %}
                     </ul>

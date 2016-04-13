@@ -128,3 +128,10 @@ li.problem-tag {
 #tfa-area{
     display: none;
 }
+
+
+li.list-group-item>a{
+    display: inline;
+    padding: 0;
+    margin: 0;
+}
