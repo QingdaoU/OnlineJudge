@@ -1,3 +1,4 @@
+{% load website_info %}
 {% verbatim %}
 <!DOCTYPE html>
 <html>
@@ -15,8 +16,17 @@
     <!-- global css end -->
 </head>
 
-
 <body ms-controller="admin">
+
+<div id="browser-unsupported" style="display: none">人生苦短, 何必还在用这么老的浏览器~
+    当前网页 <strong>不支持</strong> 你正在使用的浏览器, 为了正常的访问,
+    请 <a href="http://browsehappy.com/">升级你的浏览器</a>。
+</div>
+<script>
+    if(navigator.userAgent.indexOf("MSIE") > -1){
+        document.getElementById("browser-unsupported").removeAttribute("style");
+    }
+</script>
 
 <!-- nav begin -->
 <nav class="navbar navbar-masthead navbar-default navbar-static-top">
@@ -85,16 +95,15 @@
     </div>
 </div>
 
-
+{% endverbatim %}
 <script src="/static/js/config.js"></script>
 <script src="/static/js/require.js"></script>
 <script src="/static/js/app/admin/admin.js"></script>
 
 <!-- footer begin -->
 <div class="footer">
-    <p class="text-muted text-center">Copyright © 2015 青岛大学信息工程学院 创新实验室</p>
+    <p class="text-muted text-center">Copyright © 2016 {% autoescape off %}{% show_website_info "website_footer" %}{% endautoescape %}</p>
 </div>
 <!-- footer end -->
 </body>
 </html>
-{% endverbatim %}

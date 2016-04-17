@@ -28,6 +28,7 @@ var require = {
         pager: "components/pager",
         editorComponent: "components/editorComponent",
         testCaseUploader: "components/testCaseUploader",
+        spj: "components/spj",
 
 
         // ------ 下面写的都不要直接用，而是使用上面的封装版本 ------

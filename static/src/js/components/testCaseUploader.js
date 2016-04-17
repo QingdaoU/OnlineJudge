@@ -2,12 +2,12 @@ define("testCaseUploader", ["avalon", "uploader", "bsAlert", "jquery"], function
     avalon.component("ms:testcaseuploader", {
         $template: '<div class="col-md-12">' +
         '<br> ' +
-        '<label>测试数据</label><br> ' +
+        '<label>测试数据 <a ms-if="downloadUrl" ms-attr-href="downloadUrl">下载</a></label><br> ' +
         '<small class="text-info">' +
         '请将所有测试用例打包在一个文件中上传，' +
         '所有文件要在压缩包的根目录，' +
         '且输入输出文件名要以从1开始连续数字标识要对应例如：' +
-        '<br>1.in 1.out 2.in 2.out </small> ' +
+        '<br>1.in 1.out 2.in 2.out(普通题目)或者1.in 2.in 3.in(Special Judge) </small> ' +
         '<p>上传进度<span ms-text="uploadProgress"></span>%</p> ' +
         '<table class="table table-striped" ms-visible="uploaded"> ' +
         '<tr> <td>编号</td> <td>输入文件名</td> <td>输出文件名</td> </tr> ' +
@@ -26,6 +26,7 @@ define("testCaseUploader", ["avalon", "uploader", "bsAlert", "jquery"], function
         testCaseList: [],
         uploaded: false,
         uploadProgress: 0,
+        downloadUrl: "",
 
         setTestCaseId: function(){},
 
@@ -48,6 +49,8 @@ define("testCaseUploader", ["avalon", "uploader", "bsAlert", "jquery"], function
                             }
                             vm.uploaded = true;
                             vm.uploadProgress = 100;
+                            vm.downloadUrl = "/api/admin/test_case_download/?test_case_id=" + vm.testCaseId;
+                            vm.$fire("all!testCaseUploadFinished", data.data.spj);
                         }
                     }
                 });
@@ -72,7 +75,7 @@ define("testCaseUploader", ["avalon", "uploader", "bsAlert", "jquery"], function
                                 output: response.data.file_list[key].output_name
                             })
                         }
-                        bsAlert("测试数据添加成功！共添加" + vm.testCaseList.length + "组测试数据");
+                        vm.$fire("all!testCaseUploadFinished", response.data.spj);
                     }
                 },
                 function (file, percentage) {

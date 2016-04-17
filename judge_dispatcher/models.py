@@ -41,6 +41,10 @@ class JudgeWaitingQueue(models.Model):
     memory_limit = models.IntegerField()
     test_case_id = models.CharField(max_length=40)
     create_time = models.DateTimeField(auto_now_add=True)
+    spj = models.BooleanField(default=False)
+    spj_language = models.IntegerField(blank=True, null=True)
+    spj_code = models.TextField(blank=True, null=True)
+    spj_version = models.CharField(max_length=32, blank=True, null=True)
 
     class Meta:
         db_table = "judge_waiting_queue"
