@@ -24,9 +24,6 @@ elif ENV == "server":
 
 from .custom_settings import *
 
-import djcelery
-djcelery.setup_loader()
-
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
@@ -54,7 +51,6 @@ INSTALLED_APPS = (
     'judge_dispatcher',
 
     'rest_framework',
-    'djcelery',
 )
 
 if DEBUG:

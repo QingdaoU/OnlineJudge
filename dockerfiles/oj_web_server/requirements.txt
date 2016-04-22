@@ -12,5 +12,4 @@ pillow
 jsonfield
 Envelopes
 celery
-django-celery
 qrcode
