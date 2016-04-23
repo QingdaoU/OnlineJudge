@@ -562,7 +562,12 @@ def contest_problem_submissions_list_page(request, contest_id, page=1):
     if result:
         submissions = submissions.filter(result=int(result))
         filter = {"name": "result", "content": result}
+
     paginator = Paginator(submissions, 20)
+    try:
+        submissions = paginator.page(int(page))
+    except Exception:
+        return error_page(request, u"不存在的页码")
 
     # 为查询题目标题创建新字典
     title = {}
@@ -572,21 +577,17 @@ def contest_problem_submissions_list_page(request, contest_id, page=1):
     for item in submissions:
         item['title'] = title[item['problem_id']]
 
-    try:
-        current_page = paginator.page(int(page))
-    except Exception:
-        return error_page(request, u"不存在的页码")
     previous_page = next_page = None
     try:
-        previous_page = current_page.previous_page_number()
+        previous_page = submissions.previous_page_number()
     except Exception:
         pass
     try:
-        next_page = current_page.next_page_number()
+        next_page = submissions.next_page_number()
     except Exception:
         pass
 
-    for item in current_page:
+    for item in submissions:
         # 自己提交的 管理员和创建比赛的可以看到所有的提交链接
         if item["user_id"] == request.user.id or request.user.admin_type == SUPER_ADMIN or \
                         request.user == contest.created_by:
@@ -595,6 +596,6 @@ def contest_problem_submissions_list_page(request, contest_id, page=1):
             item["show_link"] = False
 
     return render(request, "oj/contest/submissions_list.html",
-                  {"submissions": current_page, "page": int(page),
+                  {"submissions": submissions, "page": int(page),
                    "previous_page": previous_page, "next_page": next_page, "start_id": int(page) * 20 - 20,
                    "contest": contest, "filter": filter, "user_id": user_id, "problem_id": problem_id})
