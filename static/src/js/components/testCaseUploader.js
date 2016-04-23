@@ -7,7 +7,7 @@ define("testCaseUploader", ["avalon", "uploader", "bsAlert", "jquery"], function
         '请将所有测试用例打包在一个文件中上传，' +
         '所有文件要在压缩包的根目录，' +
         '且输入输出文件名要以从1开始连续数字标识要对应例如：' +
-        '<br>1.in 1.out 2.in 2.out(普通题目)或者1.in 2.in 3.in(Special Judge) </small> ' +
+        '<br>1.in 1.out 2.in 2.out(普通题目)或者1.in 2.in 3.in(Special Judge) 请尽可能的合并测试用例在一个文件中</small> ' +
         '<p>上传进度<span ms-text="uploadProgress"></span>%</p> ' +
         '<table class="table table-striped" ms-visible="uploaded"> ' +
         '<tr> <td>编号</td> <td>输入文件名</td> <td>输出文件名</td> </tr> ' +
