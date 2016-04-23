@@ -149,7 +149,7 @@ class ContestSubmissionAPIView(APIView):
                                                    problem_id=problem.id)
             try:
                 _judge.delay(submission.id, problem.time_limit, problem.memory_limit, problem.test_case_id,
-                             problem.spj. problem.spj_language, problem.spj_code, problem.spj_version)
+                             problem.spj, problem.spj_language, problem.spj_code, problem.spj_version)
             except Exception as e:
                 logger.error(e)
                 return error_response(u"提交判题任务失败")
