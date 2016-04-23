@@ -242,8 +242,8 @@ def my_submission_list_page(request, page=1):
     """
     我的所有提交的列表页
     """
-    # 显示所有人的提交 这是管理员的调试功能
-    show_all = request.GET.get("show_all", False) == "true" and request.user.admin_type == SUPER_ADMIN
+    # 是否显示所有人的提交
+    show_all = settings.SHOW_ALL_SUBMISSIONS_LIST or request.GET.get("show_all", False) == "true"
     if show_all:
         submissions = Submission.objects.filter(contest_id__isnull=True)
     else:
@@ -261,6 +261,12 @@ def my_submission_list_page(request, page=1):
         submissions = submissions.filter(result=int(result))
         filter = {"name": "result", "content": result}
 
+    paginator = Paginator(submissions, 20)
+    try:
+        submissions = paginator.page(int(page))
+    except Exception:
+        return error_page(request, u"不存在的页码")
+
     # 因为提交页面经常会有重复的题目和用户，缓存一下查询结果
     cache_result = {"problem": {}, "user": {}}
     for item in submissions:
@@ -277,23 +283,23 @@ def my_submission_list_page(request, page=1):
                 cache_result["user"][user_id] = user
             item["user"] = cache_result["user"][user_id]
 
-    paginator = Paginator(submissions, 20)
-    try:
-        current_page = paginator.page(int(page))
-    except Exception:
-        return error_page(request, u"不存在的页码")
+            if item["user"].id == request.user.id or request.user.admin_type == SUPER_ADMIN:
+                item["show_link"] = True
+            else:
+                item["show_link"] = False
+
     previous_page = next_page = None
     try:
-        previous_page = current_page.previous_page_number()
+        previous_page = submissions.previous_page_number()
     except Exception:
         pass
     try:
-        next_page = current_page.next_page_number()
+        next_page = submissions.next_page_number()
     except Exception:
         pass
 
     return render(request, "oj/submission/my_submissions_list.html",
-                  {"submissions": current_page, "page": int(page),
+                  {"submissions": submissions, "page": int(page),
                    "previous_page": previous_page, "next_page": next_page, "start_id": int(page) * 20 - 20,
                    "filter": filter, "show_all": show_all})
 

@@ -10,6 +10,7 @@
             <thead>
             <tr>
                 <th>#</th>
+                {% if show_all %}<th>用户</th>{% endif %}
                 <th>题目名称</th>
                 <th>提交时间</th>
                 <th>
@@ -51,9 +52,13 @@
             {% for item in submissions %}
             <tr>
                 <th scope="row">
-                    <a href="/submission/{{ item.id }}/">{{ forloop.counter |add:start_id }}</a>
-                    {% if show_all %}（{{ item.user.username }}）{% endif %}
+                    {% if item.show_link %}
+                        <a href="/submission/{{ item.id }}/">{{ forloop.counter |add:start_id }}</a>
+                    {% else %}
+                        {{ forloop.counter |add:start_id }}
+                    {% endif %}
                 </th>
+                {% if show_all %}<td><a href="/user/{{ item.user.username }}">{{ item.user.username }}</a></td>{% endif %}
                 <td>
                     <a href="/problem/{{ item.problem_id }}/">{{ item.title }}</a>
                 </td>
