@@ -283,10 +283,10 @@ def my_submission_list_page(request, page=1):
                 cache_result["user"][user_id] = user
             item["user"] = cache_result["user"][user_id]
 
-            if item["user"].id == request.user.id or request.user.admin_type == SUPER_ADMIN:
-                item["show_link"] = True
-            else:
-                item["show_link"] = False
+        if item["user_id"] == request.user.id or request.user.admin_type == SUPER_ADMIN:
+            item["show_link"] = True
+        else:
+            item["show_link"] = False
 
     previous_page = next_page = None
     try:
