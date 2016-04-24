@@ -32,7 +32,6 @@ class JudgeDispatcher(object):
         self.time_limit = time_limit
         self.memory_limit = memory_limit
         self.test_case_id = test_case_id
-        self.user = User.objects.get(id=self.submission.user_id)
         self.spj = spj
         self.spj_language = spj_language
         self.spj_code = spj_code
@@ -118,16 +117,26 @@ class JudgeDispatcher(object):
         problem.add_submission_number()
 
         # 更新用户做题状态
-        problems_status = self.user.problems_status
+        user = User.objects.get(id=self.submission.user_id)
+
+        problems_status = user.problems_status
         if "problems" not in problems_status:
             problems_status["problems"] = {}
+
+        # 增加用户提交计数器
+        user.userprofile.add_submission_number()
+
+        # 之前状态不是ac, 现在是ac了 需要更新用户ac题目数量计数器,这里需要判重
+        if problems_status["problems"].get(str(problem.id), -1) != 1 and self.submission.result == result["accepted"]:
+            user.userprofile.add_accepted_problem_number()
+
         if self.submission.result == result["accepted"]:
             problem.add_ac_number()
             problems_status["problems"][str(problem.id)] = 1
         else:
             problems_status["problems"][str(problem.id)] = 2
-        self.user.problems_status = problems_status
-        self.user.save()
+        user.problems_status = problems_status
+        user.save(update_fields=["problem_status"])
         # 普通题目的话，到这里就结束了
 
     def update_contest_problem_status(self):
@@ -136,23 +145,32 @@ class JudgeDispatcher(object):
         if contest.status != CONTEST_UNDERWAY:
             logger.info("Contest debug mode, id: " + str(contest.id) + ", submission id: " + self.submission.id)
             return
-        with transaction.atomic():
-            contest_problem = ContestProblem.objects.select_for_update().get(contest=contest,
-                                                                             id=self.submission.problem_id)
 
-            contest_problem.add_submission_number()
+        contest_problem = ContestProblem.objects.get(contest=contest, id=self.submission.problem_id)
+        contest_problem.add_submission_number()
 
-        # todo 事务
-        problems_status = self.user.problems_status
+        user = User.objects.get(id=self.submission.user_id)
+        problems_status = user.problems_status
+
         if "contest_problems" not in problems_status:
             problems_status["contest_problems"] = {}
+
+        # 增加用户提交计数器
+        user.userprofile.add_submission_number()
+
+        # 之前状态不是ac, 现在是ac了 需要更新用户ac题目数量计数器,这里需要判重
+        if problems_status["contest_problems"].get(str(contest_problem.id), -1) != 1 and \
+                        self.submission.result == result["accepted"]:
+            user.userprofile.add_accepted_problem_number()
+
         if self.submission.result == result["accepted"]:
             contest_problem.add_ac_number()
             problems_status["contest_problems"][str(contest_problem.id)] = 1
         else:
-            problems_status["contest_problems"][str(contest_problem.id)] = 0
-        self.user.problems_status = problems_status
-        self.user.save()
+            problems_status["contest_problems"][str(contest_problem.id)] = 2
+
+        user.problems_status = problems_status
+        user.save(update_fields=["problem_status"])
 
         self.update_contest_rank(contest)
 
@@ -162,7 +180,7 @@ class JudgeDispatcher(object):
 
         with transaction.atomic():
             try:
-                contest_rank = ContestRank.objects.select_for_update().get(contest=contest, user=self.user)
+                contest_rank = ContestRank.objects.select_for_update().get(contest=contest, user_id=self.submission.user_id)
                 contest_rank.update_rank(self.submission)
             except ContestRank.DoesNotExist:
-                ContestRank.objects.create(contest=contest, user=self.user).update_rank(self.submission)
+                ContestRank.objects.create(contest=contest, user_id=self.submission.user_id).update_rank(self.submission)

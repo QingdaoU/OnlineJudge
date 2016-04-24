@@ -74,5 +74,13 @@ class UserProfile(models.Model):
     school = models.CharField(max_length=200, blank=True, null=True)
     student_id = models.CharField(max_length=15, blank=True, null=True)
 
+    def add_accepted_problem_number(self):
+        self.accepted_problem_number += 1
+        self.save(update_fields=["accepted_problem_number"])
+
+    def add_submission_number(self):
+        self.submission_number += 1
+        self.save(update_fields=["submission_number"])
+
     class Meta:
         db_table = "user_profile"
