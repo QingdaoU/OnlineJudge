@@ -5,6 +5,7 @@ import StringIO
 from django import http
 from django.contrib import auth
 from django.shortcuts import render
+from django.core.paginator import Paginator
 from django.db.models import Q
 from django.conf import settings
 from django.http import HttpResponse
@@ -472,3 +473,25 @@ class TwoFactorAuthAPIView(APIView):
                 return error_response(u"验证码错误")
         else:
             return serializer_invalid_response(serializer)
+
+
+def user_rank_page(request, page=1):
+    ranks = UserProfile.objects.filter(submission_number__gt=0).order_by("-accepted_problem_number", "-submission_number")
+    paginator = Paginator(ranks, 20)
+    try:
+        ranks = paginator.page(int(page))
+    except Exception:
+        return error_page(request, u"不存在的页码")
+    previous_page = next_page = None
+    try:
+        previous_page = ranks.previous_page_number()
+    except Exception:
+        pass
+    try:
+        next_page = ranks.next_page_number()
+    except Exception:
+        pass
+    return render(request, "utils/rank.html", {"ranks": ranks, "page": page,
+                                               "previous_page": previous_page,
+                                               "next_page": next_page,
+                                               "start_id": int(page) * 20 - 20,})

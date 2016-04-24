@@ -1,0 +1,52 @@
+{% extends "oj_base.html" %}
+{% block body %}
+
+    <div class="container main">
+        <div class="col-md-12 col-lg-12">
+            <table class="table table-striped">
+                {% if request.user.is_authenticated %}
+
+                    <caption>我的数据: 通过的题目数量: {{ request.user.userprofile.accepted_problem_number }}
+                        总提交数量: {{ request.user.userprofile.submission_number }}</caption>
+                {% endif %}
+                <thead>
+                <tr>
+                    <th>#</th>
+                    <th>用户名</th>
+                    <th>签名</th>
+                    <th>通过的题目数量</th>
+                    <th>总提交数量</th>
+                    <th>AC 率</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for rank in ranks %}
+                    <tr>
+                        <th scope="row">{{ forloop.counter |add:start_id }}</th>
+                        <td><a href="/user/{{ rank.user.username }}">{{ rank.user.username }}</a></td>
+                        <td>{% if rank.mood %}{{ rank.mood }}{% endif %}</td>
+                        <td>{{ rank.accepted_problem_number }}</td>
+                        <td>{{ rank.submission_number }}</td>
+                        <td>{% widthratio rank.accepted_problem_number rank.submission_number 100 %}%</td>
+                    </tr>
+                {% endfor %}
+
+                </tbody>
+            </table>
+            <nav>
+                <ul class="pager">
+                    {% if previous_page %}
+                        <li class="previous">
+                            <a href="/rank/{{ previous_page }}/">
+                                <span aria-hidden="true">&larr;</span> 上一页</a></li>
+                    {% endif %}
+                    {% if next_page %}
+                        <li class="next">
+                            <a href="/rank/{{ next_page }}/">下一页
+                                <span aria-hidden="true">&rarr;</span></a></li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+    </div>
+{% endblock %}

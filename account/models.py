@@ -66,9 +66,8 @@ class UserProfile(models.Model):
     hduoj_username = models.CharField(max_length=30, blank=True, null=True)
     bestcoder_username = models.CharField(max_length=30, blank=True, null=True)
     codeforces_username = models.CharField(max_length=30, blank=True, null=True)
-    rank = models.IntegerField(default=65535)
-    accepted_number = models.IntegerField(default=0)
-    submissions_number = models.IntegerField(default=0)
+    accepted_problem_number = models.IntegerField(default=0)
+    submission_number = models.IntegerField(default=0)
     # JSON字典用来表示该用户的问题的解决状态 1为ac，2为正在进行
     problems_status = JSONField(default={})
     phone_number = models.CharField(max_length=15, blank=True, null=True)
