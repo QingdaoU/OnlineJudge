@@ -4,10 +4,11 @@ define("testCaseUploader", ["avalon", "uploader", "bsAlert", "jquery"], function
         '<br> ' +
         '<label>测试数据 <a ms-if="downloadUrl" ms-attr-href="downloadUrl">下载</a></label><br> ' +
         '<small class="text-info">' +
-        '请将所有测试用例打包在一个文件中上传，' +
+        '请将所有测试用例打包在一个zip文件中上传，' +
         '所有文件要在压缩包的根目录，' +
         '且输入输出文件名要以从1开始连续数字标识要对应例如：' +
-        '<br>1.in 1.out 2.in 2.out(普通题目)或者1.in 2.in 3.in(Special Judge) 请尽可能的合并测试用例在一个文件中</small> ' +
+        '<br>1.in 1.out 2.in 2.out(普通题目)或者1.in 2.in 3.in(Special Judge) ' +
+        '<a href="https://github.com/QingdaoU/OnlineJudge/wiki/%E6%B5%8B%E8%AF%95%E7%94%A8%E4%BE%8B%E4%B8%8A%E4%BC%A0" target="_blank">帮助</a> </small> ' +
         '<p>上传进度<span ms-text="uploadProgress"></span>%</p> ' +
         '<table class="table table-striped" ms-visible="uploaded"> ' +
         '<tr> <td>编号</td> <td>输入文件名</td> <td>输出文件名</td> </tr> ' +
