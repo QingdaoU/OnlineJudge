@@ -16,7 +16,7 @@ def compile_(language_item, src_path, exe_path, judge_base_path, compile_spj=Fal
                                 in_file="/dev/null",
                                 out_file=compiler_output_file,
                                 max_cpu_time=2000,
-                                max_memory=2000000000,
+                                max_memory=256 * 1024 * 1024,
                                 args=compile_args,
                                 env=["PATH=" + os.environ["PATH"]],
                                 use_sandbox=False,
