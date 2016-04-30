@@ -173,6 +173,11 @@ else:
         )
     }
 
+# for celery
+BROKER_URL = 'redis://%s:%s/%s' % (REDIS_QUEUE["host"], str(REDIS_QUEUE["port"]), str(REDIS_QUEUE["db"]))
+CELERY_ACCEPT_CONTENT = ["json"]
+CELERY_TASK_SERIALIZER = "json"
+
 DATABASE_ROUTERS = ['oj.db_router.DBRouter']
 
 TEST_CASE_DIR = os.path.join(BASE_DIR, 'test_case/')
