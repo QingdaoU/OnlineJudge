@@ -130,8 +130,8 @@ li.problem-tag {
 }
 
 
-li.list-group-item>a{
-    display: inline;
-    padding: 0;
-    margin: 0;
+.tag-link{
+    display: inline!important;
+    padding: 0!important;
+    margin: 0!important;
 }

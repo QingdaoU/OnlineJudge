@@ -78,7 +78,7 @@
                     <ul class="list-group">
                         {% for item in tags %}
                             <li class="list-group-item problem-tag">
-                            <a href="/problems/?tag={{ item.name }}">{{ item.name }}</a>
+                            <a class="tag-link" href="/problems/?tag={{ item.name }}">{{ item.name }}</a>
                             <span class="badge">{{ item.problem_number }}</span>
                             </li>
                         {% endfor %}
