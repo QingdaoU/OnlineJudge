@@ -374,7 +374,8 @@ class TestCaseDownloadAPIView(APIView):
 
             zf = zipfile.ZipFile(test_case_zip, "w", zipfile.ZIP_DEFLATED)
             for filename in os.listdir(test_case_dir):
-                if self._is_legal_test_case_file_name(filename):
+                # 避免存在文件链接,导致真实文件被打包
+                if self._is_legal_test_case_file_name(filename) and not os.path.islink(os.path.join(test_case_dir, filename)):
                     zf.write(os.path.join(test_case_dir, filename), filename)
             zf.close()
 
