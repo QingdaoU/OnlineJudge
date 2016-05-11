@@ -1,0 +1,19 @@
+oj_rsync_master:
+    image: oj_rsync
+    volumes:
+        - /home/OnlineJudge:/OnlineJudge
+        - /home/test_case:/OnlineJudge/test_case
+        - /home/log:/OnlineJudge/log
+    ports:
+        - "0.0.0.0:873:873"
+    environment:
+        - RSYNC_MODE=master
+oj_rsync_slave:
+    image: oj_rsync
+    volumes:
+        - /home/OnlineJudge:/OnlineJudge
+        - /home/test_case:/OnlineJudge/test_case
+        - /home/log:/OnlineJudge/log
+    environment:
+        - RSYNC_MODE=slave
+        - RSYNC_MASTER_ADDR={YOUR_MASTER_ADDR}
