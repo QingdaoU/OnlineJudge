@@ -2,11 +2,9 @@
 import os
 import time
 import MySQLdb
-
 """
 docker-compose启动的时候是并行启动的,可能执行本脚本的时候MySQL还没启动完
 """
-
 i = 3
 while i:
     try:
@@ -21,6 +19,5 @@ while i:
         print "Failed to create database, error: " + str(e) + ", will retry in 3 seconds"
         i -= 1
         time.sleep(3)
-
 print "Failed to create database"
 exit(1)
