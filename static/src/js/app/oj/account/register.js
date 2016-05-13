@@ -31,14 +31,6 @@ require(["jquery", "bsAlert", "csrfToken", "validator"], function ($, bsAlert, c
             return false;
         }
     });
-    
-    $("#school").blur(function () {
-        var school = $("#school").val().trim(school).toLowerCase();
-        if (school == "青岛大学" || school == "qdu" || school == "青大") {
-            $("#stu_id").show();
-            $("#school").val("青岛大学");
-        }
-    });
     function refresh_captcha() {
         $("#captcha-img")[0].src = "/captcha/?" + Math.random();
         $("#captcha")[0].value = "";
