@@ -9,6 +9,9 @@ require(["jquery", "bsAlert", "csrfToken", "validator"], function ($, bsAlert, c
             var password = $("#password").val();
             var email = $("#email").val();
             var captcha = $("#captcha").val();
+            if(username.substr(0, 1) == "*" && !confirm("按照惯例, *开头的用户将不会参加比赛排名, 是否继续?")){
+                return false;
+            }
             $.ajax({
                 beforeSend: csrfTokenHeader,
                 url: "/api/register/",
