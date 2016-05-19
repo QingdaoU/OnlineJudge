@@ -14,7 +14,7 @@
             <td>{{ el.id }}</td>
             <td>{{ el.name }}</td>
             <td>{{ el.max_instance_number }}</td>
-            <td>{{ el.workload }}</td>
+            <td>{{ el.used_instance_number / el.max_instance_number * 100 }}%</td>
             <td>{{ el.create_time|date("yyyy-MM-dd HH:mm:ss")}}</td>
             <td ms-text="el.status?'启用':'停用'"></td>
             <td>

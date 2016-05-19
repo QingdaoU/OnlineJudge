@@ -8,11 +8,8 @@ class JudgeServer(models.Model):
     port = models.IntegerField()
     # 这个服务器最大可能运行的判题实例数量
     max_instance_number = models.IntegerField()
-    left_instance_number = models.IntegerField()
-    workload = models.IntegerField(default=0)
+    used_instance_number = models.IntegerField(default=0)
     token = models.CharField(max_length=30)
-    # 进行测试用例同步的时候加锁
-    lock = models.BooleanField(default=False)
     # status 为 false 的时候代表不使用这个服务器
     status = models.BooleanField(default=True)
     create_time = models.DateTimeField(auto_now_add=True, blank=True, null=True)
