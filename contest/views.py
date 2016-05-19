@@ -455,6 +455,12 @@ def _get_rank(contest_id):
             order_by("-total_ac_number", "total_time"). \
             values("id", "user__id", "user__username", "user__real_name", "user__userprofile__student_id",
                    "contest_id", "submission_info", "total_submission_number", "total_ac_number", "total_time")
+    rank_number = 1
+    for item in rank:
+        # 只有有ac的题目而且不是打星的队伍才参与排名
+        if item["total_ac_number"] > 0 and item["user__username"][0] != "*":
+            item["rank_number"] = rank_number
+            rank_number += 1
     return rank
 
 
@@ -477,6 +483,11 @@ def contest_rank_page(request, contest_id):
             r.set(cache_key, json.dumps([dict(item) for item in rank]))
         else:
             rank = json.loads(rank)
+
+            # 2016-05-19 增加了缓存项目,以前的缓存主动失效
+            if "rank_number" not in rank[0]:
+                rank = _get_rank(contest_id)
+                r.set(cache_key, json.dumps([dict(item) for item in rank]))
 
     return render(request, "oj/contest/contest_rank.html",
                   {"rank": rank, "contest": contest,
