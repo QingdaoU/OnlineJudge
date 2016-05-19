@@ -7,6 +7,4 @@ find /code -name "*.pyc" -delete
 python -m compileall /code
 chown -R nobody:nogroup /code/log /code/test_case /code/upload
 echo "Waiting MySQL and Redis to start"
-sleep 10
-python /code/tools/create_db.py
 exec supervisord
