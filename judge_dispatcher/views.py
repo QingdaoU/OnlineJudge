@@ -21,7 +21,6 @@ class AdminJudgeServerAPIView(APIView):
             data = serializer.data
             judge_server = JudgeServer.objects.create(name=data["name"], ip=data["ip"], port=data["port"],
                                                       max_instance_number=data["max_instance_number"],
-                                                      left_instance_number=data["max_instance_number"],
                                                       token=data["token"])
             return success_response(JudgesSerializer(judge_server).data)
         else:
