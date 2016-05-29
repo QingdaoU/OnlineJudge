@@ -485,7 +485,7 @@ def contest_rank_page(request, contest_id):
             rank = json.loads(rank)
 
             # 2016-05-19 增加了缓存项目,以前的缓存主动失效
-            if "rank_number" not in rank[0]:
+            if rank and "rank_number" not in rank[0]:
                 rank = _get_rank(contest_id)
                 r.set(cache_key, json.dumps([dict(item) for item in rank]))
 
