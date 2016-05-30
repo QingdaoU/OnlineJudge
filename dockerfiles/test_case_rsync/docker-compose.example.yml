@@ -7,6 +7,7 @@ oj_rsync_master:
     ports:
         - "0.0.0.0:873:873"
     environment:
+        - TZ=Asia/Shanghai
         - RSYNC_MODE=master
 oj_rsync_slave:
     image: oj_rsync
@@ -15,5 +16,6 @@ oj_rsync_slave:
         - /home/test_case:/OnlineJudge/test_case
         - /home/log:/OnlineJudge/log
     environment:
+        - TZ=Asia/Shanghai
         - RSYNC_MODE=slave
         - RSYNC_MASTER_ADDR={YOUR_MASTER_ADDR}

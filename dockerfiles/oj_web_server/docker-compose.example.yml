@@ -21,5 +21,6 @@ oj_web_server:
     ports:
         - "127.0.0.1:8080:8080"
     environment:
+        - TZ=Asia/Shanghai
         - oj_env=server
         - MYSQL_ENV_MYSQL_USER=root
