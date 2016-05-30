@@ -243,28 +243,34 @@ def submission_list_page(request, page=1):
     """
     所有提交的列表页
     """
+
+    submission_filter = {"my": None, "user_id": None}
     # 是否显示所有人的提交
     show_all = False
-    submission_filter = {"my": None}
 
-    # 兼容部分版本,设置中没有这一项
-    try:
-        show_all = settings.SHOW_ALL_SUBMISSIONS_LIST
-    except Exception:
-        pass
-
-    # url中my=true可以只显示自己的
-    if request.GET.get("my", None) == "true":
-        submission_filter["my"] = "true"
-        show_all = False
-
-    if show_all:
-        submissions = Submission.objects.filter(contest_id__isnull=True)
+    # url中如果存在user_id参数,说明只显示这个人的提交,忽略其他参数
+    user_id = request.GET.get("user_id", None)
+    if user_id and request.user.admin_type == SUPER_ADMIN:
+        submission_filter["user_id"] = user_id
+        submissions = Submission.objects.filter(user_id=user_id, contest_id__isnull=True)
     else:
-        submissions = Submission.objects.filter(user_id=request.user.id, contest_id__isnull=True)
+        # 兼容部分版本,设置中没有这一项
+        try:
+            show_all = settings.SHOW_ALL_SUBMISSIONS_LIST
+        except Exception:
+            pass
 
-    submissions = submissions.values("id", "user_id", "problem_id", "result", "create_time", "accepted_answer_time",
-                                     "language").order_by("-create_time")
+        # url中my=true可以只显示自己的
+        if request.GET.get("my", None) == "true":
+            submission_filter["my"] = "true"
+            show_all = False
+        if show_all:
+            submissions = Submission.objects.filter(contest_id__isnull=True)
+        else:
+            submissions = Submission.objects.filter(user_id=request.user.id, contest_id__isnull=True)
+
+    submissions = submissions.values("id", "user_id", "problem_id", "result", "create_time",
+                                     "accepted_answer_time", "language").order_by("-create_time")
 
     language = request.GET.get("language", None)
     if language:
@@ -291,12 +297,11 @@ def submission_list_page(request, page=1):
             cache_result["problem"][problem_id] = problem.title
         item["title"] = cache_result["problem"][problem_id]
 
-        if show_all:
-            user_id = item["user_id"]
-            if user_id not in cache_result["user"]:
-                user = User.objects.get(id=user_id)
-                cache_result["user"][user_id] = user
-            item["user"] = cache_result["user"][user_id]
+        user_id = item["user_id"]
+        if user_id not in cache_result["user"]:
+            user = User.objects.get(id=user_id)
+            cache_result["user"][user_id] = user
+        item["user"] = cache_result["user"][user_id]
 
         if item["user_id"] == request.user.id or request.user.admin_type == SUPER_ADMIN:
             item["show_link"] = True
