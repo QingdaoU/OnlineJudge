@@ -63,7 +63,7 @@ class OpenAPIProblemSerializer(BaseProblemSerializer):
 
     class Meta:
         model = Problem
-        exclude = ["visible", "test_case_id"]
+        exclude = ["visible", "test_case_id", "spj_language", "spj_code", "spj_version"]
 
 
 class EditProblemSerializer(serializers.Serializer):
