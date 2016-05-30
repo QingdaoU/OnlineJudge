@@ -100,7 +100,7 @@ require(["jquery", "avalon", "csrfToken", "bsAlert", "pager", "validator"],
                             success: function (data) {
                                 if (!data.code) {
                                     bsAlert("编辑成功！");
-                                    getPage(1);
+                                    getPage(avalon.vmodels.userPager.currentPage);
                                     vm.password = "";
                                     vm.isEditing = false;
                                 } else {

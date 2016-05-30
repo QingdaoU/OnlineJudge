@@ -19,7 +19,7 @@
             <th>真实姓名</th>
             <th>电子邮箱</th>
             <th>用户类型</th>
-            <th>修改</th>
+            <th>管理</th>
         </tr>
         <tr ms-repeat="userList">
             <td>{{ el.id }}</td>
@@ -30,6 +30,7 @@
             <td>{{ userType[el.admin_type]}}</td>
             <td>
                 <button class="btn-sm btn-info" ms-click="editUser(el)">编辑</button>
+                <a class="btn btn-primary" ms-attr-href="'/submissions/?user_id='+el.id" target="_blank">提交</a>
             </td>
         </tr>
     </table>
