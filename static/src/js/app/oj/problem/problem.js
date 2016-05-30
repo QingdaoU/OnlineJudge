@@ -34,6 +34,7 @@ require(["jquery", "codeMirror", "csrfToken", "bsAlert", "ZeroClipboard"],
         var codeEditor = codeMirror(codeEditorSelector, "text/x-csrc");
         var language = getLanguage();
         var submissionId;
+        var userId;
 
         function setLanguage(language){
             var languageTypes = {"1": "text/x-csrc", "2": "text/x-c++src", "3": "text/x-java"};
@@ -41,22 +42,7 @@ require(["jquery", "codeMirror", "csrfToken", "bsAlert", "ZeroClipboard"],
         }
 
         function saveCode(code){
-            localStorage.setItem(location.href, JSON.stringify({code: code, language: language}))
-        }
-
-        if(window.localStorage){
-            var data = localStorage[location.href];
-            if(data){
-                data = JSON.parse(data);
-                $("input[name='language'][value='" + data.language + "']").prop("checked", true);
-                language = data.language;
-                codeEditor.setValue(data.code);
-                setLanguage(data.language);
-            }
-
-            setInterval(function(){
-                saveCode(codeEditor.getValue())
-            }, 3000);
+            localStorage.setItem(userId + ":" + location.href, JSON.stringify({code: code, language: language}))
         }
 
         $("input[name='language']").change(function () {
@@ -276,6 +262,23 @@ require(["jquery", "codeMirror", "csrfToken", "bsAlert", "ZeroClipboard"],
                 if (data.code) {
                     $("#submit-code-button").attr("disabled", "disabled");
                     $("#result").html('<div class="alert alert-danger" role="alert"><div class="alert-link">请先<a href="/login/" target="_blank">登录</a>!</div> </div>');
+                }
+                else{
+                    userId = data.data.id;
+                    if(window.localStorage){
+                        var data = localStorage[userId + ":" + location.href];
+                        if(data){
+                            data = JSON.parse(data);
+                            $("input[name='language'][value='" + data.language + "']").prop("checked", true);
+                            language = data.language;
+                            codeEditor.setValue(data.code);
+                            setLanguage(data.language);
+                        }
+
+                        setInterval(function(){
+                            saveCode(codeEditor.getValue())
+                        }, 3000);
+                    }
                 }
             }
         })
