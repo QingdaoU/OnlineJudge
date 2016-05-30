@@ -4,7 +4,6 @@ import json
 import urllib
 from django.http import HttpResponseRedirect, HttpResponse
 from django.contrib import auth
-from utils.shortcuts import error_response, error_page
 from .models import ADMIN
 
 
@@ -19,6 +18,6 @@ class SessionSecurityMiddleware(object):
                         return HttpResponse(json.dumps({"code": 1, "data": u"请先登录"}),
                                             content_type="application/json")
                     else:
-                        return HttpResponseRedirect("/login/?__from=" + urllib.quote(request.build_absolute_uri()))
+                        return HttpResponseRedirect("/login/?__from=" + urllib.quote(request.path))
             # 更新最后活动日期
             request.session["last_activity"] = time.time()
