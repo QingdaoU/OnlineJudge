@@ -189,6 +189,3 @@ TOKEN_BUCKET_DEFAULT_CAPACITY = 50
 
 # 单位:每分钟
 TOKEN_BUCKET_FILL_RATE = 2
-
-# 是否显示所有人的提交, False就只显示自己的
-SHOW_ALL_SUBMISSIONS_LIST = False

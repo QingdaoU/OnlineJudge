@@ -111,3 +111,17 @@ def rand_str(length=32):
     if length > 128:
         raise ValueError("length must <= 128")
     return hashlib.sha512(os.urandom(128)).hexdigest()[0:length]
+
+
+def build_query_string(kv_data, ignore_none=True):
+    # {"a": 1, "b": "test"} -> "?a=1&b=test"
+    query_string = ""
+    for k, v in kv_data.iteritems():
+        if ignore_none is True and kv_data[k] is None:
+            continue
+        if query_string != "":
+            query_string += "&"
+        else:
+            query_string = "?"
+        query_string += (k + "=" + str(v))
+    return query_string
