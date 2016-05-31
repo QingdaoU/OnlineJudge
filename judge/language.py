@@ -30,7 +30,8 @@ languages = {
         "code": 3,
         "compile_max_cpu_time": 3000,
         "compile_max_memory": 1024 * 1024 * 1024,
-        "compile_command": "/usr/bin/javac {src_path} -d {exe_path} -encoding UTF8",
+        "compile_command": "/usr/bin/javac {src_path} -d {exe_path} -J-Xss1m -J-XX:MaxPermSize=16M "
+                           "-J-XX:PermSize=8M -J-Xms16m -J-Xmx1024m -encoding UTF8",
         "execute_command": "/usr/bin/java -cp {exe_path} -Xss1M -XX:MaxPermSize=16M "
                            "-XX:PermSize=8M -Xms16M -Xmx{max_memory} -Djava.security.manager "
                            "-Djava.security.policy==policy -Djava.awt.headless=true Main",
