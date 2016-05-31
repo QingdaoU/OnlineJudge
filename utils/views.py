@@ -9,6 +9,7 @@ import logging
 
 logger = logging.getLogger("app_info")
 
+
 class SimditorImageUploadAPIView(APIView):
     def post(self, request):
         if "image" not in request.FILES:

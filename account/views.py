@@ -1,4 +1,5 @@
 # coding=utf-8
+import os
 import codecs
 import qrcode
 import StringIO
@@ -495,3 +496,20 @@ def user_rank_page(request, page=1):
                                                "previous_page": previous_page,
                                                "next_page": next_page,
                                                "start_id": int(page) * 20 - 20,})
+
+
+class AvatarUploadAPIView(APIView):
+    def post(self, request):
+        if "file" not in request.FILES:
+            return error_response(u"文件上传失败")
+
+        f = request.FILES["file"]
+        if f.size > 1024 * 1024:
+            return error_response(u"图片过大")
+        if os.path.splitext(f.name)[-1].lower() not in [".gif", ".jpg", ".jpeg", ".bmp", ".png"]:
+            return error_response(u"需要上传图片格式")
+        name = "avatar_" + rand_str(5) + os.path.splitext(f.name)[-1]
+        with open(os.path.join(settings.IMAGE_UPLOAD_DIR, name), "wb") as img:
+            for chunk in request.FILES["file"]:
+                img.write(chunk)
+        return success_response({"path": "/static/upload/" + name})

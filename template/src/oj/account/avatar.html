@@ -15,9 +15,11 @@
             </ul>
         </div>
         <div class="col-lg-3">
-            <img src="{{ user.userprofile.avatar }}" class="img-responsive"
-                 style="height: 200px;width: 200px;" id="current_avatar">
+            <img src="{{ user.userprofile.avatar }}" class="img-responsive big-avatar" id="current-avatar">
             <br>
+            <div class="form-group left">
+                <button id="save-avatar" type="submit" class="btn btn-primary">保存</button>
+            </div>
         </div>
         <div class="col-lg-6">
             <h3>选择已有头像</h3>
@@ -43,10 +45,6 @@
             </div>
             <h3>上传自定义头像</h3>
             <div id="avatarUploader">选择头像</div>
-            <div class="form-group left">
-                <button id="save_avatar" type="submit" class="btn btn-primary">保存</button>
-            </div>
-
         </div>
     </div>
 {% endblock %}

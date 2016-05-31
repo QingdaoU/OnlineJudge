@@ -7,7 +7,7 @@ from account.views import (UserLoginAPIView, UsernameCheckAPIView, UserRegisterA
                            UserChangePasswordAPIView, EmailCheckAPIView,
                            UserAdminAPIView, UserInfoAPIView, ResetPasswordAPIView,
                            ApplyResetPasswordAPIView, SSOAPIView, UserProfileAPIView,
-                           TwoFactorAuthAPIView)
+                           TwoFactorAuthAPIView, AvatarUploadAPIView)
 
 from announcement.views import AnnouncementAdminAPIView
 
@@ -141,6 +141,7 @@ urlpatterns = [
     url(r'^two_factor_auth/$', TemplateView.as_view(template_name="oj/account/two_factor_auth.html"), name="two_factor_auth_page"),
     url(r'^rank/(?P<page>\d+)/$', "account.views.user_rank_page", name="user_rank_page"),
     url(r'^rank/$', "account.views.user_rank_page", name="user_rank_page"),
+    url(r'^api/avatar/upload/', AvatarUploadAPIView.as_view(), name="avatar_upload_api"),
 ]
 
 

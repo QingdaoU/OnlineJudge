@@ -1,20 +1,26 @@
 require(["jquery", "bsAlert", "csrfToken", "uploader"], function ($, bsAlert, csrfTokenHeader, uploader) {
     var avatar = "";
-    var avatarUploader = uploader("#avatarUploader", "/",
+    var avatarUploader = uploader("#avatarUploader", "/api/avatar/upload/",
         {title: 'Images', extensions: 'gif,jpg,jpeg,bmp,png', mimeTypes: 'image/*'},
         function (file, response) {
-            //todo
+            if (response.code) {
+                bsAlert(response.data);
+            }
+            else {
+                avatar = response.data.path;
+                $('#current-avatar').attr('src', avatar);
+            }
         });
 
 
     function changeAvatar(event) {
         avatar = $(event.target).attr('src');
-        $('#current_avatar').attr('src', avatar);
+        $('#current-avatar').attr('src', avatar);
     }
 
     $('.avatar-item').click(changeAvatar);
 
-    $('#save_avatar').click(function () {
+    $('#save-avatar').click(function () {
         if (avatar)
             $.ajax({
                 beforeSend: csrfTokenHeader,
