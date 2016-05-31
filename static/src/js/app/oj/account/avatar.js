@@ -1,5 +1,11 @@
-require(["jquery", "bsAlert", "csrfToken"], function ($, bsAlert, csrfTokenHeader) {
+require(["jquery", "bsAlert", "csrfToken", "uploader"], function ($, bsAlert, csrfTokenHeader, uploader) {
     var avatar = "";
+    var avatarUploader = uploader("#avatarUploader", "/",
+        {title: 'Images', extensions: 'gif,jpg,jpeg,bmp,png', mimeTypes: 'image/*'},
+        function (file, response) {
+            //todo
+        });
+
 
     function changeAvatar(event) {
         avatar = $(event.target).attr('src');
@@ -27,7 +33,7 @@ require(["jquery", "bsAlert", "csrfToken"], function ($, bsAlert, csrfTokenHeade
                     }
                 },
                 error: function () {
-                    bsAlert("额 好像出错了，请刷新页面重试。如还有问题，请填写页面导航栏上的反馈。")
+                    bsAlert("好像出错了，请刷新页面重试。")
                 }
 
             });

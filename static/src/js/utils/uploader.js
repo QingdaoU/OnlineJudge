@@ -1,5 +1,5 @@
 define("uploader", ["webUploader", "csrfToken"], function (webuploader, csrfTokenHeader) {
-    function uploader(selector, server, onSuccess, uploadProgress) {
+    function uploader(selector, server, accept, onSuccess, uploadProgress) {
         var Webuploader = webuploader.create({
             auto: true,
             // swf文件路径
@@ -12,11 +12,7 @@ define("uploader", ["webUploader", "csrfToken"], function (webuploader, csrfToke
             // 不压缩image, 默认如果是jpeg，文件上传前会压缩一把再上传！
             resize: false,
             uploadBeforeSend: csrfTokenHeader,
-            accept: {
-                title: 'testcase zip',
-                extensions: 'zip',
-                mimeTypes: 'application/zip'
-            }
+            accept: accept
         });
         Webuploader.on("uploadBeforeSend", csrfTokenHeader);
         Webuploader.on("uploadSuccess", onSuccess);

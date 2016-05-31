@@ -62,6 +62,7 @@ define("testCaseUploader", ["avalon", "uploader", "bsAlert", "jquery"], function
         $ready: function(vm, el){
             el.msRetain = true;
             var testCaseUploader = uploader("#testCaseFileSelector", "/api/admin/test_case_upload/",
+                {title: 'testcase zip', extensions: 'zip', mimeTypes: 'application/zip'},
                 function (file, response) {
                     if (response.code) {
                         bsAlert(response.data);
