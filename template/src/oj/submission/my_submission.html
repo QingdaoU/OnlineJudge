@@ -82,7 +82,7 @@
                                 <td>{{ item.real_time }} ms</td>
                                 <td>{{ item.cpu_time }} ms</td>
                                 <td>{{ item.memory }} Byte</td>
-                                <td class="{{ item.result|translate_result_class }}">{{ item.result|translate_result }}</td>
+                                <td class="{{ item.result|translate_result_class }}">{{ item.result|translate_result }} {% if item.signal %}({{ item.signal|translate_signal }}){% endif %}</td>
                             </tr>
                           {% endfor %}
                           </tbody>

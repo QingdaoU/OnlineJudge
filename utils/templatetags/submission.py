@@ -1,5 +1,6 @@
 # coding=utf-8
 from django import template
+from utils.signal2str import strsignal
 
 
 def translate_result(value):
@@ -15,6 +16,13 @@ def translate_result(value):
         8: "Waiting"
     }
     return results[value]
+
+
+def translate_signal(value):
+    if not value:
+        return ""
+    else:
+        return strsignal(value)
 
 
 def translate_language(value):
@@ -33,3 +41,4 @@ register = template.Library()
 register.filter("translate_result", translate_result)
 register.filter("translate_language", translate_language)
 register.filter("translate_result_class", translate_result_class)
+register.filter("translate_signal", translate_signal)
