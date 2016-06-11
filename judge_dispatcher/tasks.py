@@ -138,6 +138,10 @@ class JudgeDispatcher(object):
             if problems_status["problems"].get(str(problem.id), -1) != 1 and self.submission.result == result["accepted"]:
                 user.userprofile.add_accepted_problem_number()
 
+            # 之前状态是ac, 现在不是ac了 需要用户ac题目数量计数器-1, 否则上一个逻辑胡重复增加ac计数器
+            if problems_status["problems"].get(str(problem.id), -1) == 1 and self.submission.result != result["accepted"]:
+                user.userprofile.minus_accepted_problem_number()
+
             if self.submission.result == result["accepted"]:
                 problem.add_ac_number()
                 problems_status["problems"][str(problem.id)] = 1

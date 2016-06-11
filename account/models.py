@@ -82,5 +82,9 @@ class UserProfile(models.Model):
         self.submission_number += 1
         self.save(update_fields=["submission_number"])
 
+    def minus_accepted_problem_number(self):
+        self.accepted_problem_number -= 1
+        self.save(update_fields=["accepted_problem_number"])
+
     class Meta:
         db_table = "user_profile"
