@@ -36,6 +36,16 @@ languages = {
                            "-XX:PermSize=8M -Xms16M -Xmx{max_memory} -Djava.security.manager "
                            "-Djava.security.policy==policy -Djava.awt.headless=true Main",
         "use_sandbox": False
+    },
+    4: {
+        "name": "python",
+        "src_name": "main.py",
+        "code": 4,
+        "compile_max_cpu_time": 3000,
+        "compile_max_memory": 1024 * 1024 * 1024,
+        "compile_command": "/usr/bin/python -m py_compile {src_path}",
+        "execute_command": "/usr/bin/python {exe_path}/main.pyc",
+        "use_sandbox": False
     }
 }
 

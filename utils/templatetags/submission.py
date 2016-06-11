@@ -26,7 +26,11 @@ def translate_signal(value):
 
 
 def translate_language(value):
-    return {1: "C", 2: "C++", 3: "Java"}[value]
+    return {1: "C", 2: "C++", 3: "Java", 4: "Python"}[value]
+
+
+def translate_language_mime(value):
+    return {1: "text/x-csrc", 2: "text/x-c++src", 3: "text/x-java", 4: "text/x-python"}[value]
 
 
 def translate_result_class(value):
@@ -42,3 +46,4 @@ register.filter("translate_result", translate_result)
 register.filter("translate_language", translate_language)
 register.filter("translate_result_class", translate_result_class)
 register.filter("translate_signal", translate_signal)
+register.filter("translate_language_mime", translate_language_mime)

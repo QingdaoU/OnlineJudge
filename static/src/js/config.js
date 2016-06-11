@@ -42,6 +42,7 @@ var require = {
         //code mirror 代码编辑器 ->codeMirror
         _codeMirror: "lib/codeMirror/codemirror",
         codeMirrorClang: "lib/codeMirror/language/clike",
+        codeMirrorPython: "lib/codeMirror/language/python",
 
         // bootstrap组件
         modal: "lib/bootstrap/modal",

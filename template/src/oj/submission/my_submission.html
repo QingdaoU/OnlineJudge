@@ -114,15 +114,8 @@
 {% block js_block %}
     <script>
         require(["jquery", "codeMirror", "csrfToken"], function ($, codeMirror, csrfTokenHeader) {
-            {% ifequal submission.language 1 %}
-                var language = "text/x-csrc";
-            {% else %}
-                {% ifequal submission.language 2 %}
-                    var language = "text/x-c++src";
-                {% else %}
-                    var language = "text/x-java";
-                {% endifequal %}
-            {% endifequal %}
+
+            var language = "{{ submission.language|translate_language_mime|safe }}";
             var codeEditor = codeMirror($("#code-editor")[0], language);
             codeEditor.setOption("readOnly", true);
 

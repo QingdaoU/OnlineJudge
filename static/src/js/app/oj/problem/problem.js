@@ -37,7 +37,7 @@ require(["jquery", "codeMirror", "csrfToken", "bsAlert", "ZeroClipboard"],
         var userId;
 
         function setLanguage(language){
-            var languageTypes = {"1": "text/x-csrc", "2": "text/x-c++src", "3": "text/x-java"};
+            var languageTypes = {"1": "text/x-csrc", "2": "text/x-c++src", "3": "text/x-java","4": "text/x-python"};
             codeEditor.setOption("mode", languageTypes[language]);
         }
 
@@ -143,6 +143,10 @@ require(["jquery", "codeMirror", "csrfToken", "bsAlert", "ZeroClipboard"],
             //java
             if (code.indexOf("public class Main") > -1||code.indexOf("System.out.print") > -1) {
                 return "3";
+            }
+            //python
+            if (code.indexOf("input") > -1 && code.indexOf("print") > -1) {
+                return "4";
             }
         }
 

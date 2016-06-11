@@ -1,4 +1,4 @@
-define("codeMirror", ["_codeMirror", "codeMirrorClang"], function(CodeMirror){
+define("codeMirror", ["_codeMirror", "codeMirrorClang","codeMirrorPython"], function(CodeMirror){
     function codeMirror(selector, language){
         return CodeMirror.fromTextArea(selector,
             {

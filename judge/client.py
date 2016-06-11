@@ -40,7 +40,7 @@ class JudgeClient(object):
         # 如果实际使用超过了3倍, 就只能得到Runtime Error的结果了
         # 而最后会比较Java实际使用的内存和1.5倍的设定内存的大小
         self._real_max_memory = max_memory
-        if self._language["name"] == "java":
+        if self._language["name"] == "java" or self._language["name"] == "python":
             self._max_memory = judger.MEMORY_UNLIMITED
             self.execute_command = self._language["execute_command"].\
                 format(exe_path=self._exe_path, max_memory=max_memory * 3).split(" ")
