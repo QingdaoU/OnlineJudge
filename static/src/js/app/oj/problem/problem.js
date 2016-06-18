@@ -126,7 +126,7 @@ require(["jquery", "codeMirror", "csrfToken", "bsAlert", "ZeroClipboard"],
                     }
                 },
                 error: function(){
-                    bsAlert("额 好像出错了，请刷新页面重试。如还有问题，请填写页面导航栏上的反馈。")
+                    bsAlert("额 好像出错了，请刷新页面重试。")
                 }
             })
         }
@@ -261,7 +261,10 @@ require(["jquery", "codeMirror", "csrfToken", "bsAlert", "ZeroClipboard"],
             success: function (data) {
                 if (data.code) {
                     $("#submit-code-button").attr("disabled", "disabled");
-                    $("#result").html('<div class="alert alert-danger" role="alert"><div class="alert-link">请先<a href="/login/" target="_blank">登录</a>!</div> </div>');
+                    $("#result").html('<div class="alert alert-danger" role="alert">' +
+                        '<div class="alert-link">请先' +
+                        '<a href="/login/?__from=' + location.pathname + '" target="_blank">' +
+                        '登录</a>!</div> </div>');
                 }
                 else{
                     userId = data.data.id;
