@@ -1,20 +1,14 @@
 # coding=utf-8
-import json
-
 from rest_framework import serializers
 
 from account.models import User
+from utils.serializers import JSONField
 from .models import Problem, ProblemTag
 
 
 class ProblemSampleSerializer(serializers.ListField):
     input = serializers.CharField(max_length=3000)
     output = serializers.CharField(max_length=3000)
-
-
-class JSONField(serializers.Field):
-    def to_representation(self, value):
-        return json.loads(value)
 
 
 class CreateProblemSerializer(serializers.Serializer):

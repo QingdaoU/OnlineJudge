@@ -1,6 +1,7 @@
 # coding=utf-8
 from rest_framework import serializers
 
+from utils.serializers import DateTimeTZField, JSONField
 from .models import User, UserProfile
 
 
@@ -21,10 +22,10 @@ class EmailCheckSerializer(serializers.Serializer):
 class UserRegisterSerializer(serializers.Serializer):
     username = serializers.CharField(max_length=30)
     real_name = serializers.CharField(max_length=30)
-    school = serializers.CharField(max_length=200, required=False, default=None)
     password = serializers.CharField(max_length=30, min_length=6)
     email = serializers.EmailField(max_length=254)
     captcha = serializers.CharField(max_length=4, min_length=4)
+    school = serializers.CharField(max_length=200, required=False, default=None)
     student_id = serializers.CharField(max_length=15, required=False, default=None)
 
 
@@ -35,11 +36,14 @@ class UserChangePasswordSerializer(serializers.Serializer):
 
 
 class UserSerializer(serializers.ModelSerializer):
+    create_time = DateTimeTZField()
+    last_login = DateTimeTZField()
+    admin_extra_permission = serializers.ListField()
 
     class Meta:
         model = User
-        fields = ["id", "username", "real_name", "email", "admin_type",
-                  "create_time", "last_login", "two_factor_auth", "openapi_appkey", "is_forbidden"]
+        fields = ["id", "username", "real_name", "email", "admin_type", "admin_extra_permission",
+                  "create_time", "last_login", "two_factor_auth", "open_api", "is_disabled"]
 
 
 class EditUserSerializer(serializers.Serializer):
@@ -49,9 +53,11 @@ class EditUserSerializer(serializers.Serializer):
     password = serializers.CharField(max_length=30, min_length=6, required=False, default=None)
     email = serializers.EmailField(max_length=254)
     admin_type = serializers.IntegerField(default=0)
-    openapi = serializers.BooleanField()
-    tfa_auth = serializers.BooleanField()
-    is_forbidden = serializers.BooleanField()
+    open_api = serializers.BooleanField()
+    two_factor_auth = serializers.BooleanField()
+    is_disabled = serializers.BooleanField()
+    admin_extra_permission = serializers.ListField(required=False, default=[],
+                                                   child=serializers.IntegerField())
 
 
 class ApplyResetPasswordSerializer(serializers.Serializer):

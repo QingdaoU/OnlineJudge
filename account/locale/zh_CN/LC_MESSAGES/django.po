@@ -1,0 +1,56 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2016-06-13 21:24+0800\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: account/decorators.py:29 account/decorators.py:31
+msgid "Your account is disabled"
+msgstr "您的账号已被禁用"
+
+#: account/decorators.py:35 account/middleware.py:21
+msgid "Please login in first"
+msgstr "请先登录"
+
+#: account/tests.py:36 account/tests.py:59 account/tests.py:114
+#: account/views.py:51 account/views.py:59 account/views.py:96
+#: account/views.py:118
+msgid "Succeeded"
+msgstr ""
+
+#: account/tests.py:45 account/views.py:63
+msgid "Invalid username or password"
+msgstr ""
+
+#: account/tests.py:70 account/views.py:61
+msgid "Invalid two factor verification code"
+msgstr ""
+
+#: account/tests.py:106 account/views.py:78 account/views.py:112
+msgid "Invalid captcha"
+msgstr ""
+
+#: account/tests.py:122 account/views.py:81
+msgid "Username already exists"
+msgstr ""
+
+#: account/tests.py:130 account/views.py:86 account/views.py:89
+msgid "Email already exists"
+msgstr ""
+
+#: account/views.py:120
+msgid "Invalid old password"
+msgstr ""

@@ -35,6 +35,7 @@ urlpatterns = [
     url(r'^admin/template/(?P<template_dir>\w+)/(?P<template_name>\w+).html$', AdminTemplateView.as_view(),
         name="admin_template"),
 
+    # account app
     url(r'^login/$', TemplateView.as_view(template_name="oj/account/login.html"), name="user_login_page"),
     url(r'^logout/$', "account.views.logout", name="user_logout_api"),
     url(r'^register/$', TemplateView.as_view(template_name="oj/account/register.html"),
@@ -43,13 +44,14 @@ urlpatterns = [
         name="user_change_password_page"),
     url(r'^announcement/(?P<announcement_id>\d+)/$', "announcement.views.announcement_page",
         name="announcement_page"),
-
     url(r'^api/user/$', UserInfoAPIView.as_view(), name="user_info_api"),
     url(r'^api/login/$', UserLoginAPIView.as_view(), name="user_login_api"),
     url(r'^api/register/$', UserRegisterAPIView.as_view(), name="user_register_api"),
     url(r'^api/change_password/$', UserChangePasswordAPIView.as_view(), name="user_change_password_api"),
     url(r'^api/username_check/$', UsernameCheckAPIView.as_view(), name="username_check_api"),
     url(r'^api/email_check/$', EmailCheckAPIView.as_view(), name="email_check_api"),
+
+
     url(r'^api/contest/password/$', ContestPasswordVerifyAPIView.as_view(), name="contest_password_verify_api"),
     url(r'^api/contest/submission/$', ContestSubmissionAPIView.as_view(), name="contest_submission_api"),
     url(r'^api/submission/$', SubmissionAPIView.as_view(), name="submission_api"),

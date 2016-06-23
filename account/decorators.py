@@ -1,12 +1,13 @@
 # coding=utf-8
+from __future__ import unicode_literals
 import urllib
 import functools
-from functools import wraps
 
 from django.http import HttpResponseRedirect
+from django.utils.translation import ugettext as _
 
 from utils.shortcuts import error_response, error_page
-from .models import SUPER_ADMIN, ADMIN
+from .models import AdminType
 
 
 class BasePermissionDecorator(object):
@@ -23,15 +24,15 @@ class BasePermissionDecorator(object):
             self.request = args[0]
 
         if self.check_permission():
-            if self.request.user.is_forbidden is True:
+            if self.request.user.is_disabled:
                 if self.request.is_ajax():
-                    return error_response(u"您已被禁用,请联系管理员")
+                    return error_response(_("Your account is disabled"))
                 else:
-                    return error_page(self.request, u"您已被禁用,请联系管理员")
+                    return error_page(self.request, _("Your account is disabled"))
             return self.func(*args, **kwargs)
         else:
             if self.request.is_ajax():
-                return error_response(u"请先登录")
+                return error_response(_("Please login in first"))
             else:
                 return HttpResponseRedirect("/login/?__from=" + urllib.quote(self.request.path))
 
@@ -46,9 +47,9 @@ class login_required(BasePermissionDecorator):
 
 class super_admin_required(BasePermissionDecorator):
     def check_permission(self):
-        return self.request.user.is_authenticated() and self.request.user.admin_type == SUPER_ADMIN
+        return self.request.user.is_authenticated() and self.request.user.admin_type == AdminType.SUPER_ADMIN
 
 
 class admin_required(BasePermissionDecorator):
     def check_permission(self):
-        return self.request.user.is_authenticated() and self.request.user.admin_type in [SUPER_ADMIN, ADMIN]
+        return self.request.user.is_authenticated() and self.request.user.admin_type in [AdminType.SUPER_ADMIN, AdminType.ADMIN]

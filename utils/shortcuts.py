@@ -81,7 +81,7 @@ def paginate_data(request, query_set, object_serializer):
             "previous_page": None,
             "next_page": None,
             "page_size": page_size,
-            "current_page": page,
+            "current_page": int(page),
             "count": paginator.count,
             "total_page": paginator.num_pages}
 
