@@ -1,6 +1,6 @@
 在提交issue之前请
 
-  - 认真阅读文档 http://qingdaou.github.io/OnlineJudge/
+  - 认真阅读文档 https://github.com/QingdaoU/OnlineJudge/wiki
   - 搜索和查看历史issues
  
 然后提交issue请写清楚下列事项
