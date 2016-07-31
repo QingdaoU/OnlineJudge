@@ -145,7 +145,3 @@ urlpatterns = [
     url(r'^rank/$', "account.views.user_rank_page", name="user_rank_page"),
     url(r'^api/avatar/upload/', AvatarUploadAPIView.as_view(), name="avatar_upload_api"),
 ]
-
-
-if settings.DEBUG:
-    urlpatterns.append(url(r'^docs/', include('rest_framework_swagger.urls')))
