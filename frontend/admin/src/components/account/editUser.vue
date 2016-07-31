@@ -128,7 +128,7 @@
                     method: "PUT",
                     data: data,
                     success:  (data)=> {
-                        // todo
+                        alert("更新成功");
                     }
                 })
             }

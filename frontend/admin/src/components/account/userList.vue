@@ -67,9 +67,11 @@
             data(){
                 this.$watch('showAdminOnly', function (val) {
                     sessionStorage.showAdminOnly = JSON.stringify(val);
-                    this.$router.go({name: this.$route.name, params: {page: 1}});
+                    this.$router.go({path: "/user/1", query: {_: (new Date()).getTime()}});
                 });
+
                 this.pagination.currentPage = this.$route.params.page;
+
                 if (sessionStorage.showAdminOnly) {
                     this.showAdminOnly = JSON.parse(sessionStorage.showAdminOnly);
                 }
@@ -99,8 +101,9 @@
             },
             search() {
                 sessionStorage.userListSearchKeyword = this.keyword;
-                this.pagination.currentPage = 1;
-                this.loadData();
+                this.$router.go({path: "/user/1", query: {_: (new Date()).getTime()}});
+                // pager goto page 1
+                // url -> /user/1
             },
             edit(userId) {
                 this.$router.go("/user/edit/" + userId)
