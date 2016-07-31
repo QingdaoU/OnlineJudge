@@ -1,6 +1,6 @@
 <template>
     <div>
-        <back url="/user"></back>
+        <back></back>
         <h3>修改用户信息</h3>
         <form v-on:submit="submit">
             <div class="row">
@@ -127,7 +127,7 @@
                     url: "/api/admin/user/",
                     method: "PUT",
                     data: data,
-                    success:  (data)=> {
+                    success: (data)=> {
                         alert("更新成功");
                     }
                 })
@@ -138,7 +138,7 @@
                 this.request({
                     url: "/api/admin/user/?user_id=" + this.$route.params["userId"],
                     method: "GET",
-                    success:(data)=> {
+                    success: (data)=> {
                         this.user = data.data;
                         for (var p of data.data.admin_extra_permission) {
                             if (this.userPermissionNum2Str[p]) {

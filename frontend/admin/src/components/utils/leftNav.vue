@@ -9,11 +9,11 @@
     </div>
 </template>
 <script>
-export default {
-    data() {
-        return {
-            adminNav: [{}, {}]
+    export default {
+        data() {
+            return {
+                adminNav: [{}, {}]
+            }
         }
     }
-}
 </script>

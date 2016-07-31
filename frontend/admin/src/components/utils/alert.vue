@@ -39,10 +39,10 @@
             }
         },
         events: {
-            "showModal":(content) => {
+            "showModal": (content) => {
                 this.showModal = true;
                 this.content = true;
-                setTimeout(()=>{
+                setTimeout(()=> {
                     this.showModal = false;
                 }, 2000);
             }

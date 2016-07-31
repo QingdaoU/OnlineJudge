@@ -1,0 +1,25 @@
+<template>
+    <textarea id="{{ editorid }}"></textarea>
+</template>
+<script>
+    import Simditor from 'simditor'
+    import SimditorMakrdown from "simditor-markdown"
+
+    export default{
+        props: ["editorid"],
+        attached() {
+            var self = this;
+            var editor = new Simditor({
+                textarea: document.getElementById(self.editorid),
+                upload: {url: "/", fileKey: "file"},
+                toolbar: ['bold', 'italic', 'underline', 'color', 'image', 'ol', 'ul', 'markdown']
+            });
+        }
+    }
+</script>
+
+<style scoped>
+    @import "../../../../static/css/simditor.css";
+    @import "../../../../static/css/simditor-markdown.css";
+    @import "../../../../static/css/webuploader.css";
+</style>

@@ -7,6 +7,8 @@ import locale from "./locales"
 
 import userList from "./components/account/userList.vue"
 import editUser from "./components/account/editUser.vue"
+import problem from "./components/problem/problem.vue"
+import uploader from "./components/utils/uploader.vue"
 
 
 var request = {
@@ -83,6 +85,10 @@ router.map({
     "/user/edit/:userId": {
         name: "editUser",
         component: editUser
+    },
+    "/problem/create": {
+        name: "createProblem",
+        component: problem
     }
 });
 

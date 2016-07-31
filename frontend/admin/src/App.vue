@@ -22,8 +22,8 @@
 </template>
 
 <style>
-@import "../../static/css/bootstrap.css";
-@import "../../static/css/todc-bootstrap.css";
+    @import "../../static/css/bootstrap.css";
+    @import "../../static/css/todc-bootstrap.css";
 </style>
 
 <script>

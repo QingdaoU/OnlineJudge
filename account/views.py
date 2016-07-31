@@ -1,38 +1,35 @@
 # coding=utf-8
-import os
-import codecs
-import qrcode
 import StringIO
+import codecs
+import os
 
-from django import http
+import qrcode
+from django.conf import settings
 from django.contrib import auth
-from django.shortcuts import render
+from django.core.exceptions import MultipleObjectsReturned
 from django.core.paginator import Paginator
 from django.db.models import Q
-from django.conf import settings
-from django.http import HttpResponse
-from django.core.exceptions import MultipleObjectsReturned
+from django.http import HttpResponse, HttpResponseRedirect
+from django.shortcuts import render
 from django.utils.timezone import now
 from django.utils.translation import ugettext as _
-
-from rest_framework.views import APIView
 from rest_framework.response import Response
+from rest_framework.views import APIView
 
-from utils.shortcuts import (serializer_invalid_response, error_response,
-                             success_response, error_page, paginate, rand_str)
 from utils.captcha import Captcha
 from utils.otp_auth import OtpAuth
-
-from .tasks import _send_email
+from utils.shortcuts import (serializer_invalid_response, error_response,
+                             success_response, error_page, paginate, rand_str)
 from .decorators import login_required
-from .models import User, UserProfile, AdminExtraPermission, AdminType
+from .decorators import super_admin_required
+from .models import User, UserProfile, AdminType
 from .serializers import (UserLoginSerializer, UserRegisterSerializer,
                           UserChangePasswordSerializer,
                           UserSerializer, EditUserSerializer,
                           ApplyResetPasswordSerializer, ResetPasswordSerializer,
                           SSOSerializer, EditUserProfileSerializer,
                           TwoFactorAuthCodeSerializer)
-from .decorators import super_admin_required
+from .tasks import _send_email
 
 
 class UserLoginAPIView(APIView):
@@ -223,7 +220,7 @@ class UserAdminAPIView(APIView):
 
 def logout(request):
     auth.logout(request)
-    return http.HttpResponseRedirect("/")
+    return HttpResponseRedirect("/")
 
 
 def index_page(request):
@@ -233,7 +230,7 @@ def index_page(request):
     if request.META.get('HTTP_REFERER') or request.GET.get("index"):
         return render(request, "oj/index.html")
     else:
-        return http.HttpResponseRedirect('/problems/')
+        return HttpResponseRedirect('/problems/')
 
 
 class UsernameCheckAPIView(APIView):

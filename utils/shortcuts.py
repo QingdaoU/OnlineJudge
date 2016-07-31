@@ -1,12 +1,11 @@
 # coding=utf-8
 import os
 import hashlib
-import time
-import random
 import logging
 
 from django.shortcuts import render
 from django.core.paginator import Paginator
+from django.http import HttpResponseRedirect
 
 from rest_framework.response import Response
 
@@ -125,3 +124,7 @@ def build_query_string(kv_data, ignore_none=True):
             query_string = "?"
         query_string += (k + "=" + str(v))
     return query_string
+
+
+def redirect_to_login(request):
+    return HttpResponseRedirect("/login/?__from=" + urllib.quote(request.path))

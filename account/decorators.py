@@ -6,7 +6,7 @@ import functools
 from django.http import HttpResponseRedirect
 from django.utils.translation import ugettext as _
 
-from utils.shortcuts import error_response, error_page
+from utils.shortcuts import error_response, error_page, redirect_to_login
 from .models import AdminType
 
 
@@ -34,7 +34,7 @@ class BasePermissionDecorator(object):
             if self.request.is_ajax():
                 return error_response(_("Please login in first"))
             else:
-                return HttpResponseRedirect("/login/?__from=" + urllib.quote(self.request.path))
+                return redirect_to_login(self.request)
 
     def check_permission(self):
         raise NotImplementedError()
@@ -47,9 +47,11 @@ class login_required(BasePermissionDecorator):
 
 class super_admin_required(BasePermissionDecorator):
     def check_permission(self):
-        return self.request.user.is_authenticated() and self.request.user.admin_type == AdminType.SUPER_ADMIN
+        return self.request.user.is_authenticated() and \
+               self.request.user.admin_type == AdminType.SUPER_ADMIN
 
 
 class admin_required(BasePermissionDecorator):
     def check_permission(self):
-        return self.request.user.is_authenticated() and self.request.user.admin_type in [AdminType.SUPER_ADMIN, AdminType.ADMIN]
+        return self.request.user.is_authenticated() and \
+               self.request.user.admin_type in [AdminType.SUPER_ADMIN, AdminType.ADMIN]
