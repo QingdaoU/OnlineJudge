@@ -92,5 +92,8 @@ router.map({
     }
 });
 
+document.getElementsByClassName("cssload-battery")[0].style.display = "none";
+
 router.redirect({"/user": "/user/1"});
 router.start(App, '#app');
+

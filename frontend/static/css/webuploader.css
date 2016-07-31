@@ -10,7 +10,7 @@
 	position: relative;
 	display: inline-block;
 	cursor: pointer;
-	background: #00b7ee;
+	background: #4d90fe;
 	padding: 10px 15px;
 	color: #fff;
 	text-align: center;
@@ -18,7 +18,7 @@
 	overflow: hidden;
 }
 .webuploader-pick-hover {
-	background: #00a2d4;
+	background: #4d90fe;
 }
 
 .webuploader-pick-disable {
