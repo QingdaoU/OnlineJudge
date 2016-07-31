@@ -7,8 +7,11 @@ from django.http import HttpResponseRedirect, HttpResponse
 from django.utils.translation import ugettext as _
 from django.contrib import auth
 
-from .models import AdminType
+from .models import AdminType, User
 
+
+# todo remove this
+from django.contrib import auth
 
 class SessionSecurityMiddleware(object):
     def process_request(self, request):

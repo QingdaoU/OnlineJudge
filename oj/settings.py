@@ -53,12 +53,6 @@ INSTALLED_APPS = (
     'rest_framework',
 )
 
-if DEBUG:
-    INSTALLED_APPS += (
-        # 'debug_toolbar',
-        'rest_framework_swagger',
-    )
-
 MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',

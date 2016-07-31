@@ -64,6 +64,11 @@ class UserLoginAPIView(APIView):
         else:
             return serializer_invalid_response(serializer)
 
+    # todo remove this
+    def get(self, request):
+        auth.login(request, auth.authenticate(username="root", password="123456"))
+        return success_response({})
+
 
 class UserRegisterAPIView(APIView):
     def post(self, request):

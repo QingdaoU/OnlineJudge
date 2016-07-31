@@ -19,8 +19,6 @@ limitations under the License.
 import os
 import time
 import random
-import StringIO
-import logging
 
 from django.http import HttpResponse
 from PIL import Image, ImageDraw, ImageFont

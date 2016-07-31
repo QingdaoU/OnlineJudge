@@ -68,3 +68,5 @@ custom_settings.py
 docker-compose.yml
 *.zip
 rsyncd.passwd
+
+node_modules/
