@@ -11,10 +11,6 @@ export default {
             first: "首页",
             last: "末页"
         },
-        modalAlert: {
-            alert: "提示",
-            close: "关闭"
-        },
         request: {
             error: "请求失败",
             succeeded: "操作成功"

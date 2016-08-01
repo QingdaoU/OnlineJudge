@@ -11,7 +11,6 @@
                     <div class="col-md-10">
                         <router-view></router-view>
                     </div>
-                    <alert></alert>
                 </div>
             </div>
         </div>
@@ -32,15 +31,12 @@
     import unsupportedBrowserWarning from "./components/utils/unsupportedBrowserWarning.vue"
     import topNav from "./components/utils/topNav.vue"
     import leftNav from "./components/utils/leftNav.vue"
-    import alert from "./components/utils/alert.vue"
-
 
     export default({
         components: {
             unsupportedBrowserWarning,
             topNav,
-            leftNav,
-            alert
+            leftNav
         }
     })
 </script>

@@ -12,8 +12,8 @@ import "expose?$!expose?jQuery!jquery"
 import "bootstrap"
 import bootbox from "bootbox"
 
+// i18n settings
 Vue.use(VueI18n);
-
 
 // todo: strore lang config in localstorage
 var lang = "zh-cn";
@@ -23,7 +23,10 @@ Object.keys(locale).forEach(function (lang) {
     Vue.locale(lang, locale[lang])
 });
 
-var request = {
+/////////
+
+// custom ajax
+Vue.use({
     install: function (Vue, options) {
         function getCookie(name) {
             var value = "; " + document.cookie;
@@ -78,13 +81,11 @@ var request = {
             }
         }
     }
-};
+});
+///////
 
-Vue.use(request);
 
 Vue.use(VueRouter);
-
-
 var router = new VueRouter();
 
 router.map({
