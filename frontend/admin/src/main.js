@@ -8,8 +8,20 @@ import locale from "./locales"
 import userList from "./components/account/userList.vue"
 import editUser from "./components/account/editUser.vue"
 import problem from "./components/problem/problem.vue"
-import uploader from "./components/utils/uploader.vue"
+import "expose?$!expose?jQuery!jquery"
+import "bootstrap"
+import bootbox from "bootbox"
 
+Vue.use(VueI18n);
+
+
+// todo: strore lang config in localstorage
+var lang = "zh-cn";
+Vue.config.lang = lang;
+
+Object.keys(locale).forEach(function (lang) {
+    Vue.locale(lang, locale[lang])
+});
 
 var request = {
     install: function (Vue, options) {
@@ -29,7 +41,7 @@ var request = {
                     option.error(request)
                 }
                 else {
-                    alert("请求失败");
+                    alert(locale[lang].request.error);
                 }
             };
             request.onload = function () {
@@ -44,7 +56,12 @@ var request = {
                     catch (err) {
                         request.onerror();
                     }
-                    option.success(data);
+                    if(option.success) {
+                        option.success(data);
+                    }
+                    else {
+                        alert(locale[lang].request.succeeded);
+                    }
                 }
                 else {
                     request.onerror();
@@ -66,13 +83,6 @@ var request = {
 Vue.use(request);
 
 Vue.use(VueRouter);
-Vue.use(VueI18n);
-
-Vue.config.lang = "zh-cn";
-
-Object.keys(locale).forEach(function (lang) {
-    Vue.locale(lang, locale[lang])
-});
 
 
 var router = new VueRouter();
@@ -92,7 +102,23 @@ router.map({
     }
 });
 
+// hide loading
 document.getElementsByClassName("cssload-battery")[0].style.display = "none";
+
+// override window.alert
+function bootboxAlert(content) {
+    bootbox.dialog({
+        message: content,
+        title: locale[lang].alert.alert,
+        buttons: {
+            main: {
+                label: locale[lang].alert.OK,
+                className: "btn-primary"
+            }
+        }
+    })
+}
+window.alert = bootboxAlert;
 
 router.redirect({"/user": "/user/1"});
 router.start(App, '#app');

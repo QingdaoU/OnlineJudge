@@ -1,5 +1,9 @@
 export default {
     "zh-cn": {
+        alert: {
+            alert: "提示",
+            OK: "确定"
+        },
         nav: {
             UserManagement: "用户管理"
         },

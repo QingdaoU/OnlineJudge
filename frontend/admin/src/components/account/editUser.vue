@@ -126,10 +126,7 @@
                 this.request({
                     url: "/api/admin/user/",
                     method: "PUT",
-                    data: data,
-                    success: (data)=> {
-                        alert("更新成功");
-                    }
+                    data: data
                 })
             }
         },

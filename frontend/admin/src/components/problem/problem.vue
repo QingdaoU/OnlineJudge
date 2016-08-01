@@ -14,6 +14,9 @@
         components: {
             simditor,
             uploader
+        },
+        ready() {
+            alert("111111");
         }
     })
 </script>
