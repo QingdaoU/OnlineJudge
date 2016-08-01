@@ -2,6 +2,8 @@
 from rest_framework import serializers
 
 from account.models import User
+from utils.serializers import DateTimeTZField
+
 from .models import Announcement
 
 
@@ -11,6 +13,8 @@ class CreateAnnouncementSerializer(serializers.Serializer):
 
 
 class AnnouncementSerializer(serializers.ModelSerializer):
+    create_time = DateTimeTZField()
+    last_update_time = DateTimeTZField
 
     class UserSerializer(serializers.ModelSerializer):
         class Meta:

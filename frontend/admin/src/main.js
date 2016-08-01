@@ -3,14 +3,18 @@ import App from './App'
 import VueRouter from "vue-router"
 import VueI18n from "vue-i18n"
 
+import "expose?$!expose?jQuery!jquery"
+import "bootstrap"
+import bootbox from "bootbox"
+
 import locale from "./locales"
 
 import userList from "./components/account/userList.vue"
 import editUser from "./components/account/editUser.vue"
 import problem from "./components/problem/problem.vue"
-import "expose?$!expose?jQuery!jquery"
-import "bootstrap"
-import bootbox from "bootbox"
+import announcementList from "./components/announcement/announcementList.vue"
+import editAnnouncement from "./components/announcement/editAnnouncement.vue"
+
 
 // i18n settings
 Vue.use(VueI18n);
@@ -100,6 +104,14 @@ router.map({
     "/problem/create": {
         name: "createProblem",
         component: problem
+    },
+    "/announcement/:page": {
+        name: "announcementList",
+        component: announcementList
+    },
+    "/announcement/edit/:announcementId": {
+        name: "editAnnouncement",
+        component: editAnnouncement
     }
 });
 
@@ -122,5 +134,7 @@ function bootboxAlert(content) {
 window.alert = bootboxAlert;
 
 router.redirect({"/user": "/user/1"});
+router.redirect({"/announcement": "/announcement/1"});
+
 router.start(App, '#app');
 

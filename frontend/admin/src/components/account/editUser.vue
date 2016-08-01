@@ -1,7 +1,7 @@
 <template>
     <div>
         <back></back>
-        <h3>修改用户信息</h3>
+        <h3>{{ $t("user.editUser") }}</h3>
         <form v-on:submit="submit">
             <div class="row">
                 <div class="form-group col-md-4"><label>ID</label>
@@ -20,7 +20,7 @@
                 <div class="form-group col-md-4">
                     <label>{{ $t("user.newPassword") }}</label>
                     <input type="password" class="form-control"
-                           placeholder='{{ $t("user.leaveBlankIfDoNotChangePassword")}}' v-model="newPassword">
+                           placeholder='{{ $t("user.leaveBlankIfDoNotChangePassword")}}' v-model="newPassword" minlength="6">
                 </div>
                 <div class="form-group col-md-4">
                     <label>{{ $t("user.email") }}</label>
@@ -51,19 +51,19 @@
                 <h4>{{ $t("user.adminExtraPermission") }}</h4>
                 <div class="row">
                     <div class="form-group col-md-3">
-                        <label>{{ $t("adminUtils.createPublicContest") }}</label>
+                        <label>{{ $t("user.createPublicContest") }}</label>
                         <input type="checkbox" class="form-control" v-model="permission.createPublicContest">
                     </div>
                     <div class="form-group col-md-3">
-                        <label>{{ $t("adminUtils.manageAllContest") }}</label>
+                        <label>{{ $t("user.manageAllContest") }}</label>
                         <input type="checkbox" class="form-control" v-model="permission.manageAllContest">
                     </div>
                     <div class="form-group col-md-3">
-                        <label>{{ $t("adminUtils.manageOwnProblem") }}</label>
+                        <label>{{ $t("user.manageOwnProblem") }}</label>
                         <input type="checkbox" class="form-control" v-model="permission.manageOwnProblem">
                     </div>
                     <div class="form-group col-md-3">
-                        <label>{{ $t("adminUtils.manageAllProblem") }}</label>
+                        <label>{{ $t("user.manageAllProblem") }}</label>
                         <input type="checkbox" class="form-control" v-model="permission.manageAllProblem">
                     </div>
                 </div>
@@ -81,9 +81,9 @@
     export default {
         data() {
             return {
-                adminType: [{name: "adminUtils.regularUser", value: 0},
-                    {name: "adminUtils.admin", "value": 1},
-                    {name: "adminUtils.superAdmin", value: 2}],
+                adminType: [{name: "user.regularUser", value: 0},
+                    {name: "user.admin", "value": 1},
+                    {name: "user.superAdmin", value: 2}],
                 user: {},
                 permission: {
                     manageAllContest: false, createPublicContest: false,

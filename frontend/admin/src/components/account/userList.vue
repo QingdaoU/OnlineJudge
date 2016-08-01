@@ -1,6 +1,7 @@
 <template>
     <div>
-        <div class="right">
+        <h3>{{ $t("user.userList") }}</h3>
+        <div>
             <form class="form-inline" onsubmit="return false;">
                 <div class="form-group-sm">
                     <label>{{ $t("adminUtils.search") }}</label>
@@ -54,7 +55,7 @@
             return {
                 keyword: "",
                 userList: [],
-                adminType: ["adminUtils.regularUser", "adminUtils.admin", "adminUtils.superAdmin"],
+                adminType: ["user.regularUser", "user.admin", "user.superAdmin"],
                 showAdminOnly: false,
 
                 pagination: {

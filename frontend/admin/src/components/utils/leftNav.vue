@@ -3,7 +3,8 @@
         <ul class="list-group">
             <li class="list-group-header">name</li>
             <li class="list-group-item">
-                <a v-link="{path: '/user'}">{{ $t("nav.UserManagement") }}</a>
+                <a v-link="{path: '/user'}">{{ $t("nav.userManagement") }}</a>
+                <a v-link="{path: '/announcement'}">{{ $t("nav.announcementManagement") }}</a>
             </li>
         </ul>
     </div>
