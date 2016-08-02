@@ -2,12 +2,11 @@
 from rest_framework.views import APIView
 
 from django.shortcuts import render
+from django.utils.translation import ugettext as _
 from utils.shortcuts import serializer_invalid_response, error_response, success_response
 
 from utils.shortcuts import paginate, error_page
-from account.models import SUPER_ADMIN, ADMIN
 from account.decorators import super_admin_required
-from group.models import Group
 from .models import Announcement
 from .serializers import (CreateAnnouncementSerializer, AnnouncementSerializer,
                           EditAnnouncementSerializer)
@@ -72,8 +71,12 @@ class AnnouncementAdminAPIView(APIView):
         ---
         response_serializer: AnnouncementSerializer
         """
+        announcement_id = request.GET.get("announcement_id")
+        if announcement_id:
+            try:
+                announcement = Announcement.objects.get(id=announcement_id)
+                return success_response(AnnouncementSerializer(announcement).data)
+            except Announcement.DoesNotExist:
+                return error_response(_("Announcement does not exist"))
         announcement = Announcement.objects.all().order_by("-create_time")
-        visible = request.GET.get("visible", None)
-        if visible:
-            announcement = announcement.filter(visible=(visible == "true"))
         return paginate(request, announcement, AnnouncementSerializer)

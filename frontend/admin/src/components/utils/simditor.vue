@@ -14,9 +14,6 @@
         props: {
             editorid: {
                 required: true
-            },
-            content: {
-                required: true
             }
         },
         methods: {

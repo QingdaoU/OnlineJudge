@@ -48,8 +48,7 @@ export default {
             announcementList: "公告列表",
             editAnnouncement: "编辑公告",
             createAnnouncement: "创建公告",
-
-
+            contentCanNotBeEmpty: "内容不能为空"
 
 
         },

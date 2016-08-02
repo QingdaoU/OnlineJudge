@@ -6,7 +6,7 @@
         <div class="row">
             <div class="form-group col-md-12">
                 <label>{{ $t("adminUtils.title") }}</label>
-                <input type="text" class="form-control">
+                <input type="text" class="form-control" v-model="title" required>
             </div>
             <div class="form-group col-md-12">
                 <label>{{ $t("adminUtils.content") }}</label>
@@ -24,14 +24,23 @@
 
     export default({
         data() {
-            return {}
+            return {
+                title: ""
+            }
         },
         methods: {
             submit() {
-
+                var content = this.$refs.editor.getContent();
+                if (!content) {
+                    alert(this.$t("announcement.contentCanNotBeEmpty"));
+                    return;
+                }
+                this.request({
+                    url: "/api/admin/announcement/",
+                    method: "post",
+                    data: {title: this.title, content: content}
+                })
             }
-        },
-        route: {
         },
         components: {
             simditor
