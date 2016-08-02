@@ -6,10 +6,30 @@
     import SimditorMakrdown from "simditor-markdown"
 
     export default{
-        props: ["editorid"],
+        data() {
+            return {
+                editor: {}
+            }
+        },
+        props: {
+            editorid: {
+                required: true
+            },
+            content: {
+                required: true
+            }
+        },
+        methods: {
+            setContent(content){
+                this.editor.setValue(content);
+            },
+            getContent() {
+                return this.editor.getValue();
+            }
+        },
         attached() {
             var self = this;
-            var editor = new Simditor({
+            self.editor = new Simditor({
                 textarea: document.getElementById(self.editorid),
                 upload: {url: "/", fileKey: "file"},
                 toolbar: ['bold', 'italic', 'underline', 'color', 'image', 'ol', 'ul', 'markdown']

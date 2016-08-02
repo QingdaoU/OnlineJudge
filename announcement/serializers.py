@@ -14,7 +14,7 @@ class CreateAnnouncementSerializer(serializers.Serializer):
 
 class AnnouncementSerializer(serializers.ModelSerializer):
     create_time = DateTimeTZField()
-    last_update_time = DateTimeTZField
+    last_update_time = DateTimeTZField()
 
     class UserSerializer(serializers.ModelSerializer):
         class Meta:

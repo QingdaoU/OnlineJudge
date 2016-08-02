@@ -3,12 +3,12 @@
     <table class="table table-striped">
         <tr>
             <th>ID</th>
-            <th>{{ $t("announcement.title") }}</th>
-            <th>{{ $t("announcement.createTime") }}</th>
-            <th>{{ $t("announcement.lastUpdateTime") }}</th>
-            <th>{{ $t("announcement.createdBy") }}</th>
-            <th>{{ $t("announcement.isVisible") }}</th>
-            <th>{{ $t("announcement.management") }}</th>
+            <th>{{ $t("adminUtils.title") }}</th>
+            <th>{{ $t("adminUtils.createTime") }}</th>
+            <th>{{ $t("adminUtils.lastUpdateTime") }}</th>
+            <th>{{ $t("adminUtils.createdBy") }}</th>
+            <th>{{ $t("adminUtils.isVisible") }}</th>
+            <th>{{ $t("adminUtils.management") }}</th>
         </tr>
         <tr v-for="announcement in announcementList">
             <td>{{ announcement.id }}</td>
@@ -18,7 +18,7 @@
             <td>{{ announcement.created_by.username }}</td>
             <td>{{ $t(announcementStatus[announcement.visible?1:0]) }}</td>
             <td>
-                <button class="btn-sm btn-info" v-on:click="edit(announcement.id)">{{ $t("announcement.edit") }}</button>
+                <button class="btn-sm btn-info" v-on:click="edit(announcement.id)">{{ $t("adminUtils.edit") }}</button>
             </td>
         </tr>
     </table>
@@ -34,7 +34,7 @@
     export default({
         data() {
             return {
-                announcementStatus: ["announcement.visible", "announcement.invisible"],
+                announcementStatus: ["adminUtils.visible", "adminUtils.invisible"],
                 announcementList: [],
                 pagination: {
                     currentPage: 1,

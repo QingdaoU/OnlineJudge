@@ -3,7 +3,7 @@
         <ul class="pagination pagination-lg">
             <li class="{{ pagination.currentPage > 1 ? '' : 'disabled' }}">
                 <a href="#" aria-label="Previous" @click.prevent="changePage(1)">
-                    <span aria-hidden="true">上一页</span>
+                    <span aria-hidden="true">{{ $t("pagination.firstPage") }}</span>
                 </a>
             </li>
             <li class="{{ pagination.currentPage > 1 ? '' : 'disabled' }}">
@@ -31,7 +31,7 @@
             </li>
             <li class="{{ pagination.currentPage < pagination.totalPages ? '' : 'disabled' }}">
                 <a href="#" aria-label="Next" @click.prevent="changePage(pagination.totalPages)">
-                    <span aria-hidden="true">最后一页</span>
+                    <span aria-hidden="true">{{ $t("pagination.lastPage") }}</span>
                 </a>
             </li>
         </ul>
@@ -82,9 +82,11 @@
         },
         methods: {
             changePage(page) {
-                this.$set('pagination.currentPage', page);
-                this.$router.go({name: this.$route.name, params: {page: page}});
-                this.callback();
+                if (page > 0 && page <= this.pagination.totalPages) {
+                    this.$set('pagination.currentPage', page);
+                    this.$router.go({name: this.$route.name, params: {page: page}});
+                    this.callback();
+                }
             }
         }
     };

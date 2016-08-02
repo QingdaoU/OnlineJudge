@@ -9,8 +9,8 @@ export default {
             announcementManagement: "公告管理"
         },
         pagination: {
-            first: "首页",
-            last: "末页"
+            firstPage: "首页",
+            lastPage: "末页"
         },
         request: {
             error: "请求失败",
@@ -25,7 +25,7 @@ export default {
             adminType: "用户类型",
             createTime: "注册时间",
             management: "管理",
-            edit: "编辑",
+
             submission: "提交",
             newPassword: "新密码",
             leaveBlankIfDoNotChangePassword: "不需要修改密码请留空",
@@ -48,20 +48,28 @@ export default {
             announcementList: "公告列表",
             editAnnouncement: "编辑公告",
             createAnnouncement: "创建公告",
-            title: "标题",
-            createTime: "创建时间",
-            lastUpdateTime: "最后更新",
-            createdBy: "创建人",
-            isVisible: "是否可见",
-            visible: "可见",
-            invisible: "隐藏",
-            management: "管理",
-            edit: "编辑",
+
+
+
+
         },
         adminUtils: {
             search: "搜索",
             inputKeyword: "输入关键词",
             submit: "提交",
+            edit: "编辑",
+
+            title: "标题",
+            createTime: "创建时间",
+            lastUpdateTime: "最后更新",
+            createdBy: "创建人",
+
+            isVisible: "是否可见",
+            visible: "可见",
+            invisible: "隐藏",
+
+            management: "管理",
+            content: "内容",
 
             back: "返回",
             saveChanges: "保存修改",

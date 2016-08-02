@@ -6,11 +6,12 @@
     <form v-on:submit="submit">
         <div class="row">
             <div class="form-group col-md-12">
-                <label>{{ $t("announcement.title") }}</label>
+                <label>{{ $t("adminUtils.title") }}</label>
                 <input type="text" class="form-control">
             </div>
             <div class="form-group col-md-12">
-                <simditor editorid="editAnnouncement"></simditor>
+                <label>{{ $t("adminUtils.content") }}</label>
+                <simditor editorid="editAnnouncement" :content="content" v-ref:editor></simditor>
             </div>
         </div>
         <div class="form-group">
@@ -25,7 +26,10 @@
 
     export default({
         data() {
-            return {}
+            return {
+                announcement: {},
+                content: ""
+            }
         },
         methods: {
             submit() {

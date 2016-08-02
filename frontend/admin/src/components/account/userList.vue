@@ -31,7 +31,7 @@
                 <td>{{ user.email }}</td>
                 <td>{{ $t(adminType[user.admin_type]) }}</td>
                 <td>
-                    <button class="btn-sm btn-info" v-on:click="edit(user.id)">{{ $t("user.edit") }}</button>
+                    <button class="btn-sm btn-info" v-on:click="edit(user.id)">{{ $t("adminUtils.edit") }}</button>
                     <a target="_blank" href="/submissions/?user_id={{ user.id }}">
                         {{ $t("user.submission") }}
                     </a>
