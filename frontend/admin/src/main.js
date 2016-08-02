@@ -90,7 +90,7 @@ Vue.use({
 
 
 Vue.use(VueRouter);
-var router = new VueRouter();
+var router = new VueRouter({linkActiveClass: "active"});
 
 router.map({
     "/user/:page": {
