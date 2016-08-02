@@ -1,4 +1,5 @@
 # coding=utf-8
+from __future__ import unicode_literals
 from rest_framework.views import APIView
 
 from django.shortcuts import render
@@ -14,12 +15,12 @@ from .serializers import (CreateAnnouncementSerializer, AnnouncementSerializer,
 
 def announcement_page(request, announcement_id):
     """
-    公告的详情页面
+    announcement detail page
     """
     try:
         announcement = Announcement.objects.get(id=announcement_id, visible=True)
     except Announcement.DoesNotExist:
-        return error_page(request, u"公告不存在")
+        return error_page(request, _("Announcement does not exist"))
     return render(request, "oj/announcement/announcement.html", {"announcement": announcement})
 
 
@@ -27,25 +28,22 @@ class AnnouncementAdminAPIView(APIView):
     @super_admin_required
     def post(self, request):
         """
-        公告发布json api接口
-        ---
-        request_serializer: CreateAnnouncementSerializer
+        publish announcement
         """
         serializer = CreateAnnouncementSerializer(data=request.data)
         if serializer.is_valid():
             data = serializer.data
-            Announcement.objects.create(title=data["title"], content=data["content"], created_by=request.user)
-            return success_response(u"公告发布成功！")
+            announcement = Announcement.objects.create(title=data["title"],
+                                                       content=data["content"],
+                                                       created_by=request.user)
+            return success_response(AnnouncementSerializer(announcement).data)
         else:
             return serializer_invalid_response(serializer)
 
     @super_admin_required
     def put(self, request):
         """
-        公告编辑json api接口
-        ---
-        request_serializer: EditAnnouncementSerializer
-        response_serializer: AnnouncementSerializer
+        edit announcement
         """
         serializer = EditAnnouncementSerializer(data=request.data)
         if serializer.is_valid():
@@ -53,7 +51,7 @@ class AnnouncementAdminAPIView(APIView):
             try:
                 announcement = Announcement.objects.get(id=data["id"])
             except Announcement.DoesNotExist:
-                return error_response(u"公告不存在")
+                return error_response(_("Announcement does not exist"))
 
             announcement.title = data["title"]
             announcement.content = data["content"]
@@ -67,9 +65,7 @@ class AnnouncementAdminAPIView(APIView):
     @super_admin_required
     def get(self, request):
         """
-        公告分页json api接口
-        ---
-        response_serializer: AnnouncementSerializer
+        get announcement list / get one announcement
         """
         announcement_id = request.GET.get("announcement_id")
         if announcement_id:
