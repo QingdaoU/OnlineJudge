@@ -3,7 +3,7 @@
     <h3>
         {{ $t("announcement.editAnnouncement") }}
     </h3>
-    <form v-on:submit="submit">
+    <div>
         <div class="row">
             <div class="form-group col-md-12">
                 <label>{{ $t("adminUtils.title") }}</label>
@@ -19,9 +19,9 @@
             <input type="checkbox" class="form-control" v-model="announcement.visible">
         </div>
         <div class="form-group">
-            <input type="submit" class="btn btn-success" value='{{ $t("adminUtils.saveChanges") }}'>
+            <input type="submit" class="btn btn-success" v-on:click="submit" value='{{ $t("adminUtils.saveChanges") }}'>
         </div>
-    </form>
+    </div>
 </template>
 
 <script>
@@ -45,7 +45,8 @@
                         content: this.$refs.editor.getContent(),
                         visible: this.announcement.visible
                     }
-                })
+                });
+                return false;
             }
         },
         route: {

@@ -2,7 +2,7 @@
     <h3>
         {{ $t("announcement.createAnnouncement") }}
     </h3>
-    <form v-on:submit="submit">
+    <div>
         <div class="row">
             <div class="form-group col-md-12">
                 <label>{{ $t("adminUtils.title") }}</label>
@@ -14,9 +14,9 @@
             </div>
         </div>
         <div class="form-group">
-            <input type="submit" class="btn btn-primary" value='{{ $t("adminUtils.submit") }}'>
+            <input type="submit" class="btn btn-primary" v-on:click="submit" value='{{ $t("adminUtils.submit") }}'>
         </div>
-    </form>
+    </div>
 </template>
 
 <script>

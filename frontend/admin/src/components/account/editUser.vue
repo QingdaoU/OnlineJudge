@@ -2,7 +2,7 @@
     <div>
         <back></back>
         <h3>{{ $t("user.editUser") }}</h3>
-        <form v-on:submit="submit">
+        <div>
             <div class="row">
                 <div class="form-group col-md-4"><label>ID</label>
                     <input type="number" class="form-control" v-model="user.id" readonly>
@@ -70,9 +70,10 @@
             </div>
             <div class="form-group">
                 <input type="submit" class="btn btn-success"
+                       v-on:click="submit"
                        value='{{ $t("adminUtils.saveChanges") }}'>
             </div>
-        </form>
+        </div>
     </div>
 </template>
 <script>
