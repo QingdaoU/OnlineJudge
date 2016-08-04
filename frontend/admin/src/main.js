@@ -112,14 +112,17 @@ router.map({
     "/announcement/edit/:announcementId": {
         name: "editAnnouncement",
         component: editAnnouncement
+    },
+    "/problem": {
+        component: problem
     }
 });
 
 // hide loading
-document.getElementsByClassName("cssload-battery")[0].style.display = "none";
+document.getElementById("loading").style.display = "none";
 
 // override window.alert
-function bootboxAlert(content) {
+window.alert = function bootboxAlert(content) {
     bootbox.dialog({
         message: content,
         title: locale[lang].alert.alert,
@@ -130,8 +133,34 @@ function bootboxAlert(content) {
             }
         }
     })
-}
-window.alert = bootboxAlert;
+};
+
+// override window.confirm
+window.confirm = function bootboxConfirm(content, okCallback, cancelCallback) {
+    bootbox.dialog ({
+        message: content,
+        title: locale[lang].alert.confirm,
+        buttons: {
+            cancel: {
+                label: locale[lang].alert.cancel,
+                className: "btn-success",
+                callback: function() {
+                    if(cancelCallback) {
+                        return cancelCallback;
+                    }
+                    else {
+                        return function(){};
+                    }
+                }
+            },
+            main: {
+                label: locale[lang].alert.OK,
+                className: "btn-danger",
+                callback: okCallback
+            }
+        }
+    })
+};
 
 router.redirect({"/user": "/user/1"});
 router.redirect({"/announcement": "/announcement/1"});

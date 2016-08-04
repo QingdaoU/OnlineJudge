@@ -1,22 +1,15 @@
 <template>
     <div>
-        <simditor editorid="problem_detail"></simditor>
-
-        <uploader uploaderid="uploader"></uploader>
+        <problem-sample></problem-sample>
     </div>
 </template>
 
 <script>
-    import simditor from "../utils/simditor.vue"
-    import uploader from "../utils/uploader.vue"
+    import problemSample from "./problemSample.vue"
 
     export default({
         components: {
-            simditor,
-            uploader
-        },
-        ready() {
-            alert("111111");
+            problemSample
         }
     })
 </script>

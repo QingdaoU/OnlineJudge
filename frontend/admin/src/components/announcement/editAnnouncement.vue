@@ -46,7 +46,6 @@
                         visible: this.announcement.visible
                     }
                 });
-                return false;
             }
         },
         route: {

@@ -2,7 +2,9 @@ export default {
     "zh-cn": {
         alert: {
             alert: "提示",
-            OK: "确定"
+            OK: "确定",
+            confirm: "确认",
+            cancel: "取消"
         },
         nav: {
             userManagement: "用户管理",
@@ -49,8 +51,13 @@ export default {
             editAnnouncement: "编辑公告",
             createAnnouncement: "创建公告",
             contentCanNotBeEmpty: "内容不能为空"
-
-
+        },
+        problem: {
+            sample: "样例",
+            addSample: "添加样例",
+            fold: "折叠",
+            show: "展开",
+            deleteThisSample: "删除这组样例?"
         },
         adminUtils: {
             search: "搜索",
@@ -72,6 +79,9 @@ export default {
 
             back: "返回",
             saveChanges: "保存修改",
+            delete: "删除",
+            input: "输入",
+            output: "输出",
 
             unsupportedBrowserWarningMsg: "当前网页 <strong>不支持</strong> 你正在使用的浏览器, 为了正常的访问,请到 <a href=\"http://browsehappy.com/\"> 升级你的浏览器</a>"
         }

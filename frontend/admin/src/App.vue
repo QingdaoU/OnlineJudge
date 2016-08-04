@@ -21,7 +21,7 @@
 </template>
 
 <style>
-    @import "../../static/css/loading.css";
+
     @import "../../static/css/bootstrap.css";
     @import "../../static/css/todc-bootstrap.css";
 
