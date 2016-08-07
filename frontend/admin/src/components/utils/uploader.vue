@@ -46,9 +46,11 @@
             uploader.on("uploadBeforeSend", (obj, data, headers)=> {
                 headers["X-CSRFToken"] = getCookie("csrftoken");
             });
-            uploader.on("uploadSuccess", this.uploadSuccess);
+            uploader.on("uploadProgress", (f, percentage)=> {
+                this.uploadProgress = Math.round(percentage * 100);
+            });
             uploader.on("uploadError", this.uploadError);
-            uploader.on("uploadProgress", this.uploadProgress);
+            uploader.on("uploadSuccess", this.uploadSuccess);
         }
     })
 </script>
