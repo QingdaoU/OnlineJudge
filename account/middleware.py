@@ -5,6 +5,7 @@ import urllib
 
 from django.http import HttpResponse
 from django.utils.translation import ugettext as _
+from django.contrib import auth
 
 from utils.shortcuts import redirect_to_login
 from .models import AdminType

@@ -1,15 +1,15 @@
 <template>
     <div>
-        <problem-sample></problem-sample>
+        <test-case-mgnt></test-case-mgnt>
     </div>
 </template>
 
 <script>
-    import problemSample from "./problemSample.vue"
+    import testCaseMgnt from "./testCaseMgnt.vue"
 
     export default({
         components: {
-            problemSample
+            testCaseMgnt
         }
     })
 </script>

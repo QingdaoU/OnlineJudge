@@ -1,48 +1,54 @@
 <template>
-    <div id="{{ uploaderid }}">
+    <div id="{{ uploaderId }}">
         <div class="btns">
-            <div id="picker"> picker</div>
+            <div id="picker">{{ $t("adminUtils.chooseFile") }}</div>
         </div>
     </div>
-
 </template>
 
 
 <script>
     import WebUploader from "webuploader"
+    import getCookie from "../../utils/cookie"
 
     export default ({
         props: {
-            uploaderid: {
-                required: true
+            uploaderId: {
+                required: true,
             },
-            uploadpath: {
-                required: false,
-                default: "/server"
+            uploadPath: {
+                required: true,
             },
             accept: {
-                required: false,
-                default(){
-                    return {
-                        title: 'Images',
-                        extensions: 'gif,jpg,jpeg,bmp,png',
-                        mimeTypes: 'image/*'
-                    }
-                }
+                required: true,
+            },
+            uploadSuccess: {
+                required: true
+            },
+            uploadProgress: {
+                required: true
+            },
+            uploadError: {
+                required: true
             }
-
         },
         attached() {
             var self = this;
             var uploader = WebUploader.create({
-                dnd: '#' + self.uploaderid,
+                dnd: '#' + self.uploaderId,
                 runtimeOrder: "html5",
                 server: self.uploadpath,
-                pick: '#' + self.uploaderid,
+                pick: '#' + self.uploaderId,
                 resize: false,
                 auto: true,
                 accept: self.accept
             });
+            uploader.on("uploadBeforeSend", (obj, data, headers)=> {
+                headers["X-CSRFToken"] = getCookie("csrftoken");
+            });
+            uploader.on("uploadSuccess", this.uploadSuccess);
+            uploader.on("uploadError", this.uploadError);
+            uploader.on("uploadProgress", this.uploadProgress);
         }
     })
 </script>

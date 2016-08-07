@@ -8,6 +8,7 @@ import "bootstrap"
 import bootbox from "bootbox"
 
 import locale from "./locales"
+import getCookie from "./utils/cookie"
 
 import userList from "./components/account/userList.vue"
 import editUser from "./components/account/editUser.vue"
@@ -32,14 +33,6 @@ Object.keys(locale).forEach(function (lang) {
 // custom ajax
 Vue.use({
     install: function (Vue, options) {
-        function getCookie(name) {
-            var value = "; " + document.cookie;
-            var parts = value.split("; " + name + "=");
-            if (parts.length == 2) {
-                return parts.pop().split(";").shift();
-            }
-        }
-
         Vue.prototype.request = function (option) {
             var request = new XMLHttpRequest();
             request.open(option.method, option.url, true);
@@ -74,10 +67,10 @@ Vue.use({
                     request.onerror();
                 }
             };
-            request.setRequestHeader('x-requested-with', 'XMLHttpRequest');
-            if (option.method.toLowerCase() == 'post' || option.method.toLowerCase() == 'put') {
+            request.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+            if (option.method.toLowerCase() != 'get') {
                 request.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
-                request.setRequestHeader('x-csrftoken', getCookie('csrftoken'));
+                request.setRequestHeader('X-CSRFToken', getCookie('csrftoken'));
                 request.send(JSON.stringify(option.data));
             }
             else {

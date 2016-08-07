@@ -57,7 +57,10 @@ export default {
             addSample: "添加样例",
             fold: "折叠",
             show: "展开",
-            deleteThisSample: "删除这组样例?"
+            deleteThisSample: "删除这组样例?",
+            testCase: "测试用例",
+            uploadProgress: "上传进度",
+
         },
         adminUtils: {
             search: "搜索",
@@ -82,6 +85,13 @@ export default {
             delete: "删除",
             input: "输入",
             output: "输出",
+            download: "下载",
+            upload: "上传",
+
+            score: "分数",
+            help: "帮助",
+
+            chooseFile: "选择文件",
 
             unsupportedBrowserWarningMsg: "当前网页 <strong>不支持</strong> 你正在使用的浏览器, 为了正常的访问,请到 <a href=\"http://browsehappy.com/\"> 升级你的浏览器</a>"
         }
