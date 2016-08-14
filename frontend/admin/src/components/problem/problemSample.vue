@@ -38,19 +38,32 @@
     export default({
         data() {
             return {
-                samples: [{input: "12334", output: "111", visible: true}]
+                samples: [{input: "", output: "", visible: true}]
             }
         },
         methods: {
+            setSample(samples) {
+                for(let sample of samples) {
+                    sample[visible] = false;
+                }
+                this.samples = samples;
+            },
+            getSample() {
+                var samples = this.samples;
+                for(let sample of samples) {
+                    delete sample.visible;
+                }
+                return samples;
+            },
             addSample() {
-                this.samples.push({input: "", output: "", visible: true})
+                this.samples.push({input: "", output: "", visible: true});
             },
             toggleSample(index) {
                 this.samples[index].visible = !this.samples[index].visible;
             },
             delSample(index) {
                 confirm(this.$t("problem.deleteThisSample"), ()=> {
-                    this.samples.splice(index, 1)
+                    this.samples.splice(index, 1);
                 });
             }
         }

@@ -8,6 +8,8 @@
             <a v-show="downloadUrl" v-bind:href="downloadUrl">{{ $t("adminUtils.download") }}</a>
         </label>
         <br>
+        <input type="checkbox" v-model="OIMode"> {{ $t("problem.OIMode") }}
+        <br>
         <label>{{ $t("problem.uploadProgress") }}</label>
         <div class="progress">
             <div class="progress-bar progress-bar-striped" role="progressbar " aria-valuenow="{{ uploadProgress }}"
@@ -23,11 +25,13 @@
                 <td>ID</td>
                 <td>{{ $t("adminUtils.input") }}</td>
                 <td>{{ $t("adminUtils.output") }}</td>
+                <td v-if="OIMode">{{ $t("problem.score") }}</td>
             </tr>
             <tr v-for="testCase in testCaseList">
                 <td>{{ $index + 1 }}</td>
-                <td>{{ testCase.input }}</td>
-                <td>{{ testCase.output }}</td>
+                <td>{{ testCase.input_name }}</td>
+                <td>{{ testCase.output_name }}</td>
+                <td v-if="OIMode"><input class="score" v-model="testCase.score" type="number" min="1" required></td>
             </tr>
         </table>
         <div class="form-group">
@@ -50,7 +54,8 @@
             return {
                 downloadUrl: "",
                 uploadProgress: 0,
-                testCaseList: []
+                testCaseList: [],
+                OIMode: false
             }
         },
         components: {
@@ -58,12 +63,37 @@
         },
         methods: {
             uploadSuccess(f, response){
-                alert("success");
+                // todo
             },
             uploadError(f, reason){
                 this.uploadProgress = 0;
-                alert("error");
+                alert($t("request.error"));
+            },
+            setTestCase(mode, testCaseList) {
+                this.OIMode = mode == "OI";
+                // attr must be set firstly so vue can track it's changes
+                if (this.OIMode) {
+                    for(let item of testCaseList) {
+                        item.score = 0;
+                    }
+                }
+                this.testCaseList = testCaseList;
+            },
+            getTestCase() {
+                var testCaseList = this.testCaseList;
+                if (!this.OIMode) {
+                    for(let item of testCaseList) {
+                        delete item.score;
+                    }
+                }
+                return {testCaseList: testCaseList, mode: this.mode == "OI"};
             }
         }
     })
 </script>
+
+<style scoped>
+    .score {
+        width: 50px;
+    }
+</style>

@@ -60,6 +60,8 @@ export default {
             deleteThisSample: "删除这组样例?",
             testCase: "测试用例",
             uploadProgress: "上传进度",
+            OIMode: "OI模式",
+            score: "分数"
 
         },
         adminUtils: {
