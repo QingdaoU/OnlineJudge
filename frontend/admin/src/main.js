@@ -154,8 +154,6 @@ router.redirect({"/user": "/user/1"});
 router.redirect({"/announcement": "/announcement/1"});
 router.redirect({"/problem": "problem/1"});
 
-setTimeout(function(){
 // hide loading
 document.getElementById("loading").style.display = "none";
 router.start(App, '#app');
-}, 1500);

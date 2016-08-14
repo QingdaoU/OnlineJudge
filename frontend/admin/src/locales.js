@@ -111,6 +111,10 @@ export default {
             chooseFile: "选择文件",
 
             unsupportedBrowserWarningMsg: "当前网页 <strong>不支持</strong> 你正在使用的浏览器, 为了正常的访问,请到 <a href=\"http://browsehappy.com/\"> 升级你的浏览器</a>"
+        },
+        help: {
+            timeLimit: "1-1000ms",
+            memoryLimit: "最小16M, Java最小32M"
         }
     }
 };

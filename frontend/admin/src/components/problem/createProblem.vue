@@ -15,11 +15,14 @@
         <div class="col-md-3">
             <div class="form-group">
                 <label>{{ $t("problem.timeLimit") }}</label>
+                <help name="timeLimit"></help>
                 <input type="number" class="form-control" required>
             </div>
         </div>
         <div class="col-md-3">
-            <div class="form-group"><label>{{ $t("problem.memoryLimit") }}</label>
+            <div class="form-group">
+                <label>{{ $t("problem.memoryLimit") }}</label>
+                <help name="memoryLimit"></help>
                 <input type="number" class="form-control" required>
             </div>
         </div>
@@ -45,6 +48,11 @@
         <problem-sample v-ref:sample></problem-sample>
         <test-case-mgnt v-ref:testcase></test-case-mgnt>
 
+        <div class="col-md-12">
+            <code-mirror></code-mirror>
+        </div>
+
+
 
     </div>
 </template>
@@ -56,6 +64,8 @@
     import back from "../utils/back.vue"
     import simditor from "../utils/simditor.vue"
     import tagInput from "../utils/tagInput.vue"
+    import codeMirror from "../utils/codeMirror.vue"
+    import help from "../utils/help.vue"
 
     export default({
         data() {
@@ -68,7 +78,9 @@
             problemSample,
             back,
             simditor,
-            tagInput
+            tagInput,
+            codeMirror,
+            help
         },
         ready() {
             this.$refs.testcase.setTestCase([{input_name: "1.in", output_name: "1.out"}], false);
