@@ -7,8 +7,11 @@ export default {
             cancel: "取消"
         },
         nav: {
+            general: "通用",
             userManagement: "用户管理",
-            announcementManagement: "公告管理"
+            announcementManagement: "公告管理",
+            problemManagement: "题目管理",
+            createProblem: "创建题目",
         },
         pagination: {
             firstPage: "首页",
@@ -53,6 +56,8 @@ export default {
             contentCanNotBeEmpty: "内容不能为空"
         },
         problem: {
+            problemList: "题目列表",
+            createProblem: "创建题目",
             sample: "样例",
             addSample: "添加样例",
             fold: "折叠",
@@ -61,8 +66,17 @@ export default {
             testCase: "测试用例",
             uploadProgress: "上传进度",
             OIMode: "OI模式",
-            score: "分数"
-
+            score: "分数",
+            timeLimit: "时间限制",
+            memoryLimit: "内存限制",
+            tag: "标签",
+            hard: "难",
+            medium: "中等",
+            easy: "简单",
+            difficulty: "难度"
+        },
+        tag: {
+            hint: "回车创建标签"
         },
         adminUtils: {
             search: "搜索",
@@ -71,6 +85,7 @@ export default {
             edit: "编辑",
 
             title: "标题",
+            description: "描述",
             createTime: "创建时间",
             lastUpdateTime: "最后更新",
             createdBy: "创建人",

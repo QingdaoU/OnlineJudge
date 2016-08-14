@@ -48,8 +48,6 @@
     import Router from 'vue-router'
     import pager from '../utils/pager.vue'
 
-    //import editUser from './editUser.vue'
-
     export default {
         data: function () {
             return {
@@ -103,8 +101,6 @@
             search() {
                 sessionStorage.userListSearchKeyword = this.keyword;
                 this.$router.go({path: "/user/1", query: {_: (new Date()).getTime()}});
-                // pager goto page 1
-                // url -> /user/1
             },
             edit(userId) {
                 this.$router.go("/user/edit/" + userId)

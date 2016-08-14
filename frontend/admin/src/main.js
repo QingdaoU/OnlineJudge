@@ -12,9 +12,12 @@ import getCookie from "./utils/cookie"
 
 import userList from "./components/account/userList.vue"
 import editUser from "./components/account/editUser.vue"
-import problem from "./components/problem/problem.vue"
+
 import announcementList from "./components/announcement/announcementList.vue"
 import editAnnouncement from "./components/announcement/editAnnouncement.vue"
+
+import createProblem from "./components/problem/createProblem.vue"
+import problemList from "./components/problem/problemList.vue"
 
 
 // i18n settings
@@ -87,32 +90,24 @@ var router = new VueRouter({linkActiveClass: "active"});
 
 router.map({
     "/user/:page": {
-        name: "userList",
         component: userList
     },
     "/user/edit/:userId": {
-        name: "editUser",
         component: editUser
     },
     "/problem/create": {
-        name: "createProblem",
-        component: problem
+        component: createProblem
+    },
+    "/problem/:page": {
+        component: problemList
     },
     "/announcement/:page": {
-        name: "announcementList",
         component: announcementList
     },
     "/announcement/edit/:announcementId": {
-        name: "editAnnouncement",
         component: editAnnouncement
-    },
-    "/problem": {
-        component: problem
     }
 });
-
-// hide loading
-document.getElementById("loading").style.display = "none";
 
 // override window.alert
 window.alert = function bootboxAlert(content) {
@@ -157,6 +152,10 @@ window.confirm = function bootboxConfirm(content, okCallback, cancelCallback) {
 
 router.redirect({"/user": "/user/1"});
 router.redirect({"/announcement": "/announcement/1"});
+router.redirect({"/problem": "problem/1"});
 
+setTimeout(function(){
+// hide loading
+document.getElementById("loading").style.display = "none";
 router.start(App, '#app');
-
+}, 1500);
