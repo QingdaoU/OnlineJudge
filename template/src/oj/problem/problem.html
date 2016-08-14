@@ -22,7 +22,13 @@
             {% if problem.hint %}
                 <div class="problem-section hide">
                     <label class="problem-label">提示</label>
-                    <div class="problem-detail">{{ problem.hint|safe }}</div>
+
+                    <div id="hint"></div>
+                    <script>
+                        document.getElementById('hint').innerHTML =
+                        marked('{{problem.hint |safe}}');
+                    </script>
+
                 </div>
             {% endif %}
             <div class="problem-section hide">

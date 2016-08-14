@@ -1,17 +1,32 @@
 <div class="problem-section">
                 <label class="problem-label">描述</label>
 
-                <div class="problem-detail">{{ problem.description|safe }}</div>
+                <div id="description"></div>
+                <script>
+                    document.getElementById('description').innerHTML =
+                    marked('{{problem.description |safe}}');
+                </script>
+
             </div>
             <div class="problem-section">
                 <label class="problem-label">输入</label>
 
-                <p class="problem-detail">{{ problem.input_description }}</p>
+                <div id="input"></div>
+                <script>
+                    document.getElementById('input').innerHTML =
+                    marked('{{problem.input_description |safe}}');
+                </script>
+
             </div>
             <div class="problem-section">
                 <label class="problem-label">输出</label>
 
-                <p class="problem-detail">{{ problem.output_description }}</p>
+                <div id="output"></div>
+                <script>
+                    document.getElementById('output').innerHTML =
+                    marked('{{problem.output_description |safe}}');
+                </script>
+
             </div>
             {% for item in samples %}
                 <div class="problem-section">
