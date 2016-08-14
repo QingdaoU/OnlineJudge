@@ -1,5 +1,5 @@
 <template>
-    <textarea id="{{ editorid }}"></textarea>
+    <textarea id="{{ editorId }}"></textarea>
 </template>
 <script>
     import Simditor from 'simditor'
@@ -8,12 +8,8 @@
     export default{
         data() {
             return {
-                editor: {}
-            }
-        },
-        props: {
-            editorid: {
-                required: true
+                editor: {},
+                editorId: Math.random().toString(36).substr(2)
             }
         },
         methods: {
@@ -27,7 +23,7 @@
         attached() {
             var self = this;
             self.editor = new Simditor({
-                textarea: document.getElementById(self.editorid),
+                textarea: document.getElementById(self.editorId),
                 upload: {url: "/", fileKey: "file"},
                 toolbar: ['bold', 'italic', 'underline', 'color', 'image', 'ol', 'ul', 'markdown']
             });

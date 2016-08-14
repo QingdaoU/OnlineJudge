@@ -12,10 +12,12 @@
     import getCookie from "../../utils/cookie"
 
     export default ({
+        data() {
+            return {
+                uploaderId: Math.random().toString(36).substr(2)
+            }
+        },
         props: {
-            uploaderId: {
-                required: true,
-            },
             uploadPath: {
                 required: true,
             },

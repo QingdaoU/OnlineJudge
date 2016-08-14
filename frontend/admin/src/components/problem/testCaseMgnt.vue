@@ -35,8 +35,7 @@
             </tr>
         </table>
         <div class="form-group">
-            <uploader uploader-id="testCaseUploader"
-                      upload-path="/"
+            <uploader upload-path="/"
                       :accept="{title: 'testcase zip', extensions: 'zip', mimeTypes: 'application/zip'}"
                       :upload-success="uploadSuccess"
                       :upload-error="uploadError"
