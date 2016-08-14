@@ -1,6 +1,5 @@
 <template>
     <div>
-        <unsupported-browser-warning></unsupported-browser-warning>
         <top-nav></top-nav>
         <div class="container">
             <div class="row">
@@ -28,13 +27,11 @@
 </style>
 
 <script>
-    import unsupportedBrowserWarning from "./components/utils/unsupportedBrowserWarning.vue"
     import topNav from "./components/utils/topNav.vue"
     import leftNav from "./components/utils/leftNav.vue"
 
     export default({
         components: {
-            unsupportedBrowserWarning,
             topNav,
             leftNav
         }
