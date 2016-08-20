@@ -28,6 +28,14 @@
         font-size: 16px;
     }
 
+    .sub-label {
+        font-size: 12px;
+        display: inline-block;
+        max-width: 100%;
+        margin-bottom: 5px;
+        font-weight: bold;
+    }
+
 </style>
 
 <script>

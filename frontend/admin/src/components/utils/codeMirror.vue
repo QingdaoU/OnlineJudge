@@ -1,18 +1,18 @@
 <template>
     <div>
         <div>
-            <p>{{ $t("problem.chooseLanguage") }}</p>
+            <p class="sub-label">{{ $t("problem.chooseLanguage") }}</p>
             <div id="language-radio">
                 <template v-for="language in languageList">
                     <span class="radio-inline">
-                        <input type="radio" value="{{ language.name }}" name="language" v-model="selectedLanguageName">
+                        <input type="radio" value="{{ language.name }}" name="language" v-model="selectedLanguage">
                         {{ language.name }} ({{ language.description }})
                     </span>
                 </template>
             </div>
         </div>
         <div>
-            <p>{{ $t("problem.submitCode") }}</p>
+            <p class="sub-label">{{ $t("problem.submitCode") }}</p>
             <textarea id="{{ editorId }}"></textarea>
         </div>
     </div>
@@ -40,7 +40,7 @@
                 type: Array,
                 required: true,
             },
-            selectedLanguageName: {
+            selectedLanguage: {
                 type: String,
                 required: true,
             }
@@ -59,14 +59,14 @@
         attached() {
             this.editor = CodeMirror.fromTextArea(document.getElementById(this.editorId), {
                 lineNumbers: true,
-                mode: getMime(this.selectedLanguageName),
+                mode: getMime(this.selectedLanguage),
                 indentUnit: 4,
                 matchBrackets: true
             });
         },
         methods: {
-            setLanguage(languageName) {
-                this.selectedLanguageName = languageName;
+            setLanguage(language) {
+                this.selectedLanguage = languageName;
             },
             setCode(code) {
                 this.editor.setValue(code);
@@ -75,7 +75,7 @@
                 return this.editor.getValue();
             },
             getLanguage() {
-                return this.selectedLanguageName;
+                return this.selectedLanguage;
             }
         }
     })

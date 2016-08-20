@@ -1,17 +1,17 @@
 <template>
     <div class="col-md-12"><br>
         <label>{{ $t("problem.sample") }}</label>
-        <button class="btn btn-primary btn-sm add-sample-btn" v-on:click="addSample">{{ $t("problem.addSample") }}
+        <button class="btn btn-primary btn-sm add-sample-btn" type="button" v-on:click="addSample">{{ $t("problem.addSample") }}
         </button>
 
         <div>
-            <div class="panel panel-default" v-for="sample in samples">
+            <div class="panel panel-default" v-for="sample in sampleList">
                 <div class="panel-heading">
                     <span class="panel-title">{{ $t("problem.sample") }} {{ $index + 1 }}</span>
-                    <button class="btn btn-primary btn-sm" v-on:click="toggleSample($index)">
+                    <button type="button" class="btn btn-primary btn-sm" v-on:click="toggleSample($index)">
                         {{ sample.visible?$t("problem.fold"):$t("problem.show") }}
                     </button>
-                    <button class="btn btn-danger btn-sm" v-on:click="delSample($index)">
+                    <button type="button" class="btn btn-danger btn-sm" v-on:click="delSample($index)">
                         {{ $t("adminUtils.delete") }}
                     </button>
                 </div>
@@ -37,34 +37,21 @@
 <script>
     export default({
         props: {
-            samples: {
+            sampleList: {
                 type: Array,
                 required: true
             }
         },
         methods: {
-            setSample(samples) {
-                for(let sample of samples) {
-                    sample[visible] = false;
-                }
-                this.samples = samples;
-            },
-            getSample() {
-                var samples = this.samples;
-                for(let sample of samples) {
-                    delete sample.visible;
-                }
-                return samples;
-            },
             addSample() {
-                this.samples.push({input: "", output: "", visible: true});
+                this.sampleList.push({input: "", output: "", visible: true});
             },
             toggleSample(index) {
-                this.samples[index].visible = !this.samples[index].visible;
+                this.sampleList[index].visible = !this.sampleList[index].visible;
             },
             delSample(index) {
                 confirm(this.$t("problem.deleteThisSample"), ()=> {
-                    this.samples.splice(index, 1);
+                    this.sampleList.splice(index, 1);
                 });
             }
         }

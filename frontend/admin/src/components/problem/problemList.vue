@@ -28,7 +28,7 @@
             <td>{{ problem.created_by.username }}</td>
             <td>{{ $t(problemStatus[problem.visible?1:0]) }}</td>
             <td>
-                <button class="btn-sm btn-info" v-on:click="edit(problem.id)">{{ $t("adminUtils.edit") }}</button>
+                <button type="button" class="btn-sm btn-info" v-on:click="edit(problem.id)">{{ $t("adminUtils.edit") }}</button>
             </td>
         </tr>
     </table>

@@ -18,7 +18,7 @@
             <td>{{ announcement.created_by.username }}</td>
             <td>{{ $t(announcementStatus[announcement.visible?1:0]) }}</td>
             <td>
-                <button class="btn-sm btn-info" v-on:click="edit(announcement.id)">{{ $t("adminUtils.edit") }}</button>
+                <button type="button" class="btn-sm btn-info" v-on:click="edit(announcement.id)">{{ $t("adminUtils.edit") }}</button>
             </td>
         </tr>
     </table>

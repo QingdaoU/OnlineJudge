@@ -125,29 +125,25 @@ window.alert = function bootboxAlert(content) {
 
 // override window.confirm
 window.confirm = function bootboxConfirm(content, okCallback, cancelCallback) {
-    bootbox.dialog ({
+    var config = {
         message: content,
         title: locale[lang].alert.confirm,
         buttons: {
             cancel: {
                 label: locale[lang].alert.cancel,
-                className: "btn-success",
-                callback: function() {
-                    if(cancelCallback) {
-                        return cancelCallback;
-                    }
-                    else {
-                        return function(){};
-                    }
-                }
+                className: "btn-success"
             },
             main: {
                 label: locale[lang].alert.OK,
-                className: "btn-danger",
+                className: "btn-warning",
                 callback: okCallback
             }
         }
-    })
+    };
+    if (cancelCallback) {
+        config.buttons.cancel.callback = cancelCallback;
+    }
+    bootbox.dialog (config)
 };
 
 router.redirect({"/user": "/user/1"});

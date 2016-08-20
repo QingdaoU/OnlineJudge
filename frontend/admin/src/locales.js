@@ -77,7 +77,17 @@ export default {
             easy: "简单",
             difficulty: "难度",
             chooseLanguage: "选择语言",
-            submitCode: "提交代码"
+            submitCode: "提交代码",
+            switchMode: "如果更换题目模式,需要重新上传测试用例",
+            switchSpecialJudge: "如果切换判题模式,需要重新上传测试用例",
+            turnOnSpecialJudge: "使用Special Judge",
+            testSpecialJudge: "测试Special Judge代码",
+            specialJudgeTestResult: "Special Judge测试运行结果",
+            runResult: "运行结果",
+            output: "输出",
+            hint: "提示",
+            source: "题目来源",
+            problemDescriptionIsRequired: "请填写题目描述"
         },
         tag: {
             hint: "回车创建标签"
@@ -114,7 +124,9 @@ export default {
 
             chooseFile: "选择文件",
 
-            unsupportedBrowserWarningMsg: "当前网页 <strong>不支持</strong> 你正在使用的浏览器, 为了正常的访问,请到 <a href=\"http://browsehappy.com/\"> 升级你的浏览器</a>"
+            unsupportedBrowserWarningMsg: "当前网页 <strong>不支持</strong> 你正在使用的浏览器, 为了正常的访问,请到 <a href=\"http://browsehappy.com/\"> 升级你的浏览器</a>",
+            CPUTime: "CPU时间",
+            memory: "内存"
         },
         help: {
             timeLimit: "1-1000ms",
