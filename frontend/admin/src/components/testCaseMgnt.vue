@@ -54,8 +54,8 @@
 </template>
 
 <script>
-    import uploader from "../utils/uploader.vue"
-    import helpLink from "../utils/helpLink.vue"
+    import uploader from "./uploader.vue"
+    import helpLink from "./helpLink.vue"
 
     export default({
         props: {

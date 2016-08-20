@@ -82,7 +82,7 @@
 </script>
 
 <style>
-    @import "../../../../static/css/CodeMirror.css";
+    @import "../../../static/css/CodeMirror.css";
 
     .CodeMirror {
         min-height: 250px;

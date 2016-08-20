@@ -10,14 +10,14 @@ import bootbox from "bootbox"
 import locale from "./locales"
 import getCookie from "./utils/cookie"
 
-import userList from "./components/account/userList.vue"
-import editUser from "./components/account/editUser.vue"
+import userList from "./views/account/userList.vue"
+import editUser from "./views/account/editUser.vue"
 
-import announcementList from "./components/announcement/announcementList.vue"
-import editAnnouncement from "./components/announcement/editAnnouncement.vue"
+import announcementList from "./views/announcement/announcementList.vue"
+import editAnnouncement from "./views/announcement/editAnnouncement.vue"
 
-import createProblem from "./components/problem/createProblem.vue"
-import problemList from "./components/problem/problemList.vue"
+import createProblem from "./views/problem/createProblem.vue"
+import problemList from "./views/problem/problemList.vue"
 
 
 // i18n settings

@@ -9,7 +9,7 @@
 
 <script>
     import WebUploader from "webuploader"
-    import getCookie from "../../utils/cookie"
+    import getCookie from "../utils/cookie"
 
     export default ({
         data() {

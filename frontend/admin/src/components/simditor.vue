@@ -32,7 +32,7 @@
 </script>
 
 <style scoped>
-    @import "../../../../static/css/simditor.css";
-    @import "../../../../static/css/simditor-markdown.css";
-    @import "../../../../static/css/webuploader.css";
+    @import "../../../static/css/simditor.css";
+    @import "../../../static/css/simditor-markdown.css";
+    @import "../../../static/css/webuploader.css";
 </style>
