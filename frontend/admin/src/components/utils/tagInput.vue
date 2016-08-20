@@ -19,12 +19,14 @@
         props: {
             tagList: {
                 type: Array,
+                required: false,
                 default: ()=>{
                     return []
                 }
             },
             tagAutoCompleteList: {
                 type: Array,
+                required: false,
                 default: ()=>{
                     return []
                 }
@@ -32,20 +34,20 @@
         },
         data () {
             return {
-                text: '',
+                text: "",
             }
         },
         methods: {
             addTag (text) {
-                if (text.trim() != '') {
+                if (text.trim() != "" && this.tagList.indexOf(text.trim()) == -1) {
                     var count = this.tagList.length;
                     this.tagList.$set(count, text);
-                    this.text = ''
                 }
+                this.text = ""
             },
             delTag (index, way) {
                 if (way) {
-                    if (index >= 0 && this.text == '') {
+                    if (index >= 0 && this.text == "") {
                         this.tagList.splice(index, 1)
                     }
                 } else {

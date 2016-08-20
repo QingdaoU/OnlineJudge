@@ -9,7 +9,7 @@
 
         <div class="form-group col-md-12">
             <label>{{ $t("adminUtils.description") }}</label>
-            <simditor></simditor>
+            <simditor v-ref:problemdescription></simditor>
         </div>
 
         <div class="col-md-3">
@@ -45,32 +45,36 @@
             <tag-input :tag-list.sync="tagList"></tag-input>
         </div>
 
-        <problem-sample v-ref:sample></problem-sample>
-        <test-case-mgnt v-ref:testcase></test-case-mgnt>
+        <problem-sample :samples.sync="samples"></problem-sample>
+        <test-case-mgnt :mode="mode" :test-case-list="testCaseList"></test-case-mgnt>
 
         <div class="col-md-12">
-            <code-mirror></code-mirror>
+            <label>Special Judge</label>
+            <code-mirror :selected-language-name="selectedLanguageName" :language-list="languageList"></code-mirror>
         </div>
-
-
-
     </div>
 </template>
 
 <script>
-    import testCaseMgnt from "./testCaseMgnt.vue"
-    import problemSample from "./problemSample.vue"
+    import testCaseMgnt from "../utils/testCaseMgnt.vue"
+    import problemSample from "../utils/problemSample.vue"
 
     import back from "../utils/back.vue"
     import simditor from "../utils/simditor.vue"
     import tagInput from "../utils/tagInput.vue"
     import codeMirror from "../utils/codeMirror.vue"
     import help from "../utils/help.vue"
+    import helpLink from "../utils/helpLink.vue"
 
     export default({
         data() {
             return {
-                tagList: ["1234", "呵呵哒"]
+                tagList: ["1234", "呵呵哒"],
+                selectedLanguageName: "C",
+                languageList: [{name: "C", description: "xxxxxx"}],
+                samples: [{input: "", output: "", visible: true}],
+                mode: "ACM",
+                testCaseList: [{input_name: "1.in", output_name: "1.out"}]
             }
         },
         components: {
@@ -80,10 +84,8 @@
             simditor,
             tagInput,
             codeMirror,
-            help
-        },
-        ready() {
-            this.$refs.testcase.setTestCase([{input_name: "1.in", output_name: "1.out"}], false);
+            help,
+            helpLink
         }
     })
 </script>

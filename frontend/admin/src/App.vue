@@ -24,6 +24,10 @@
     @import "../../static/css/bootstrap.css";
     @import "../../static/css/todc-bootstrap.css";
 
+    label {
+        font-size: 16px;
+    }
+
 </style>
 
 <script>

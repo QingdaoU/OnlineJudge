@@ -18,13 +18,13 @@
                 <div class="panel-body row" v-show="sample.visible">
                     <div class="col-md-6">
                         <div class="form-group">
-                            <label>{{ $t("problem.sample") }}{{ $t("adminUtils.input") }}</label>
+                            <p>{{ $t("problem.sample") }}{{ $t("adminUtils.input") }}</p>
                             <textarea class="form-control" rows="5" required></textarea>
                         </div>
                     </div>
                     <div class="col-md-6">
                         <div class="form-group">
-                            <label>{{ $t("problem.sample") }}{{ $t("adminUtils.output") }}</label>
+                            <p>{{ $t("problem.sample") }}{{ $t("adminUtils.output") }}</p>
                             <textarea class="form-control" rows="5" required></textarea>
                         </div>
                     </div>
@@ -36,9 +36,10 @@
 
 <script>
     export default({
-        data() {
-            return {
-                samples: [{input: "", output: "", visible: true}]
+        props: {
+            samples: {
+                type: Array,
+                required: true
             }
         },
         methods: {
@@ -70,8 +71,14 @@
     })
 </script>
 
-<style>
+<style scoped>
     .add-sample-btn {
         margin-bottom: 5px;
+    }
+    .panel-heading {
+        padding-bottom: 8px;
+    }
+    .panel-body {
+        padding-top: 5px;
     }
 </style>

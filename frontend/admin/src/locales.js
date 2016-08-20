@@ -65,7 +65,9 @@ export default {
             deleteThisSample: "删除这组样例?",
             testCase: "测试用例",
             uploadProgress: "上传进度",
+            mode: "模式",
             OIMode: "OI模式",
+            ACMMode: "ACM模式",
             score: "分数",
             timeLimit: "时间限制",
             memoryLimit: "内存限制",
@@ -73,7 +75,9 @@ export default {
             hard: "难",
             medium: "中等",
             easy: "简单",
-            difficulty: "难度"
+            difficulty: "难度",
+            chooseLanguage: "选择语言",
+            submitCode: "提交代码"
         },
         tag: {
             hint: "回车创建标签"
