@@ -25,8 +25,8 @@
 </template>
 
 <script>
-    import simditor from "../utils/simditor.vue"
-    import back from "../utils/back.vue"
+    import simditor from "../../components/simditor.vue"
+    import back from "../../components/back.vue"
 
     export default({
         data() {

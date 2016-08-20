@@ -46,7 +46,7 @@
 <script>
     import Vue from 'vue'
     import Router from 'vue-router'
-    import pager from '../utils/pager.vue'
+    import pager from '../../components/pager.vue'
 
     export default {
         data: function () {

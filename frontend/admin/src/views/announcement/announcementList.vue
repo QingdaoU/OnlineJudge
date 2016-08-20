@@ -28,7 +28,7 @@
 </template>
 
 <script>
-    import pager from "../utils/pager.vue"
+    import pager from "../../components/pager.vue"
     import createAnnouncement from "./createAnnouncement.vue"
 
     export default({

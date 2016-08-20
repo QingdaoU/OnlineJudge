@@ -39,8 +39,8 @@
 </style>
 
 <script>
-    import topNav from "./components/utils/topNav.vue"
-    import leftNav from "./components/utils/leftNav.vue"
+    import topNav from "./views/nav/topNav.vue"
+    import leftNav from "./views/nav/leftNav.vue"
 
     export default({
         components: {

@@ -33,7 +33,7 @@
 </template>
 
 <script>
-    import codeMirror from "../utils/codeMirror.vue"
+    import codeMirror from "../../components/codeMirror.vue"
 
     export default ({
         props: {

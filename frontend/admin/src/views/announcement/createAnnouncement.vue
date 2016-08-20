@@ -20,7 +20,7 @@
 </template>
 
 <script>
-    import simditor from "../utils/simditor.vue"
+    import simditor from "../../components/simditor.vue"
 
     export default({
         data() {

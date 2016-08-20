@@ -75,16 +75,16 @@
 </template>
 
 <script>
-    import testCaseMgnt from "../utils/testCaseMgnt.vue"
-    import problemSample from "../utils/problemSample.vue"
+    import testCaseMgnt from "../../components/testCaseMgnt.vue"
+    import problemSample from "../../components/problemSample.vue"
     import specialJudge from "./specialJudge.vue"
 
-    import back from "../utils/back.vue"
-    import simditor from "../utils/simditor.vue"
-    import tagInput from "../utils/tagInput.vue"
-    import codeMirror from "../utils/codeMirror.vue"
-    import help from "../utils/help.vue"
-    import helpLink from "../utils/helpLink.vue"
+    import back from "../../components/back.vue"
+    import simditor from "../../components/simditor.vue"
+    import tagInput from "../../components/tagInput.vue"
+    import codeMirror from "../../components/codeMirror.vue"
+    import help from "../../components/help.vue"
+    import helpLink from "../../components/helpLink.vue"
 
     export default({
         data() {
@@ -132,8 +132,6 @@
                 if (this.specialJudge && !this.$refs.specialJudgeCode.getCode().trim()) {
 
                 }
-
-
                 var submitData = {
                     title: this.title,
                     description: this.$refs.problemDescription.getContent(),

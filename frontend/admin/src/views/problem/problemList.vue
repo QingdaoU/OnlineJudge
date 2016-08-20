@@ -37,7 +37,7 @@
 </template>
 
 <script>
-    import pager from "../utils/pager.vue"
+    import pager from "../../components/pager.vue"
 
     export default({
         data() {

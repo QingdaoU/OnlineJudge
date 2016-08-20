@@ -77,7 +77,7 @@
     </div>
 </template>
 <script>
-    import back from '../utils/back.vue'
+    import back from '../../components/back.vue'
 
     export default {
         data() {
