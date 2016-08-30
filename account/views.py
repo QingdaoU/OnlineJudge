@@ -15,6 +15,7 @@ from django.utils.timezone import now
 
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from rest_framework import status
 from utils.shortcuts import (serializer_invalid_response, error_response,
                              success_response, error_page, paginate, rand_str)
 from utils.captcha import Captcha
@@ -154,10 +155,10 @@ class UsernameCheckAPIView(APIView):
         if username:
             try:
                 User.objects.get(username=username)
-                return Response(status=400)
+                return Response(status=status.HTTP_400_BAD_REQUEST)
             except User.DoesNotExist:
-                return Response(status=200)
-        return Response(status=200)
+                return Response(status=status.HTTP_200_OK)
+        return Response(status=status.HTTP_200_OK)
 
 
 class EmailCheckAPIView(APIView):
@@ -170,11 +171,11 @@ class EmailCheckAPIView(APIView):
         reset = request.GET.get("reset", None)
         # 如果reset为true说明该请求是重置密码页面发出的，要返回的状态码应正好相反
         if reset:
-            existed = 200
-            does_not_existed = 400
+            existed = status.HTTP_200_OK
+            does_not_existed = status.HTTP_400_BAD_REQUEST
         else:
-            existed = 400
-            does_not_existed = 200
+            existed = status.HTTP_400_BAD_REQUEST
+            does_not_existed = status.HTTP_200_OK
 
         email = request.GET.get("email", None)
         if email:
