@@ -1,5 +1,9 @@
 # coding=utf-8
-import urllib
+try:
+    from urllib import quote
+except:
+    from urllib.parse import quote
+
 import functools
 from functools import wraps
 
@@ -33,7 +37,7 @@ class BasePermissionDecorator(object):
             if self.request.is_ajax():
                 return error_response(u"请先登录")
             else:
-                return HttpResponseRedirect("/login/?__from=" + urllib.quote(self.request.path))
+                return HttpResponseRedirect("/login/?__from=" + quote(self.request.path))
 
     def check_permission(self):
         raise NotImplementedError()

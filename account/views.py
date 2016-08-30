@@ -2,7 +2,6 @@
 import os
 import codecs
 import qrcode
-import StringIO
 from django import http
 from django.contrib import auth
 from django.shortcuts import render

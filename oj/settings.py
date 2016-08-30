@@ -114,6 +114,7 @@ STATIC_URL = '/static/'
 AUTH_USER_MODEL = 'account.User'
 
 LOG_PATH = "log/"
+LOGGING_SET = False
 
 LOGGING = {
     'version': 1,
