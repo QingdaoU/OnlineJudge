@@ -93,7 +93,7 @@ class Captcha(object):
         image.save(buf, 'gif')
 
         self.django_request.session[self.session_key] = "".join(code)
-        return HttpResponse(buf.getvalue(), 'image/gif')
+        return buf.getvalue()
 
     def check(self, code):
         """
