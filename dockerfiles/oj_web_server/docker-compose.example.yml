@@ -24,3 +24,14 @@ oj_web_server:
         - TZ=Asia/Shanghai
         - oj_env=server
         - MYSQL_ENV_MYSQL_USER=root
+
+nginx:
+    image: nginx:1.10.1
+    volumes:
+        - /home/OnlineJudge/dockerfiles/oj_web_server/oj.conf:/etc/nginx/conf.d/default.conf
+        - /home/upload:/upload
+        - /home/OnlineJudge/static/release:/static
+    links:
+         - oj_web_server:oj_web_server
+    ports:
+        - "0.0.0.0:80:80"
