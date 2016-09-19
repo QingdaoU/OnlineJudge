@@ -29,7 +29,7 @@ languages = {
         "src_name": "Main.java",
         "code": 3,
         "compile_max_cpu_time": 3000,
-        "compile_max_memory": 1024 * 1024 * 1024,
+        "compile_max_memory": -1,
         "compile_command": "/usr/bin/javac {src_path} -d {exe_path} -encoding UTF8",
         "execute_command": "/usr/bin/java -cp {exe_path} -Xss1M -XX:MaxPermSize=16M "
                            "-XX:PermSize=8M -Xms16M -Xmx{max_memory} -Djava.security.manager "
