@@ -1,8 +1,8 @@
 # coding=utf-8
+from __future__ import unicode_literals
 from django.db import models
 
 from account.models import User
-from group.models import Group
 from utils.models import RichTextField
 
 

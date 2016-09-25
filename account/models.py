@@ -1,13 +1,7 @@
 # coding=utf-8
-from django.db import models
 from django.contrib.auth.models import AbstractBaseUser
-
+from django.db import models
 from jsonfield import JSONField
-
-# TODO remove these
-REGULAR_USER = 0
-ADMIN = 1
-SUPER_ADMIN = 2
 
 
 class AdminType(object):
@@ -65,6 +59,9 @@ class User(AbstractBaseUser):
 
     objects = UserManager()
 
+    def is_admin(self):
+        return self.admin_type > AdminType.REGULAR_USER
+
     class Meta:
         db_table = "user"
 
@@ -79,13 +76,11 @@ class UserProfile(models.Model):
     avatar = models.CharField(max_length=50, default=_random_avatar)
     blog = models.URLField(blank=True, null=True)
     mood = models.CharField(max_length=200, blank=True, null=True)
-    hduoj_username = models.CharField(max_length=30, blank=True, null=True)
-    bestcoder_username = models.CharField(max_length=30, blank=True, null=True)
-    codeforces_username = models.CharField(max_length=30, blank=True, null=True)
     accepted_problem_number = models.IntegerField(default=0)
     submission_number = models.IntegerField(default=0)
     phone_number = models.CharField(max_length=15, blank=True, null=True)
     school = models.CharField(max_length=200, blank=True, null=True)
+
     student_id = models.CharField(max_length=15, blank=True, null=True)
 
     def add_accepted_problem_number(self):

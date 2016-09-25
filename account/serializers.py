@@ -1,8 +1,8 @@
 # coding=utf-8
 from rest_framework import serializers
 
-from utils.serializers import DateTimeTZField, JSONField
-from .models import User, UserProfile
+from utils.serializers import DateTimeTZField
+from .models import User
 
 
 class UserLoginSerializer(serializers.Serializer):
@@ -11,22 +11,11 @@ class UserLoginSerializer(serializers.Serializer):
     tfa_code = serializers.CharField(min_length=6, max_length=6, required=False)
 
 
-class UsernameCheckSerializer(serializers.Serializer):
-    username = serializers.CharField(max_length=30)
-
-
-class EmailCheckSerializer(serializers.Serializer):
-    email = serializers.EmailField(max_length=254)
-
-
 class UserRegisterSerializer(serializers.Serializer):
     username = serializers.CharField(max_length=30)
-    real_name = serializers.CharField(max_length=30)
     password = serializers.CharField(max_length=30, min_length=6)
     email = serializers.EmailField(max_length=254)
     captcha = serializers.CharField(max_length=4, min_length=4)
-    school = serializers.CharField(max_length=200, required=False, default=None)
-    student_id = serializers.CharField(max_length=15, required=False, default=None)
 
 
 class UserChangePasswordSerializer(serializers.Serializer):
@@ -58,43 +47,3 @@ class EditUserSerializer(serializers.Serializer):
     is_disabled = serializers.BooleanField()
     admin_extra_permission = serializers.ListField(required=False, default=[],
                                                    child=serializers.IntegerField())
-
-
-class ApplyResetPasswordSerializer(serializers.Serializer):
-    email = serializers.EmailField()
-    captcha = serializers.CharField(max_length=4, min_length=4)
-
-
-class ResetPasswordSerializer(serializers.Serializer):
-    token = serializers.CharField(min_length=1, max_length=40)
-    password = serializers.CharField(min_length=6, max_length=30)
-    captcha = serializers.CharField(max_length=4, min_length=4)
-
-
-class SSOSerializer(serializers.Serializer):
-    appkey = serializers.CharField(max_length=35)
-    token = serializers.CharField(max_length=40)
-
-
-class EditUserProfileSerializer(serializers.Serializer):
-    avatar = serializers.CharField(max_length=50, required=False, default=None)
-    blog = serializers.URLField(required=False, allow_blank=True, default='')
-    mood = serializers.CharField(max_length=60, required=False, allow_blank=True, default='')
-    hduoj_username = serializers.CharField(max_length=30, required=False, allow_blank=True, default='')
-    bestcoder_username = serializers.CharField(max_length=30, required=False, allow_blank=True, default='')
-    codeforces_username = serializers.CharField(max_length=30, required=False, allow_blank=True, default='')
-    school = serializers.CharField(max_length=200, required=False, allow_blank=True, default='')
-    phone_number = serializers.CharField(max_length=15, required=False, allow_blank=True, default='')
-    student_id = serializers.CharField(max_length=15, required=False, allow_blank=True, default="")
-
-
-class UserProfileSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = UserProfile
-        fields = ["avatar", "blog", "mood", "hduoj_username", "bestcoder_username", "codeforces_username",
-                  "rank", "accepted_number", "submissions_number", "problems_status", "phone_number", "school", "student_id"]
-
-
-class TwoFactorAuthCodeSerializer(serializers.Serializer):
-    code = serializers.IntegerField()

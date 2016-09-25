@@ -125,7 +125,7 @@
                     }
                 }
                 this.request({
-                    url: "/api/admin/user/",
+                    url: "/api/admin/account/user/",
                     method: "PUT",
                     data: data
                 })
@@ -134,7 +134,7 @@
         route: {
             data() {
                 this.request({
-                    url: "/api/admin/user/?user_id=" + this.$route.params["userId"],
+                    url: "/api/admin/account/user/?user_id=" + this.$route.params["userId"],
                     method: "GET",
                     success: (data)=> {
                         this.user = data.data;

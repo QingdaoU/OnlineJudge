@@ -42,13 +42,6 @@ INSTALLED_APPS = (
     'account',
     'announcement',
     'utils',
-    'group',
-    'problem',
-    'admin',
-    'submission',
-    'contest',
-    'judge',
-    'judge_dispatcher',
 
     'rest_framework',
 )
@@ -62,7 +55,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.security.SecurityMiddleware',
-    'admin.middleware.AdminRequiredMiddleware',
+    'account.middleware.AdminRequiredMiddleware',
     'account.middleware.SessionSecurityMiddleware'
 )
 

@@ -1,6 +1,6 @@
 # coding=utf-8
 from django.core.management.base import BaseCommand
-from account.models import User, SUPER_ADMIN, UserProfile
+from account.models import User, UserProfile, AdminType
 from utils.shortcuts import rand_str
 
 
@@ -8,7 +8,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         try:
             admin = User.objects.get(username="root")
-            if admin.admin_type == SUPER_ADMIN:
+            if admin.admin_type == AdminType.SUPER_ADMIN:
                 self.stdout.write(self.style.WARNING("Super admin user 'root' already exists, "
                                                      "would you like to reset it's password?\n"
                                                      "Input yes to confirm: "))
@@ -25,7 +25,7 @@ class Command(BaseCommand):
             else:
                 self.stdout.write(self.style.ERROR("User 'root' is not super admin."))
         except User.DoesNotExist:
-            user = User.objects.create(username="root", real_name="root", email="root@oj.com", admin_type=SUPER_ADMIN)
+            user = User.objects.create(username="root", email="root@oj.com", admin_type=AdminType.SUPER_ADMIN)
             rand_password = rand_str(length=6)
             user.set_password(rand_password)
             user.save()

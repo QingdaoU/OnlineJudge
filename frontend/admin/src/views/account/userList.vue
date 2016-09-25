@@ -82,7 +82,7 @@
         },
         methods: {
             loadData() {
-                var url = "/api/admin/user/?paging=true&page_size=2&page=" + this.pagination.currentPage;
+                var url = "/api/admin/account/user/?paging=true&page_size=2&page=" + this.pagination.currentPage;
                 if (this.keyword) {
                     url += ("&keyword=" + this.keyword)
                 }

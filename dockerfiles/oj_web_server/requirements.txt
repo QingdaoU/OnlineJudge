@@ -1,4 +1,4 @@
-django
+django<1.10
 MySQL-python
 redis
 django-redis-sessions

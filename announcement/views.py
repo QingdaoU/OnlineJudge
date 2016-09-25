@@ -1,27 +1,15 @@
 # coding=utf-8
 from __future__ import unicode_literals
+
+from django.utils.translation import ugettext as _
 from rest_framework.views import APIView
 
-from django.shortcuts import render
-from django.utils.translation import ugettext as _
-from utils.shortcuts import serializer_invalid_response, error_response, success_response
-
-from utils.shortcuts import paginate, error_page
 from account.decorators import super_admin_required
+from utils.shortcuts import paginate
+from utils.shortcuts import serializer_invalid_response, error_response, success_response
 from .models import Announcement
 from .serializers import (CreateAnnouncementSerializer, AnnouncementSerializer,
                           EditAnnouncementSerializer)
-
-
-def announcement_page(request, announcement_id):
-    """
-    announcement detail page
-    """
-    try:
-        announcement = Announcement.objects.get(id=announcement_id, visible=True)
-    except Announcement.DoesNotExist:
-        return error_page(request, _("Announcement does not exist"))
-    return render(request, "oj/announcement/announcement.html", {"announcement": announcement})
 
 
 class AnnouncementAdminAPIView(APIView):
