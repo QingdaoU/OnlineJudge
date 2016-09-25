@@ -1,4 +1,5 @@
 # coding=utf-8
+from __future__ import unicode_literals
 from django.contrib.auth.models import AbstractBaseUser
 from django.db import models
 from jsonfield import JSONField
@@ -33,8 +34,8 @@ class UserManager(models.Manager):
 
 class User(AbstractBaseUser):
     username = models.CharField(max_length=30, unique=True)
-    real_name = models.CharField(max_length=30, blank=True, null=True)
-    email = models.EmailField(max_length=254, blank=True, null=True)
+    real_name = models.CharField(max_length=30, null=True)
+    email = models.EmailField(max_length=254, null=True)
     create_time = models.DateTimeField(auto_now_add=True, null=True)
     # One of UserType
     admin_type = models.IntegerField(default=0)
@@ -43,15 +44,15 @@ class User(AbstractBaseUser):
     # Store user problem solution status with json string format
     # {"problems": {1: ProblemSolutionStatus.ACCEPTED}, "contest_problems": {20: ProblemSolutionStatus.PENDING)}
     problems_status = JSONField(default={})
-    reset_password_token = models.CharField(max_length=40, blank=True, null=True)
-    reset_password_token_create_time = models.DateTimeField(blank=True, null=True)
+    reset_password_token = models.CharField(max_length=40, null=True)
+    reset_password_token_create_time = models.DateTimeField(null=True)
     # SSO auth token
-    auth_token = models.CharField(max_length=40, blank=True, null=True)
+    auth_token = models.CharField(max_length=40, null=True)
     two_factor_auth = models.BooleanField(default=False)
-    tfa_token = models.CharField(max_length=40, blank=True, null=True)
+    tfa_token = models.CharField(max_length=40, null=True)
     # open api key
     open_api = models.BooleanField(default=False)
-    open_api_appkey = models.CharField(max_length=35, blank=True, null=True)
+    open_api_appkey = models.CharField(max_length=35, null=True)
     is_disabled = models.BooleanField(default=False)
 
     USERNAME_FIELD = 'username'
@@ -80,8 +81,10 @@ class UserProfile(models.Model):
     submission_number = models.IntegerField(default=0)
     phone_number = models.CharField(max_length=15, blank=True, null=True)
     school = models.CharField(max_length=200, blank=True, null=True)
-
+    major = models.CharField(max_length=200, blank=True, null=True)
     student_id = models.CharField(max_length=15, blank=True, null=True)
+    time_zone = models.CharField(max_length=32, blank=True, null=True)
+    language = models.CharField(max_length=32, blank=True, null=True)
 
     def add_accepted_problem_number(self):
         self.accepted_problem_number = models.F("accepted_problem_number") + 1
