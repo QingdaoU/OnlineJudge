@@ -1,17 +1,18 @@
 # coding=utf-8
 from __future__ import unicode_literals
-import time
-import mock
 
+import time
+
+import mock
 from django.contrib import auth
 from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext as _
+from rest_framework.test import APIClient
 
-from rest_framework.test import APIClient, APITestCase
-
-from utils.shortcuts import rand_str
 from utils.otp_auth import OtpAuth
-from .models import User
+from utils.shortcuts import rand_str
+from utils.tests import APITestCase
+from .models import User, AdminType
 
 
 class PermissionDecoratorTest(APITestCase):
@@ -34,12 +35,8 @@ class PermissionDecoratorTest(APITestCase):
 
 class UserLoginAPITest(APITestCase):
     def setUp(self):
-        self.username = "testuser"
-        self.password = "testuserpassword"
-        self.user = User.objects.create(username=self.username)
-        self.user.set_password(self.password)
-        self.user.save()
-
+        self.username = self.password = "test"
+        self.user = self.create_user(username=self.username, password=self.password)
         self.login_url = reverse("user_login_api")
 
     def _set_tfa(self):
@@ -52,7 +49,7 @@ class UserLoginAPITest(APITestCase):
     def test_login_with_correct_info(self):
         response = self.client.post(self.login_url,
                                     data={"username": self.username, "password": self.password})
-        self.assertDictEqual(response.data, {"code": 0, "data": _("Succeeded")})
+        self.assertDictEqual(response.data, {"error": None, "data": _("Succeeded")})
 
         user = auth.get_user(self.client)
         self.assertTrue(user.is_authenticated())
@@ -60,8 +57,7 @@ class UserLoginAPITest(APITestCase):
     def test_login_with_wrong_info(self):
         response = self.client.post(self.login_url,
                                     data={"username": self.username, "password": "invalid_password"})
-
-        self.assertDictEqual(response.data, {"code": 1, "data": _("Invalid username or password")})
+        self.assertDictEqual(response.data, {"error": "error", "data": _("Invalid username or password")})
 
         user = auth.get_user(self.client)
         self.assertFalse(user.is_authenticated())
@@ -75,7 +71,7 @@ class UserLoginAPITest(APITestCase):
                                     data={"username": self.username,
                                           "password": self.password,
                                           "tfa_code": code})
-        self.assertDictEqual(response.data, {"code": 0, "data": _("Succeeded")})
+        self.assertDictEqual(response.data, {"error": None, "data": _("Succeeded")})
 
         user = auth.get_user(self.client)
         self.assertTrue(user.is_authenticated())
@@ -86,7 +82,7 @@ class UserLoginAPITest(APITestCase):
                                     data={"username": self.username,
                                           "password": self.password,
                                           "tfa_code": "qqqqqq"})
-        self.assertDictEqual(response.data, {"code": 1, "data": _("Invalid two factor verification code")})
+        self.assertDictEqual(response.data, {"error": "error", "data": _("Invalid two factor verification code")})
 
         user = auth.get_user(self.client)
         self.assertFalse(user.is_authenticated())
@@ -96,7 +92,7 @@ class UserLoginAPITest(APITestCase):
         response = self.client.post(self.login_url,
                                     data={"username": self.username,
                                           "password": self.password})
-        self.assertDictEqual(response.data, {"code": 0, "data": "tfa_required"})
+        self.assertDictEqual(response.data, {"error": None, "data": "tfa_required"})
 
         user = auth.get_user(self.client)
         self.assertFalse(user.is_authenticated())
@@ -124,15 +120,15 @@ class UserRegisterAPITest(CaptchaTest):
     def test_invalid_captcha(self):
         self.data["captcha"] = "****"
         response = self.client.post(self.register_url, data=self.data)
-        self.assertDictEqual(response.data, {"code": 1, "data": _("Invalid captcha")})
+        self.assertDictEqual(response.data, {"error": "error", "data": _("Invalid captcha")})
 
         self.data.pop("captcha")
         response = self.client.post(self.register_url, data=self.data)
-        self.assertEqual(response.data["code"], 1)
+        self.assertTrue(response.data["error"] is not None)
 
     def test_register_with_correct_info(self):
         response = self.client.post(self.register_url, data=self.data)
-        self.assertDictEqual(response.data, {"code": 0, "data": _("Succeeded")})
+        self.assertDictEqual(response.data, {"error": None, "data": _("Succeeded")})
 
     def test_username_already_exists(self):
         self.test_register_with_correct_info()
@@ -140,7 +136,7 @@ class UserRegisterAPITest(CaptchaTest):
         self.data["captcha"] = self._set_captcha(self.client.session)
         self.data["email"] = "test1@qduoj.com"
         response = self.client.post(self.register_url, data=self.data)
-        self.assertDictEqual(response.data, {"code": 1, "data": _("Username already exists")})
+        self.assertDictEqual(response.data, {"error": "error", "data": _("Username already exists")})
 
     def test_email_already_exists(self):
         self.test_register_with_correct_info()
@@ -148,7 +144,7 @@ class UserRegisterAPITest(CaptchaTest):
         self.data["captcha"] = self._set_captcha(self.client.session)
         self.data["username"] = "test_user1"
         response = self.client.post(self.register_url, data=self.data)
-        self.assertDictEqual(response.data, {"code": 1, "data": _("Email already exists")})
+        self.assertDictEqual(response.data, {"error": "error", "data": _("Email already exists")})
 
 
 class UserChangePasswordAPITest(CaptchaTest):
@@ -160,45 +156,99 @@ class UserChangePasswordAPITest(CaptchaTest):
         self.username = "test_user"
         self.old_password = "testuserpassword"
         self.new_password = "new_password"
-        register_data = {"username": self.username, "password": self.old_password,
-                         "real_name": "real_name", "email": "test@qduoj.com",
-                         "captcha": self._set_captcha(self.client.session)}
-
-        response = self.client.post(reverse("user_register_api"), data=register_data)
-        self.assertDictEqual(response.data, {"code": 0, "data": _("Succeeded")})
+        self.create_user(username=self.username, password=self.old_password)
 
         self.data = {"old_password": self.old_password, "new_password": self.new_password,
                      "captcha": self._set_captcha(self.client.session)}
 
     def test_login_required(self):
-        response = self.client.post(self.url, data=self.data, HTTP_X_REQUESTED_WITH="XMLHttpRequest")
-        self.assertEqual(response.data, {"code": 1, "data": _("Please login in first")})
+        response = self.client.post(self.url, data=self.data)
+        self.assertEqual(response.data, {"error": "permission-denied", "data": _("Please login in first")})
 
     def test_valid_ola_password(self):
         self.assertTrue(self.client.login(username=self.username, password=self.old_password))
-        response = self.client.post(self.url, data=self.data, HTTP_X_REQUESTED_WITH="XMLHttpRequest")
-        self.assertEqual(response.data, {"code": 0, "data": _("Succeeded")})
+        response = self.client.post(self.url, data=self.data)
+        self.assertEqual(response.data, {"error": None, "data": _("Succeeded")})
         self.assertTrue(self.client.login(username=self.username, password=self.new_password))
 
     def test_invalid_old_password(self):
         self.assertTrue(self.client.login(username=self.username, password=self.old_password))
         self.data["old_password"] = "invalid"
-        response = self.client.post(self.url, data=self.data, HTTP_X_REQUESTED_WITH="XMLHttpRequest")
-        self.assertEqual(response.data, {"code": 1, "data": _("Invalid old password")})
+        response = self.client.post(self.url, data=self.data)
+        self.assertEqual(response.data, {"error": "error", "data": _("Invalid old password")})
 
 
-class AdminEditUserTest(APITestCase):
+class AdminUserTest(APITestCase):
     def setUp(self):
-        pass
+        self.user = self.create_super_admin(login=True)
+        self.username = self.password = "test"
+        self.regular_user = self.create_user(username=self.username, password=self.password)
+        self.url = reverse("user_admin_api")
+        self.data = {"id": self.regular_user.id, "username": self.username, "real_name": "test_name",
+                     "email": "test@qq.com", "admin_type": AdminType.REGULAR_USER,
+                     "open_api": True, "two_factor_auth": False, "is_disabled": False}
+
+    def test_user_list(self):
+        response = self.client.get(self.url)
+        self.assertSuccess(response)
 
     def test_edit_user_successfully(self):
-        pass
+        response = self.client.put(self.url, data=self.data)
+        self.assertSuccess(response)
+        resp_data = response.data["data"]
+        self.assertEqual(resp_data["username"], self.username)
+        self.assertEqual(resp_data["email"], "test@qq.com")
+        self.assertEqual(resp_data["real_name"], "test_name")
+        self.assertEqual(resp_data["open_api"], True)
+        self.assertEqual(resp_data["two_factor_auth"], False)
+        self.assertEqual(resp_data["is_disabled"], False)
 
-    def test_change_user_admin_type(self):
-        pass
+        self.assertTrue(self.regular_user.check_password("test"))
 
-    def test_change_user_permission(self):
-        pass
+    def test_edit_user_password(self):
+        data = self.data
+        new_password = "testpassword"
+        data["password"] = new_password
+        response = self.client.put(self.url, data=data)
+        self.assertSuccess(response)
+        user = User.objects.get(id=self.regular_user.id)
+        self.assertFalse(user.check_password(self.password))
+        self.assertTrue(user.check_password(new_password))
 
-    def test_change_user_password(self):
-        pass
+    def test_edit_user_tfa(self):
+        data = self.data
+        self.assertIsNone(self.regular_user.tfa_token)
+        data["two_factor_auth"] = True
+        response = self.client.put(self.url, data=data)
+        self.assertSuccess(response)
+        resp_data = response.data["data"]
+        # if `tfa_token` is None, a new value will be generated
+        self.assertTrue(resp_data["two_factor_auth"])
+        token = User.objects.get(id=self.regular_user.id).tfa_token
+        self.assertIsNotNone(token)
+
+        response = self.client.put(self.url, data=data)
+        self.assertSuccess(response)
+        resp_data = response.data["data"]
+        # if `tfa_token` is not None, the value is not changed
+        self.assertTrue(resp_data["two_factor_auth"])
+        self.assertEqual(User.objects.get(id=self.regular_user.id).tfa_token, token)
+
+    def test_edit_user_openapi(self):
+        data = self.data
+        self.assertIsNone(self.regular_user.open_api_appkey)
+        data["open_api"] = True
+        response = self.client.put(self.url, data=data)
+        self.assertSuccess(response)
+        resp_data = response.data["data"]
+        # if `open_api_appkey` is None, a new value will be generated
+        self.assertTrue(resp_data["open_api"])
+        key = User.objects.get(id=self.regular_user.id).open_api_appkey
+        self.assertIsNotNone(key)
+
+        response = self.client.put(self.url, data=data)
+        self.assertSuccess(response)
+        resp_data = response.data["data"]
+        # if `openapi_app_key` is not None, the value is not changed
+        self.assertTrue(resp_data["open_api"])
+        self.assertEqual(User.objects.get(id=self.regular_user.id).open_api_appkey, key)

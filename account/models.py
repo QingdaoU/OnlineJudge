@@ -6,23 +6,14 @@ from jsonfield import JSONField
 
 
 class AdminType(object):
-    REGULAR_USER = 0
-    ADMIN = 1
-    SUPER_ADMIN = 2
+    REGULAR_USER = "regular_user"
+    ADMIN = "admin"
+    SUPER_ADMIN = "super_admin"
 
 
 class ProblemSolutionStatus(object):
     ACCEPTED = 1
     PENDING = 2
-
-
-class AdminExtraPermission(object):
-    CREATE_PUBLIC_CONTEST = 1
-    MANAGE_ALL_CONTEST = 2
-    # 3 and 4 are mutually exclusive
-    MANAGE_ALL_PROBLEM = 3
-    # Manage public problem user created
-    MANAGE_OWN_PROBLEM = 4
 
 
 class UserManager(models.Manager):
@@ -38,14 +29,9 @@ class User(AbstractBaseUser):
     email = models.EmailField(max_length=254, null=True)
     create_time = models.DateTimeField(auto_now_add=True, null=True)
     # One of UserType
-    admin_type = models.IntegerField(default=0)
-    # List of items in AdminExtraPermission
-    admin_extra_permission = JSONField(default=[])
-    # Store user problem solution status with json string format
-    # {"problems": {1: ProblemSolutionStatus.ACCEPTED}, "contest_problems": {20: ProblemSolutionStatus.PENDING)}
-    problems_status = JSONField(default={})
+    admin_type = models.CharField(max_length=24, default=AdminType.REGULAR_USER)
     reset_password_token = models.CharField(max_length=40, null=True)
-    reset_password_token_create_time = models.DateTimeField(null=True)
+    reset_password_token_expire_time = models.DateTimeField(null=True)
     # SSO auth token
     auth_token = models.CharField(max_length=40, null=True)
     two_factor_auth = models.BooleanField(default=False)
@@ -61,7 +47,7 @@ class User(AbstractBaseUser):
     objects = UserManager()
 
     def is_admin(self):
-        return self.admin_type > AdminType.REGULAR_USER
+        return self.admin_type in [AdminType.ADMIN, AdminType.SUPER_ADMIN]
 
     class Meta:
         db_table = "user"
@@ -74,6 +60,9 @@ def _random_avatar():
 
 class UserProfile(models.Model):
     user = models.OneToOneField(User)
+    # Store user problem solution status with json string format
+    # {"problems": {1: ProblemSolutionStatus.ACCEPTED}, "contest_problems": {20: ProblemSolutionStatus.PENDING)}
+    problems_status = JSONField(default={})
     avatar = models.CharField(max_length=50, default=_random_avatar)
     blog = models.URLField(blank=True, null=True)
     mood = models.CharField(max_length=200, blank=True, null=True)

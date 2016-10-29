@@ -4,10 +4,8 @@ from __future__ import unicode_literals
 from django.core.exceptions import MultipleObjectsReturned
 from django.db.models import Q
 from django.utils.translation import ugettext as _
-from rest_framework.views import APIView
 
-from utils.shortcuts import (serializer_invalid_response, error_response,
-                             success_response, paginate, rand_str)
+from utils.shortcuts import (APIView, paginate_data, rand_str)
 from ..decorators import super_admin_required
 from ..models import User, AdminType
 from ..serializers import (UserSerializer, EditUserSerializer)
@@ -25,21 +23,21 @@ class UserAdminAPIView(APIView):
             try:
                 user = User.objects.get(id=data["id"])
             except User.DoesNotExist:
-                return error_response(_("User does not exist"))
+                return self.error(_("User does not exist"))
             try:
                 user = User.objects.get(username=data["username"])
                 if user.id != data["id"]:
-                    return error_response(_("Username already exists"))
+                    return self.error(_("Username already exists"))
             except User.DoesNotExist:
                 pass
 
             try:
                 user = User.objects.get(email=data["email"])
                 if user.id != data["id"]:
-                    return error_response(_("Email already exists"))
+                    return self.error(_("Email already exists"))
             # Some old data has duplicate email
             except MultipleObjectsReturned:
-                return error_response(_("Email already exists"))
+                return self.error(_("Email already exists"))
             except User.DoesNotExist:
                 pass
 
@@ -68,15 +66,10 @@ class UserAdminAPIView(APIView):
                 user.tfa_token = None
             user.two_factor_auth = data["two_factor_auth"]
 
-            if data["admin_type"] == AdminType.ADMIN:
-                user.admin_extra_permission = list(set(data["admin_extra_permission"]))
-            else:
-                user.admin_extra_permission = []
-
             user.save()
-            return success_response(UserSerializer(user).data)
+            return self.success(UserSerializer(user).data)
         else:
-            return serializer_invalid_response(serializer)
+            return self.invalid_serializer(serializer)
 
     @super_admin_required
     def get(self, request):
@@ -88,8 +81,8 @@ class UserAdminAPIView(APIView):
             try:
                 user = User.objects.get(id=user_id)
             except User.DoesNotExist:
-                return error_response(_("User does not exist"))
-            return success_response(UserSerializer(user).data)
+                return self.error(_("User does not exist"))
+            return self.success(UserSerializer(user).data)
 
         user = User.objects.all().order_by("-create_time")
 
@@ -98,10 +91,10 @@ class UserAdminAPIView(APIView):
             try:
                 user = user.filter(admin_type__gte=int(admin_type))
             except ValueError:
-                return error_response(_("Invalid parameter"))
+                return self.error(_("Invalid parameter"))
         keyword = request.GET.get("keyword", None)
         if keyword:
             user = user.filter(Q(username__contains=keyword) |
                                Q(real_name__contains=keyword) |
                                Q(email__contains=keyword))
-        return paginate(request, user, UserSerializer)
+        return self.success(paginate_data(request, user, UserSerializer))

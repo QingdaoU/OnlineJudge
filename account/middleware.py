@@ -6,7 +6,7 @@ from django.http import HttpResponse
 from django.utils.translation import ugettext as _
 from django.contrib import auth
 
-from utils.shortcuts import redirect_to_login
+from utils.shortcuts import JSONResponse
 from .models import AdminType
 
 
@@ -17,11 +17,7 @@ class SessionSecurityMiddleware(object):
                 # 24 hours passed since last visit
                 if time.time() - request.session["last_activity"] >= 24 * 60 * 60:
                     auth.logout(request)
-                    if request.is_ajax():
-                        return HttpResponse(json.dumps({"code": 1, "data": _("Please login in first")}),
-                                            content_type="application/json")
-                    else:
-                        return redirect_to_login(request)
+                    return JSONResponse({"error": "login-required", "data": _("Please login in first")})
             # update last active time
             request.session["last_activity"] = time.time()
 
@@ -31,9 +27,4 @@ class AdminRequiredMiddleware(object):
         path = request.path_info
         if path.startswith("/admin/") or path.startswith("/api/admin/"):
             if not(request.user.is_authenticated() and request.user.is_admin()):
-                if request.is_ajax():
-                    return HttpResponse(json.dumps({"code": 1, "data": _("Please login in first")}),
-                                        content_type="application/json")
-                else:
-                    return HttpResponse(json.dumps({"code": 1, "data": _("Admin required")}),
-                                        content_type="application/json")
+                return JSONResponse({"error": "login-required", "data": _("Please login in first")})

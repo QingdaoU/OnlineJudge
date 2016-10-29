@@ -1,12 +1,13 @@
 # coding=utf-8
 from __future__ import unicode_literals
 import urllib
+import json
 import functools
 
-from django.http import HttpResponseRedirect
+from django.http import HttpResponse
 from django.utils.translation import ugettext as _
 
-from utils.shortcuts import error_response, error_page, redirect_to_login
+from utils.shortcuts import JSONResponse
 from .models import AdminType
 
 
@@ -17,24 +18,18 @@ class BasePermissionDecorator(object):
     def __get__(self, obj, obj_type):
         return functools.partial(self.__call__, obj)
 
+    def error(self, data):
+        return JSONResponse({"error": "permission-denied", "data": data})
+
     def __call__(self, *args, **kwargs):
-        if len(args) == 2:
-            self.request = args[1]
-        else:
-            self.request = args[0]
+        self.request = args[1]
 
         if self.check_permission():
             if self.request.user.is_disabled:
-                if self.request.is_ajax():
-                    return error_response(_("Your account is disabled"))
-                else:
-                    return error_page(self.request, _("Your account is disabled"))
+                return self.error(_("Your account is disabled"))
             return self.func(*args, **kwargs)
         else:
-            if self.request.is_ajax():
-                return error_response(_("Please login in first"))
-            else:
-                return redirect_to_login(self.request)
+            return self.error(_("Please login in first"))
 
     def check_permission(self):
         raise NotImplementedError()

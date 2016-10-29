@@ -1,68 +1,30 @@
 # coding=utf-8
-from rest_framework.test import APIClient, APITestCase
-from rest_framework import serializers
-from rest_framework.decorators import api_view
+from __future__ import unicode_literals
+from django.test.testcases import TestCase
+from rest_framework.test import APIClient
 
-from account.models import User
-from .shortcuts import paginate
-
-
-class PaginationTestSerialiser(serializers.Serializer):
-    username = serializers.CharField(max_length=100)
+from account.models import User, AdminType
 
 
-@api_view(["GET"])
-def pagination_test_func(request):
-    return paginate(request, User.objects.all(), PaginationTestSerialiser)
+class APITestCase(TestCase):
+    client_class = APIClient
 
+    def create_user(self, username, password, admin_type=AdminType.REGULAR_USER, login=False):
+        user = User.objects.create(username=username, admin_type=admin_type)
+        user.set_password(password)
+        user.save()
+        if login:
+            self.client.login(username=username, password=password)
+        return user
 
-class PaginatorTest(APITestCase):
-    urls = "utils.test_urls"
+    def create_admin(self, username="admin", password="admin", login=False):
+        return self.create_user(username=username, password=password, admin_type=AdminType.ADMIN, login=login)
 
-    def setUp(self):
-        self.client = APIClient()
-        self.url = "/paginate_test/"
-        User.objects.create(username="test1")
-        User.objects.create(username="test2")
+    def create_super_admin(self, username="root", password="root", login=False):
+        return self.create_user(username=username, password=password, admin_type=AdminType.SUPER_ADMIN, login=login)
 
-    def test_no_paginate(self):
-        response = self.client.get(self.url)
-        self.assertEqual(response.data["code"], 0)
-        self.assertNotIn("next_page", response.data["data"])
-        self.assertNotIn("previous_page", response.data["data"])
+    def assertSuccess(self, response):
+        self.assertTrue(response.data["error"] is None)
 
-    def test_error_parameter(self):
-        response = self.client.get(self.url + "?paging=true")
-        self.assertEqual(response.data, {"code": 1, "data": u"参数错误"})
-
-        response = self.client.get(self.url + "?paging=true&page_size=-1")
-        self.assertEqual(response.data, {"code": 1, "data": u"参数错误"})
-
-        response = self.client.get(self.url + "?paging=true&page_size=aa")
-        self.assertEqual(response.data, {"code": 1, "data": u"参数错误"})
-
-        response = self.client.get(self.url + "?paging=true&page_size=1&page=-1")
-        self.assertEqual(response.data, {"code": 1, "data": u"参数错误"})
-
-        response = self.client.get(self.url + "?paging=true&page_size=aaa&page=1")
-        self.assertEqual(response.data, {"code": 1, "data": u"参数错误"})
-
-        response = self.client.get(self.url + "?paging=true&page_size=1&page=aaa")
-        self.assertEqual(response.data, {"code": 1, "data": u"参数错误"})
-
-    def test_correct_paginate(self):
-        response = self.client.get(self.url + "?paging=true&page_size=1&page=1")
-        self.assertEqual(response.data["code"], 0)
-        self.assertEqual(response.data["data"]["previous_page"], None)
-        self.assertEqual(response.data["data"]["next_page"], 2)
-        self.assertEqual(len(response.data["data"]["results"]), 1)
-        self.assertEqual(response.data["data"]["count"], 2)
-        self.assertEqual(response.data["data"]["total_page"], 2)
-
-        response = self.client.get(self.url + "?paging=true&page_size=2&page=1")
-        self.assertEqual(response.data["code"], 0)
-        self.assertEqual(response.data["data"]["previous_page"], None)
-        self.assertEqual(response.data["data"]["next_page"], None)
-        self.assertEqual(len(response.data["data"]["results"]), 2)
-        self.assertEqual(response.data["data"]["count"], 2)
-        self.assertEqual(response.data["data"]["total_page"], 1)
+    def assertFailed(self, response):
+        self.assertTrue(response.data["error"] is not None)
