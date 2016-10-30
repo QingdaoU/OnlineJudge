@@ -1,0 +1,4 @@
+Django<1.10
+djangorestframework==3.3.3
+pillow
+jsonfield
