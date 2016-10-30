@@ -29,12 +29,12 @@ class APIView(View):
     def success(self, data=None):
         return JSONResponse({"error": None, "data": data})
 
-    def error(self, message):
-        return JSONResponse({"error": "error", "data": message})
+    def error(self, message, error="error"):
+        return JSONResponse({"error": error, "data": message})
 
     def invalid_serializer(self, serializer):
         for k, v in serializer.errors.items():
-            return self.error(k + ": " + v[0])
+            return self.error(k + ": " + v[0], error="invalid-data-format")
 
     def server_error(self):
         return self.error("Server Error")
