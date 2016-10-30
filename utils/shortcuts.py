@@ -4,9 +4,7 @@ import logging
 import random
 
 from django.http import HttpResponse
-from django.core.paginator import Paginator
 from django.views.generic import View
-
 
 logger = logging.getLogger(__name__)
 
@@ -76,44 +74,21 @@ def paginate_data(request, query_set, object_serializer):
         else:
             return query_set
 
-    page_size = request.GET.get("page_size", None)
-    if not page_size:
-        raise ValueError("Error parameter page_size")
+    try:
+        limit = int(request.GET.get("limit", "100"))
+    except Exception:
+        limit = 100
 
     try:
-        page_size = int(page_size)
+        offset = int(request.GET.get("offset", "100"))
     except Exception:
-        raise ValueError("Error parameter page_size")
+        offset = 100
 
-    paginator = Paginator(query_set, page_size)
-    page = request.GET.get("page", None)
-
-    try:
-        current_page = paginator.page(page)
-    except Exception:
-        raise ValueError("Error parameter current_page")
-    if object_serializer:
-        results = object_serializer(current_page, many=True).data
-    else:
-        results = current_page
+    count = query_set.count()
+    results = object_serializer(query_set[offset:offset + limit], many=True).data
 
     data = {"results": results,
-            "previous_page": None,
-            "next_page": None,
-            "page_size": page_size,
-            "current_page": int(page),
-            "count": paginator.count,
-            "total_page": paginator.num_pages}
-
-    try:
-        data["previous_page"] = current_page.previous_page_number()
-    except Exception:
-        pass
-
-    try:
-        data["next_page"] = current_page.next_page_number()
-    except Exception:
-        pass
+            "count": count}
 
     return data
 
