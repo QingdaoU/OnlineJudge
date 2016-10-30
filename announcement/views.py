@@ -61,4 +61,6 @@ class AnnouncementAdminAPIView(APIView):
             except Announcement.DoesNotExist:
                 return self.error(_("Announcement does not exist"))
         announcement = Announcement.objects.all().order_by("-create_time")
+        if request.GET.get("visible") == "true":
+            announcement = announcement.filter(visible=True)
         return self.success(paginate_data(request, announcement, AnnouncementSerializer))
