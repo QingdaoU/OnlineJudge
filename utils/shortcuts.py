@@ -76,16 +76,24 @@ def paginate_data(request, query_set, object_serializer):
 
     try:
         limit = int(request.GET.get("limit", "100"))
-    except Exception:
+    except ValueError:
+        limit = 100
+    if limit < 0:
         limit = 100
 
     try:
-        offset = int(request.GET.get("offset", "100"))
-    except Exception:
-        offset = 100
+        offset = int(request.GET.get("offset", "0"))
+    except ValueError:
+        offset = 0
+    if offset < 0:
+        offset = 0
 
-    count = query_set.count()
-    results = object_serializer(query_set[offset:offset + limit], many=True).data
+    results = query_set[offset:offset + limit]
+    if object_serializer:
+        count = query_set.count()
+        results = object_serializer(results, many=True).data
+    else:
+        count = len(query_set)
 
     data = {"results": results,
             "count": count}
