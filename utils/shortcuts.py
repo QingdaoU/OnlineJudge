@@ -51,23 +51,10 @@ class APIView(View):
 
 def paginate_data(request, query_set, object_serializer):
     """
-    用于分页的函数
-    如果 url 里面不含有paging=true，那么将返回全部数据。类似
-    [
-        {
-            "username": "1111111",
-            "password": "123456"
-        }
-    ]
-    如果 url 中有 paging=true 的参数，
-    然后还需要读取其余的两个参数，page=[int]，需要的页码
-    page_size=[int]，一页的数据条数
-    :param request
-    :param query_set 数据库查询结果
-    :param object_serializer: 序列化单个object的serializer
+    function used to paginate data
     """
     need_paginate = request.GET.get("paging", None)
-    # 如果请求的参数里面没有paging=true的话 就返回全部数据
+    # if paging=true not in request.GET, then we return all data
     if need_paginate != "true":
         if object_serializer:
             return object_serializer(query_set, many=True).data
@@ -103,10 +90,8 @@ def paginate_data(request, query_set, object_serializer):
 
 def rand_str(length=32, type="lower_hex"):
     """
-    生成指定长度的随机字符串或者数字, 只用于随机编号等, 不要用于密钥等场景
-    :param length: 字符串或者数字的长度
-    :param type: str 代表随机字符串，num 代表随机数字
-    :return: 字符串
+    generate types of random string or number with specific length
+    DO NOT USE TO GENERATE SECRET KEY!
     """
     if type == "str":
         return ''.join(random.choice("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789") for i in range(length))
