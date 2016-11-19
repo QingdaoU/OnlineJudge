@@ -1,7 +1,7 @@
 from django.conf.urls import url
 
-from ..views.admin import UserAdminAPIView
+from ..views.admin import UserAdminAPI
 
 urlpatterns = [
-    url(r'^user/$', UserAdminAPIView.as_view(), name="user_admin_api"),
+    url(r'^user/$', UserAdminAPI.as_view(), name="user_admin_api"),
 ]

@@ -11,7 +11,7 @@ from ..serializers import (UserLoginSerializer, UserRegisterSerializer,
                            UserChangePasswordSerializer)
 
 
-class UserLoginAPIView(APIView):
+class UserLoginAPI(APIView):
     @validate_serializer(UserLoginSerializer)
     def post(self, request):
         """
@@ -43,7 +43,7 @@ class UserLoginAPIView(APIView):
         return self.success({})
 
 
-class UserRegisterAPIView(APIView):
+class UserRegisterAPI(APIView):
     @validate_serializer(UserRegisterSerializer)
     def post(self, request):
         """
@@ -72,7 +72,7 @@ class UserRegisterAPIView(APIView):
             return self.success(_("Succeeded"))
 
 
-class UserChangePasswordAPIView(APIView):
+class UserChangePasswordAPI(APIView):
     @validate_serializer(UserChangePasswordSerializer)
     @login_required
     def post(self, request):

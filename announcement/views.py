@@ -8,7 +8,7 @@ from .serializers import (CreateAnnouncementSerializer, AnnouncementSerializer,
                           EditAnnouncementSerializer)
 
 
-class AnnouncementAdminAPIView(APIView):
+class AnnouncementAdminAPI(APIView):
     @super_admin_required
     def post(self, request):
         """

@@ -1,7 +1,7 @@
 from django.conf.urls import url
 
-from ..views import AnnouncementAdminAPIView
+from ..views import AnnouncementAdminAPI
 
 urlpatterns = [
-    url(r'^$', AnnouncementAdminAPIView.as_view(), name="announcement_admin_api"),
+    url(r'^$', AnnouncementAdminAPI.as_view(), name="announcement_admin_api"),
 ]

@@ -12,7 +12,7 @@ from ..models import User
 from ..serializers import (UserSerializer, EditUserSerializer)
 
 
-class UserAdminAPIView(APIView):
+class UserAdminAPI(APIView):
     @validate_serializer(EditUserSerializer)
     @super_admin_required
     def put(self, request):
