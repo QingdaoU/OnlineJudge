@@ -32,7 +32,7 @@ class PermissionDecoratorTest(APITestCase):
 class UserLoginAPITest(APITestCase):
     def setUp(self):
         self.username = self.password = "test"
-        self.user = self.create_user(username=self.username, password=self.password)
+        self.user = self.create_user(username=self.username, password=self.password, login=False)
         self.login_url = self.reverse("user_login_api")
 
     def _set_tfa(self):
@@ -152,7 +152,7 @@ class UserChangePasswordAPITest(CaptchaTest):
         self.username = "test_user"
         self.old_password = "testuserpassword"
         self.new_password = "new_password"
-        self.create_user(username=self.username, password=self.old_password)
+        self.create_user(username=self.username, password=self.old_password, login=False)
 
         self.data = {"old_password": self.old_password, "new_password": self.new_password,
                      "captcha": self._set_captcha(self.client.session)}
@@ -178,7 +178,7 @@ class AdminUserTest(APITestCase):
     def setUp(self):
         self.user = self.create_super_admin(login=True)
         self.username = self.password = "test"
-        self.regular_user = self.create_user(username=self.username, password=self.password)
+        self.regular_user = self.create_user(username=self.username, password=self.password, login=False)
         self.url = self.reverse("user_admin_api")
         self.data = {"id": self.regular_user.id, "username": self.username, "real_name": "test_name",
                      "email": "test@qq.com", "admin_type": AdminType.REGULAR_USER,

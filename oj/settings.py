@@ -41,6 +41,7 @@ INSTALLED_APPS = (
 
     'account',
     'announcement',
+    'conf',
     'utils',
 
     'rest_framework',

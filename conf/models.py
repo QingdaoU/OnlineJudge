@@ -16,14 +16,14 @@ class SMTPConfig(models.Model):
 
 
 class WebsiteConfig(models.Model):
-    base_url = models.CharField(max_length=128, default=None)
+    base_url = models.CharField(max_length=128, default="http://127.0.0.1")
     name = models.CharField(max_length=32, default="Online Judge")
     name_shortcut = models.CharField(max_length=32, default="oj")
-    website_footer = models.TextField(default="Online Judge")
+    website_footer = models.TextField(default="Online Judge Footer")
     # allow register
     allow_register = models.BooleanField(default=True)
     # submission list show all user's submission
-    submission_list_show_all = models.BooleanField(default=False)
+    submission_list_show_all = models.BooleanField(default=True)
 
     class Meta:
         db_table = "website_config"
