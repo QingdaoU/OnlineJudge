@@ -1,7 +1,6 @@
 # coding=utf-8
-from rest_framework import serializers
+from utils.api import serializers, DateTimeTZField
 
-from utils.serializers import DateTimeTZField
 from .models import User, AdminType
 
 

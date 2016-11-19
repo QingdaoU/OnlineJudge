@@ -1,17 +1,13 @@
-# coding=utf-8
-from __future__ import unicode_literals
-
 import time
+from unittest import mock
 
-import mock
 from django.contrib import auth
-from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext as _
-from rest_framework.test import APIClient
 
 from utils.otp_auth import OtpAuth
 from utils.shortcuts import rand_str
-from utils.tests import APITestCase
+from utils.api.tests import APITestCase, APIClient
+
 from .models import User, AdminType
 
 
@@ -37,7 +33,7 @@ class UserLoginAPITest(APITestCase):
     def setUp(self):
         self.username = self.password = "test"
         self.user = self.create_user(username=self.username, password=self.password)
-        self.login_url = reverse("user_login_api")
+        self.login_url = self.reverse("user_login_api")
 
     def _set_tfa(self):
         self.user.two_factor_auth = True
@@ -110,7 +106,7 @@ class CaptchaTest(APITestCase):
 class UserRegisterAPITest(CaptchaTest):
     def setUp(self):
         self.client = APIClient()
-        self.register_url = reverse("user_register_api")
+        self.register_url = self.reverse("user_register_api")
         self.captcha = rand_str(4)
 
         self.data = {"username": "test_user", "password": "testuserpassword",
@@ -150,7 +146,7 @@ class UserRegisterAPITest(CaptchaTest):
 class UserChangePasswordAPITest(CaptchaTest):
     def setUp(self):
         self.client = APIClient()
-        self.url = reverse("user_change_password_api")
+        self.url = self.reverse("user_change_password_api")
 
         # Create user at first
         self.username = "test_user"
@@ -183,7 +179,7 @@ class AdminUserTest(APITestCase):
         self.user = self.create_super_admin(login=True)
         self.username = self.password = "test"
         self.regular_user = self.create_user(username=self.username, password=self.password)
-        self.url = reverse("user_admin_api")
+        self.url = self.reverse("user_admin_api")
         self.data = {"id": self.regular_user.id, "username": self.username, "real_name": "test_name",
                      "email": "test@qq.com", "admin_type": AdminType.REGULAR_USER,
                      "open_api": True, "two_factor_auth": False, "is_disabled": False}

@@ -19,9 +19,9 @@ class WebsiteConfig(models.Model):
     base_url = models.CharField(max_length=128, default=None)
     name = models.CharField(max_length=32, default="Online Judge")
     name_shortcut = models.CharField(max_length=32, default="oj")
-    website_footer = models.CharField(max_length=256, default="Online Judge")
+    website_footer = models.TextField(default="Online Judge")
     # allow register
-    register = models.BooleanField(default=True)
+    allow_register = models.BooleanField(default=True)
     # submission list show all user's submission
     submission_list_show_all = models.BooleanField(default=False)
 

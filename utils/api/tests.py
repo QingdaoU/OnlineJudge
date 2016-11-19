@@ -1,6 +1,6 @@
-# coding=utf-8
-from __future__ import unicode_literals
 from django.test.testcases import TestCase
+from django.core.urlresolvers import reverse
+
 from rest_framework.test import APIClient
 
 from account.models import User, AdminType
@@ -22,6 +22,9 @@ class APITestCase(TestCase):
 
     def create_super_admin(self, username="root", password="root", login=False):
         return self.create_user(username=username, password=password, admin_type=AdminType.SUPER_ADMIN, login=login)
+
+    def reverse(self, url_name):
+        return reverse(url_name)
 
     def assertSuccess(self, response):
         self.assertTrue(response.data["error"] is None)

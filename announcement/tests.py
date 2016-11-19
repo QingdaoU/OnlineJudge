@@ -1,12 +1,10 @@
-# coding=utf-8
-from django.core.urlresolvers import reverse
-from utils.tests import APITestCase
+from utils.api.tests import APITestCase, APIClient
 
 
 class AnnouncementAdminTest(APITestCase):
     def setUp(self):
         self.user = self.create_super_admin(login=True)
-        self.url = reverse("announcement_admin_api")
+        self.url = self.reverse("announcement_admin_api")
 
     def test_announcement_list(self):
         response = self.client.get(self.url)

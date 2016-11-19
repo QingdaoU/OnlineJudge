@@ -1,10 +1,8 @@
-# coding=utf-8
-from __future__ import unicode_literals
-
 from django.utils.translation import ugettext as _
 
 from account.decorators import super_admin_required
-from utils.shortcuts import paginate_data, APIView
+from utils.api import APIView
+
 from .models import Announcement
 from .serializers import (CreateAnnouncementSerializer, AnnouncementSerializer,
                           EditAnnouncementSerializer)
@@ -63,4 +61,4 @@ class AnnouncementAdminAPIView(APIView):
         announcement = Announcement.objects.all().order_by("-create_time")
         if request.GET.get("visible") == "true":
             announcement = announcement.filter(visible=True)
-        return self.success(paginate_data(request, announcement, AnnouncementSerializer))
+        return self.success(self.paginate_data(request, announcement, AnnouncementSerializer))

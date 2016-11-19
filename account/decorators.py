@@ -1,13 +1,10 @@
-# coding=utf-8
 from __future__ import unicode_literals
-import urllib
-import json
 import functools
 
 from django.http import HttpResponse
 from django.utils.translation import ugettext as _
 
-from utils.shortcuts import JSONResponse
+from utils.api import JSONResponse
 from .models import AdminType
 
 
@@ -19,7 +16,7 @@ class BasePermissionDecorator(object):
         return functools.partial(self.__call__, obj)
 
     def error(self, data):
-        return JSONResponse({"error": "permission-denied", "data": data})
+        return JSONResponse.response({"error": "permission-denied", "data": data})
 
     def __call__(self, *args, **kwargs):
         self.request = args[1]
