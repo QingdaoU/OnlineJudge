@@ -29,7 +29,7 @@ class CreateEditWebsiteConfigSerializer(serializers.Serializer):
     base_url = serializers.CharField(max_length=128)
     name = serializers.CharField(max_length=32)
     name_shortcut = serializers.CharField(max_length=32)
-    website_footer = serializers.CharField(max_length=1024)
+    footer = serializers.CharField(max_length=1024)
     allow_register = serializers.BooleanField()
     submission_list_show_all = serializers.BooleanField()
 

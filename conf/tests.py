@@ -53,7 +53,7 @@ class WebsiteConfigAPITest(APITestCase):
         user = self.create_super_admin()
         url = self.reverse("website_config_api")
         data = {"base_url": "http://test.com", "name": "test name",
-                "name_shortcut": "test oj", "website_footer": "<a>test</a>",
+                "name_shortcut": "test oj", "footer": "<a>test</a>",
                 "allow_register": True, "submission_list_show_all": False}
         resp = self.client.post(url, data=data)
         self.assertSuccess(resp)
@@ -62,7 +62,7 @@ class WebsiteConfigAPITest(APITestCase):
         user = self.create_super_admin()
         url = self.reverse("website_config_api")
         data = {"base_url": "http://test.com", "name": "test name",
-                "name_shortcut": "test oj", "website_footer": "<a>test</a>",
+                "name_shortcut": "test oj", "footer": "<a>test</a>",
                 "allow_register": True, "submission_list_show_all": False}
         resp = self.client.post(url, data=data)
         self.assertSuccess(resp)
