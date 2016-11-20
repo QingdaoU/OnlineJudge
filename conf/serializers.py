@@ -1,12 +1,12 @@
-from utils.api import serializers
+from utils.api import serializers, DateTimeTZField
 
-from .models import SMTPConfig, WebsiteConfig
+from .models import SMTPConfig, WebsiteConfig, JudgeServer
 
 
 class EditSMTPConfigSerializer(serializers.Serializer):
     server = serializers.CharField(max_length=128)
     port = serializers.IntegerField(default=25)
-    email = serializers.CharField(max_length=128)
+    email = serializers.EmailField(max_length=128)
     password = serializers.CharField(max_length=128, required=False, allow_null=True, allow_blank=True)
     tls = serializers.BooleanField()
 
@@ -38,3 +38,22 @@ class WebsiteConfigSerializer(serializers.ModelSerializer):
     class Meta:
         model = WebsiteConfig
         exclude = ["id"]
+
+
+class JudgeServerSerializer(serializers.ModelSerializer):
+    create_time = DateTimeTZField()
+    last_heartbeat = DateTimeTZField()
+
+    class Meta:
+        model = JudgeServer
+
+
+class JudgeServerHeartbeatSerializer(serializers.Serializer):
+    hostname = serializers.CharField(max_length=64)
+    judger_version = serializers.CharField(max_length=24)
+    cpu_core = serializers.IntegerField(min_value=1)
+    memory = serializers.FloatField(min_value=0, max_value=100)
+    cpu = serializers.FloatField(min_value=0, max_value=100)
+    action = serializers.ChoiceField(choices=("heartbeat", ))
+    service_url = serializers.CharField(max_length=128, required=False)
+

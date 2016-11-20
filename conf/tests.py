@@ -1,6 +1,7 @@
-from utils.api.tests import APITestCase
+import hashlib
 
-from .models import SMTPConfig, WebsiteConfig
+from utils.api.tests import APITestCase
+from .models import SMTPConfig, JudgeServerToken, JudgeServer
 
 
 class SMTPConfigTest(APITestCase):
@@ -73,3 +74,51 @@ class WebsiteConfigAPITest(APITestCase):
         resp = self.client.get(url)
         self.assertSuccess(resp)
         self.assertEqual(resp.data["data"]["name_shortcut"], "oj")
+
+
+class JudgeServerStatusAPITest(APITestCase):
+    def setUp(self):
+        self.url = self.reverse("judge_server_api")
+        self.user = self.create_super_admin()
+
+    def test_get_judge_server_status(self):
+        self.assertFalse(JudgeServerToken.objects.exists())
+        resp = self.client.get(self.url)
+        self.assertSuccess(resp)
+        self.assertListEqual(resp.data["data"]["servers"], [])
+        self.assertEqual(JudgeServerToken.objects.first().token, resp.data["data"]["token"])
+
+
+class JudgeServerHeartbeatest(APITestCase):
+    def setUp(self):
+        self.url = self.reverse("judge_server_heartbeat_api")
+        self.data = {"hostname": "testhostname", "judger_version": "1.0.4", "cpu_core": 4,
+                     "cpu": 90.5, "memory": 80.3, "action": "heartbeat"}
+        self.token = "test"
+        self.hashed_token = hashlib.sha256(self.token.encode("utf-8")).hexdigest()
+        JudgeServerToken.objects.create(token=self.token)
+
+    def test_new_heartbeat(self):
+        resp = self.client.post(self.url, data=self.data, **{"HTTP_X_JUDGE_SERVER_TOKEN": self.hashed_token})
+        self.assertSuccess(resp)
+        server = JudgeServer.objects.first()
+        self.assertEqual(server.ip, "127.0.0.1")
+        self.assertEqual(server.service_url ,None)
+
+    def test_new_heartbeat_service_url(self):
+        service_url = "http://1.2.3.4:8000/api/judge"
+        data = self.data
+        data["service_url"] = service_url
+        resp = self.client.post(self.url, data=self.data, **{"HTTP_X_JUDGE_SERVER_TOKEN": self.hashed_token})
+        self.assertSuccess(resp)
+        server = JudgeServer.objects.first()
+        self.assertEqual(server.ip, None)
+        self.assertEqual(server.service_url, service_url)
+
+    def test_update_heartbeat(self):
+        self.test_new_heartbeat()
+        data = self.data
+        data["judger_version"] = "2.0.0"
+        resp = self.client.post(self.url, data=data, **{"HTTP_X_JUDGE_SERVER_TOKEN": self.hashed_token})
+        self.assertSuccess(resp)
+        self.assertEqual(JudgeServer.objects.get(hostname=self.data["hostname"]).judger_version, data["judger_version"])
