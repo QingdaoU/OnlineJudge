@@ -93,8 +93,8 @@
                 </div>
                 <div class="col-md-6">
                     <div class="form-group">
-                        <label>口令</label>
-                        <input name="title" type="text" class="form-control" id="token" placeholder="口令" maxlength="30" required data-error="请填写合法的口令">
+                        <label>Token</label>
+                        <input name="title" type="text" class="form-control" id="token" placeholder="与docker-compose.yml中一致" maxlength="30" required data-error="请填写合法的口令">
                         <div class="help-block with-errors"></div>
                     </div>
                 </div>
@@ -115,7 +115,7 @@
                 <div class="col-md-4">
                     <div class="form-group">
                         <label>最大实例数量</label>
-                        <input type="number" class="form-control" placeholder="最大实例数量" id="max_instance_number" required data-error="请填写合法的最大实例数量">
+                        <input type="number" class="form-control" placeholder="不要超过判题服务器CPU核心数量" id="max_instance_number" required data-error="请填写合法的最大实例数量">
                         <div class="help-block with-errors"></div>
                     </div>
                 </div>
