@@ -1,4 +1,6 @@
-from utils.api.tests import APITestCase, APIClient
+from utils.api.tests import APITestCase
+
+from .models import Announcement
 
 
 class AnnouncementAdminTest(APITestCase):
@@ -16,6 +18,7 @@ class AnnouncementAdminTest(APITestCase):
     def test_create_announcement(self):
         resp = self.create_announcement()
         self.assertSuccess(resp)
+        return resp
 
     def test_edit_announcement(self):
         data = {"id": self.create_announcement().data["data"]["id"], "title": "ahaha", "content": "test content",
@@ -26,3 +29,9 @@ class AnnouncementAdminTest(APITestCase):
         self.assertEqual(resp_data["title"], "ahaha")
         self.assertEqual(resp_data["content"], "test content")
         self.assertEqual(resp_data["visible"], False)
+
+    def test_delete_announcemen(self):
+        id = self.test_create_announcement().data["data"]["id"]
+        resp = self.client.delete(self.url, data={'id': id})
+        self.assertSuccess(resp)
+        self.assertFalse(Announcement.objects.filter(id=id).exists())

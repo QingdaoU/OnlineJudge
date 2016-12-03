@@ -1,6 +1,6 @@
-# coding=utf-8
 import json
 import logging
+import functools
 
 from django.http import HttpResponse, QueryDict
 from django.utils.decorators import method_decorator
@@ -31,7 +31,7 @@ class URLEncodedParser(object):
 
     @staticmethod
     def parse(body):
-        return QueryDict(body).dict()
+        return QueryDict(body)
 
 
 class JSONResponse(object):
@@ -127,10 +127,11 @@ class APIView(View):
         return data
 
     def dispatch(self, request, *args, **kwargs):
-        try:
-            request.data = self._get_request_data(self.request)
-        except ValueError as e:
-            return self.error(err="invalid-request", msg=str(e))
+        if self.request_parsers:
+            try:
+                request.data = self._get_request_data(self.request)
+            except ValueError as e:
+                return self.error(err="invalid-request", msg=str(e))
         try:
             return super(APIView, self).dispatch(request, *args, **kwargs)
         except Exception as e:
@@ -144,18 +145,6 @@ class CSRFExemptAPIView(APIView):
         return super(CSRFExemptAPIView, self).dispatch(request, *args, **kwargs)
 
 
-class SNServerAPIView(CSRFExemptAPIView):
-    def empty_response(self):
-        resp = HttpResponse()
-        resp["Content-Length"] = 0
-        return resp
-
-    def response(self, data):
-        resp = super(SNServerAPIView, self).response(data)
-        resp["Content-Length"] = len(resp.content)
-        return resp
-
-
 def validate_serializer(serializer):
     """
     @validate_serializer(TestSerializer)
@@ -163,6 +152,7 @@ def validate_serializer(serializer):
         return self.success(request.data)
     """
     def validate(view_method):
+        @functools.wraps(view_method)
         def handle(*args, **kwargs):
             self = args[0]
             request = args[1]

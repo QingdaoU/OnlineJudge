@@ -1,7 +1,7 @@
 from django.utils.translation import ugettext as _
 
 from account.decorators import super_admin_required
-from utils.api import APIView
+from utils.api import APIView, validate_serializer, IDOnlySerializer
 
 from .models import Announcement
 from .serializers import (CreateAnnouncementSerializer, AnnouncementSerializer,
@@ -9,42 +9,36 @@ from .serializers import (CreateAnnouncementSerializer, AnnouncementSerializer,
 
 
 class AnnouncementAdminAPI(APIView):
+    @validate_serializer(CreateAnnouncementSerializer)
     @super_admin_required
     def post(self, request):
         """
         publish announcement
         """
-        serializer = CreateAnnouncementSerializer(data=request.data)
-        if serializer.is_valid():
-            data = serializer.data
-            announcement = Announcement.objects.create(title=data["title"],
-                                                       content=data["content"],
-                                                       created_by=request.user)
-            return self.success(AnnouncementSerializer(announcement).data)
-        else:
-            return self.invalid_serializer(serializer)
+        data = request.data
+        announcement = Announcement.objects.create(title=data["title"],
+                                                   content=data["content"],
+                                                   created_by=request.user)
+        return self.success(AnnouncementSerializer(announcement).data)
 
+    @validate_serializer(EditAnnouncementSerializer)
     @super_admin_required
     def put(self, request):
         """
         edit announcement
         """
-        serializer = EditAnnouncementSerializer(data=request.data)
-        if serializer.is_valid():
-            data = serializer.data
-            try:
-                announcement = Announcement.objects.get(id=data["id"])
-            except Announcement.DoesNotExist:
-                return self.error(_("Announcement does not exist"))
+        data = request.data
+        try:
+            announcement = Announcement.objects.get(id=data["id"])
+        except Announcement.DoesNotExist:
+            return self.error(_("Announcement does not exist"))
 
-            announcement.title = data["title"]
-            announcement.content = data["content"]
-            announcement.visible = data["visible"]
-            announcement.save()
+        announcement.title = data["title"]
+        announcement.content = data["content"]
+        announcement.visible = data["visible"]
+        announcement.save()
 
-            return self.success(AnnouncementSerializer(announcement).data)
-        else:
-            return self.invalid_serializer(serializer)
+        return self.success(AnnouncementSerializer(announcement).data)
 
     @super_admin_required
     def get(self, request):
@@ -62,3 +56,9 @@ class AnnouncementAdminAPI(APIView):
         if request.GET.get("visible") == "true":
             announcement = announcement.filter(visible=True)
         return self.success(self.paginate_data(request, announcement, AnnouncementSerializer))
+
+    @validate_serializer(IDOnlySerializer)
+    @super_admin_required
+    def delete(self, request):
+        Announcement.objects.filter(id=request.data["id"]).delete()
+        return self.success()

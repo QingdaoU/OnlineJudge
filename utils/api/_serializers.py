@@ -15,3 +15,7 @@ class DateTimeTZField(serializers.DateTimeField):
         self.format = "%Y-%-m-%d %-H:%-M:%-S"
         value = timezone.localtime(value)
         return super(DateTimeTZField, self).to_representation(value)
+
+
+class IDOnlySerializer(serializers.Serializer):
+    id = serializers.IntegerField()
