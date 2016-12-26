@@ -19,7 +19,7 @@ class JSONField(serializers.Field):
 
 class CreateProblemSerializer(serializers.Serializer):
     title = serializers.CharField(max_length=50)
-    description = serializers.CharField(max_length=10000)
+    description = serializers.CharField()
     input_description = serializers.CharField(max_length=10000)
     output_description = serializers.CharField(max_length=10000)
     # [{"input": "1 1", "output": "2"}]
