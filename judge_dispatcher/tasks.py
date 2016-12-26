@@ -89,7 +89,7 @@ class JudgeDispatcher(object):
                 self.submission.accepted_answer_time = data["data"]["accepted_answer_time"]
         except Exception as e:
             self.submission.result = result["system_error"]
-            self.submission.info = str(e)
+            self.submission.info = str(e) + " help: https://github.com/QingdaoU/OnlineJudge/wiki/FAQ"
         finally:
             self.release_judge_instance(judge_server.id)
 

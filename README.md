@@ -1,6 +1,14 @@
 # OnlineJudge [![Build Status](https://travis-ci.org/QingdaoU/OnlineJudge.svg?branch=master)](https://travis-ci.org/QingdaoU/OnlineJudge)
 
+由于作者工作学习繁忙, 目前只能保证有时间的时候修复部分BUG。
 
+部分相关的组件已经开源, 可以参考。
+
+ - https://github.com/QingdaoU/Judger OnlineJudge判题核心, 目前使用的是master版本, newnew分支为重构版本(推荐)
+ - https://github.com/QingdaoU/JudgeServer 使用HTTP提供Judge服务
+  
+------------------------------------------------------------------
+  
 基于 Python 和 Django 的在线评测平台。
 
 主要特点:
