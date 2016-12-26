@@ -12,4 +12,5 @@ def send_email(from_name, to_email, to_name, subject, content):
     envelope.send(settings.SMTP_CONFIG["smtp_server"],
                   login=settings.SMTP_CONFIG["email"],
                   password=settings.SMTP_CONFIG["password"],
+                  port=settings.SMTP_CONFIG["port"],
                   tls=settings.SMTP_CONFIG["tls"])
