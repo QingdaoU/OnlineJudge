@@ -46,6 +46,8 @@ class AdminJudgeServerAPIView(APIView):
             judge_server.ip = data["ip"]
             judge_server.port = data["port"]
             judge_server.max_instance_number = data["max_instance_number"]
+            # 强制reset为0, 因为celery可能部分情况下进程挂掉, 导致这个值增加后无法减少, 在编辑的时候重置为0算是一种临时解决方案。
+            judge_server.used_instance_number = 0
             judge_server.token = data["token"]
             judge_server.status = data["status"]
             judge_server.save()
