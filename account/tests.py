@@ -4,7 +4,7 @@ from unittest import mock
 from django.contrib import auth
 from django.utils.translation import ugettext as _
 
-from utils.otp_auth import OtpAuth
+from otpauth import OtpAuth
 from utils.shortcuts import rand_str
 from utils.api.tests import APITestCase, APIClient
 
