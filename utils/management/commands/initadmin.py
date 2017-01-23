@@ -12,9 +12,9 @@ class Command(BaseCommand):
                                                      "would you like to reset it's password?\n"
                                                      "Input yes to confirm: "))
                 if input() == "yes":
-                    rand_password = rand_str(length=6)
-                    # admin.set_password(rand_password)
-                    admin.set_password("rootroot")
+                    # for dev
+                    # rand_password = rand_str(length=6)
+                    rand_password = "rootroot"
                     admin.save()
                     self.stdout.write(self.style.SUCCESS("Successfully created super admin user password.\n"
                                                          "Username: root\nPassword: %s\n"
@@ -26,10 +26,10 @@ class Command(BaseCommand):
                 self.stdout.write(self.style.ERROR("User 'root' is not super admin."))
         except User.DoesNotExist:
             user = User.objects.create(username="root", email="root@oj.com", admin_type=AdminType.SUPER_ADMIN)
-            rand_password = rand_str(length=6)
-            # user.set_password(rand_password)
             # for dev
-            user.set_password("rootroot")
+            # rand_password = rand_str(length=6)
+            rand_password = "rootroot"
+            user.set_password(rand_password)
             user.save()
             UserProfile.objects.create(user=user)
             self.stdout.write(self.style.SUCCESS("Successfully created super admin user.\n"
