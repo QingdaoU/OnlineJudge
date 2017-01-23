@@ -1,4 +1,3 @@
-# coding=utf-8
 from utils.api import serializers, DateTimeTZField
 
 from .models import User, AdminType

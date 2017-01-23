@@ -5,3 +5,4 @@ exclude =
   *settings.py
 max-line-length = 180
 inline-quotes = "
+no-accept-encodings = True
