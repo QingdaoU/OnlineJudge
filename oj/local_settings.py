@@ -37,4 +37,3 @@ STATICFILES_DIRS = [os.path.join(BASE_DIR, "frontend/static/"), BASE_DIR]
 
 # 模板文件夹
 OJ_TEMPLATE_DIRS = [os.path.join(BASE_DIR, 'template/src/')]
-

@@ -1,7 +1,7 @@
-from utils.api import serializers
-
 from account.models import User
+from utils.api import serializers
 from utils.api._serializers import DateTimeTZField
+
 from .models import Announcement
 
 

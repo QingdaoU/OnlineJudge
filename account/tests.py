@@ -3,12 +3,12 @@ from unittest import mock
 
 from django.contrib import auth
 from django.utils.translation import ugettext as _
-
 from otpauth import OtpAuth
-from utils.shortcuts import rand_str
-from utils.api.tests import APITestCase, APIClient
 
-from .models import User, AdminType
+from utils.api.tests import APIClient, APITestCase
+from utils.shortcuts import rand_str
+
+from .models import AdminType, User
 
 
 class PermissionDecoratorTest(APITestCase):

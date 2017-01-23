@@ -1,9 +1,8 @@
-from django.test.testcases import TestCase
 from django.core.urlresolvers import reverse
-
+from django.test.testcases import TestCase
 from rest_framework.test import APIClient
 
-from account.models import User, AdminType
+from account.models import AdminType, User
 
 
 class APITestCase(TestCase):

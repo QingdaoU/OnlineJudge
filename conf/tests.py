@@ -1,7 +1,8 @@
 import hashlib
 
 from utils.api.tests import APITestCase
-from .models import SMTPConfig, JudgeServerToken, JudgeServer
+
+from .models import JudgeServer, JudgeServerToken, SMTPConfig
 
 
 class SMTPConfigTest(APITestCase):

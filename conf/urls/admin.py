@@ -1,6 +1,6 @@
 from django.conf.urls import url
 
-from ..views import WebsiteConfigAPI, SMTPAPI, JudgeServerAPI
+from ..views import SMTPAPI, JudgeServerAPI, WebsiteConfigAPI
 
 urlpatterns = [
     url(r"^smtp$", SMTPAPI.as_view(), name="smtp_admin_api"),

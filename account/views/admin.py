@@ -1,5 +1,3 @@
-from __future__ import unicode_literals
-
 from django.core.exceptions import MultipleObjectsReturned
 from django.db.models import Q
 from django.utils.translation import ugettext as _
@@ -9,7 +7,7 @@ from utils.shortcuts import rand_str
 
 from ..decorators import super_admin_required
 from ..models import User
-from ..serializers import (UserSerializer, EditUserSerializer)
+from ..serializers import EditUserSerializer, UserSerializer
 
 
 class UserAdminAPI(APIView):

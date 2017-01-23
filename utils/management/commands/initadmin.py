@@ -1,6 +1,7 @@
 from django.core.management.base import BaseCommand
-from account.models import User, UserProfile, AdminType
-from utils.shortcuts import rand_str
+
+from account.models import AdminType, User, UserProfile
+from utils.shortcuts import rand_str  # NOQA
 
 
 class Command(BaseCommand):

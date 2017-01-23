@@ -6,11 +6,12 @@ from account.decorators import super_admin_required
 from utils.api import APIView, CSRFExemptAPIView, validate_serializer
 from utils.shortcuts import rand_str
 
-from .models import SMTPConfig, WebsiteConfig, JudgeServer, JudgeServerToken
-from .serializers import (WebsiteConfigSerializer, CreateEditWebsiteConfigSerializer,
+from .models import JudgeServer, JudgeServerToken, SMTPConfig, WebsiteConfig
+from .serializers import (CreateEditWebsiteConfigSerializer,
                           CreateSMTPConfigSerializer, EditSMTPConfigSerializer,
-                          SMTPConfigSerializer, TestSMTPConfigSerializer,
-                          JudgeServerSerializer, JudgeServerHeartbeatSerializer)
+                          JudgeServerHeartbeatSerializer,
+                          JudgeServerSerializer, SMTPConfigSerializer,
+                          TestSMTPConfigSerializer, WebsiteConfigSerializer)
 
 
 class SMTPAPI(APIView):

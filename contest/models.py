@@ -1,9 +1,9 @@
 from django.db import models
 from django.utils.timezone import now
-from group.models import Group
 from jsonfield import JSONField
 
 from account.models import User
+from group.models import Group
 from problem.models import AbstractProblem
 from utils.models import RichTextField
 

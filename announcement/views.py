@@ -1,10 +1,10 @@
 from django.utils.translation import ugettext as _
 
 from account.decorators import super_admin_required
-from utils.api import APIView, validate_serializer, IDOnlySerializer
+from utils.api import APIView, IDOnlySerializer, validate_serializer
 
 from .models import Announcement
-from .serializers import (CreateAnnouncementSerializer, AnnouncementSerializer,
+from .serializers import (AnnouncementSerializer, CreateAnnouncementSerializer,
                           EditAnnouncementSerializer)
 
 

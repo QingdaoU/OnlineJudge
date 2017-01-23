@@ -1,6 +1,6 @@
-from utils.api import serializers, DateTimeTZField
+from utils.api import DateTimeTZField, serializers
 
-from .models import SMTPConfig, WebsiteConfig, JudgeServer
+from .models import JudgeServer, SMTPConfig, WebsiteConfig
 
 
 class EditSMTPConfigSerializer(serializers.Serializer):

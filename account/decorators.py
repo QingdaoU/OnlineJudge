@@ -1,9 +1,9 @@
-from __future__ import unicode_literals
 import functools
 
 from django.utils.translation import ugettext as _
 
 from utils.api import JSONResponse
+
 from .models import AdminType
 
 

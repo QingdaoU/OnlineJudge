@@ -10,9 +10,10 @@ https://docs.djangoproject.com/en/1.8/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/1.8/ref/settings/
 """
-from __future__ import absolute_import
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
+
+from .custom_settings import *
 
 # 判断运行环境
 ENV = os.environ.get("oj_env", "local")
@@ -22,7 +23,6 @@ if ENV == "local":
 elif ENV == "server":
     from .server_settings import *
 
-from .custom_settings import *
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 

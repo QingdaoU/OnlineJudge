@@ -1,7 +1,5 @@
-from __future__ import unicode_literals
-
-from jsonfield import JSONField
 from django.db import models
+from jsonfield import JSONField
 
 from account.models import User
 from utils.models import RichTextField

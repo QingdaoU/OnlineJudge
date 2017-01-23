@@ -1,12 +1,11 @@
+import functools
 import json
 import logging
-import functools
 
 from django.http import HttpResponse, QueryDict
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import View
-
 
 logger = logging.getLogger(__name__)
 
