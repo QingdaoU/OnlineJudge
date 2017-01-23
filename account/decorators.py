@@ -1,7 +1,6 @@
 from __future__ import unicode_literals
 import functools
 
-from django.http import HttpResponse
 from django.utils.translation import ugettext as _
 
 from utils.api import JSONResponse

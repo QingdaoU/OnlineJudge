@@ -9,4 +9,5 @@ install:
     - python manage.py migrate
     - python manage.py initadmin
 script:
+    - flake8 .
     - python manage.py test

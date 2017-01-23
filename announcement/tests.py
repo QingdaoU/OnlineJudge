@@ -32,6 +32,6 @@ class AnnouncementAdminTest(APITestCase):
 
     def test_delete_announcemen(self):
         id = self.test_create_announcement().data["data"]["id"]
-        resp = self.client.delete(self.url, data={'id': id})
+        resp = self.client.delete(self.url, data={"id": id})
         self.assertSuccess(resp)
         self.assertFalse(Announcement.objects.filter(id=id).exists())

@@ -51,7 +51,7 @@ class SMTPConfigTest(APITestCase):
 
 class WebsiteConfigAPITest(APITestCase):
     def test_create_website_config(self):
-        user = self.create_super_admin()
+        self.create_super_admin()
         url = self.reverse("website_config_api")
         data = {"base_url": "http://test.com", "name": "test name",
                 "name_shortcut": "test oj", "footer": "<a>test</a>",
@@ -60,7 +60,7 @@ class WebsiteConfigAPITest(APITestCase):
         self.assertSuccess(resp)
 
     def test_edit_website_config(self):
-        user = self.create_super_admin()
+        self.create_super_admin()
         url = self.reverse("website_config_api")
         data = {"base_url": "http://test.com", "name": "test name",
                 "name_shortcut": "test oj", "footer": "<a>test</a>",
@@ -103,7 +103,7 @@ class JudgeServerHeartbeatest(APITestCase):
         self.assertSuccess(resp)
         server = JudgeServer.objects.first()
         self.assertEqual(server.ip, "127.0.0.1")
-        self.assertEqual(server.service_url ,None)
+        self.assertEqual(server.service_url, None)
 
     def test_new_heartbeat_service_url(self):
         service_url = "http://1.2.3.4:8000/api/judge"

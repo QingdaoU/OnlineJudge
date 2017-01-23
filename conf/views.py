@@ -49,8 +49,6 @@ class SMTPTestAPI(APIView):
     @super_admin_required
     @validate_serializer(TestSMTPConfigSerializer)
     def post(self, request):
-        email = request.data["email"]
-        # todo: test send email
         return self.success({"result": True})
 
 
@@ -111,7 +109,7 @@ class JudgeServerHeartbeatAPI(CSRFExemptAPIView):
             server.cpu_core = data["cpu_core"]
             server.memory_usage = data["memory"]
             server.cpu_usage = data["cpu"]
-            server.service_url= service_url
+            server.service_url = service_url
             server.ip = ip
             server.last_heartbeat = timezone.now()
             server.save()
@@ -126,7 +124,3 @@ class JudgeServerHeartbeatAPI(CSRFExemptAPIView):
                                        last_heartbeat=timezone.now(),
                                        )
         return self.success()
-
-
-
-

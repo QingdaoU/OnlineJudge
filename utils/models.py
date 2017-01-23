@@ -1,5 +1,3 @@
-# coding=utf-8
-import json
 from django.db import models
 
 from utils.xss_filter import XssHtml
@@ -15,7 +13,3 @@ class RichTextField(models.TextField):
         parser.feed(value)
         parser.close()
         return parser.getHtml()
-
-
-class JsonField(models.TextField):
-    pass

@@ -3,3 +3,4 @@ djangorestframework==3.3.3
 pillow
 jsonfield
 otpauth
+flake8-quotes
