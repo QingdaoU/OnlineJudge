@@ -84,12 +84,6 @@ class UserAdminAPI(APIView):
 
         user = User.objects.all().order_by("-create_time")
 
-        admin_type = request.GET.get("admin_type", None)
-        if admin_type:
-            try:
-                user = user.filter(admin_type__gte=int(admin_type))
-            except ValueError:
-                return self.error(_("Invalid parameter"))
         keyword = request.GET.get("keyword", None)
         if keyword:
             user = user.filter(Q(username__contains=keyword) |

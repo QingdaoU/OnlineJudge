@@ -39,7 +39,7 @@ class User(AbstractBaseUser):
     open_api_appkey = models.CharField(max_length=35, null=True)
     is_disabled = models.BooleanField(default=False)
 
-    USERNAME_FIELD = 'username'
+    USERNAME_FIELD = "username"
     REQUIRED_FIELDS = []
 
     objects = UserManager()

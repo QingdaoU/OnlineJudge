@@ -2,9 +2,10 @@ from django.contrib import auth
 from django.core.exceptions import MultipleObjectsReturned
 from django.utils.translation import ugettext as _
 
+from otpauth import OtpAuth
+
 from utils.api import APIView, validate_serializer
 from utils.captcha import Captcha
-from utils.otp_auth import OtpAuth
 from ..decorators import login_required
 from ..models import User, UserProfile
 from ..serializers import (UserLoginSerializer, UserRegisterSerializer,

@@ -21,15 +21,15 @@ class SMTPAPI(APIView):
             return self.success(None)
         return self.success(SMTPConfigSerializer(smtp).data)
 
-    @super_admin_required
     @validate_serializer(CreateSMTPConfigSerializer)
+    @super_admin_required
     def post(self, request):
         SMTPConfig.objects.all().delete()
         smtp = SMTPConfig.objects.create(**request.data)
         return self.success(SMTPConfigSerializer(smtp).data)
 
-    @super_admin_required
     @validate_serializer(EditSMTPConfigSerializer)
+    @super_admin_required
     def put(self, request):
         data = request.data
         smtp = SMTPConfig.objects.first()
