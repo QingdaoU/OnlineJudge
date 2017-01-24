@@ -72,7 +72,7 @@ class UserAdminAPI(APIView):
         """
         User list api / Get user by id
         """
-        user_id = request.GET.get("user_id")
+        user_id = request.GET.get("id")
         if user_id:
             try:
                 user = User.objects.get(id=user_id)
