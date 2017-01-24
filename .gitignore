@@ -70,3 +70,5 @@ docker-compose.yml
 rsyncd.passwd
 
 node_modules/
+update.sh
+ssh.sh
