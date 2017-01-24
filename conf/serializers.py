@@ -43,6 +43,7 @@ class WebsiteConfigSerializer(serializers.ModelSerializer):
 class JudgeServerSerializer(serializers.ModelSerializer):
     create_time = DateTimeTZField()
     last_heartbeat = DateTimeTZField()
+    status = serializers.CharField()
 
     class Meta:
         model = JudgeServer

@@ -1,4 +1,5 @@
 from django.db import models
+from django.utils import timezone
 
 
 class SMTPConfig(models.Model):
@@ -37,6 +38,12 @@ class JudgeServer(models.Model):
     create_time = models.DateTimeField(auto_now_add=True)
     task_number = models.IntegerField(default=0)
     service_url = models.CharField(max_length=128, blank=True, null=True)
+
+    @property
+    def status(self):
+        if (timezone.now() - self.last_heartbeat).total_seconds() > 5:
+            return "abnormal"
+        return "normal"
 
     class Meta:
         db_table = "judge_server"
