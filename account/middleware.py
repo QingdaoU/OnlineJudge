@@ -1,6 +1,8 @@
 import time
 
+import pytz
 from django.contrib import auth
+from django.utils import timezone
 from django.utils.translation import ugettext as _
 
 from utils.api import JSONResponse
@@ -26,3 +28,9 @@ class AdminRequiredMiddleware(object):
         if path.startswith("/admin/") or path.startswith("/api/admin/"):
             if not(request.user.is_authenticated() and request.user.is_admin()):
                 return JSONResponse.response({"error": "login-required", "data": _("Please login in first")})
+
+
+class TimezoneMiddleware(object):
+    def process_request(self, request):
+        if request.user.is_authenticated():
+            timezone.activate(pytz.timezone(request.user.userprofile.time_zone))
