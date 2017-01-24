@@ -100,10 +100,6 @@ class JudgeServerHeartbeatAPI(CSRFExemptAPIView):
         if hashlib.sha256(token.encode("utf-8")).hexdigest() != judge_server_token:
             return self.error("Invalid token")
         service_url = data.get("service_url")
-        if service_url:
-            ip = None
-        else:
-            ip = request.META["REMOTE_ADDR"]
 
         try:
             server = JudgeServer.objects.get(hostname=data["hostname"])
@@ -112,7 +108,7 @@ class JudgeServerHeartbeatAPI(CSRFExemptAPIView):
             server.memory_usage = data["memory"]
             server.cpu_usage = data["cpu"]
             server.service_url = service_url
-            server.ip = ip
+            server.ip = request.META["REMOTE_ADDR"]
             server.last_heartbeat = timezone.now()
             server.save()
         except JudgeServer.DoesNotExist:
@@ -121,7 +117,7 @@ class JudgeServerHeartbeatAPI(CSRFExemptAPIView):
                                        cpu_core=data["cpu_core"],
                                        memory_usage=data["memory"],
                                        cpu_usage=data["cpu"],
-                                       ip=ip,
+                                       ip=request.META["REMOTE_ADDR"],
                                        service_url=service_url,
                                        last_heartbeat=timezone.now(),
                                        )
