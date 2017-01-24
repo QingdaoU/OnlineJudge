@@ -9,21 +9,20 @@ from utils.models import RichTextField
 
 
 class ContestType(object):
-    GROUP_CONTEST = 0
-    PUBLIC_CONTEST = 1
-    PASSWORD_PROTECTED_CONTEST = 2
-    PASSWORD_PROTECTED_GROUP_CONTEST = 3
+    GROUP_CONTEST = "group_contest"
+    PUBLIC_CONTEST = "public_contest"
+    PASSWORD_PROTECTED_CONTEST = "password_protected_contest"
 
 
 class ContestStatus(object):
-    CONTEST_NOT_START = 1
-    CONTEST_ENDED = -1
-    CONTEST_UNDERWAY = 0
+    CONTEST_NOT_START = "contest_not_start"
+    CONTEST_ENDED = "contest_ended"
+    CONTEST_UNDERWAY = "contest_underway"
 
 
 class ContestRuleType(object):
-    ACM = 0
-    OI = 1
+    ACM = "acm"
+    OI = "oi"
 
 
 class Contest(models.Model):
@@ -33,9 +32,9 @@ class Contest(models.Model):
     real_time_rank = models.BooleanField()
     password = models.CharField(max_length=30, blank=True, null=True)
     # enum of ContestType
-    contest_type = models.IntegerField()
+    contest_type = models.CharField(max_length=36)
     # enum of ContestRuleType
-    rule_type = models.IntegerField()
+    rule_type = models.CharField(max_length=36)
     start_time = models.DateTimeField()
     end_time = models.DateTimeField()
     create_time = models.DateTimeField(auto_now_add=True)
@@ -100,4 +99,4 @@ class OIContestRank(ContestRank):
     submission_info = JSONField(default={})
 
     class Meta:
-        db_table = "oi_contenst_rank"
+        db_table = "oi_contest_rank"

@@ -42,6 +42,7 @@ INSTALLED_APPS = (
     'account',
     'announcement',
     'conf',
+    'problem',
     'utils',
 
     'rest_framework',
@@ -57,7 +58,8 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'account.middleware.AdminRequiredMiddleware',
-    'account.middleware.SessionSecurityMiddleware'
+    'account.middleware.SessionSecurityMiddleware',
+    'account.middleware.TimezoneMiddleware'
 )
 
 ROOT_URLCONF = 'oj.urls'
@@ -85,7 +87,7 @@ WSGI_APPLICATION = 'oj.wsgi.application'
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'Asia/Shanghai'
+TIME_ZONE = 'UTC'
 
 USE_I18N = True
 

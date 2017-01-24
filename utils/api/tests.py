@@ -2,7 +2,7 @@ from django.core.urlresolvers import reverse
 from django.test.testcases import TestCase
 from rest_framework.test import APIClient
 
-from account.models import AdminType, User
+from account.models import AdminType, User, UserProfile
 
 
 class APITestCase(TestCase):
@@ -11,6 +11,7 @@ class APITestCase(TestCase):
     def create_user(self, username, password, admin_type=AdminType.REGULAR_USER, login=True):
         user = User.objects.create(username=username, admin_type=admin_type)
         user.set_password(password)
+        UserProfile.objects.create(user=user, time_zone="Asia/Shanghai")
         user.save()
         if login:
             self.client.login(username=username, password=password)

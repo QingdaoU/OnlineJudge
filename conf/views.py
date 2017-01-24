@@ -3,6 +3,7 @@ import hashlib
 from django.utils import timezone
 
 from account.decorators import super_admin_required
+from judge.languages import languages, spj_languages
 from utils.api import APIView, CSRFExemptAPIView, validate_serializer
 from utils.shortcuts import rand_str
 
@@ -84,7 +85,7 @@ class JudgeServerAPI(APIView):
 
     @super_admin_required
     def delete(self, request):
-        pass
+        return self.success()
 
 
 class JudgeServerHeartbeatAPI(CSRFExemptAPIView):
@@ -125,3 +126,8 @@ class JudgeServerHeartbeatAPI(CSRFExemptAPIView):
                                        last_heartbeat=timezone.now(),
                                        )
         return self.success()
+
+
+class LanguagesAPI(APIView):
+    def get(self, request):
+        return self.success({"languages": languages, "spj_languages": spj_languages})

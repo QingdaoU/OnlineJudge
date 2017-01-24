@@ -90,7 +90,7 @@ class JudgeServerStatusAPITest(APITestCase):
         self.assertEqual(JudgeServerToken.objects.first().token, resp.data["data"]["token"])
 
 
-class JudgeServerHeartbeatest(APITestCase):
+class JudgeServerHeartbeatTest(APITestCase):
     def setUp(self):
         self.url = self.reverse("judge_server_heartbeat_api")
         self.data = {"hostname": "testhostname", "judger_version": "1.0.4", "cpu_core": 4,
@@ -123,3 +123,9 @@ class JudgeServerHeartbeatest(APITestCase):
         resp = self.client.post(self.url, data=data, **{"HTTP_X_JUDGE_SERVER_TOKEN": self.hashed_token})
         self.assertSuccess(resp)
         self.assertEqual(JudgeServer.objects.get(hostname=self.data["hostname"]).judger_version, data["judger_version"])
+
+
+class LanguageListAPITest(APITestCase):
+    def test_get_languages(self):
+        resp = self.client.get(self.reverse("language_list_api"))
+        self.assertSuccess(resp)
