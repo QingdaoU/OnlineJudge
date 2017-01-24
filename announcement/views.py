@@ -1,7 +1,7 @@
 from django.utils.translation import ugettext as _
 
 from account.decorators import super_admin_required
-from utils.api import APIView, IDOnlySerializer, validate_serializer
+from utils.api import APIView, validate_serializer
 
 from .models import Announcement
 from .serializers import (AnnouncementSerializer, CreateAnnouncementSerializer,
@@ -57,8 +57,8 @@ class AnnouncementAdminAPI(APIView):
             announcement = announcement.filter(visible=True)
         return self.success(self.paginate_data(request, announcement, AnnouncementSerializer))
 
-    @validate_serializer(IDOnlySerializer)
     @super_admin_required
     def delete(self, request):
-        Announcement.objects.filter(id=request.data["id"]).delete()
+        if request.GET.get("id"):
+            Announcement.objects.filter(id=request.GET["id"]).delete()
         return self.success()

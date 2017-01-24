@@ -30,8 +30,8 @@ class AnnouncementAdminTest(APITestCase):
         self.assertEqual(resp_data["content"], "test content")
         self.assertEqual(resp_data["visible"], False)
 
-    def test_delete_announcemen(self):
+    def test_delete_announcement(self):
         id = self.test_create_announcement().data["data"]["id"]
-        resp = self.client.delete(self.url, data={"id": id})
+        resp = self.client.delete(self.url + "?id=" + str(id))
         self.assertSuccess(resp)
         self.assertFalse(Announcement.objects.filter(id=id).exists())
