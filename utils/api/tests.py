@@ -27,7 +27,8 @@ class APITestCase(TestCase):
         return reverse(url_name)
 
     def assertSuccess(self, response):
-        self.assertTrue(response.data["error"] is None)
+        if not response.data["error"] is None:
+            raise AssertionError("response with errors, response: " + str(response.data))
 
     def assertFailed(self, response):
         self.assertTrue(response.data["error"] is not None)

@@ -1,5 +1,6 @@
 import hashlib
 
+from django.utils import timezone
 from utils.api.tests import APITestCase
 
 from .models import JudgeServer, JudgeServerToken, SMTPConfig
@@ -77,19 +78,6 @@ class WebsiteConfigAPITest(APITestCase):
         self.assertEqual(resp.data["data"]["name_shortcut"], "oj")
 
 
-class JudgeServerStatusAPITest(APITestCase):
-    def setUp(self):
-        self.url = self.reverse("judge_server_api")
-        self.user = self.create_super_admin()
-
-    def test_get_judge_server_status(self):
-        self.assertFalse(JudgeServerToken.objects.exists())
-        resp = self.client.get(self.url)
-        self.assertSuccess(resp)
-        self.assertListEqual(resp.data["data"]["servers"], [])
-        self.assertEqual(JudgeServerToken.objects.first().token, resp.data["data"]["token"])
-
-
 class JudgeServerHeartbeatTest(APITestCase):
     def setUp(self):
         self.url = self.reverse("judge_server_heartbeat_api")
@@ -113,7 +101,6 @@ class JudgeServerHeartbeatTest(APITestCase):
         resp = self.client.post(self.url, data=self.data, **{"HTTP_X_JUDGE_SERVER_TOKEN": self.hashed_token})
         self.assertSuccess(resp)
         server = JudgeServer.objects.first()
-        self.assertEqual(server.ip, None)
         self.assertEqual(server.service_url, service_url)
 
     def test_update_heartbeat(self):
@@ -123,6 +110,27 @@ class JudgeServerHeartbeatTest(APITestCase):
         resp = self.client.post(self.url, data=data, **{"HTTP_X_JUDGE_SERVER_TOKEN": self.hashed_token})
         self.assertSuccess(resp)
         self.assertEqual(JudgeServer.objects.get(hostname=self.data["hostname"]).judger_version, data["judger_version"])
+
+
+class JudgeServerAPITest(APITestCase):
+    def setUp(self):
+        JudgeServer.objects.create(**{"hostname": "testhostname", "judger_version": "1.0.4",
+                                      "cpu_core": 4, "cpu_usage": 90.5, "memory_usage": 80.3,
+                                      "last_heartbeat": timezone.now()})
+        self.url = self.reverse("judge_server_api")
+        self.create_super_admin()
+
+    def test_get_judge_server(self):
+        self.assertFalse(JudgeServerToken.objects.exists())
+        resp = self.client.get(self.url)
+        self.assertSuccess(resp)
+        self.assertEqual(len(resp.data["data"]["servers"]), 1)
+        self.assertEqual(JudgeServerToken.objects.first().token, resp.data["data"]["token"])
+
+    def test_delete_judge_server(self):
+        resp = self.client.delete(self.url + "?hostname=testhostname")
+        self.assertSuccess(resp)
+        self.assertFalse(JudgeServer.objects.filter(hostname="testhostname").exists())
 
 
 class LanguageListAPITest(APITestCase):

@@ -56,7 +56,7 @@ class APIView(View):
     response_class = JSONResponse
 
     def _get_request_data(self, request):
-        if request.method != "GET":
+        if request.method not in ["GET", "DELETE"]:
             body = request.body
             content_type = request.META.get("CONTENT_TYPE")
             if not content_type:

@@ -85,6 +85,9 @@ class JudgeServerAPI(APIView):
 
     @super_admin_required
     def delete(self, request):
+        hostname = request.GET.get("hostname")
+        if hostname:
+            JudgeServer.objects.filter(hostname=hostname).delete()
         return self.success()
 
 
