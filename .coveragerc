@@ -4,6 +4,4 @@ omit = */urls/*
        */tests.py
        */migrations/*
        *urls.py
-       /usr/local/lib/*
-       /usr/lib/*
        utils/xss_filter.py
