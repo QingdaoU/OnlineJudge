@@ -10,4 +10,5 @@ install:
     - python manage.py initadmin
 script:
     - flake8 .
-    - python manage.py test
+    - coverage run manage.py test
+    - coverage report

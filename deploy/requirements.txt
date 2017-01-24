@@ -5,3 +5,4 @@ jsonfield
 otpauth
 flake8-quotes
 pytz
+coverage
