@@ -1,6 +1,7 @@
 import hashlib
 
 from django.utils import timezone
+
 from utils.api.tests import APITestCase
 
 from .models import JudgeServer, JudgeServerToken, SMTPConfig
