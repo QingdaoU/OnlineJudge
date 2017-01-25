@@ -31,9 +31,5 @@ DEBUG = True
 
 ALLOWED_HOSTS = ["*"]
 
-# 在 debug 关闭的情况下，静态文件不是有 django runserver 来处理的，应该由 nginx 返回
-# 在 debug 开启的情况下，django 会在下面两个文件夹中寻找对应的静态文件。
-STATICFILES_DIRS = [os.path.join(BASE_DIR, "frontend/static/"), BASE_DIR]
+TEST_CASE_DIR = "/tmp"
 
-# 模板文件夹
-OJ_TEMPLATE_DIRS = [os.path.join(BASE_DIR, 'template/src/')]

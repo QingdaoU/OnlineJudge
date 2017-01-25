@@ -7,4 +7,5 @@ urlpatterns = [
     url(r"^api/", include("conf.urls.oj")),
     url(r"^api/admin/", include("conf.urls.admin")),
     url(r"^api/", include("problem.urls.oj")),
+    url(r"^api/admin/", include("problem.urls.admin")),
 ]

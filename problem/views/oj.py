@@ -1,6 +1,6 @@
 from utils.api import APIView
 
-from .models import ProblemTag
+from ..models import ProblemTag
 
 
 class ProblemTagAPI(APIView):

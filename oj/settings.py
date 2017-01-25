@@ -68,7 +68,7 @@ ROOT_URLCONF = 'oj.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': OJ_TEMPLATE_DIRS,
+        'DIRS': [],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -170,8 +170,6 @@ CELERY_ACCEPT_CONTENT = ["json"]
 CELERY_TASK_SERIALIZER = "json"
 
 DATABASE_ROUTERS = ['oj.db_router.DBRouter']
-
-TEST_CASE_DIR = os.path.join(BASE_DIR, 'test_case/')
 
 IMAGE_UPLOAD_DIR = os.path.join(BASE_DIR, 'upload/')
 

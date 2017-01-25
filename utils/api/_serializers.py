@@ -11,7 +11,7 @@ class JSONField(serializers.Field):
 
 class DateTimeTZField(serializers.DateTimeField):
     def to_representation(self, value):
-        self.format = "%Y-%-m-%d %H:%M:%S"
+        self.format = "%Y-%-m-%d %H:%M:%S %Z"
         value = timezone.localtime(value)
         return super(DateTimeTZField, self).to_representation(value)
 
