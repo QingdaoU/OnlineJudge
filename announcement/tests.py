@@ -13,7 +13,7 @@ class AnnouncementAdminTest(APITestCase):
         self.assertSuccess(response)
 
     def create_announcement(self):
-        return self.client.post(self.url, data={"title": "test", "content": "test"})
+        return self.client.post(self.url, data={"title": "test", "content": "test", "visible": True})
 
     def test_create_announcement(self):
         resp = self.create_announcement()

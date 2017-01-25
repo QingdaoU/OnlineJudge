@@ -8,6 +8,7 @@ from .models import Announcement
 class CreateAnnouncementSerializer(serializers.Serializer):
     title = serializers.CharField(max_length=50)
     content = serializers.CharField(max_length=10000)
+    visible = serializers.BooleanField()
 
 
 class AnnouncementSerializer(serializers.ModelSerializer):
