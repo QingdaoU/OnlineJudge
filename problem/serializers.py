@@ -2,5 +2,5 @@ from django import forms
 
 
 class TestCaseUploadForm(forms.Form):
-    spj = forms.BooleanField()
+    spj = forms.CharField(max_length=12)
     file = forms.FileField()

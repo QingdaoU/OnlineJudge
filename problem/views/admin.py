@@ -41,7 +41,7 @@ class TestCaseUploadAPI(CSRFExemptAPIView):
     def post(self, request):
         form = TestCaseUploadForm(request.POST, request.FILES)
         if form.is_valid():
-            spj = form.cleaned_data["spj"]
+            spj = form.cleaned_data["spj"] == "true"
             file = form.cleaned_data["file"]
         else:
             return self.error("Upload failed")
@@ -65,4 +65,8 @@ class TestCaseUploadAPI(CSRFExemptAPIView):
         for item in test_case_list:
             with open(os.path.join(test_case_dir, item), "wb") as f:
                 f.write(zip_file.read(item).replace(b"\r\n", b"\n"))
-        return self.success(test_case_list)
+        hint = None
+        diff = set(name_list).difference(set(test_case_list))
+        if diff:
+            hint = ", ".join(diff) + " are ignored"
+        return self.success({"id": test_case_id, "file_list": test_case_list, "hint": hint, "spj": spj})
