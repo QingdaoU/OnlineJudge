@@ -3,13 +3,11 @@ from django.utils.timezone import now
 from jsonfield import JSONField
 
 from account.models import User
-from group.models import Group
 from problem.models import AbstractProblem
 from utils.models import RichTextField
 
 
 class ContestType(object):
-    GROUP_CONTEST = "group_contest"
     PUBLIC_CONTEST = "public_contest"
     PASSWORD_PROTECTED_CONTEST = "password_protected_contest"
 
@@ -40,7 +38,6 @@ class Contest(models.Model):
     create_time = models.DateTimeField(auto_now_add=True)
     last_updated_time = models.DateTimeField(auto_now=True)
     created_by = models.ForeignKey(User)
-    groups = models.ManyToManyField(Group)
     # 是否可见 false的话相当于删除
     visible = models.BooleanField(default=True)
 
@@ -100,3 +97,13 @@ class OIContestRank(ContestRank):
 
     class Meta:
         db_table = "oi_contest_rank"
+
+
+class ContestAnnouncement(models.Model):
+    contest = models.ForeignKey(Contest)
+    title = models.CharField(max_length=128)
+    content = RichTextField()
+    create_time = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = "contest_announcement"

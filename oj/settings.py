@@ -43,6 +43,7 @@ INSTALLED_APPS = (
     'announcement',
     'conf',
     'problem',
+    'contest',
     'utils',
 
     'rest_framework',
