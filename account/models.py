@@ -4,9 +4,9 @@ from jsonfield import JSONField
 
 
 class AdminType(object):
-    REGULAR_USER = "regular_user"
-    ADMIN = "admin"
-    SUPER_ADMIN = "super_admin"
+    REGULAR_USER = "Regular User"
+    ADMIN = "Admin"
+    SUPER_ADMIN = "Super Admin"
 
 
 class ProblemSolutionStatus(object):
@@ -46,6 +46,12 @@ class User(AbstractBaseUser):
 
     def is_admin(self):
         return self.admin_type in [AdminType.ADMIN, AdminType.SUPER_ADMIN]
+
+    def is_admin_role(self):
+        return self.admin_type == AdminType.ADMIN
+
+    def is_super_admin_role(self):
+        return self.admin_type == AdminType.SUPER_ADMIN
 
     class Meta:
         db_table = "user"

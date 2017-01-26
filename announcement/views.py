@@ -46,7 +46,7 @@ class AnnouncementAdminAPI(APIView):
         """
         get announcement list / get one announcement
         """
-        announcement_id = request.GET.get("announcement_id")
+        announcement_id = request.GET.get("id")
         if announcement_id:
             try:
                 announcement = Announcement.objects.get(id=announcement_id)

@@ -20,6 +20,8 @@ class ContestSerializer(serializers.ModelSerializer):
     create_time = DateTimeTZField()
     last_update_time = DateTimeTZField()
     created_by = UsernameSerializer()
+    status = serializers.CharField()
+    contest_type = serializers.CharField()
 
     class Meta:
         model = Contest

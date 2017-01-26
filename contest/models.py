@@ -8,19 +8,19 @@ from utils.models import RichTextField
 
 
 class ContestType(object):
-    PUBLIC_CONTEST = "public_contest"
-    PASSWORD_PROTECTED_CONTEST = "password_protected_contest"
+    PUBLIC_CONTEST = "Public"
+    PASSWORD_PROTECTED_CONTEST = "Password Protected"
 
 
 class ContestStatus(object):
-    CONTEST_NOT_START = "contest_not_start"
-    CONTEST_ENDED = "contest_ended"
-    CONTEST_UNDERWAY = "contest_underway"
+    CONTEST_NOT_START = "Not Started"
+    CONTEST_ENDED = "Ended"
+    CONTEST_UNDERWAY = "Underway"
 
 
 class ContestRuleType(object):
-    ACM = "acm"
-    OI = "oi"
+    ACM = "ACM"
+    OI = "OI"
 
 
 class Contest(models.Model):
@@ -50,6 +50,12 @@ class Contest(models.Model):
         else:
             # 正在进行 返回0
             return ContestStatus.CONTEST_UNDERWAY
+
+    @property
+    def contest_type(self):
+        if self.password:
+            return ContestType.PASSWORD_PROTECTED_CONTEST
+        return ContestType.PUBLIC_CONTEST
 
     class Meta:
         db_table = "contest"
