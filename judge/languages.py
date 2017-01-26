@@ -45,6 +45,21 @@ _cpp_lang_config = {
     }
 }
 
+_cpp_lang_spj_compile = {
+    "src_name": "spj-{spj_version}.cpp",
+    "exe_name": "spj-{spj_version}",
+    "max_cpu_time": 3000,
+    "max_real_time": 5000,
+    "max_memory": 1024 * 1024 * 1024,
+    "compile_command": "/usr/bin/g++ -DONLINE_JUDGE -O2 -w -fmax-errors=3 -std=c++11 {src_path} -lm -o {exe_path}"
+}
+
+_cpp_lang_spj_config = {
+    "exe_name": "spj-{spj_version}",
+    "command": "{exe_path} {in_file_path} {user_out_file_path}",
+    "seccomp_rule": "c_cpp"
+}
+
 _java_lang_config = {
     "compile": {
         "src_name": "Main.java",
@@ -81,7 +96,8 @@ _py2_lang_config = {
 languages = [
     {"config": _c_lang_config, "spj": {"compile": _c_lang_spj_compile, "config": _c_lang_spj_config},
      "name": "C", "description": "GCC 4.8"},
-    {"config": _cpp_lang_config, "name": "C++", "description": "G++ 4.8"},
+    {"config": _cpp_lang_config, "spj": {"compile": _cpp_lang_spj_compile, "config": _cpp_lang_spj_config},
+     "name": "C++", "description": "G++ 4.8"},
     {"config": _java_lang_config, "name": "Java", "description": "OpenJDK 1.7"},
     {"config": _py2_lang_config, "name": "Python2", "description": "Python 2.7"}
 ]
