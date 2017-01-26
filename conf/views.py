@@ -96,11 +96,13 @@ class JudgeServerHeartbeatAPI(CSRFExemptAPIView):
     def post(self, request):
         judge_server_token = JudgeServerToken.objects.first()
         if not judge_server_token:
-            return self.error("Web server token not set")
-        token = judge_server_token.token
+            token = rand_str(12)
+            JudgeServerToken.objects.create(token=token)
+        else:
+            token = judge_server_token.token
         data = request.data
-        judge_server_token = request.META.get("HTTP_X_JUDGE_SERVER_TOKEN")
-        if hashlib.sha256(token.encode("utf-8")).hexdigest() != judge_server_token:
+        client_token = request.META.get("HTTP_X_JUDGE_SERVER_TOKEN")
+        if hashlib.sha256(token.encode("utf-8")).hexdigest() != client_token:
             return self.error("Invalid token")
         service_url = data.get("service_url")
 
