@@ -82,8 +82,8 @@ languages = [
     {"config": _c_lang_config, "spj": {"compile": _c_lang_spj_compile, "config": _c_lang_spj_config},
      "name": "C", "description": "GCC 4.8"},
     {"config": _cpp_lang_config, "name": "C++", "description": "G++ 4.8"},
-    {"config": _java_lang_config, "description": "OpenJDK 1.7"},
-    {"config": _py2_lang_config, "description": "Python 2.7"}
+    {"config": _java_lang_config, "name": "Java", "description": "OpenJDK 1.7"},
+    {"config": _py2_lang_config, "name": "Python2", "description": "Python 2.7"}
 ]
 
 spj_languages = list(filter(lambda item: "spj" in item, languages))

@@ -36,7 +36,7 @@ class EditUserSerializer(serializers.Serializer):
     id = serializers.IntegerField()
     username = serializers.CharField(max_length=30)
     real_name = serializers.CharField(max_length=30)
-    password = serializers.CharField(max_length=30, min_length=6, required=False, default=None)
+    password = serializers.CharField(max_length=30, min_length=6, allow_blank=True, required=False, default=None)
     email = serializers.EmailField(max_length=254)
     admin_type = serializers.ChoiceField(choices=(AdminType.REGULAR_USER, AdminType.ADMIN, AdminType.SUPER_ADMIN))
     open_api = serializers.BooleanField()

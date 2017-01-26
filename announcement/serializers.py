@@ -1,4 +1,3 @@
-from account.models import User
 from utils.api import serializers
 from utils.api._serializers import DateTimeTZField, UsernameSerializer
 

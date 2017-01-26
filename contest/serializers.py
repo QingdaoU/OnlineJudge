@@ -1,6 +1,6 @@
-from utils.api import serializers, DateTimeTZField, UsernameSerializer
+from utils.api import DateTimeTZField, UsernameSerializer, serializers
 
-from .models import ContestRuleType, Contest
+from .models import Contest, ContestRuleType
 
 
 class CreateConetestSeriaizer(serializers.Serializer):

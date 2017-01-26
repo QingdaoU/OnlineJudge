@@ -1,9 +1,9 @@
 import dateutil.parser
+
 from utils.api import APIView, validate_serializer
-from django.utils import timezone
-from account.models import AdminType
-from ..serializers import CreateConetestSeriaizer, ContestSerializer
+
 from ..models import Contest
+from ..serializers import ContestSerializer, CreateConetestSeriaizer
 
 
 class ContestAPI(APIView):
