@@ -30,7 +30,13 @@ class ContestAPI(APIView):
                 return self.success(ContestSerializer(contest).data)
             except Contest.DoesNotExist:
                 return self.error("Contest does not exist")
+
         contests = Contest.objects.all().order_by("-create_time")
+
+        keyword = request.GET.get("keyword")
+        if keyword:
+            contests = contests.filter(title__contains=keyword)
+
         if request.user.is_admin_role():
             contests = contests.filter(created_by=request.user)
         return self.success(self.paginate_data(request, contests, ContestSerializer))
