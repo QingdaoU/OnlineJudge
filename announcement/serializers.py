@@ -1,6 +1,6 @@
 from account.models import User
 from utils.api import serializers
-from utils.api._serializers import DateTimeTZField
+from utils.api._serializers import DateTimeTZField, UsernameSerializer
 
 from .models import Announcement
 
@@ -14,13 +14,7 @@ class CreateAnnouncementSerializer(serializers.Serializer):
 class AnnouncementSerializer(serializers.ModelSerializer):
     create_time = DateTimeTZField()
     last_update_time = DateTimeTZField()
-
-    class UserSerializer(serializers.ModelSerializer):
-        class Meta:
-            model = User
-            fields = ["username"]
-
-    created_by = UserSerializer()
+    created_by = UsernameSerializer()
 
     class Meta:
         model = Announcement

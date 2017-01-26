@@ -24,19 +24,17 @@ class ContestRuleType(object):
 
 
 class Contest(models.Model):
-    title = models.CharField(max_length=40, unique=True)
+    title = models.CharField(max_length=40)
     description = RichTextField()
     # show real time rank or cached rank
     real_time_rank = models.BooleanField()
     password = models.CharField(max_length=30, blank=True, null=True)
-    # enum of ContestType
-    contest_type = models.CharField(max_length=36)
     # enum of ContestRuleType
     rule_type = models.CharField(max_length=36)
     start_time = models.DateTimeField()
     end_time = models.DateTimeField()
     create_time = models.DateTimeField(auto_now_add=True)
-    last_updated_time = models.DateTimeField(auto_now=True)
+    last_update_time = models.DateTimeField(auto_now=True)
     created_by = models.ForeignKey(User)
     # 是否可见 false的话相当于删除
     visible = models.BooleanField(default=True)

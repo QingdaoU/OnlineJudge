@@ -18,3 +18,8 @@ class DateTimeTZField(serializers.DateTimeField):
 
 class IDOnlySerializer(serializers.Serializer):
     id = serializers.IntegerField()
+
+
+class UsernameSerializer(serializers.Serializer):
+    id = serializers.IntegerField()
+    username = serializers.CharField()

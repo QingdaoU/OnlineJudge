@@ -6,3 +6,4 @@ otpauth
 flake8-quotes
 pytz
 coverage
+python-dateutil
