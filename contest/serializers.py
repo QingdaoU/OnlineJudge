@@ -25,3 +25,14 @@ class ContestSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Contest
+
+
+class EditConetestSeriaizer(serializers.Serializer):
+    id = serializers.IntegerField()
+    title = serializers.CharField(max_length=128)
+    description = serializers.CharField()
+    start_time = serializers.DateTimeField()
+    end_time = serializers.DateTimeField()
+    password = serializers.CharField(allow_blank=True, max_length=32)
+    visible = serializers.BooleanField()
+    real_time_rank = serializers.BooleanField()

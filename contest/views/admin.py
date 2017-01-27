@@ -3,7 +3,7 @@ import dateutil.parser
 from utils.api import APIView, validate_serializer
 
 from ..models import Contest
-from ..serializers import ContestSerializer, CreateConetestSeriaizer
+from ..serializers import ContestSerializer, CreateConetestSeriaizer, EditConetestSeriaizer
 
 
 class ContestAPI(APIView):
@@ -19,6 +19,26 @@ class ContestAPI(APIView):
             data["password"] = None
         Contest.objects.create(**data)
         return self.success()
+
+    @validate_serializer(EditConetestSeriaizer)
+    def put(self, request):
+        data = request.data
+        try:
+            contest = Contest.objects.get(id=data.pop("id"))
+            if request.user.is_admin_role():
+                contest = contest.get(created_by=request.user)
+        except Contest.DoesNotExist:
+            return self.error("Contest does not exist")
+        data["start_time"] = dateutil.parser.parse(data["start_time"])
+        data["end_time"] = dateutil.parser.parse(data["end_time"])
+        if data["end_time"] <= data["start_time"]:
+            return self.error("Start time must occur earlier than end time")
+        if not data["password"]:
+            data["password"] = None
+        for k, v in data.items():
+            setattr(contest, k, v)
+        contest.save()
+        return self.success(ContestSerializer(contest).data)
 
     def get(self, request):
         contest_id = request.GET.get("id")
