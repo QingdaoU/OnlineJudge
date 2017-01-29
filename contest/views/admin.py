@@ -2,8 +2,11 @@ import dateutil.parser
 
 from utils.api import APIView, validate_serializer
 
-from ..models import Contest
-from ..serializers import ContestSerializer, CreateConetestSeriaizer, EditConetestSeriaizer
+from ..models import Contest, ContestAnnouncement
+from ..serializers import (ContestAnnouncementSerializer, ContestSerializer,
+                           CreateConetestSeriaizer,
+                           CreateContestAnnouncementSerializer,
+                           EditConetestSeriaizer)
 
 
 class ContestAPI(APIView):
@@ -60,3 +63,28 @@ class ContestAPI(APIView):
         if request.user.is_admin_role():
             contests = contests.filter(created_by=request.user)
         return self.success(self.paginate_data(request, contests, ContestSerializer))
+
+
+class ContestAnnouncementAPI(APIView):
+    @validate_serializer(CreateContestAnnouncementSerializer)
+    def post(self, request):
+        data = request.data
+        try:
+            contest = Contest.objects.get(id=data.pop("contest_id"))
+            if request.user.is_admin_role():
+                contest = contest.get(created_by=request.user)
+            data["contest"] = contest
+            data["created_by"] = request.user
+        except Contest.DoesNotExist:
+            return self.error("Contest does not exist")
+        announcement = ContestAnnouncement.objects.create(**data)
+        return self.success(ContestAnnouncementSerializer(announcement).data)
+
+    def delete(self, request):
+        announcement_id = request.GET.get("id")
+        if announcement_id:
+            if request.user.is_admin_role():
+                ContestAnnouncement.objects.filter(id=announcement_id, contest__created_by=request.user).delete()
+            else:
+                ContestAnnouncement.objects.filter(id=announcement_id).delete()
+        return self.success()

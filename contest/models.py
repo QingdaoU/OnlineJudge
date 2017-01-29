@@ -107,6 +107,7 @@ class ContestAnnouncement(models.Model):
     contest = models.ForeignKey(Contest)
     title = models.CharField(max_length=128)
     content = RichTextField()
+    created_by = models.ForeignKey(User)
     create_time = models.DateTimeField(auto_now_add=True)
 
     class Meta:

@@ -1,6 +1,6 @@
 from utils.api import DateTimeTZField, UsernameSerializer, serializers
 
-from .models import Contest, ContestRuleType
+from .models import Contest, ContestAnnouncement, ContestRuleType
 
 
 class CreateConetestSeriaizer(serializers.Serializer):
@@ -33,6 +33,20 @@ class EditConetestSeriaizer(serializers.Serializer):
     description = serializers.CharField()
     start_time = serializers.DateTimeField()
     end_time = serializers.DateTimeField()
-    password = serializers.CharField(allow_blank=True, max_length=32)
+    password = serializers.CharField(allow_blank=True, allow_null=True, max_length=32)
     visible = serializers.BooleanField()
     real_time_rank = serializers.BooleanField()
+
+
+class ContestAnnouncementSerializer(serializers.ModelSerializer):
+    created_by = UsernameSerializer()
+    create_time = DateTimeTZField()
+
+    class Meta:
+        model = ContestAnnouncement
+
+
+class CreateContestAnnouncementSerializer(serializers.Serializer):
+    title = serializers.CharField(max_length=128)
+    content = serializers.CharField()
+    contest_id = serializers.IntegerField()
