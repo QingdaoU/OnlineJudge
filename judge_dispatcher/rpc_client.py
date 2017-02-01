@@ -1,6 +1,13 @@
 # coding=utf-8
-import xmlrpclib
-import httplib
+try:
+    import xmlrpclib
+except ImportError:
+    import xmlrpc.client as xmlrpclib
+
+try:
+    import httplib
+except ImportError:
+    from http import client as httplib
 
 
 class TimeoutHTTPConnection(httplib.HTTPConnection):

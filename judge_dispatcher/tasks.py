@@ -6,7 +6,7 @@ import time
 from django.db import transaction
 from django.db.models import F
 
-from rpc_client import TimeoutServerProxy
+from .rpc_client import TimeoutServerProxy
 
 from judge.result import result
 from contest.models import ContestProblem, ContestRank, Contest, CONTEST_UNDERWAY
