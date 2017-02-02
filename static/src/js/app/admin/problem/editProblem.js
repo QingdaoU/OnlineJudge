@@ -15,8 +15,8 @@ require(["jquery", "avalon", "editor", "uploader", "bsAlert",
                             bsAlert("题目描述不能为空!");
                             return false;
                         }
-                        if (vm.timeLimit < 1 || vm.timeLimit > 10000) {
-                            bsAlert("保证时间限制是一个1-10000的整数");
+                        if (vm.timeLimit < 1 || vm.timeLimit > 100000) {
+                            bsAlert("保证时间限制是一个1-100000的整数");
                             return false;
                         }
                         if (vm.memoryLimit < 16) {
