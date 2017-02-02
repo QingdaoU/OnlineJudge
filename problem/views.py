@@ -26,7 +26,6 @@ from .decorators import check_user_problem_permission
 
 logger = logging.getLogger("app_info")
 
-
 def problem_page(request, problem_id):
     """
     前台题目详情页
