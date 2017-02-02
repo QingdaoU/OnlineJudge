@@ -12,16 +12,23 @@ class ProblemTag(models.Model):
         db_table = "problem_tag"
 
 
+class ProblemRuleType(object):
+    ACM = "ACM"
+    OI = "OI"
+
+
 class AbstractProblem(models.Model):
-    title = models.CharField(max_length=50)
+    title = models.CharField(max_length=128)
     # HTML
     description = RichTextField()
-    input_description = models.CharField(max_length=10000)
-    output_description = models.CharField(max_length=10000)
+    input_description = RichTextField()
+    output_description = RichTextField()
     # [{input: "test", output: "123"}, {input: "test123", output: "456"}]
-    samples = models.TextField(blank=True)
-    test_case_id = models.CharField(max_length=40)
+    samples = JSONField()
+    test_case_id = models.CharField(max_length=32)
+    test_case_score = JSONField()
     hint = RichTextField(blank=True, null=True)
+    languages = JSONField()
     create_time = models.DateTimeField(auto_now_add=True)
     # we can not use auto_now here
     last_update_time = models.DateTimeField(blank=True, null=True)
@@ -32,10 +39,14 @@ class AbstractProblem(models.Model):
     memory_limit = models.IntegerField()
     # special judge related
     spj = models.BooleanField(default=False)
-    spj_language = models.IntegerField(blank=True, null=True)
+    spj_language = models.CharField(max_length=32, blank=True, null=True)
     spj_code = models.TextField(blank=True, null=True)
     spj_version = models.CharField(max_length=32, blank=True, null=True)
+    rule_type = models.CharField(max_length=32)
     visible = models.BooleanField(default=True)
+    difficulty = models.CharField(max_length=32)
+    tags = models.ManyToManyField(ProblemTag)
+    source = models.CharField(max_length=200, blank=True, null=True)
     total_submit_number = models.IntegerField(default=0)
     total_accepted_number = models.IntegerField(default=0)
 
@@ -53,14 +64,4 @@ class AbstractProblem(models.Model):
 
 
 class Problem(AbstractProblem):
-    difficulty = models.IntegerField()
-    tags = models.ManyToManyField(ProblemTag)
-    source = models.CharField(max_length=200, blank=True, null=True)
-
-
-class TestCaseScore(models.Model):
-    test_case_id = models.CharField(max_length=32)
-    score = JSONField()
-
-    class Meta:
-        db_table = "test_case_score"
+    pass

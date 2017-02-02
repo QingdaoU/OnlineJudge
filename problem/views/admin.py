@@ -6,10 +6,12 @@ import zipfile
 from django.conf import settings
 
 from account.decorators import admin_required
-from utils.api import CSRFExemptAPIView
+from utils.api import APIView, CSRFExemptAPIView, validate_serializer
 from utils.shortcuts import rand_str
 
-from ..serializers import TestCaseUploadForm
+from ..models import Problem, ProblemRuleType, ProblemTag
+from ..serializers import (CreateProblemSerializer, ProblemSerializer,
+                           TestCaseUploadForm)
 
 
 class TestCaseUploadAPI(CSRFExemptAPIView):
@@ -103,3 +105,47 @@ class TestCaseUploadAPI(CSRFExemptAPIView):
         with open(os.path.join(test_case_dir, "info"), "w", encoding="utf-8") as f:
             f.write(json.dumps(test_case_info, indent=4))
         return self.success({"id": test_case_id, "info": ret, "hint": hint, "spj": spj})
+
+
+class ProblemAPI(APIView):
+    @validate_serializer(CreateProblemSerializer)
+    def post(self, request):
+        data = request.data
+        if not data["languages"]:
+            return self.error("Invalid languages")
+        if not data["samples"]:
+            return self.error("Invalid samples")
+        if data["spj"]:
+            if not data["spj_language"] or not data["spj_code"]:
+                return self.error("Invalid spj")
+            data["spj_version"] = hashlib.md5((data["spj_language"] + ":" + data["spj_code"]).encode("utf-8")).hexdigest()
+        else:
+            data["spj_language"] = None
+            data["spj_code"] = None
+        if data["rule_type"] == ProblemRuleType.OI:
+            if not data["test_case_score"]:
+                return self.error("Test case score is required")
+            for item in data["test_case_score"]:
+                if item["score"] <= 0:
+                    return self.error("Invalid score")
+            # todo check filename
+        else:
+            data["test_case_score"] = {}
+        data["created_by"] = request.user
+        tags = data.pop("tags")
+        if not tags:
+            return self.error("Tags is required")
+        problem = Problem.objects.create(**data)
+        for item in tags:
+            try:
+                tag = ProblemTag.objects.get(name=item)
+            except ProblemTag.DoesNotExist:
+                tag = ProblemTag.objects.create(name=item)
+            problem.tags.add(tag)
+        return self.success()
+
+    def get(self, request):
+        problems = Problem.objects.all().order_by("-create_time")
+        if request.user.is_admin_role():
+            problems = problems.filter(created_by=request.user)
+        return self.success(self.paginate_data(request, problems, ProblemSerializer))

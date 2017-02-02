@@ -1,12 +1,5 @@
-import json
-
 from django.utils import timezone
 from rest_framework import serializers
-
-
-class JSONField(serializers.Field):
-    def to_representation(self, value):
-        return json.loads(value)
 
 
 class DateTimeTZField(serializers.DateTimeField):

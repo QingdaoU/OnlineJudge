@@ -89,7 +89,7 @@ _py2_lang_config = {
     },
     "run": {
         "command": "/usr/bin/python {exe_path}",
-        "seccomp_rule": None,
+        "seccomp_rule": "general",
     }
 }
 
@@ -103,3 +103,7 @@ languages = [
 ]
 
 spj_languages = list(filter(lambda item: "spj" in item, languages))
+
+
+language_names = [item["name"] for item in languages]
+spj_language_names = [item["name"] for item in spj_languages]
