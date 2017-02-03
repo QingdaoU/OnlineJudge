@@ -11,7 +11,7 @@ from utils.shortcuts import rand_str
 
 from ..models import Problem, ProblemRuleType, ProblemTag
 from ..serializers import (CreateProblemSerializer, ProblemSerializer,
-                           TestCaseUploadForm)
+                           TestCaseUploadForm, EditProblemSerializer)
 
 
 class TestCaseUploadAPI(CSRFExemptAPIView):
@@ -159,3 +159,7 @@ class ProblemAPI(APIView):
         if request.user.is_admin_role():
             problems = problems.filter(created_by=request.user)
         return self.success(self.paginate_data(request, problems, ProblemSerializer))
+
+    @validate_serializer(EditProblemSerializer)
+    def put(self, request):
+        return self.success()

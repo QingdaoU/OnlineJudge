@@ -27,7 +27,7 @@ class Difficulty(object):
     HIGH = "High"
 
 
-class CreateProblemSerializer(serializers.Serializer):
+class CreateOrEditProblemSerializer(serializers.Serializer):
     title = serializers.CharField(max_length=128)
     description = serializers.CharField()
     input_description = serializers.CharField()
@@ -35,18 +35,26 @@ class CreateProblemSerializer(serializers.Serializer):
     samples = serializers.ListField(child=CreateSampleSerializer())
     test_case_id = serializers.CharField(max_length=32)
     test_case_score = serializers.ListField(child=CreateTestCaseScoreSerializer())
-    hint = serializers.CharField(allow_blank=True)
     time_limit = serializers.IntegerField(min_value=1, max_value=1000 * 60)
     memory_limit = serializers.IntegerField(min_value=1, max_value=1024)
     languages = serializers.ListField(child=serializers.ChoiceField(choices=language_names))
     rule_type = serializers.ChoiceField(choices=[ProblemRuleType.ACM, ProblemRuleType.OI])
     spj = serializers.BooleanField()
-    spj_language = serializers.ChoiceField(choices=spj_language_names, allow_blank=True)
-    spj_code = serializers.CharField(allow_blank=True)
+    spj_language = serializers.ChoiceField(choices=spj_language_names, allow_blank=True, allow_null=True)
+    spj_code = serializers.CharField(allow_blank=True, allow_null=True)
     visible = serializers.BooleanField()
     difficulty = serializers.ChoiceField(choices=[Difficulty.LOW, Difficulty.MID, Difficulty.HIGH])
     tags = serializers.ListField(child=serializers.CharField(max_length=32))
-    source = serializers.CharField(max_length=256, allow_blank=True)
+    hint = serializers.CharField(allow_blank=True, allow_null=True)
+    source = serializers.CharField(max_length=256, allow_blank=True, allow_null=True)
+
+
+class CreateProblemSerializer(CreateOrEditProblemSerializer):
+    pass
+
+
+class EditProblemSerializer(CreateOrEditProblemSerializer):
+    id = serializers.IntegerField()
 
 
 class TagSerializer(serializers.ModelSerializer):
