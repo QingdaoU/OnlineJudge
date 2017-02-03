@@ -58,7 +58,7 @@ class ProblemSerializer(serializers.ModelSerializer):
     samples = serializers.JSONField()
     test_case_score = serializers.JSONField()
     languages = serializers.JSONField()
-    tags = TagSerializer(many=True)
+    tags = serializers.SlugRelatedField(many=True, slug_field="name", read_only=True)
     create_time = DateTimeTZField()
     last_update_time = DateTimeTZField()
     created_by = UsernameSerializer()
