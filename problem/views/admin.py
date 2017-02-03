@@ -130,7 +130,7 @@ class ProblemAPI(APIView):
                     return self.error("Invalid score")
             # todo check filename
         else:
-            data["test_case_score"] = {}
+            data["test_case_score"] = []
         data["created_by"] = request.user
         tags = data.pop("tags")
         if not tags:
