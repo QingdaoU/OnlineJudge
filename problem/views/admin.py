@@ -145,6 +145,16 @@ class ProblemAPI(APIView):
         return self.success()
 
     def get(self, request):
+        problem_id = request.GET.get("id")
+        if problem_id:
+            try:
+                problem = Problem.objects.get(id=problem_id)
+                if request.user.is_admin_role():
+                    problem = problem.get(created_by=request.user)
+                return self.success(ProblemSerializer(problem).data)
+            except Problem.DoesNotExist:
+                return self.error("Problem does not exist")
+
         problems = Problem.objects.all().order_by("-create_time")
         if request.user.is_admin_role():
             problems = problems.filter(created_by=request.user)
