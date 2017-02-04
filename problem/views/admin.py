@@ -111,10 +111,6 @@ class ProblemAPI(APIView):
     @validate_serializer(CreateProblemSerializer)
     def post(self, request):
         data = request.data
-        if not data["languages"]:
-            return self.error("Invalid languages")
-        if not data["samples"]:
-            return self.error("Invalid samples")
         if data["spj"]:
             if not data["spj_language"] or not data["spj_code"]:
                 return self.error("Invalid spj")
@@ -123,18 +119,13 @@ class ProblemAPI(APIView):
             data["spj_language"] = None
             data["spj_code"] = None
         if data["rule_type"] == ProblemRuleType.OI:
-            if not data["test_case_score"]:
-                return self.error("Test case score is required")
             for item in data["test_case_score"]:
                 if item["score"] <= 0:
                     return self.error("Invalid score")
-            # todo check filename
-        else:
-            data["test_case_score"] = []
+        # todo check filename and score info
         data["created_by"] = request.user
         tags = data.pop("tags")
-        if not tags:
-            return self.error("Tags is required")
+
         problem = Problem.objects.create(**data)
         for item in tags:
             try:
@@ -162,4 +153,37 @@ class ProblemAPI(APIView):
 
     @validate_serializer(EditProblemSerializer)
     def put(self, request):
+        data = request.data
+        try:
+            problem = Problem.objects.get(id=data.pop("id"))
+            if request.user.is_admin_role():
+                problem = problem.get(created_by=request.user)
+        except Problem.DoesNotExist:
+            return self.error("Problem does not exist")
+        if data["spj"]:
+            if not data["spj_language"] or not data["spj_code"]:
+                return self.error("Invalid spj")
+            data["spj_version"] = hashlib.md5((data["spj_language"] + ":" + data["spj_code"]).encode("utf-8")).hexdigest()
+        else:
+            data["spj_language"] = None
+            data["spj_code"] = None
+        if data["rule_type"] == ProblemRuleType.OI:
+            for item in data["test_case_score"]:
+                if item["score"] <= 0:
+                    return self.error("Invalid score")
+        # todo check filename and score info
+        tags = data.pop("tags")
+
+        for k, v in data.items():
+            setattr(problem, k, v)
+        problem.save()
+
+        problem.tags.remove(*problem.tags.all())
+        for tag in tags:
+            try:
+                tag = ProblemTag.objects.get(name=tag)
+            except ProblemTag.DoesNotExist:
+                tag = ProblemTag.objects.create(name=tag)
+            problem.tags.add(tag)
+
         return self.success()
