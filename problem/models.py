@@ -29,6 +29,7 @@ class AbstractProblem(models.Model):
     test_case_score = JSONField()
     hint = RichTextField(blank=True, null=True)
     languages = JSONField()
+    template = JSONField()
     create_time = models.DateTimeField(auto_now_add=True)
     # we can not use auto_now here
     last_update_time = models.DateTimeField(blank=True, null=True)

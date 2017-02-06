@@ -22,6 +22,10 @@ class CreateTestCaseScoreSerializer(serializers.Serializer):
     score = serializers.IntegerField(min_value=0)
 
 
+class CreateProblemCodeTemplateSerializer(serializers.Serializer):
+    pass
+
+
 class Difficulty(object):
     LOW = "Low"
     MID = "Mid"
@@ -38,7 +42,8 @@ class CreateOrEditProblemSerializer(serializers.Serializer):
     test_case_score = serializers.ListField(child=CreateTestCaseScoreSerializer(), allow_empty=False)
     time_limit = serializers.IntegerField(min_value=1, max_value=1000 * 60)
     memory_limit = serializers.IntegerField(min_value=1, max_value=1024)
-    languages = serializers.ListField(child=serializers.ChoiceField(choices=language_names), allow_empty=False)
+    languages = serializers.MultipleChoiceField(choices=language_names)
+    template = serializers.DictField(child=serializers.CharField(min_length=1))
     rule_type = serializers.ChoiceField(choices=[ProblemRuleType.ACM, ProblemRuleType.OI])
     spj = serializers.BooleanField()
     spj_language = serializers.ChoiceField(choices=spj_language_names, allow_blank=True, allow_null=True)
@@ -67,6 +72,7 @@ class ProblemSerializer(serializers.ModelSerializer):
     samples = serializers.JSONField()
     test_case_score = serializers.JSONField()
     languages = serializers.JSONField()
+    template = serializers.JSONField()
     tags = serializers.SlugRelatedField(many=True, slug_field="name", read_only=True)
     create_time = DateTimeTZField()
     last_update_time = DateTimeTZField()
