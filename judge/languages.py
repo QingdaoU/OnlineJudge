@@ -1,6 +1,23 @@
 
 
 _c_lang_config = {
+    "template": """//PREPEND START
+#include <stdio.h>
+//PREPEND END
+
+//TEMPLATE BEGIN
+int add(int a, int b) {
+  // Please fill this blank
+  return ___________;
+}
+//TEMPLATE END
+
+//APPEND START
+int main() {
+  printf("%d", add(1, 2));
+  return 0;
+}
+//APPEND END""",
     "compile": {
         "src_name": "main.c",
         "exe_name": "main",
@@ -31,6 +48,12 @@ _c_lang_spj_config = {
 }
 
 _cpp_lang_config = {
+    "template": """/*--PREPEND START--*/
+/*--PREPEND END--*/
+/*--TEMPLATE BEGIN--*/
+/*--TEMPLATE END--*/
+/*--APPEND START--*/
+/*--APPEND END--*/""",
     "compile": {
         "src_name": "main.cpp",
         "exe_name": "main",
@@ -61,6 +84,12 @@ _cpp_lang_spj_config = {
 }
 
 _java_lang_config = {
+    "template": """/*--PREPEND START--*/
+/*--PREPEND END--*/
+/*--TEMPLATE BEGIN--*/
+/*--TEMPLATE END--*/
+/*--APPEND START--*/
+/*--APPEND END--*/""",
     "compile": {
         "src_name": "Main.java",
         "exe_name": "Main",
@@ -79,6 +108,12 @@ _java_lang_config = {
 
 
 _py2_lang_config = {
+    "template": """/*--PREPEND START--*/
+/*--PREPEND END--*/
+/*--TEMPLATE BEGIN--*/
+/*--TEMPLATE END--*/
+/*--APPEND START--*/
+/*--APPEND END--*/""",
     "compile": {
         "src_name": "solution.py",
         "exe_name": "solution.pyc",
