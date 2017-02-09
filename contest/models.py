@@ -62,14 +62,14 @@ class Contest(models.Model):
 
 
 class ContestProblem(AbstractProblem):
+    _id = models.CharField(max_length=24, db_index=True)
     contest = models.ForeignKey(Contest)
-    # 比如A B 或者1 2 或者 a b 将按照这个排序
-    sort_index = models.CharField(max_length=30)
     # 是否已经公开了题目，防止重复公开
     is_public = models.BooleanField(default=False)
 
     class Meta:
         db_table = "contest_problem"
+        unique_together = (("_id", "contest"), )
 
 
 class ContestRank(models.Model):

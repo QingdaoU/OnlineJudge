@@ -33,6 +33,7 @@ class Difficulty(object):
 
 
 class CreateOrEditProblemSerializer(serializers.Serializer):
+    _id = serializers.CharField(max_length=32, allow_blank=True, allow_null=True)
     title = serializers.CharField(max_length=128)
     description = serializers.CharField()
     input_description = serializers.CharField()

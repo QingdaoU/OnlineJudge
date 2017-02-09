@@ -65,4 +65,4 @@ class AbstractProblem(models.Model):
 
 
 class Problem(AbstractProblem):
-    pass
+    _id = models.CharField(max_length=24, unique=True, db_index=True)

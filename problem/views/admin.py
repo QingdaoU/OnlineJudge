@@ -111,6 +111,17 @@ class ProblemAPI(APIView):
     @validate_serializer(CreateProblemSerializer)
     def post(self, request):
         data = request.data
+
+        _id = data["_id"]
+        if _id:
+            try:
+                Problem.objects.get(_id=_id)
+                return self.error("Display ID already exists")
+            except Problem.DoesNotExist:
+                pass
+        else:
+            data["_id"] = rand_str(8)
+
         if data["spj"]:
             if not data["spj_language"] or not data["spj_code"]:
                 return self.error("Invalid spj")
@@ -127,6 +138,11 @@ class ProblemAPI(APIView):
         tags = data.pop("tags")
 
         problem = Problem.objects.create(**data)
+
+        if not _id:
+            problem._id = str(problem.id)
+            problem.save()
+
         for item in tags:
             try:
                 tag = ProblemTag.objects.get(name=item)
@@ -154,12 +170,24 @@ class ProblemAPI(APIView):
     @validate_serializer(EditProblemSerializer)
     def put(self, request):
         data = request.data
+        id = data.pop("id")
         try:
-            problem = Problem.objects.get(id=data.pop("id"))
+            problem = Problem.objects.get(id=id)
             if request.user.is_admin_role():
                 problem = problem.get(created_by=request.user)
         except Problem.DoesNotExist:
             return self.error("Problem does not exist")
+
+        _id = data["_id"]
+        if _id:
+            try:
+                Problem.objects.exclude(id=id).get(_id=_id)
+                return self.error("Display ID already exists")
+            except Problem.DoesNotExist:
+                pass
+        else:
+            data["_id"] = str(id)
+
         if data["spj"]:
             if not data["spj_language"] or not data["spj_code"]:
                 return self.error("Invalid spj")
