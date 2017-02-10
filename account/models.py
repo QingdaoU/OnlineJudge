@@ -14,6 +14,12 @@ class ProblemSolutionStatus(object):
     PENDING = 2
 
 
+class ProblemPermission(object):
+    NONE = "None"
+    OWN = "Own"
+    ALL = "All"
+
+
 class UserManager(models.Manager):
     use_in_migrations = True
 
@@ -28,6 +34,7 @@ class User(AbstractBaseUser):
     create_time = models.DateTimeField(auto_now_add=True, null=True)
     # One of UserType
     admin_type = models.CharField(max_length=24, default=AdminType.REGULAR_USER)
+    problem_permission = models.CharField(max_length=24, default=ProblemPermission.NONE)
     reset_password_token = models.CharField(max_length=40, null=True)
     reset_password_token_expire_time = models.DateTimeField(null=True)
     # SSO auth token

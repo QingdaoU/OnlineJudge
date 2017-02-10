@@ -8,7 +8,7 @@ from otpauth import OtpAuth
 from utils.api.tests import APIClient, APITestCase
 from utils.shortcuts import rand_str
 
-from .models import AdminType, User
+from .models import AdminType, User, ProblemPermission
 
 
 class PermissionDecoratorTest(APITestCase):
@@ -182,7 +182,8 @@ class AdminUserTest(APITestCase):
         self.url = self.reverse("user_admin_api")
         self.data = {"id": self.regular_user.id, "username": self.username, "real_name": "test_name",
                      "email": "test@qq.com", "admin_type": AdminType.REGULAR_USER,
-                     "open_api": True, "two_factor_auth": False, "is_disabled": False}
+                     "problem_permission": ProblemPermission.OWN, "open_api": True,
+                     "two_factor_auth": False, "is_disabled": False}
 
     def test_user_list(self):
         response = self.client.get(self.url)
@@ -198,6 +199,7 @@ class AdminUserTest(APITestCase):
         self.assertEqual(resp_data["open_api"], True)
         self.assertEqual(resp_data["two_factor_auth"], False)
         self.assertEqual(resp_data["is_disabled"], False)
+        self.assertEqual(resp_data["problem_permission"], ProblemPermission.NONE)
 
         self.assertTrue(self.regular_user.check_password("test"))
 

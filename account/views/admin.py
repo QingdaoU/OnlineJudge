@@ -6,7 +6,7 @@ from utils.api import APIView, validate_serializer
 from utils.shortcuts import rand_str
 
 from ..decorators import super_admin_required
-from ..models import User
+from ..models import User, AdminType, ProblemPermission
 from ..serializers import EditUserSerializer, UserSerializer
 
 
@@ -45,6 +45,13 @@ class UserAdminAPI(APIView):
         user.admin_type = data["admin_type"]
         user.is_disabled = data["is_disabled"]
 
+        if data["admin_type"] == AdminType.ADMIN:
+            user.problem_permission = data["problem_permission"]
+        elif data["admin_type"] == AdminType.SUPER_ADMIN:
+            user.problem_permission = ProblemPermission.ALL
+        else:
+            user.problem_permission = ProblemPermission.NONE
+
         if data["password"]:
             user.set_password(data["password"])
 
@@ -62,6 +69,7 @@ class UserAdminAPI(APIView):
                 user.tfa_token = rand_str()
         else:
             user.tfa_token = None
+
         user.two_factor_auth = data["two_factor_auth"]
 
         user.save()

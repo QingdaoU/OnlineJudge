@@ -1,6 +1,6 @@
 from utils.api import DateTimeTZField, serializers
 
-from .models import AdminType, User
+from .models import AdminType, User, ProblemPermission
 
 
 class UserLoginSerializer(serializers.Serializer):
@@ -28,7 +28,7 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ["id", "username", "real_name", "email", "admin_type",
+        fields = ["id", "username", "real_name", "email", "admin_type", "problem_permission",
                   "create_time", "last_login", "two_factor_auth", "open_api", "is_disabled"]
 
 
@@ -39,6 +39,8 @@ class EditUserSerializer(serializers.Serializer):
     password = serializers.CharField(max_length=30, min_length=6, allow_blank=True, required=False, default=None)
     email = serializers.EmailField(max_length=254)
     admin_type = serializers.ChoiceField(choices=(AdminType.REGULAR_USER, AdminType.ADMIN, AdminType.SUPER_ADMIN))
+    problem_permission = serializers.ChoiceField(choices=(ProblemPermission.NONE, ProblemPermission.OWN,
+                                                          ProblemPermission.ALL))
     open_api = serializers.BooleanField()
     two_factor_auth = serializers.BooleanField()
     is_disabled = serializers.BooleanField()
