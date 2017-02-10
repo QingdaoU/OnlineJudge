@@ -32,5 +32,7 @@ class APITestCase(TestCase):
         if not response.data["error"] is None:
             raise AssertionError("response with errors, response: " + str(response.data))
 
-    def assertFailed(self, response):
+    def assertFailed(self, response, msg=None):
         self.assertTrue(response.data["error"] is not None)
+        if msg:
+            self.assertEqual(response.data["data"], msg)

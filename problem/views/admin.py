@@ -138,6 +138,8 @@ class ProblemAPI(APIView):
         data["created_by"] = request.user
         tags = data.pop("tags")
 
+        data["languages"] = list(data["languages"])
+
         problem = Problem.objects.create(**data)
 
         if not _id:
@@ -150,7 +152,7 @@ class ProblemAPI(APIView):
             except ProblemTag.DoesNotExist:
                 tag = ProblemTag.objects.create(name=item)
             problem.tags.add(tag)
-        return self.success()
+        return self.success(ProblemSerializer(problem).data)
 
     @problem_permission_required
     def get(self, request):

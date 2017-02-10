@@ -1,3 +1,4 @@
+import copy
 import os
 import shutil
 from zipfile import ZipFile
@@ -5,7 +6,6 @@ from zipfile import ZipFile
 from django.conf import settings
 
 from utils.api.tests import APITestCase
-
 from .models import ProblemTag
 from .views.admin import TestCaseUploadAPI
 
@@ -73,3 +73,57 @@ class TestCaseUploadAPITest(APITestCase):
                 name = item["input_name"]
                 with open(os.path.join(test_case_dir, name), "r", encoding="utf-8") as f:
                     self.assertEqual(f.read(), name + "\n" + name + "\n" + "end")
+
+
+class ProblemAPITest(APITestCase):
+    def setUp(self):
+        self.url = self.reverse("problem_api")
+        self.create_super_admin()
+        self.data = {"_id": "A-110", "title": "test", "description": "<p>test</p>", "input_description": "test",
+                     "output_description": "test", "time_limit": 1000, "memory_limit": 256, "difficulty": "Low",
+                     "visible": True, "tags": ["test"], "languages": ["C", "C++", "Java", "Python2"], "template": {},
+                     "samples": [{"input": "test", "output": "test"}], "spj": False, "spj_language": "C",
+                     "spj_code": "", "test_case_id": "499b26290cc7994e0b497212e842ea85",
+                     "test_case_score": [{"output_name": "1.out", "input_name": "1.in", "output_size": 0,
+                                          "stripped_output_md5": "d41d8cd98f00b204e9800998ecf8427e",
+                                          "input_size": 0, "score": 0}],
+                     "rule_type": "ACM", "hint": "<p>test</p>", "source": "test"}
+
+    def test_create_problem(self):
+        resp = self.client.post(self.url, data=self.data)
+        self.assertSuccess(resp)
+        return resp
+
+    def test_duplicate_display_id(self):
+        self.test_create_problem()
+
+        resp = self.client.post(self.url, data=self.data)
+        self.assertFailed(resp, "Display ID already exists")
+
+    def test_spj(self):
+        data = copy.deepcopy(self.data)
+        data["spj"] = True
+
+        resp = self.client.post(self.url, data)
+        self.assertFailed(resp, "Invalid spj")
+
+        data["spj_code"] = "test"
+        resp = self.client.post(self.url, data=data)
+        self.assertSuccess(resp)
+
+    def test_get_problem(self):
+        self.test_create_problem()
+        resp = self.client.get(self.url)
+        self.assertSuccess(resp)
+
+    def test_get_one_problem(self):
+        problem_id = self.test_create_problem().data["data"]["id"]
+        resp = self.client.get(self.url + "?id=" + str(problem_id))
+        self.assertSuccess(resp)
+
+    def test_edit_problem(self):
+        problem_id = self.test_create_problem().data["data"]["id"]
+        data = copy.deepcopy(self.data)
+        data["id"] = problem_id
+        resp = self.client.put(self.url, data=data)
+        self.assertSuccess(resp)
