@@ -28,7 +28,7 @@ class ContestAPI(APIView):
         data = request.data
         try:
             contest = Contest.objects.get(id=data.pop("id"))
-            if request.user.is_admin_role():
+            if request.user.is_admin():
                 contest = contest.get(created_by=request.user)
         except Contest.DoesNotExist:
             return self.error("Contest does not exist")
@@ -48,7 +48,7 @@ class ContestAPI(APIView):
         if contest_id:
             try:
                 contest = Contest.objects.get(id=contest_id)
-                if request.user.is_admin_role():
+                if request.user.is_admin():
                     contest = contest.get(created_by=request.user)
                 return self.success(ContestSerializer(contest).data)
             except Contest.DoesNotExist:
@@ -60,7 +60,7 @@ class ContestAPI(APIView):
         if keyword:
             contests = contests.filter(title__contains=keyword)
 
-        if request.user.is_admin_role():
+        if request.user.is_admin():
             contests = contests.filter(created_by=request.user)
         return self.success(self.paginate_data(request, contests, ContestSerializer))
 
@@ -71,7 +71,7 @@ class ContestAnnouncementAPI(APIView):
         data = request.data
         try:
             contest = Contest.objects.get(id=data.pop("contest_id"))
-            if request.user.is_admin_role():
+            if request.user.is_admin():
                 contest = contest.get(created_by=request.user)
             data["contest"] = contest
             data["created_by"] = request.user
@@ -83,7 +83,7 @@ class ContestAnnouncementAPI(APIView):
     def delete(self, request):
         announcement_id = request.GET.get("id")
         if announcement_id:
-            if request.user.is_admin_role():
+            if request.user.is_admin():
                 ContestAnnouncement.objects.filter(id=announcement_id, contest__created_by=request.user).delete()
             else:
                 ContestAnnouncement.objects.filter(id=announcement_id).delete()

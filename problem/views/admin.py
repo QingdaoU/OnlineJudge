@@ -5,13 +5,13 @@ import zipfile
 
 from django.conf import settings
 
-from account.decorators import admin_required
+from account.decorators import problem_permission_required
 from utils.api import APIView, CSRFExemptAPIView, validate_serializer
 from utils.shortcuts import rand_str
 
 from ..models import Problem, ProblemRuleType, ProblemTag
-from ..serializers import (CreateProblemSerializer, ProblemSerializer,
-                           TestCaseUploadForm, EditProblemSerializer)
+from ..serializers import (CreateProblemSerializer, EditProblemSerializer,
+                           ProblemSerializer, TestCaseUploadForm)
 
 
 class TestCaseUploadAPI(CSRFExemptAPIView):
@@ -41,7 +41,7 @@ class TestCaseUploadAPI(CSRFExemptAPIView):
                 else:
                     return sorted(ret)
 
-    @admin_required
+    @problem_permission_required
     def post(self, request):
         form = TestCaseUploadForm(request.POST, request.FILES)
         if form.is_valid():
@@ -109,6 +109,7 @@ class TestCaseUploadAPI(CSRFExemptAPIView):
 
 class ProblemAPI(APIView):
     @validate_serializer(CreateProblemSerializer)
+    @problem_permission_required
     def post(self, request):
         data = request.data
 
@@ -151,29 +152,34 @@ class ProblemAPI(APIView):
             problem.tags.add(tag)
         return self.success()
 
+    @problem_permission_required
     def get(self, request):
         problem_id = request.GET.get("id")
+        user = request.user
         if problem_id:
             try:
                 problem = Problem.objects.get(id=problem_id)
-                if request.user.is_admin_role():
+                if not user.can_mgmt_all_problem():
                     problem = problem.get(created_by=request.user)
                 return self.success(ProblemSerializer(problem).data)
             except Problem.DoesNotExist:
                 return self.error("Problem does not exist")
 
         problems = Problem.objects.all().order_by("-create_time")
-        if request.user.is_admin_role():
+        if not user.can_mgmt_all_problem():
             problems = problems.filter(created_by=request.user)
         return self.success(self.paginate_data(request, problems, ProblemSerializer))
 
     @validate_serializer(EditProblemSerializer)
+    @problem_permission_required
     def put(self, request):
         data = request.data
-        id = data.pop("id")
+        problem_id = data.pop("id")
+        user = request.user
+
         try:
-            problem = Problem.objects.get(id=id)
-            if request.user.is_admin_role():
+            problem = Problem.objects.get(id=problem_id)
+            if not user.can_mgmt_all_problem():
                 problem = problem.get(created_by=request.user)
         except Problem.DoesNotExist:
             return self.error("Problem does not exist")
@@ -181,12 +187,12 @@ class ProblemAPI(APIView):
         _id = data["_id"]
         if _id:
             try:
-                Problem.objects.exclude(id=id).get(_id=_id)
+                Problem.objects.exclude(id=problem_id).get(_id=_id)
                 return self.error("Display ID already exists")
             except Problem.DoesNotExist:
                 pass
         else:
-            data["_id"] = str(id)
+            data["_id"] = str(problem_id)
 
         if data["spj"]:
             if not data["spj_language"] or not data["spj_code"]:

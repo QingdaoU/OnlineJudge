@@ -58,7 +58,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.security.SecurityMiddleware',
-    'account.middleware.AdminRequiredMiddleware',
+    'account.middleware.AdminRoleRequiredMiddleware',
     'account.middleware.SessionSecurityMiddleware',
     'account.middleware.TimezoneMiddleware'
 )

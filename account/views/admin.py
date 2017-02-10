@@ -6,7 +6,7 @@ from utils.api import APIView, validate_serializer
 from utils.shortcuts import rand_str
 
 from ..decorators import super_admin_required
-from ..models import User, AdminType, ProblemPermission
+from ..models import AdminType, ProblemPermission, User
 from ..serializers import EditUserSerializer, UserSerializer
 
 

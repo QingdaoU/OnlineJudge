@@ -8,7 +8,7 @@ from otpauth import OtpAuth
 from utils.api.tests import APIClient, APITestCase
 from utils.shortcuts import rand_str
 
-from .models import AdminType, User, ProblemPermission
+from .models import AdminType, ProblemPermission, User
 
 
 class PermissionDecoratorTest(APITestCase):

@@ -1,6 +1,6 @@
 from utils.api import DateTimeTZField, serializers
 
-from .models import AdminType, User, ProblemPermission
+from .models import AdminType, ProblemPermission, User
 
 
 class UserLoginSerializer(serializers.Serializer):

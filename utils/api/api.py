@@ -90,7 +90,6 @@ class APIView(View):
                     return self._serializer_error_to_str({_k: _v})
 
     def invalid_serializer(self, serializer):
-        print(serializer.errors)
         k, v = self._serializer_error_to_str(serializer.errors)
         if k != "non_field_errors":
             return self.error(err="invalid-" + k, msg=k + ": " + v)

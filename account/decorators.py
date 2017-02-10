@@ -4,7 +4,7 @@ from django.utils.translation import ugettext as _
 
 from utils.api import JSONResponse
 
-from .models import AdminType
+from .models import ProblemPermission
 
 
 class BasePermissionDecorator(object):
@@ -38,11 +38,20 @@ class login_required(BasePermissionDecorator):
 
 class super_admin_required(BasePermissionDecorator):
     def check_permission(self):
-        return self.request.user.is_authenticated() and \
-               self.request.user.admin_type == AdminType.SUPER_ADMIN
+        user = self.request.user
+        return user.is_authenticated() and user.is_super_admin()
 
 
-class admin_required(BasePermissionDecorator):
+class admin_role_required(BasePermissionDecorator):
     def check_permission(self):
-        return self.request.user.is_authenticated() and \
-               self.request.user.admin_type in [AdminType.SUPER_ADMIN, AdminType.ADMIN]
+        user = self.request.user
+        return user.is_authenticated() and user.is_admin_role()
+
+
+class problem_permission_required(admin_role_required):
+    def check_permission(self):
+        if not super(problem_permission_required, self).check_permission():
+            return False
+        if self.request.user.problem_permission == ProblemPermission.NONE:
+            return False
+        return True

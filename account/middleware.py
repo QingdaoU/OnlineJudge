@@ -22,11 +22,11 @@ class SessionSecurityMiddleware(object):
             request.session["last_activity"] = time.time()
 
 
-class AdminRequiredMiddleware(object):
+class AdminRoleRequiredMiddleware(object):
     def process_request(self, request):
         path = request.path_info
         if path.startswith("/admin/") or path.startswith("/api/admin/"):
-            if not(request.user.is_authenticated() and request.user.is_admin()):
+            if not(request.user.is_authenticated() and request.user.is_admin_role()):
                 return JSONResponse.response({"error": "login-required", "data": _("Please login in first")})
 
 

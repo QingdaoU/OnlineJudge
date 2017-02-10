@@ -1,6 +1,6 @@
 from django.core.management.base import BaseCommand
 
-from account.models import AdminType, User, UserProfile
+from account.models import AdminType, ProblemPermission, User, UserProfile
 from utils.shortcuts import rand_str  # NOQA
 
 
@@ -26,7 +26,8 @@ class Command(BaseCommand):
             else:
                 self.stdout.write(self.style.ERROR("User 'root' is not super admin."))
         except User.DoesNotExist:
-            user = User.objects.create(username="root", email="root@oj.com", admin_type=AdminType.SUPER_ADMIN)
+            user = User.objects.create(username="root", email="root@oj.com", admin_type=AdminType.SUPER_ADMIN,
+                                       problem_permission=ProblemPermission.ALL)
             # for dev
             # rand_password = rand_str(length=6)
             rand_password = "rootroot"

@@ -51,14 +51,14 @@ class User(AbstractBaseUser):
 
     objects = UserManager()
 
-    def is_admin(self):
-        return self.admin_type in [AdminType.ADMIN, AdminType.SUPER_ADMIN]
+    def is_super_admin(self):
+        return self.admin_type == AdminType.SUPER_ADMIN
 
     def is_admin_role(self):
-        return self.admin_type == AdminType.ADMIN
+        return self.admin_type in [AdminType.ADMIN, AdminType.SUPER_ADMIN]
 
-    def is_super_admin_role(self):
-        return self.admin_type == AdminType.SUPER_ADMIN
+    def can_mgmt_all_problem(self):
+        return self.problem_permission == ProblemPermission.ALL
 
     class Meta:
         db_table = "user"
