@@ -51,6 +51,9 @@ class User(AbstractBaseUser):
 
     objects = UserManager()
 
+    def is_admin(self):
+        return self.admin_type == AdminType.ADMIN
+
     def is_super_admin(self):
         return self.admin_type == AdminType.SUPER_ADMIN
 
