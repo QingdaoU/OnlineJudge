@@ -10,9 +10,9 @@ waf_addr = "127.0.0.1:50001"
 setting = "oj.settings"
 
 for opt, arg in opts:
-    if opt in ['-c', '--coverage']:
+    if opt in ["-c", "--coverage"]:
         is_coverage = True
-    if opt in ['-m', '--module']:
+    if opt in ["-m", "--module"]:
         test_module = arg
 
 print("Coverage: {cov}".format(cov=is_coverage))
