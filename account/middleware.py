@@ -7,12 +7,10 @@ from django.utils.translation import ugettext as _
 
 from utils.api import JSONResponse
 
-from .models import AdminType
-
 
 class SessionSecurityMiddleware(object):
     def process_request(self, request):
-        if request.user.is_authenticated() and request.user.admin_type in [AdminType.ADMIN, AdminType.SUPER_ADMIN]:
+        if request.user.is_authenticated() and request.user.is_admin_role():
             if "last_activity" in request.session:
                 # 24 hours passed since last visit
                 if time.time() - request.session["last_activity"] >= 24 * 60 * 60:

@@ -28,8 +28,8 @@ class ContestAPI(APIView):
         data = request.data
         try:
             contest = Contest.objects.get(id=data.pop("id"))
-            if request.user.is_admin():
-                contest = contest.get(created_by=request.user)
+            if request.user.is_admin() and contest.created_by != request.user:
+                return self.error("Contest does not exist")
         except Contest.DoesNotExist:
             return self.error("Contest does not exist")
         data["start_time"] = dateutil.parser.parse(data["start_time"])
@@ -48,8 +48,8 @@ class ContestAPI(APIView):
         if contest_id:
             try:
                 contest = Contest.objects.get(id=contest_id)
-                if request.user.is_admin():
-                    contest = contest.get(created_by=request.user)
+                if request.user.is_admin() and contest.created_by != request.user:
+                    return self.error("Contest does not exist")
                 return self.success(ContestSerializer(contest).data)
             except Contest.DoesNotExist:
                 return self.error("Contest does not exist")
@@ -68,11 +68,14 @@ class ContestAPI(APIView):
 class ContestAnnouncementAPI(APIView):
     @validate_serializer(CreateContestAnnouncementSerializer)
     def post(self, request):
+        """
+        Create one contest_announcement.
+        """
         data = request.data
         try:
             contest = Contest.objects.get(id=data.pop("contest_id"))
-            if request.user.is_admin():
-                contest = contest.get(created_by=request.user)
+            if request.user.is_admin() and contest.created_by != request.user:
+                return self.error("Contest does not exist")
             data["contest"] = contest
             data["created_by"] = request.user
         except Contest.DoesNotExist:
@@ -81,10 +84,35 @@ class ContestAnnouncementAPI(APIView):
         return self.success(ContestAnnouncementSerializer(announcement).data)
 
     def delete(self, request):
-        announcement_id = request.GET.get("id")
-        if announcement_id:
+        """
+        Delete one contest_announcement.
+        """
+        contest_announcement_id = request.GET.get("id")
+        if contest_announcement_id:
             if request.user.is_admin():
-                ContestAnnouncement.objects.filter(id=announcement_id, contest__created_by=request.user).delete()
+                ContestAnnouncement.objects.filter(id=contest_announcement_id, contest__created_by=request.user).delete()
             else:
-                ContestAnnouncement.objects.filter(id=announcement_id).delete()
+                ContestAnnouncement.objects.filter(id=contest_announcement_id).delete()
         return self.success()
+
+    def get(self, request):
+        """
+        Get one contest_announcement or contest_announcement list.
+        """
+        contest_announcement_id = request.GET.get("id")
+        if contest_announcement_id:
+            try:
+                contest_announcement = ContestAnnouncement.objects.get(id=contest_announcement_id)
+                if request.user.is_admin() and contest_announcement.created_by != request.user:
+                    return self.error("Contest announcement does not exist")
+                return self.success(ContestAnnouncementSerializer(contest_announcement).data)
+            except ContestAnnouncement.DoesNotExist:
+                return self.error("Contest announcement does not exist")
+
+        contest_announcements = ContestAnnouncement.objects.all().order_by("-create_time")
+        if request.user.is_admin():
+            contest_announcements = contest_announcements.filter(created_by=request.user)
+        keyword = request.GET.get("keyword")
+        if keyword:
+            contest_announcements = contest_announcements.filter(title__contains=keyword)
+        return self.success(self.paginate_data(request, contest_announcements, ContestAnnouncementSerializer))
