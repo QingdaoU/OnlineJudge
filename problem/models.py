@@ -2,6 +2,7 @@ from django.db import models
 from jsonfield import JSONField
 
 from account.models import User
+from contest.models import Contest
 from utils.models import RichTextField
 
 
@@ -66,3 +67,14 @@ class AbstractProblem(models.Model):
 
 class Problem(AbstractProblem):
     _id = models.CharField(max_length=24, unique=True, db_index=True)
+
+
+class ContestProblem(AbstractProblem):
+    _id = models.CharField(max_length=24, db_index=True)
+    contest = models.ForeignKey(Contest)
+    # 是否已经公开了题目，防止重复公开
+    is_public = models.BooleanField(default=False)
+
+    class Meta:
+        db_table = "contest_problem"
+        unique_together = (("_id", "contest"), )

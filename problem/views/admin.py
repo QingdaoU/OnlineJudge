@@ -6,12 +6,13 @@ import zipfile
 from django.conf import settings
 
 from account.decorators import problem_permission_required
+from contest.models import Contest
 from utils.api import APIView, CSRFExemptAPIView, validate_serializer
 from utils.shortcuts import rand_str
 
-from ..models import Problem, ProblemRuleType, ProblemTag
+from ..models import Problem, ProblemRuleType, ProblemTag, ContestProblem
 from ..serializers import (CreateProblemSerializer, EditProblemSerializer,
-                           ProblemSerializer, TestCaseUploadForm)
+                           ProblemSerializer, TestCaseUploadForm, CreateContestProblemSerializer)
 
 
 class TestCaseUploadAPI(CSRFExemptAPIView):
@@ -170,6 +171,9 @@ class ProblemAPI(APIView):
         problems = Problem.objects.all().order_by("-create_time")
         if not user.can_mgmt_all_problem():
             problems = problems.filter(created_by=request.user)
+        keyword = request.GET.get("keyword")
+        if keyword:
+            problems = problems.filter(title__contains=keyword)
         return self.success(self.paginate_data(request, problems, ProblemSerializer))
 
     @validate_serializer(EditProblemSerializer)
@@ -203,6 +207,7 @@ class ProblemAPI(APIView):
         else:
             data["spj_language"] = None
             data["spj_code"] = None
+
         if data["rule_type"] == ProblemRuleType.OI:
             for item in data["test_case_score"]:
                 if item["score"] <= 0:
@@ -223,3 +228,81 @@ class ProblemAPI(APIView):
             problem.tags.add(tag)
 
         return self.success()
+
+
+class ContestProblemAPI(APIView):
+    @validate_serializer(CreateContestProblemSerializer)
+    def post(self, request):
+        data = request.data
+
+        try:
+            contest = Contest.objects.get(id=data.pop("contest_id"))
+            if request.user.is_admin() and contest.created_by != request.user:
+                return self.error("Contest does not exist")
+        except Contest.DoesNotExist:
+            return self.error("Contest does not exist")
+
+        if data["rule_type"] != contest.rule_type:
+            return self.error("Invalid rule type")
+
+        _id = data["_id"]
+        if not _id:
+            return self.error("Display id is required for contest problem")
+        try:
+            ContestProblem.objects.get(_id=_id, contest=contest)
+            return self.error("Duplicate Display id")
+        except ContestProblem.DoesNotExist:
+            pass
+
+        if data["spj"]:
+            if not data["spj_language"] or not data["spj_code"]:
+                return self.error("Invalid spj")
+            data["spj_version"] = hashlib.md5((data["spj_language"] + ":" + data["spj_code"]).encode("utf-8")).hexdigest()
+        else:
+            data["spj_language"] = None
+            data["spj_code"] = None
+
+        if data["rule_type"] == ProblemRuleType.OI:
+            for item in data["test_case_score"]:
+                if item["score"] <= 0:
+                    return self.error("Invalid score")
+        # todo check filename and score info
+
+        data["created_by"] = request.user
+        data["contest"] = contest
+        tags = data.pop("tags")
+        data["languages"] = list(data["languages"])
+
+        problem = ContestProblem.objects.create(**data)
+
+        for item in tags:
+            try:
+                tag = ProblemTag.objects.get(name=item)
+            except ProblemTag.DoesNotExist:
+                tag = ProblemTag.objects.create(name=item)
+            problem.tags.add(tag)
+        return self.success(ProblemSerializer(problem).data)
+
+    def get(self, request):
+        problem_id = request.GET.get("id")
+        contest_id = request.GET.get("contest_id")
+        user = request.user
+        if problem_id:
+            try:
+                problem = ContestProblem.objects.get(id=problem_id)
+                if request.user.is_admin() and problem.contest.created_by != user:
+                    return self.error("Problem does not exist")
+            except ContestProblem.DoesNotExist:
+                return self.error("Problem does not exist")
+            return self.success(ProblemSerializer(problem).data)
+
+        if not contest_id:
+            return self.error("Contest id is required")
+
+        problems = ContestProblem.objects.filter(contest_id=contest_id).order_by("-create_time")
+        if user.is_admin():
+            problems = problems.filter(contest__created_by=user)
+        keyword = request.GET.get("keyword")
+        if keyword:
+            problems = problems.filter(title__contains=keyword)
+        return self.success(self.paginate_data(request, problems, ProblemSerializer))

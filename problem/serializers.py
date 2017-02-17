@@ -64,6 +64,10 @@ class EditProblemSerializer(CreateOrEditProblemSerializer):
     id = serializers.IntegerField()
 
 
+class CreateContestProblemSerializer(CreateOrEditProblemSerializer):
+    contest_id = serializers.IntegerField()
+
+
 class TagSerializer(serializers.ModelSerializer):
     class Meta:
         model = ProblemTag
