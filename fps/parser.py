@@ -15,7 +15,7 @@ class FPSParser(object):
     def root(self):
         if self._root is None:
             self._root = ET.ElementTree(file=self.path).getroot()
-            if self._root.attrib["version"] != "1.0":
+            if self._root.attrib["version"] != "1.2":
                 raise ValueError("Unsupported version")
         return self._root
 
@@ -24,8 +24,9 @@ class FPSParser(object):
                    "memory_limit": {"unit": None, "value": None},
                    "time_limit": {"unit": None, "value": None},
                    "images": [], "input": None, "output": None, "samples": [],
+                   "append": [], "template": [], "prepend": [],
                    "test_cases": [], "hint": None, "source": None,
-                   "spj": None, "solution": None}
+                   "spj": [], "solution": []}
         sample_start = True
         test_case_start = True
         for node in self.root:
@@ -52,6 +53,11 @@ class FPSParser(object):
                         if value <= 0:
                             raise ValueError("Invalid memory limit value")
                         problem["memory_limit"]["value"] = value
+                    elif tag in ["template", "append", "prepend", "solution", "spj"]:
+                        lang = item.attrib.get("language")
+                        if not lang:
+                            raise ValueError("Invalid " + tag + ", language name is missed")
+                        problem[tag].append({"language": lang, "code": item.text})
                     elif tag == "img":
                         problem["images"].append({"src": None, "blob": None})
                         for child in item:
@@ -116,6 +122,8 @@ class FPSParser(object):
 
 
 if __name__ == "__main__":
+    import pprint
     parser = FPSParser("fps.xml")
-    parser.save_image("/tmp", "/static/img")
+    parser.parse()
+    pprint.pprint(parser.save_image("/tmp", "/static/img"))
     parser.save_test_case("/tmp")

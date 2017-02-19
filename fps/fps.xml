@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fps version="1.2" url="https://github.com/zhblue/freeproblemset/">
+	<generator name="HUSTOJ" url="https://github.com/zhblue/hustoj/"/>
+	<item>
+<title><![CDATA[A+B Problem]]></title>
+<time_limit unit="s"><![CDATA[1]]></time_limit>
+<memory_limit unit="mb"><![CDATA[256]]></memory_limit>
+
+<img><src><![CDATA[http://vd.hustoj.com:80/upload/image/20170219/20170219102428_18727.png]]></src><base64><![CDATA[iVBORw0KGgoAAAANSUhEUgAAABUAAAARCAYAAAAyhueAAAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAACw2lUWHRYTUw6Y29tLmFkb2JlLnhtcAAAAAAAPHg6eG1wbWV0YSB4bWxuczp4PSJhZG9iZTpuczptZXRhLyIgeDp4bXB0az0iWE1QIENvcmUgNS40LjAiPgogICA8cmRmOlJERiB4bWxuczpyZGY9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkvMDIvMjItcmRmLXN5bnRheC1ucyMiPgogICAgICA8cmRmOkRlc2NyaXB0aW9uIHJkZjphYm91dD0iIgogICAgICAgICAgICB4bWxuczpwaG90b3Nob3A9Imh0dHA6Ly9ucy5hZG9iZS5jb20vcGhvdG9zaG9wLzEuMC8iCiAgICAgICAgICAgIHhtbG5zOmV4aWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20vZXhpZi8xLjAvIgogICAgICAgICAgICB4bWxuczp0aWZmPSJodHRwOi8vbnMuYWRvYmUuY29tL3RpZmYvMS4wLyI+CiAgICAgICAgIDxwaG90b3Nob3A6RGF0ZUNyZWF0ZWQ+MjAxNy0wMS0xNFQxMDo1MzowNTwvcGhvdG9zaG9wOkRhdGVDcmVhdGVkPgogICAgICAgICA8ZXhpZjpVc2VyQ29tbWVudD4KICAgICAgICAgICAgPHJkZjpBbHQ+CiAgICAgICAgICAgICAgIDxyZGY6bGkgeG1sOmxhbmc9IngtZGVmYXVsdCI+U2NyZWVuc2hvdDwvcmRmOmxpPgogICAgICAgICAgICA8L3JkZjpBbHQ+CiAgICAgICAgIDwvZXhpZjpVc2VyQ29tbWVudD4KICAgICAgICAgPHRpZmY6T3JpZW50YXRpb24+MTwvdGlmZjpPcmllbnRhdGlvbj4KICAgICAgPC9yZGY6RGVzY3JpcHRpb24+CiAgIDwvcmRmOlJERj4KPC94OnhtcG1ldGE+Cjlo66MAAAApSURBVDgRY/wPBAxUBkxUNg9s3Kih1A/V0TAdDVMqh8BokqJygAKNAwDaWgQehTZHywAAAABJRU5ErkJggg==]]></base64></img><description><![CDATA[test<img src="http://vd.hustoj.com:80/upload/image/20170219/20170219102428_18727.png" alt="" />]]></description>
+<input><![CDATA[<p>
+	Two integer a,b (0&lt;=a,b&lt;=10)
+</p>]]></input>
+<output><![CDATA[<p>
+	Output a+b
+</p>]]></output>
+<sample_input><![CDATA[1 2]]></sample_input>
+<sample_output><![CDATA[3]]></sample_output>
+  <test_input><![CDATA[500 17
+]]></test_input>
+<test_output><![CDATA[517]]></test_output>
+<test_input><![CDATA[1 2
+
+]]></test_input>
+<test_output><![CDATA[3
+]]></test_output>
+<hint><![CDATA[hint]]></hint>
+<source><![CDATA[系统原理，熟悉OJ]]></source>
+		<solution language="C"><![CDATA[#include <stdio.h>
+int main()
+{
+	int a,b;
+	while(scanf("%d%d",&a,&b)!=EOF)
+	{
+		printf("%d\n",a+b);
+	}
+	return 0;
+}]]></solution>
+				<template language="C"><![CDATA[#include <stdio.h>
+
+int main()
+{
+    int a,b;
+    scanf("%d %d",&a,&b);
+    printf("%d",a+b);
+    return 0;
+}
+]]></template>
+				<solution language="C++"><![CDATA[#include <iostream>
+#include <cstdio>
+using namespace std;
+int main()
+{
+#ifndef ONLINE_JUDGE
+	freopen("in.txt","r",stdin);
+#endif
+	int a,b;
+	while(cin >>a >>b)
+	{
+		cout <<a+b <<endl;
+	}
+	return 0;
+}]]></solution>
+				<template language="C++"><![CDATA[#include <iostream>
+using namespace std;
+int main(){
+    int a,b;
+    while(cin >> a >> b)
+        cout << a+b << endl;
+	return 0;
+}
+]]></template>
+				<solution language="Pascal"><![CDATA[program abprob;
+var
+  a,b:longint;
+begin
+   readln(a,b);
+   writeln(a+b);
+end.]]></solution>
+			<solution language="Java"><![CDATA[import java.util.*;
+public class Main
+{
+	public static void main(String args[])
+	{
+		Scanner cin = new Scanner(System.in);
+		int a,b;
+
+		while(cin.hasNextInt())
+		{
+			a = cin.nextInt();
+			b = cin.nextInt();
+			System.out.println(a+b);
+		}
+	}
+}]]></solution>
+				<prepend language="Java"><![CDATA[import java.io.*;
+
+import java.util.*;
+
+public class Main
+
+{
+]]></prepend>
+					<append language="Java"><![CDATA[            public static void main(String args[]) throws Exception
+
+            {
+
+                    Scanner cin=new Scanner(System.in);
+                    while(cin.hasNextInt()){
+                        int a=cin.nextInt();
+                        int b=cin.nextInt();
+                        System.out.println(plus_2_int(a,b));
+                    }
+
+            }
+
+}]]></append>
+					<template language="Python"><![CDATA[a = input()
+a = a.split()
+b = []
+for i in a:
+        b.append(int(i))
+print (sum(b))
+]]></template>
+					<template language="Clang"><![CDATA[#include <stdio.h>
+
+int main()
+{
+    int a,b;
+    scanf("%d %d",&a,&b);
+    printf("%d",a+b);
+    return 0;
+}
+]]></template>
+					<template language="Clang++"><![CDATA[#include <iostream>
+using namespace std;
+int main(){
+    int a,b;
+    while(cin >> a >> b)
+        cout << a+b << endl;
+	return 0;
+}
+]]></template>
+		<spj language="C"><![CDATA[ii
+]]></spj></item>
+</fps>
