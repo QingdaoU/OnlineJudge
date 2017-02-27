@@ -162,15 +162,15 @@ class ProblemAPI(APIView):
         if problem_id:
             try:
                 problem = Problem.objects.get(id=problem_id)
-                if not user.can_mgmt_all_problem():
-                    problem = problem.get(created_by=request.user)
+                if not user.can_mgmt_all_problem() and problem.created_by != user:
+                    return self.error("Problem does not exist")
                 return self.success(ProblemSerializer(problem).data)
             except Problem.DoesNotExist:
                 return self.error("Problem does not exist")
 
         problems = Problem.objects.all().order_by("-create_time")
         if not user.can_mgmt_all_problem():
-            problems = problems.filter(created_by=request.user)
+            problems = problems.filter(created_by=user)
         keyword = request.GET.get("keyword")
         if keyword:
             problems = problems.filter(title__contains=keyword)
@@ -185,8 +185,8 @@ class ProblemAPI(APIView):
 
         try:
             problem = Problem.objects.get(id=problem_id)
-            if not user.can_mgmt_all_problem():
-                problem = problem.get(created_by=request.user)
+            if not user.can_mgmt_all_problem() and problem.created_by != user:
+                return self.error("Problem does not exist")
         except Problem.DoesNotExist:
             return self.error("Problem does not exist")
 
@@ -290,7 +290,7 @@ class ContestProblemAPI(APIView):
         if problem_id:
             try:
                 problem = ContestProblem.objects.get(id=problem_id)
-                if request.user.is_admin() and problem.contest.created_by != user:
+                if user.is_admin() and problem.contest.created_by != user:
                     return self.error("Problem does not exist")
             except ContestProblem.DoesNotExist:
                 return self.error("Problem does not exist")
