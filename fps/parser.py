@@ -63,7 +63,7 @@ class FPSParser(object):
                 if not lang:
                     raise ValueError("Invalid " + tag + ", language name is missed")
                 problem[tag].append({"language": lang, "code": item.text})
-            elif tag == 'spj':
+            elif tag == "spj":
                 lang = item.attrib.get("language")
                 if not lang:
                     raise ValueError("Invalid spj, language name if missed")
