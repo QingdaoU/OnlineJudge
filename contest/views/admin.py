@@ -1,7 +1,6 @@
 import dateutil.parser
 
 from utils.api import APIView, validate_serializer
-
 from ..models import Contest, ContestAnnouncement
 from ..serializers import (ContestAnnouncementSerializer, ContestSerializer,
                            CreateConetestSeriaizer,
@@ -20,8 +19,8 @@ class ContestAPI(APIView):
             return self.error("Start time must occur earlier than end time")
         if not data["password"]:
             data["password"] = None
-        Contest.objects.create(**data)
-        return self.success()
+        contest = Contest.objects.create(**data)
+        return self.success(ContestSerializer(contest).data)
 
     @validate_serializer(EditConetestSeriaizer)
     def put(self, request):
@@ -90,7 +89,8 @@ class ContestAnnouncementAPI(APIView):
         contest_announcement_id = request.GET.get("id")
         if contest_announcement_id:
             if request.user.is_admin():
-                ContestAnnouncement.objects.filter(id=contest_announcement_id, contest__created_by=request.user).delete()
+                ContestAnnouncement.objects.filter(id=contest_announcement_id,
+                                                   contest__created_by=request.user).delete()
             else:
                 ContestAnnouncement.objects.filter(id=contest_announcement_id).delete()
         return self.success()
