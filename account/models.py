@@ -2,16 +2,12 @@
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser
 
-from jsonfield import JSONField
-
-
+from jsonfield import JSONField#123
 class UserManager(models.Manager):
     use_in_migrations = True
 
     def get_by_natural_key(self, username):
-        return self.get(**{self.model.USERNAME_FIELD: username})
-
-
+        return self.get(**{self.model.USERNAME_FIELD: username})#1
 REGULAR_USER = 0
 ADMIN = 1
 SUPER_ADMIN = 2
