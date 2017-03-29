@@ -97,12 +97,17 @@ service nginx restart
 # 启动容器
 docker-compose -f dockerfiles/oj_web_server/docker-compose.yml up -d
 
-for ((i=10;i>0;i++))
+for ((i=10;i>0;i--))
 do
-	echo "$i秒后继续执行"
+	echo -n "$i秒后继续执行 "
+	for ((j=0;j<=i;j++))
+	do
+		echo -n "."
+	done
+	echo ""
 	sleep 1s
 done
-
+echo "继续执行中"
 CONTAINER_ID=`docker ps -a|grep oj_web_server`
 CONTAINER_ID=${CONTAINER_ID%% *}
 
@@ -121,7 +126,7 @@ JUDGER_ADDR=`docker inspect --format='{{.NetworkSettings.Networks.bridge.IPAddre
 clear
 
 echo "安装完成"
-echo "请转到http://localhost/登录admin，并完成以下配置"
+echo "请转到http://localhost/ 登录admin，并完成以下配置"
 echo -n "OJ管理员帐号:	" 
 echo -e "\033[41;33;1mroot\033[0m"
 echo -n "OJ管理员密码:	" 
