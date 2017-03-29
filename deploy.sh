@@ -55,12 +55,12 @@ docker pull registry.aliyuncs.com/v-image/judger
 docker tag registry.aliyuncs.com/v-image/oj_web_server qduoj/oj_web_server
 docker tag registry.aliyuncs.com/v-image/judger qduoj/judger
 
-result1=$(docker image | grep mysql)
-result2=$(docker image | grep redis)
-result3=$(docker image | grep nginx)
-result4=$(docker image | grep oj_web_server)
+result1=$(docker images | grep mysql)
+result2=$(docker images | grep redis)
+result3=$(docker images | grep nginx)
+result4=$(docker images | grep oj_web_server)
 
-if [[ "$result1" == "" || "$result2" == "" || "$result3" == "" || "$result4" == "" || ]]
+if [[ "$result1" == "" ]] || [[ "$result2" == "" ]] || [[ "$result3" == "" ]] || [[ "$result4" == "" ]]
 then
 	docker pull registry.aliyuncs.com/v-image/redis
 	docker tag registry.aliyuncs.com/v-image/redis redis
@@ -73,11 +73,11 @@ then
 	docker tag registry.aliyuncs.com/v-image/oj_web_server qduoj/oj_web_server
 	docker tag registry.aliyuncs.com/v-image/judger qduoj/judger
 
-	result1=$(docker image | grep mysql)
-	result2=$(docker image | grep redis)
-	result3=$(docker image | grep nginx)
-	result4=$(docker image | grep oj_web_server)
-	if [[ "$result1" == "" || "$result2" == "" || "$result3" == "" || "$result4" == "" || ]]
+	result1=$(docker images | grep mysql)
+	result2=$(docker images | grep redis)
+	result3=$(docker images | grep nginx)
+	result4=$(docker images | grep oj_web_server)
+	if [[ "$result1" == "" ]] || [[ "$result2" == "" ]] || [[ "$result3" == "" ]] || [[ "$result4" == "" ]]
 	then
 		echo "网络连接错误，请检查网络后重试"
 		exit 1
@@ -96,6 +96,12 @@ service nginx restart
 
 # 启动容器
 docker-compose -f dockerfiles/oj_web_server/docker-compose.yml up -d
+
+for ((i=10;i>0;i++))
+do
+	echo "$i秒后继续执行"
+	sleep 1s
+done
 
 CONTAINER_ID=`docker ps -a|grep oj_web_server`
 CONTAINER_ID=${CONTAINER_ID%% *}
@@ -123,7 +129,7 @@ echo -e "\033[41;33;1mpassword\033[0m"
 echo -n "判题机IP: 	"  
 echo -e "\033[41;33;1m$JUDGER_ADDR\033[0m"
 echo -n "判题机TOKEN: 	"  
-echo -e "\033[41;33;1m$PRC_TOKEN\033[0m"
+echo -e "\033[41;33;1m$RPC_TOKEN\033[0m"
 echo -n "判题机PORT: 	"  
 echo -e "\033[41;33;1m8080\033[0m"
 echo -n "MySQL密码: 	"  
