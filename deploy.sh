@@ -10,10 +10,12 @@ exit 0
 # 设置MYSQL密码和RPC_TOKEN
 echo -n "请设置MYSQL密码:" 
 read MYSQL_PASSWORD
-sed -i "s/{YOUR_PASSWORD}/$MYSQL_PASSWORD/g" ./dockerfiles/oj_web_server/docker-compose.yml
+sed -i "s/{YOUR_PASSWORD}/$MYSQL_PASSWORD/g" ./dockerfiles/oj_web_server/docker-compose.example.yml
+cp ./dockerfiles/oj_web_server/docker-compose.example.yml ./dockerfiles/oj_web_server/docker-compose.yml
 echo -n "请设置rpc_token:"
 read RPC_TOKEN
-sed -i "s/{YOUR_PASSWORD}/$RPC_TOKEN/g" ./dockerfiles/judger/docker-compose.yml
+sed -i "s/{YOUR_PASSWORD}/$RPC_TOKEN/g" ./dockerfiles/judger/docker-compose.example.yml 
+cp ./dockerfiles/judger/docker-compose.example.yml ./dockerfiles/judger/docker-compose.yml
 
 #检查更新，并安装必要程序
 apt-get update

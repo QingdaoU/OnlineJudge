@@ -1,0 +1,11 @@
+judger:
+    image: qduoj/judger
+    volumes:
+        - /home/OJ/OnlineJudge:/var/judger/code
+        - /home/OJ/test_case:/var/judger/test_case
+        - /home/OJ/log:/var/judger/code/judge/log
+    environment:
+        - TZ=Asia/Shanghai
+        - rpc_token={YOUR_PASSWORD}
+    ports:
+        - "0.0.0.0:8085:8080"
