@@ -6,7 +6,6 @@ if [ `whoami` != "root" ];then
 	exit 0
 fi
 
-exit 0
 # 设置MYSQL密码和RPC_TOKEN
 echo -n "请设置MYSQL密码(直接换行默认your_password):" 
 read MYSQL_PASSWORD
@@ -62,6 +61,7 @@ cd /home/OJ/OnlineJudge
 # 配置NGINX
 cat ./dockerfiles/oj_web_server/oj.example.conf > /etc/nginx/sites-enabled/default
 service nginx restart
+
 
 # 启动容器
 docker-compose -f dockerfiles/oj_web_server/docker-compose.yml up -d
