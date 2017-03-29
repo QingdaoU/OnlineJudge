@@ -5,7 +5,7 @@ import MySQLdb
 """
 docker-compose启动的时候是并行启动的,可能执行本脚本的时候MySQL还没启动完
 """
-i = 3
+i = 6
 while i:
     try:
         conn = MySQLdb.connect(host=os.environ["MYSQL_PORT_3306_TCP_ADDR"],
@@ -16,8 +16,8 @@ while i:
         print "Create database successfully"
         exit(0)
     except Exception as e:
-        print "Failed to create database, error: " + str(e) + ", will retry in 3 seconds"
+        print "Failed to create database, error: " + str(e) + ", will retry in 10 seconds"
         i -= 1
-        time.sleep(3)
+        time.sleep(10)
 print "Failed to create database"
 exit(1)
