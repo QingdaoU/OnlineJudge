@@ -1,6 +1,6 @@
 #!/bin/bash 
 
-python manage.py tools/create_db.py
+python tools/create_db.py
 python manage.py migrate
 python manage.py migrate --database=submission
 python manage.py initadmin

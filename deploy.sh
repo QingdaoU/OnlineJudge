@@ -20,7 +20,7 @@ cp ./dockerfiles/judger/docker-compose.example.yml ./dockerfiles/judger/docker-c
 #检查更新，并安装必要程序
 apt-get update
 apt-get upgrate
-apt-get install git curl python-pip vim nginx
+apt-get -y install git curl python-pip vim nginx docker.io docker-compose
 
 #  我们使用下面的文件夹进行映射
 #    /home/data/mysql MySQL 的数据文件
@@ -30,13 +30,8 @@ apt-get install git curl python-pip vim nginx
 #    /home/upload 上传的图片等
 mkdir -p /home/OJ/data/mysql /home/OJ/data/redis /home/OJ/test_case /home/OJ/log /home/OJ/upload
 
-#  安装docker
-#    因为国内特殊网络环境，Docker 的安装和使用并不方便，我们使用 DaoCloud 的安装镜像。但是有时候也会出现添加 key 失败的问题，这时候可以使用官方的安装方案。
 
-curl -sSL https://get.daocloud.io/docker | sh
 
-# 安装 docker-compose
-pip install docker-compose
 
 
 ##pull 需要的镜像（目前只提供阿里云镜像一种方式）
@@ -56,7 +51,7 @@ cp -R  ../ /home/OJ/
 cd /home/OJ/OnlineJudge
 
 # 配置NGINX
-cat ./oj_web_server/oj.conf > /etx/nginx/site-enable/default
+cat ./dockerfiles/oj_web_server/oj.example.conf > /etx/nginx/sites-enabled/default
 service nginx restart
 
 # 启动容器
