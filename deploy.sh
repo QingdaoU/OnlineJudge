@@ -8,12 +8,21 @@ fi
 
 exit 0
 # 设置MYSQL密码和RPC_TOKEN
-echo -n "请设置MYSQL密码:" 
+echo -n "请设置MYSQL密码(直接换行默认your_password):" 
 read MYSQL_PASSWORD
+
+if  [ ! -n "$MYSQL_PASSWORD" ] ;then
+	MYSQL_PASSWORD="your_password"
+fi
 sed -i "s/{YOUR_PASSWORD}/$MYSQL_PASSWORD/g" ./dockerfiles/oj_web_server/docker-compose.example.yml
 cp ./dockerfiles/oj_web_server/docker-compose.example.yml ./dockerfiles/oj_web_server/docker-compose.yml
-echo -n "请设置rpc_token:"
+
+
+echo -n "请设置rpc_token(直接换行使用your_token):"
 read RPC_TOKEN
+if  [ ! -n "$RPC_TOKEN" ] ;then
+	RPC_TOKEN="your_token"
+fi
 sed -i "s/{YOUR_PASSWORD}/$RPC_TOKEN/g" ./dockerfiles/judger/docker-compose.example.yml 
 cp ./dockerfiles/judger/docker-compose.example.yml ./dockerfiles/judger/docker-compose.yml
 
@@ -51,7 +60,7 @@ cp -R  ../ /home/OJ/
 cd /home/OJ/OnlineJudge
 
 # 配置NGINX
-cat ./dockerfiles/oj_web_server/oj.example.conf > /etx/nginx/sites-enabled/default
+cat ./dockerfiles/oj_web_server/oj.example.conf > /etc/nginx/sites-enabled/default
 service nginx restart
 
 # 启动容器
@@ -69,4 +78,24 @@ docker-compose -f dockerfiles/judger/docker-compose.yml up -d
 CONTAINER_ID=`docker ps -a|grep judger`
 CONTAINER_ID=${CONTAINER_ID%% *}
 
-docker inspect --format='{{json .NetworkSettings.Networks.bridge.IPAddress}}'
+JUDGER_ADDR=`docker inspect --format='{{.NetworkSettings.Networks.bridge.IPAddress}}' $CONTAINER_ID`
+
+
+clear
+
+echo "安装完成"
+echo "请转到http://localhost/登录admin，并完成以下配置"
+echo -n "OJ管理员帐号:	" 
+echo -e "\033[41;33;1mroot\033[0m"
+echo -n "OJ管理员密码:	" 
+echo -e "\033[41;33;1mpassword\033[0m"
+echo -n "判题机IP: 	"  
+echo -e "\033[41;33;1m$JUDGE_ADDR\033[0m"
+echo -n "判题机TOKEN: 	"  
+echo -e "\033[41;33;1m$YOUT_TOKEN\033[0m"
+echo -n "判题机PORT: 	"  
+echo -e "\033[41;33;1m8080\033[0m"
+echo -n "MySQL密码: 	"  
+echo -e "\033[41;33;1m$MYSQL_PASSWORD\033[0m"
+
+

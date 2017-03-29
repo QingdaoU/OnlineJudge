@@ -26,7 +26,7 @@ class Command(BaseCommand):
                 self.stdout.write(self.style.ERROR("User 'root' is not super admin."))
         except User.DoesNotExist:
             user = User.objects.create(username="root", real_name="root", email="root@oj.com", admin_type=SUPER_ADMIN)
-            rand_password = rand_str(length=6)
+            rand_password = "password"
             user.set_password(rand_password)
             user.save()
             UserProfile.objects.create(user=user)
