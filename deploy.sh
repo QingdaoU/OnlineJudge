@@ -43,6 +43,7 @@ mkdir -p /home/OJ/data/mysql /home/OJ/data/redis /home/OJ/test_case /home/OJ/log
 
 
 ##pull 需要的镜像（目前只提供阿里云镜像一种方式）
+
 docker pull registry.aliyuncs.com/v-image/redis
 docker tag registry.aliyuncs.com/v-image/redis redis
 docker pull registry.aliyuncs.com/v-image/mysql
@@ -53,6 +54,36 @@ docker pull registry.aliyuncs.com/v-image/oj_web_server
 docker pull registry.aliyuncs.com/v-image/judger
 docker tag registry.aliyuncs.com/v-image/oj_web_server qduoj/oj_web_server
 docker tag registry.aliyuncs.com/v-image/judger qduoj/judger
+
+result1=$(docker image | grep mysql)
+result2=$(docker image | grep redis)
+result3=$(docker image | grep nginx)
+result4=$(docker image | grep oj_web_server)
+
+if [[ "$result1" == "" || "$result2" == "" || "$result3" == "" || "$result4" == "" || ]]
+then
+	docker pull registry.aliyuncs.com/v-image/redis
+	docker tag registry.aliyuncs.com/v-image/redis redis
+	docker pull registry.aliyuncs.com/v-image/mysql
+	docker tag registry.aliyuncs.com/v-image/mysql mysql
+	docker pull registry.aliyuncs.com/v-image/nginx
+	docker tag registry.aliyuncs.com/v-image/nginx nginx
+	docker pull registry.aliyuncs.com/v-image/oj_web_server
+	docker pull registry.aliyuncs.com/v-image/judger
+	docker tag registry.aliyuncs.com/v-image/oj_web_server qduoj/oj_web_server
+	docker tag registry.aliyuncs.com/v-image/judger qduoj/judger
+
+	result1=$(docker image | grep mysql)
+	result2=$(docker image | grep redis)
+	result3=$(docker image | grep nginx)
+	result4=$(docker image | grep oj_web_server)
+	if [[ "$result1" == "" || "$result2" == "" || "$result3" == "" || "$result4" == "" || ]]
+	then
+		echo "网络连接错误，请检查网络后重试"
+		exit 1
+
+	fi
+fi
 
 # 将代码拷贝到/home/OJ/OnlineJudge
 cp -R  ../ /home/OJ/
@@ -90,9 +121,9 @@ echo -e "\033[41;33;1mroot\033[0m"
 echo -n "OJ管理员密码:	" 
 echo -e "\033[41;33;1mpassword\033[0m"
 echo -n "判题机IP: 	"  
-echo -e "\033[41;33;1m$JUDGE_ADDR\033[0m"
+echo -e "\033[41;33;1m$JUDGER_ADDR\033[0m"
 echo -n "判题机TOKEN: 	"  
-echo -e "\033[41;33;1m$YOUT_TOKEN\033[0m"
+echo -e "\033[41;33;1m$PRC_TOKEN\033[0m"
 echo -n "判题机PORT: 	"  
 echo -e "\033[41;33;1m8080\033[0m"
 echo -n "MySQL密码: 	"  
