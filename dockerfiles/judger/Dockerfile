@@ -1,4 +1,4 @@
-FROM debian:9.0
+FROM ubuntu:17.04
 ENV DEBIAN_FRONTEND noninteractive
 RUN rm /etc/apt/sources.list
 COPY sources.list /etc/apt/
