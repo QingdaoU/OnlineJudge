@@ -1,4 +1,4 @@
-FROM ubuntu:14.04
+FROM ubuntu:17.04
 ENV DEBIAN_FRONTEND noninteractive
 RUN rm /etc/apt/sources.list
 COPY sources.list /etc/apt/
@@ -8,7 +8,7 @@ RUN add-apt-repository -y ppa:webupd8team/java
 RUN echo debconf shared/accepted-oracle-license-v1-1 select true | sudo debconf-set-selections
 RUN echo debconf shared/accepted-oracle-license-v1-1 seen true | sudo debconf-set-selections
 RUN apt-get update
-RUN apt-get install -y oracle-java7-installer
+RUN apt-get install -y oracle-java8-installer
 RUN cd /tmp && git clone https://github.com/QingdaoU/Judger && cd Judger && python setup.py install
 RUN mkdir -p /var/judger/run/ && mkdir /var/judger/test_case/ && mkdir /var/judger/code/
 RUN chmod -R 777 /var/judger/run/
