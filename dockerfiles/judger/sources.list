@@ -1,8 +1,8 @@
-deb https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ zesty main restricted universe multiverse
+deb http://cn.archive.ubuntu.com/ubuntu/ zesty main restricted universe multiverse
 # deb-src https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ zesty main main restricted universe multiverse
-deb https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ zesty-updates main restricted universe multiverse
+deb http://cn.archive.ubuntu.com/ubuntu/ zesty-updates main restricted universe multiverse
 # deb-src https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ zesty-updates main restricted universe multiverse
-deb https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ zesty-backports main restricted universe multiverse
+deb http://cn.archive.ubuntu.com/ubuntu/ zesty-backports main restricted universe multiverse
 # deb-src https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ zesty-backports main restricted universe multiverse
-deb https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ zesty-security main restricted universe multiverse
+deb http://cn.archive.ubuntu.com/ubuntu/ zesty-security main restricted universe multiverse
 # deb-src https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ zesty-security main restricted universe multiverse
