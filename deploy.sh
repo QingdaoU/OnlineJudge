@@ -62,16 +62,16 @@ result4=$(docker images | grep oj_web_server)
 
 if [[ "$result1" == "" ]] || [[ "$result2" == "" ]] || [[ "$result3" == "" ]] || [[ "$result4" == "" ]]
 then
-	docker pull registry.aliyuncs.com/v-image/redis
-	docker tag registry.aliyuncs.com/v-image/redis redis
-	docker pull registry.aliyuncs.com/v-image/mysql
-	docker tag registry.aliyuncs.com/v-image/mysql mysql
-	docker pull registry.aliyuncs.com/v-image/nginx
-	docker tag registry.aliyuncs.com/v-image/nginx nginx
-	docker pull registry.aliyuncs.com/v-image/oj_web_server
-	docker pull registry.aliyuncs.com/v-image/judger
-	docker tag registry.aliyuncs.com/v-image/oj_web_server qduoj/oj_web_server
-	docker tag registry.aliyuncs.com/v-image/judger qduoj/judger
+	docker pull registry.cn-hangzhou.aliyuncs.com/xudianc/redis
+	docker tag registry.cn-hangzhou.aliyuncs.com/xudianc/redis redis
+	docker pull registry.cn-hangzhou.aliyuncs.com/xudianc/mysql
+	docker tag registry.cn-hangzhou.aliyuncs.com/xudianc/mysql mysql
+	docker pull registry.cn-hangzhou.aliyuncs.com/xudianc/nginx
+	docker tag registry.cn-hangzhou.aliyuncs.com/xudianc/nginx nginx
+	docker pull registry.cn-hangzhou.aliyuncs.com/xudianc/oj_web_server
+	docker pull registry.cn-hangzhou.aliyuncs.com/xudianc/judger
+	docker tag registry.cn-hangzhou.aliyuncs.com/xudianc/oj_web_server qduoj/oj_web_server
+	docker tag registry.cn-hangzhou.aliyuncs.com/xudianc/judger qduoj/judger
 
 	result1=$(docker images | grep mysql)
 	result2=$(docker images | grep redis)
