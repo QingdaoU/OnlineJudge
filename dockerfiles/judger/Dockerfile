@@ -5,8 +5,8 @@ COPY sources.list /etc/apt/
 RUN apt-get update
 RUN apt-get -y install software-properties-common python-software-properties python python-dev gcc g++ git libtool python-pip libseccomp-dev
 RUN add-apt-repository -y ppa:webupd8team/java
-RUN echo debconf shared/accepted-oracle-license-v1-1 select true | sudo debconf-set-selections
-RUN echo debconf shared/accepted-oracle-license-v1-1 seen true | sudo debconf-set-selections
+RUN echo debconf shared/accepted-oracle-license-v1-1 select true | debconf-set-selections
+RUN echo debconf shared/accepted-oracle-license-v1-1 seen true | debconf-set-selections
 RUN apt-get update
 RUN apt-get install -y oracle-java8-installer
 RUN cd /tmp && git clone https://github.com/xudianc/Judger && cd Judger && python setup.py install
