@@ -1,4 +1,4 @@
-FROM ubuntu:17.04
+FROM debian:9.0
 ENV DEBIAN_FRONTEND noninteractive
 RUN rm /etc/apt/sources.list
 COPY sources.list /etc/apt/
@@ -12,7 +12,7 @@ RUN apt-get install -y oracle-java8-installer
 RUN cd /tmp && git clone https://github.com/xudianc/Judger && cd Judger && python setup.py install
 RUN mkdir -p /var/judger/run/ && mkdir /var/judger/test_case/ && mkdir /var/judger/code/
 RUN chmod -R 777 /var/judger/run/
-RUN apt clean
+RUN apt-get clean
 COPY policy /var/judger/run/
 COPY supervisord.conf /etc
 RUN pip install supervisor
