@@ -7,20 +7,20 @@ if [ `whoami` != "root" ];then
 fi
 
 # 设置MYSQL密码和RPC_TOKEN
-echo -n "请设置MYSQL密码(直接换行默认your_password):" 
+echo -n "请设置MYSQL密码(直接换行默认MYSQL_PASSWORD):" 
 read MYSQL_PASSWORD
 
 if  [ ! -n "$MYSQL_PASSWORD" ] ;then
-	MYSQL_PASSWORD="your_password"
+	MYSQL_PASSWORD="MYSQL_PASSWORD"
 fi
 sed -i "s/{YOUR_PASSWORD}/$MYSQL_PASSWORD/g" ./dockerfiles/oj_web_server/docker-compose.example.yml
 cp ./dockerfiles/oj_web_server/docker-compose.example.yml ./dockerfiles/oj_web_server/docker-compose.yml
 
 
-echo -n "请设置rpc_token(直接换行使用your_token):"
+echo -n "请设置rpc_token(直接换行使用RPC_TOKEN):"
 read RPC_TOKEN
 if  [ ! -n "$RPC_TOKEN" ] ;then
-	RPC_TOKEN="your_token"
+	RPC_TOKEN="RPC_TOKEN"
 fi
 sed -i "s/{YOUR_PASSWORD}/$RPC_TOKEN/g" ./dockerfiles/judger/docker-compose.example.yml 
 cp ./dockerfiles/judger/docker-compose.example.yml ./dockerfiles/judger/docker-compose.yml
@@ -44,22 +44,23 @@ mkdir -p /home/OJ/data/mysql /home/OJ/data/redis /home/OJ/test_case /home/OJ/log
 
 ##pull 需要的镜像（目前只提供阿里云镜像一种方式）
 docker pull registry.cn-hangzhou.aliyuncs.com/xudianc/redis
-docker tag registry.cn-hangzhou.aliyuncs.com/xudianc/redis redis
+docker tag registry.cn-hangzhou.aliyuncs.com/xudianc/redis 		redis
 docker pull registry.cn-hangzhou.aliyuncs.com/xudianc/mysql
-docker tag registry.cn-hangzhou.aliyuncs.com/xudianc/mysql mysql
+docker tag registry.cn-hangzhou.aliyuncs.com/xudianc/mysql 		mysql
 docker pull registry.cn-hangzhou.aliyuncs.com/xudianc/nginx
-docker tag registry.cn-hangzhou.aliyuncs.com/xudianc/nginx nginx
+docker tag registry.cn-hangzhou.aliyuncs.com/xudianc/nginx 		nginx
 docker pull registry.cn-hangzhou.aliyuncs.com/xudianc/oj_web_server
 docker pull registry.cn-hangzhou.aliyuncs.com/xudianc/judger
-docker tag registry.cn-hangzhou.aliyuncs.com/xudianc/oj_web_server qduoj/oj_web_server
-docker tag registry.cn-hangzhou.aliyuncs.com/xudianc/judger qduoj/judger
+docker tag registry.cn-hangzhou.aliyuncs.com/xudianc/oj_web_server 	oj_web_server
+docker tag registry.cn-hangzhou.aliyuncs.com/xudianc/judger 		judger
 
+result0=$(docker images | grep judger)
 result1=$(docker images | grep mysql)
 result2=$(docker images | grep redis)
 result3=$(docker images | grep nginx)
 result4=$(docker images | grep oj_web_server)
 
-if [[ "$result1" == "" ]] || [[ "$result2" == "" ]] || [[ "$result3" == "" ]] || [[ "$result4" == "" ]]
+if [[ "$result0" == "" ]] || [[ "$result1" == "" ]] || [[ "$result2" == "" ]] || [[ "$result3" == "" ]] || [[ "$result4" == "" ]]
 then
 	docker pull registry.cn-hangzhou.aliyuncs.com/xudianc/redis
 	docker tag registry.cn-hangzhou.aliyuncs.com/xudianc/redis redis
@@ -89,7 +90,8 @@ cp -R  ../ /home/OJ/
 cd /home/OJ/OnlineJudge
 
 # 配置NGINX
-cat ./dockerfiles/oj_web_server/oj.example.conf > /etc/nginx/sites-enabled/default
+cp /etc/nginx/sites-available/default /etc/nginx/sites-available/backup-default 
+cat ./dockerfiles/oj_web_server/oj.example.conf > /etc/nginx/sites-available/default
 service nginx restart
 
 
