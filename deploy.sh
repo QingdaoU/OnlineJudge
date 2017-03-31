@@ -38,21 +38,24 @@ apt-get -y install git curl python-pip vim nginx docker.io docker-compose
 #    /home/upload 上传的图片等
 mkdir -p /home/OJ/data/mysql /home/OJ/data/redis /home/OJ/test_case /home/OJ/log /home/OJ/upload
 
+function pull_image {
+
+	docker pull registry.cn-hangzhou.aliyuncs.com/xudianc/redis
+	docker tag registry.cn-hangzhou.aliyuncs.com/xudianc/redis 		redis
+	docker pull registry.cn-hangzhou.aliyuncs.com/xudianc/mysql
+	docker tag registry.cn-hangzhou.aliyuncs.com/xudianc/mysql 		mysql
+	docker pull registry.cn-hangzhou.aliyuncs.com/xudianc/nginx
+	docker tag registry.cn-hangzhou.aliyuncs.com/xudianc/nginx 		nginx
+	docker pull registry.cn-hangzhou.aliyuncs.com/xudianc/oj_web_server
+	docker pull registry.cn-hangzhou.aliyuncs.com/xudianc/judger
+	docker tag registry.cn-hangzhou.aliyuncs.com/xudianc/oj_web_server 	oj_web_server
+	docker tag registry.cn-hangzhou.aliyuncs.com/xudianc/judger 		judger
 
 
+}
 
+pull_image
 
-##pull 需要的镜像（目前只提供阿里云镜像一种方式）
-docker pull registry.cn-hangzhou.aliyuncs.com/xudianc/redis
-docker tag registry.cn-hangzhou.aliyuncs.com/xudianc/redis 		redis
-docker pull registry.cn-hangzhou.aliyuncs.com/xudianc/mysql
-docker tag registry.cn-hangzhou.aliyuncs.com/xudianc/mysql 		mysql
-docker pull registry.cn-hangzhou.aliyuncs.com/xudianc/nginx
-docker tag registry.cn-hangzhou.aliyuncs.com/xudianc/nginx 		nginx
-docker pull registry.cn-hangzhou.aliyuncs.com/xudianc/oj_web_server
-docker pull registry.cn-hangzhou.aliyuncs.com/xudianc/judger
-docker tag registry.cn-hangzhou.aliyuncs.com/xudianc/oj_web_server 	oj_web_server
-docker tag registry.cn-hangzhou.aliyuncs.com/xudianc/judger 		judger
 
 result0=$(docker images | grep judger)
 result1=$(docker images | grep mysql)
@@ -62,22 +65,12 @@ result4=$(docker images | grep oj_web_server)
 
 if [[ "$result0" == "" ]] || [[ "$result1" == "" ]] || [[ "$result2" == "" ]] || [[ "$result3" == "" ]] || [[ "$result4" == "" ]]
 then
-	docker pull registry.cn-hangzhou.aliyuncs.com/xudianc/redis
-	docker tag registry.cn-hangzhou.aliyuncs.com/xudianc/redis redis
-	docker pull registry.cn-hangzhou.aliyuncs.com/xudianc/mysql
-	docker tag registry.cn-hangzhou.aliyuncs.com/xudianc/mysql mysql
-	docker pull registry.cn-hangzhou.aliyuncs.com/xudianc/nginx
-	docker tag registry.cn-hangzhou.aliyuncs.com/xudianc/nginx nginx
-	docker pull registry.cn-hangzhou.aliyuncs.com/xudianc/oj_web_server
-	docker pull registry.cn-hangzhou.aliyuncs.com/xudianc/judger
-	docker tag registry.cn-hangzhou.aliyuncs.com/xudianc/oj_web_server qduoj/oj_web_server
-	docker tag registry.cn-hangzhou.aliyuncs.com/xudianc/judger qduoj/judger
-
+	result0=$(docker images | grep judger)
 	result1=$(docker images | grep mysql)
 	result2=$(docker images | grep redis)
 	result3=$(docker images | grep nginx)
 	result4=$(docker images | grep oj_web_server)
-	if [[ "$result1" == "" ]] || [[ "$result2" == "" ]] || [[ "$result3" == "" ]] || [[ "$result4" == "" ]]
+	if [[ "$result0" == "" ]] | [[ "$result1" == "" ]] || [[ "$result2" == "" ]] || [[ "$result3" == "" ]] || [[ "$result4" == "" ]]
 	then
 		echo "网络连接错误，请检查网络后重试"
 		exit 1
@@ -128,17 +121,17 @@ clear
 
 echo "安装完成"
 echo "请转到http://localhost/ 登录admin，并完成以下配置"
-echo -n "OJ管理员帐号:	" 
+echo -n "OJ管理员帐号:		" 
 echo -e "\033[41;33;1mroot\033[0m"
-echo -n "OJ管理员密码:	" 
+echo -n "OJ管理员密码:		" 
 echo -e "\033[41;33;1mpassword\033[0m"
-echo -n "判题机IP: 	"  
+echo -n "判题机IP(内网): 	"  
 echo -e "\033[41;33;1m$JUDGER_ADDR\033[0m"
-echo -n "判题机TOKEN: 	"  
+echo -n "判题机TOKEN: 		"  
 echo -e "\033[41;33;1m$RPC_TOKEN\033[0m"
-echo -n "判题机PORT: 	"  
+echo -n "判题机PORT: 		"  
 echo -e "\033[41;33;1m8080\033[0m"
-echo -n "MySQL密码: 	"  
+echo -n "MySQL密码: 		"  
 echo -e "\033[41;33;1m$MYSQL_PASSWORD\033[0m"
 
 
