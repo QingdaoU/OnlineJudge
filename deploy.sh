@@ -47,9 +47,9 @@ function pull_image {
 	docker pull registry.cn-hangzhou.aliyuncs.com/xudianc/nginx
 	docker tag registry.cn-hangzhou.aliyuncs.com/xudianc/nginx 		nginx
 	docker pull registry.cn-hangzhou.aliyuncs.com/xudianc/oj_web_server
-	docker pull registry.cn-hangzhou.aliyuncs.com/xudianc/judger
+	docker pull registry.cn-hangzhou.aliyuncs.com/xudianc/judger:2.0
 	docker tag registry.cn-hangzhou.aliyuncs.com/xudianc/oj_web_server 	oj_web_server
-	docker tag registry.cn-hangzhou.aliyuncs.com/xudianc/judger 		judger
+	docker tag registry.cn-hangzhou.aliyuncs.com/xudianc/judger:2.0 		judger
 
 
 }
@@ -57,25 +57,11 @@ function pull_image {
 pull_image
 
 
-result0=$(docker images | grep judger)
-result1=$(docker images | grep mysql)
-result2=$(docker images | grep redis)
-result3=$(docker images | grep nginx)
-result4=$(docker images | grep oj_web_server)
-
 if [[ "$result0" == "" ]] || [[ "$result1" == "" ]] || [[ "$result2" == "" ]] || [[ "$result3" == "" ]] || [[ "$result4" == "" ]]
 then
-	result0=$(docker images | grep judger)
-	result1=$(docker images | grep mysql)
-	result2=$(docker images | grep redis)
-	result3=$(docker images | grep nginx)
-	result4=$(docker images | grep oj_web_server)
-	if [[ "$result0" == "" ]] | [[ "$result1" == "" ]] || [[ "$result2" == "" ]] || [[ "$result3" == "" ]] || [[ "$result4" == "" ]]
-	then
-		echo "网络连接错误，请检查网络后重试"
-		exit 1
+	echo "网络连接错误，请检查网络后重试"
+	exit 1
 
-	fi
 fi
 
 # 将代码拷贝到/home/OJ/OnlineJudge
