@@ -20,7 +20,7 @@ languages = {
         "compile_max_cpu_time": 3000,
         "compile_max_memory": 256 * 1024 * 1024,
         "compile_command": "/usr/bin/g++ -DONLINE_JUDGE -O2 -w -fmax-errors=3 -std=c++14 {src_path} -lm -o {exe_path}/main",
-        "spj_compile_command": "/usr/bin/g++ -DONLINE_JUDGE -O2 -Werror -fmax-errors=3 -std=c++14 {src_path} -lm -o {exe_path}",
+        "spj_compile_command": "/usr/bin/g++ -DONLINE_JUDGE -O2 -Werror -fmax-errors=3 -std=c++1z {src_path} -lm -o {exe_path}",
         "execute_command": "{exe_path}/main",
         "use_sandbox": True
     },
