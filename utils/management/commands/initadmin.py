@@ -13,24 +13,24 @@ class Command(BaseCommand):
                                                      "would you like to reset it's password?\n"
                                                      "Input yes to confirm: "))
                 if raw_input() == "yes":
-                    rand_password = rand_str(length=6)
-                    admin.set_password(rand_password)
+                    admin_password = "password"
+                    admin.set_password(admin_password)
                     admin.save()
                     self.stdout.write(self.style.SUCCESS("Successfully created super admin user password.\n"
                                                          "Username: root\nPassword: %s\n"
                                                          "Remember to change password and turn on two factors auth "
-                                                         "after installation." % rand_password))
+                                                         "after installation." % admin_password))
                 else:
                     self.stdout.write(self.style.SUCCESS("Nothing happened"))
             else:
                 self.stdout.write(self.style.ERROR("User 'root' is not super admin."))
         except User.DoesNotExist:
             user = User.objects.create(username="root", real_name="root", email="root@oj.com", admin_type=SUPER_ADMIN)
-            rand_password = "password"
-            user.set_password(rand_password)
+            admin_password = "password"
+            user.set_password(admin_password)
             user.save()
             UserProfile.objects.create(user=user)
             self.stdout.write(self.style.SUCCESS("Successfully created super admin user.\n"
                                                  "Username: root\nPassword: %s\n"
                                                  "Remember to change password and turn on two factors auth "
-                                                 "after installation." % rand_password))
+                                                 "after installation." % admin_password))

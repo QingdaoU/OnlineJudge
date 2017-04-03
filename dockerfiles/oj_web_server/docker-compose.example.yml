@@ -9,7 +9,7 @@ mysql:
     environment:
         - MYSQL_ROOT_PASSWORD={YOUR_PASSWORD}
 oj_web_server:
-    image: qduoj/oj_web_server
+    image: oj_web_server
     volumes:
         - /home/OJ/OnlineJudge:/code
         - /home/OJ/test_case:/code/test_case

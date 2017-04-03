@@ -22,7 +22,7 @@ read RPC_TOKEN
 if  [ ! -n "$RPC_TOKEN" ] ;then
 	RPC_TOKEN="RPC_TOKEN"
 fi
-sed -i "s/{YOUR_PASSWORD}/$RPC_TOKEN/g" ./dockerfiles/judger/docker-compose.example.yml 
+sed -i "s/{YOUR_TOKEN}/$RPC_TOKEN/g" ./dockerfiles/judger/docker-compose.example.yml 
 cp ./dockerfiles/judger/docker-compose.example.yml ./dockerfiles/judger/docker-compose.yml
 
 #检查更新，并安装必要程序
@@ -55,7 +55,11 @@ function pull_image {
 }
 
 pull_image
-
+result0=$(docker images | grep judger)		
+result1=$(docker images | grep mysql)		
+result2=$(docker images | grep redis)		
+result3=$(docker images | grep nginx)		
+result4=$(docker images | grep oj_web_server)
 
 if [[ "$result0" == "" ]] || [[ "$result1" == "" ]] || [[ "$result2" == "" ]] || [[ "$result3" == "" ]] || [[ "$result4" == "" ]]
 then
