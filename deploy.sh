@@ -47,9 +47,9 @@ function pull_image {
 	docker pull registry.cn-hangzhou.aliyuncs.com/xudianc/nginx
 	docker tag registry.cn-hangzhou.aliyuncs.com/xudianc/nginx 		nginx
 	docker pull registry.cn-hangzhou.aliyuncs.com/xudianc/oj_web_server
-	docker pull registry.cn-hangzhou.aliyuncs.com/xudianc/judger:2.0
+	docker pull registry.cn-hangzhou.aliyuncs.com/xudianc/judger
 	docker tag registry.cn-hangzhou.aliyuncs.com/xudianc/oj_web_server 	oj_web_server
-	docker tag registry.cn-hangzhou.aliyuncs.com/xudianc/judger:2.0 		judger
+	docker tag registry.cn-hangzhou.aliyuncs.com/xudianc/judger 		judger
 
 
 }
