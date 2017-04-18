@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+import os
 import qrcode
 
 from io import StringIO
@@ -54,6 +55,24 @@ class UserProfileAPI(APIView):
             # Timezone & language 暂时不加
         user_profile.save()
         return self.success(_("Succeeded"))
+
+
+class AvatarUploadAPI(APIView):
+    def post(self, request):
+        if "file" not in request.FILES:
+            return self.error(_("Upload failed"))
+
+        f = request.FILES["file"]
+        if f.size > 1024 * 1024:
+            return self.error(_("Picture too large"))
+        if os.path.splitext(f.name)[-1].lower() not in [".gif", ".jpg", ".jpeg", ".bmp", ".png"]:
+            return self.error(_("Unsupported file format"))
+
+        name = "avatar_" + rand_str(5) + os.path.splitext(f.name)[-1]
+        with open(os.path.join(settings.IMAGE_UPLOAD_DIR, name), "wb") as img:
+            for chunk in request.FILES["file"]:
+                img.write(chunk)
+        return self.success({"path": "/static/upload/" + name})
 
 
 class SSOAPI(APIView):
