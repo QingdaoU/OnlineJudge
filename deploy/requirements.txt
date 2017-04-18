@@ -8,3 +8,4 @@ pytz
 coverage
 python-dateutil
 celery
+Envelopes
