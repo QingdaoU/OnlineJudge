@@ -4,3 +4,5 @@ dateutil
 otpauth
 pillow
 python-dateutil
+celery
+Envelopes

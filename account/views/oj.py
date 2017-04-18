@@ -1,14 +1,18 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+import os
+
 from datetime import timedelta
 
 from django.contrib import auth
+from django.conf import settings
 from django.core.exceptions import MultipleObjectsReturned
 from django.utils.translation import ugettext as _
 from django.utils.timezone import now
 from otpauth import OtpAuth
 
+from conf.models import WebsiteConfig
 from utils.api import APIView, validate_serializer
 from utils.captcha import Captcha
 from utils.shortcuts import rand_str
@@ -18,6 +22,7 @@ from ..models import User, UserProfile
 from ..serializers import (UserChangePasswordSerializer, UserLoginSerializer,
                            UserRegisterSerializer,
                            ApplyResetPasswordSerializer)
+from ..tasks import _send_email
 
 
 class UserLoginAPI(APIView):
@@ -114,14 +119,24 @@ class ApplyResetPasswordAPI(APIView):
         except User.DoesNotExist:
             return self.error(_("User does not exist"))
         if user.reset_password_token_expire_time and 0 < (
-           user.reset_password_token_expire_time - now()).total_seconds() < 20 * 60:
+                    user.reset_password_token_expire_time - now()).total_seconds() < 20 * 60:
             return self.error(_("You can only reset password once per 20 minutes"))
         user.reset_password_token = rand_str()
 
         user.reset_password_token_expire_time = now() + timedelta(minutes=20)
         user.save()
-        # TODO:email template
-        # TODO:send email
+        email_template = open("reset_password_email.html", "w",
+                              encoding="utf-8").read()
+        email_template = email_template.replace("{{ username }}", user.username). \
+            replace("{{ website_name }}", settings.WEBSITE_INFO["website_name"]). \
+            replace("{{ link }}", settings.WEBSITE_INFO["url"] + "/reset_password/t/" +
+                    user.reset_password_token)
+        config = WebsiteConfig.objects.first()
+        _send_email.delay(config.name,
+                          user.email,
+                          user.username,
+                          config.name + " 登录信息找回邮件",
+                          email_template)
         return self.success(_("Succeeded"))
 
 
