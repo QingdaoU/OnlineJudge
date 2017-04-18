@@ -1,11 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-import codecs
 from datetime import timedelta
 
 from django.contrib import auth
-from django.conf import settings
 from django.core.exceptions import MultipleObjectsReturned
 from django.utils.translation import ugettext as _
 from django.utils.timezone import now
@@ -116,7 +114,7 @@ class ApplyResetPasswordAPI(APIView):
         except User.DoesNotExist:
             return self.error(_("User does not exist"))
         if user.reset_password_token_expire_time and 0 < (
-            user.reset_password_token_expire_time - now()).total_seconds() < 20 * 60:
+           user.reset_password_token_expire_time - now()).total_seconds() < 20 * 60:
             return self.error(_("You can only reset password once per 20 minutes"))
         user.reset_password_token = rand_str()
 

@@ -49,4 +49,3 @@ class EditUserSerializer(serializers.Serializer):
 class ApplyResetPasswordSerializer(serializers.Serializer):
     email = serializers.EmailField()
     captcha = serializers.CharField(max_length=4, min_length=4)
-
