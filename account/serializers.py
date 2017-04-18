@@ -44,3 +44,23 @@ class EditUserSerializer(serializers.Serializer):
     open_api = serializers.BooleanField()
     two_factor_auth = serializers.BooleanField()
     is_disabled = serializers.BooleanField()
+
+
+class ApplyResetPasswordSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+    captcha = serializers.CharField(max_length=4, min_length=4)
+
+
+class ResetPasswordSerializer(serializers.Serializer):
+    token = serializers.CharField(min_length=1, max_length=40)
+    password = serializers.CharField(min_length=6, max_length=30)
+    captcha = serializers.CharField(max_length=4, min_length=4)
+
+
+class SSOSerializer(serializers.Serializer):
+    appkey = serializers.CharField(max_length=35)
+    token = serializers.CharField(max_length=40)
+
+
+class TwoFactorAuthCodeSerializer(serializers.Serializer):
+    code = serializers.IntegerField()
