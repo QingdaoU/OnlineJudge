@@ -1,16 +1,14 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-import os
-
 from datetime import timedelta
+from otpauth import OtpAuth
 
 from django.contrib import auth
 from django.conf import settings
 from django.core.exceptions import MultipleObjectsReturned
 from django.utils.translation import ugettext as _
 from django.utils.timezone import now
-from otpauth import OtpAuth
 
 from conf.models import WebsiteConfig
 from utils.api import APIView, validate_serializer
@@ -21,7 +19,7 @@ from ..decorators import login_required
 from ..models import User, UserProfile
 from ..serializers import (UserChangePasswordSerializer, UserLoginSerializer,
                            UserRegisterSerializer,
-                           ApplyResetPasswordSerializer)
+                           ApplyResetPasswordSerializer, ResetPasswordSerializer)
 from ..tasks import _send_email
 
 
@@ -112,6 +110,7 @@ class ApplyResetPasswordAPI(APIView):
     def post(self, request):
         data = request.data
         captcha = Captcha(request)
+        config = WebsiteConfig.objects.first()
         if not captcha.check(data["captcha"]):
             return self.error(_("Invalid captcha"))
         try:
@@ -131,7 +130,6 @@ class ApplyResetPasswordAPI(APIView):
             replace("{{ website_name }}", settings.WEBSITE_INFO["website_name"]). \
             replace("{{ link }}", settings.WEBSITE_INFO["url"] + "/reset_password/t/" +
                     user.reset_password_token)
-        config = WebsiteConfig.objects.first()
         _send_email.delay(config.name,
                           user.email,
                           user.username,
@@ -141,6 +139,7 @@ class ApplyResetPasswordAPI(APIView):
 
 
 class ResetPasswordAPI(APIView):
+    @validate_serializer(ResetPasswordSerializer)
     def post(self, request):
         data = request.data
         captcha = Captcha(request)
