@@ -44,3 +44,9 @@ class EditUserSerializer(serializers.Serializer):
     open_api = serializers.BooleanField()
     two_factor_auth = serializers.BooleanField()
     is_disabled = serializers.BooleanField()
+
+
+class ApplyResetPasswordSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+    captcha = serializers.CharField(max_length=4, min_length=4)
+

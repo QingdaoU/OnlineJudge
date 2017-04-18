@@ -9,13 +9,13 @@ from ..decorators import login_required
 from ..serializers import EditUserSerializer, UserSerializer
 
 
-# class UserInfoAPI(APIView):
-#     @login_required
-#     def get(self, request):
-#         """
-#         Return user info api
-#         """
-#         return self.success(UserSerializer(request.user).data)
+class UserInfoAPI(APIView):
+    @login_required
+    def get(self, request):
+        """
+        Return user info api
+        """
+        return self.success(UserSerializer(request.user).data)
 
 
 class UserProfileAPI(APIView):
@@ -43,5 +43,3 @@ class UserProfileAPI(APIView):
             # Timezone & language 暂时不加
         user_profile.save()
         return self.success(_("Succeeded"))
-
-
