@@ -10,9 +10,10 @@ from contest.models import Contest
 from utils.api import APIView, CSRFExemptAPIView, validate_serializer
 from utils.shortcuts import rand_str
 
-from ..models import Problem, ProblemRuleType, ProblemTag, ContestProblem
-from ..serializers import (CreateProblemSerializer, EditProblemSerializer,
-                           ProblemSerializer, TestCaseUploadForm, CreateContestProblemSerializer)
+from ..models import ContestProblem, Problem, ProblemRuleType, ProblemTag
+from ..serializers import (CreateContestProblemSerializer,
+                           CreateProblemSerializer, EditProblemSerializer,
+                           ProblemSerializer, TestCaseUploadForm)
 
 
 class TestCaseUploadAPI(CSRFExemptAPIView):

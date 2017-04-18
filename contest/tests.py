@@ -1,12 +1,12 @@
+import copy
 from datetime import datetime, timedelta
 
-import copy
 from django.utils import timezone
 
 from utils.api._serializers import DateTimeTZField
 from utils.api.tests import APITestCase
-from .models import ContestAnnouncement
-from .models import ContestRuleType
+
+from .models import ContestAnnouncement, ContestRuleType
 
 DEFAULT_CONTEST_DATA = {"title": "test title", "description": "test description",
                         "start_time": timezone.localtime(timezone.now()),

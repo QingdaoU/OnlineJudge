@@ -104,8 +104,6 @@ STATIC_URL = '/static/'
 
 AUTH_USER_MODEL = 'account.User'
 
-LOG_PATH = "log/"
-
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': True,
@@ -118,13 +116,13 @@ LOGGING = {
         'django_error': {
             'level': 'DEBUG',
             'class': 'logging.handlers.RotatingFileHandler',
-            'filename': LOG_PATH + 'django.log',
+            'filename': os.path.join(LOG_PATH, 'django.log'),
             'formatter': 'standard'
         },
         'app_info': {
             'level': 'DEBUG',
             'class': 'logging.handlers.RotatingFileHandler',
-            'filename': LOG_PATH + 'app_info.log',
+            'filename': os.path.join(LOG_PATH, 'app_info.log'),
             'formatter': 'standard'
         },
         'console': {
@@ -152,17 +150,13 @@ LOGGING = {
     },
 }
 
-if DEBUG:
-    REST_FRAMEWORK = {
-        'TEST_REQUEST_DEFAULT_FORMAT': 'json'
-    }
-else:
-    REST_FRAMEWORK = {
-        'TEST_REQUEST_DEFAULT_FORMAT': 'json',
-        'DEFAULT_RENDERER_CLASSES': (
-            'rest_framework.renderers.JSONRenderer',
-        )
-    }
+
+REST_FRAMEWORK = {
+    'TEST_REQUEST_DEFAULT_FORMAT': 'json',
+    'DEFAULT_RENDERER_CLASSES': (
+        'rest_framework.renderers.JSONRenderer',
+    )
+}
 
 # for celery
 BROKER_URL = 'redis://%s:%s/%s' % (REDIS_QUEUE["host"], str(REDIS_QUEUE["port"]), str(REDIS_QUEUE["db"]))

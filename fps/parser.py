@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
-import copy
 import base64
+import copy
 import random
 import string
 import xml.etree.ElementTree as ET

@@ -1,15 +1,11 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-
 import os
-import qrcode
-
 from io import StringIO
-from otpauth import OtpAuth
 
+import qrcode
 from django.conf import settings
 from django.http import HttpResponse
 from django.utils.translation import ugettext as _
+from otpauth import OtpAuth
 
 from conf.models import WebsiteConfig
 from utils.api import APIView, validate_serializer
@@ -17,8 +13,8 @@ from utils.shortcuts import rand_str
 
 from ..decorators import login_required
 from ..models import User
-from ..serializers import (EditUserSerializer, UserSerializer,
-                           SSOSerializer, TwoFactorAuthCodeSerializer)
+from ..serializers import (EditUserSerializer, SSOSerializer,
+                           TwoFactorAuthCodeSerializer, UserSerializer)
 
 
 class UserInfoAPI(APIView):

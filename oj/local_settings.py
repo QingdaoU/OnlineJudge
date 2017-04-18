@@ -7,11 +7,6 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-    },
-    # submission 的 name 和 engine 请勿修改，其他代码会用到
-    'submission': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db1.sqlite3'),
     }
 }
 
@@ -33,3 +28,4 @@ ALLOWED_HOSTS = ["*"]
 
 TEST_CASE_DIR = "/tmp"
 
+LOG_PATH = "log/"

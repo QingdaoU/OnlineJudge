@@ -1,12 +1,11 @@
-import sys
 import getopt
 import os
+import sys
 
 opts, args = getopt.getopt(sys.argv[1:], "cm:", ["coverage=", "module="])
 
 is_coverage = False
 test_module = ""
-waf_addr = "127.0.0.1:50001"
 setting = "oj.settings"
 
 for opt, arg in opts:

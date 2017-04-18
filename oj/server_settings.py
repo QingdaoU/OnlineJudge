@@ -12,15 +12,6 @@ DATABASES = {
         'PORT': 3306,
         'USER': os.environ["MYSQL_ENV_MYSQL_USER"],
         'PASSWORD': os.environ["MYSQL_ENV_MYSQL_ROOT_PASSWORD"]
-    },
-    'submission': {
-        'NAME': 'oj_submission',
-        'ENGINE': 'django.db.backends.mysql',
-        'CONN_MAX_AGE': 0.1,
-        'HOST': os.environ["MYSQL_PORT_3306_TCP_ADDR"],
-        'PORT': 3306,
-        'USER': os.environ["MYSQL_ENV_MYSQL_USER"],
-        'PASSWORD': os.environ["MYSQL_ENV_MYSQL_ROOT_PASSWORD"]
     }
 }
 
@@ -43,3 +34,4 @@ ALLOWED_HOSTS = ['*']
 
 TEST_CASE_DIR = "/test_case"
 
+LOG_PATH = "log/"

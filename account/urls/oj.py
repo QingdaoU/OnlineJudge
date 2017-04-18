@@ -1,10 +1,7 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-
 from django.conf.urls import url
 
-from ..views.oj import (UserChangePasswordAPI, UserLoginAPI, UserRegisterAPI,
-                        ApplyResetPasswordAPI, ResetPasswordAPI)
+from ..views.oj import (ApplyResetPasswordAPI, ResetPasswordAPI,
+                        UserChangePasswordAPI, UserLoginAPI, UserRegisterAPI)
 
 urlpatterns = [
     url(r"^login/?$", UserLoginAPI.as_view(), name="user_login_api"),

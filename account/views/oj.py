@@ -1,14 +1,11 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-
 from datetime import timedelta
-from otpauth import OtpAuth
 
-from django.contrib import auth
 from django.conf import settings
+from django.contrib import auth
 from django.core.exceptions import MultipleObjectsReturned
-from django.utils.translation import ugettext as _
 from django.utils.timezone import now
+from django.utils.translation import ugettext as _
+from otpauth import OtpAuth
 
 from conf.models import WebsiteConfig
 from utils.api import APIView, validate_serializer
@@ -17,9 +14,10 @@ from utils.shortcuts import rand_str
 
 from ..decorators import login_required
 from ..models import User, UserProfile
-from ..serializers import (UserChangePasswordSerializer, UserLoginSerializer,
-                           UserRegisterSerializer,
-                           ApplyResetPasswordSerializer, ResetPasswordSerializer)
+from ..serializers import (ApplyResetPasswordSerializer,
+                           ResetPasswordSerializer,
+                           UserChangePasswordSerializer, UserLoginSerializer,
+                           UserRegisterSerializer)
 from ..tasks import _send_email
 
 

@@ -1,10 +1,7 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-
 from django.conf.urls import url
 
-from ..views.user import (UserInfoAPI, UserProfileAPI, AvatarUploadAPI,
-                          SSOAPI, TwoFactorAuthAPI)
+from ..views.user import (SSOAPI, AvatarUploadAPI, TwoFactorAuthAPI,
+                          UserInfoAPI, UserProfileAPI)
 
 urlpatterns = [
     url(r"^user/?$", UserInfoAPI.as_view(), name="user_info_api"),
