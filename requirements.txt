@@ -1,8 +1,9 @@
 django==1.9.6
 djangorestframework==3.4.0
-dateutil
 otpauth
 pillow
 python-dateutil
 celery
 Envelopes
+pytz
+jsonfield

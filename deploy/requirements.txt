@@ -1,5 +1,5 @@
-Django<1.10
-djangorestframework==3.3.3
+django==1.9.6
+djangorestframework==3.4.0
 pillow
 jsonfield
 otpauth
@@ -7,3 +7,4 @@ flake8-quotes
 pytz
 coverage
 python-dateutil
+celery
