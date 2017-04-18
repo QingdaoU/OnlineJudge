@@ -2,8 +2,31 @@ import logging
 import random
 
 from django.utils.crypto import get_random_string
+from envelopes import Envelope
+
+from conf.models import SMTPConfig
 
 logger = logging.getLogger(__name__)
+
+
+def send_email(from_name, to_email, to_name, subject, content):
+    smtp = SMTPConfig.objects.first()
+    if not smtp:
+        return
+    envlope = Envelope(from_addr=(smtp.email, from_name),
+                       to_addr=(to_email, to_name),
+                       subject=subject,
+                       html_body=content)
+    try:
+        envlope.send(smtp.server,
+                     login=smtp.email,
+                     password=smtp.password,
+                     port=smtp.port,
+                     tls=smtp.tls)
+        return True
+    except Exception as e:
+        logger.exception(e)
+        return False
 
 
 def rand_str(length=32, type="lower_hex"):

@@ -1,5 +1,3 @@
-from django.utils.translation import ugettext as _
-
 from account.decorators import super_admin_required
 from utils.api import APIView, validate_serializer
 
@@ -32,7 +30,7 @@ class AnnouncementAdminAPI(APIView):
         try:
             announcement = Announcement.objects.get(id=data["id"])
         except Announcement.DoesNotExist:
-            return self.error(_("Announcement does not exist"))
+            return self.error("Announcement does not exist")
 
         announcement.title = data["title"]
         announcement.content = data["content"]
@@ -52,7 +50,7 @@ class AnnouncementAdminAPI(APIView):
                 announcement = Announcement.objects.get(id=announcement_id)
                 return self.success(AnnouncementSerializer(announcement).data)
             except Announcement.DoesNotExist:
-                return self.error(_("Announcement does not exist"))
+                return self.error("Announcement does not exist")
         announcement = Announcement.objects.all().order_by("-create_time")
         if request.GET.get("visible") == "true":
             announcement = announcement.filter(visible=True)

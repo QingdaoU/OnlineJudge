@@ -1,7 +1,5 @@
 import functools
 
-from django.utils.translation import ugettext as _
-
 from utils.api import JSONResponse
 
 from .models import ProblemPermission
@@ -22,10 +20,10 @@ class BasePermissionDecorator(object):
 
         if self.check_permission():
             if self.request.user.is_disabled:
-                return self.error(_("Your account is disabled"))
+                return self.error("Your account is disabled")
             return self.func(*args, **kwargs)
         else:
-            return self.error(_("Please login in first"))
+            return self.error("Please login in first")
 
     def check_permission(self):
         raise NotImplementedError()

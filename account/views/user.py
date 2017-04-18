@@ -4,7 +4,6 @@ from io import StringIO
 import qrcode
 from django.conf import settings
 from django.http import HttpResponse
-from django.utils.translation import ugettext as _
 from otpauth import OtpAuth
 
 from conf.models import WebsiteConfig
@@ -50,19 +49,19 @@ class UserProfileAPI(APIView):
             user_profile.major = data["major"]
             # Timezone & language 暂时不加
         user_profile.save()
-        return self.success(_("Succeeded"))
+        return self.success("Succeeded")
 
 
 class AvatarUploadAPI(APIView):
     def post(self, request):
         if "file" not in request.FILES:
-            return self.error(_("Upload failed"))
+            return self.error("Upload failed")
 
         f = request.FILES["file"]
         if f.size > 1024 * 1024:
-            return self.error(_("Picture too large"))
+            return self.error("Picture too large")
         if os.path.splitext(f.name)[-1].lower() not in [".gif", ".jpg", ".jpeg", ".bmp", ".png"]:
-            return self.error(_("Unsupported file format"))
+            return self.error("Unsupported file format")
 
         name = "avatar_" + rand_str(5) + os.path.splitext(f.name)[-1]
         with open(os.path.join(settings.IMAGE_UPLOAD_DIR, name), "wb") as img:
@@ -76,7 +75,7 @@ class SSOAPI(APIView):
     def get(self, request):
         callback = request.GET.get("callback", None)
         if not callback:
-            return self.error(_("Parameter Error"))
+            return self.error("Parameter Error")
         token = rand_str()
         request.user.auth_token = token
         request.user.save()
@@ -89,7 +88,7 @@ class SSOAPI(APIView):
         try:
             User.objects.get(open_api_appkey=data["appkey"])
         except User.DoesNotExist:
-            return self.error(_("Invalid appkey"))
+            return self.error("Invalid appkey")
         try:
             user = User.objects.get(auth_token=data["token"])
             user.auth_token = None
@@ -133,9 +132,9 @@ class TwoFactorAuthAPI(APIView):
         if OtpAuth(user.tfa_token).valid_totp(code):
             user.two_factor_auth = True
             user.save()
-            return self.success(_("Succeeded"))
+            return self.success("Succeeded")
         else:
-            return self.error(_("Invalid captcha"))
+            return self.error("Invalid captcha")
 
     @login_required
     @validate_serializer(TwoFactorAuthCodeSerializer)
@@ -146,4 +145,4 @@ class TwoFactorAuthAPI(APIView):
             user.two_factor_auth = False
             user.save()
         else:
-            return self.error(_("Invalid captcha"))
+            return self.error("Invalid captcha")
