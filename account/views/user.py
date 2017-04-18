@@ -122,9 +122,9 @@ class TwoFactorAuthAPI(APIView):
         config = WebsiteConfig.objects.first()
         image = qrcode.make(OtpAuth(token).to_uri("totp", config.base_url, config.name))
         buf = StringIO()
-        image.save(buf, 'gif')
+        image.save(buf, "gif")
 
-        return HttpResponse(buf.getvalue(), 'image/gif')
+        return HttpResponse(buf.getvalue(), "image/gif")
 
     @login_required
     @validate_serializer(TwoFactorAuthCodeSerializer)
