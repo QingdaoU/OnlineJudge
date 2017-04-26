@@ -18,7 +18,7 @@ import os
 import time
 import random
 
-from io import StringIO
+from io import BytesIO
 from django.http import HttpResponse
 from PIL import Image, ImageDraw, ImageFont
 
@@ -86,7 +86,7 @@ class Captcha(object):
             # 随机化字符之间的距离 字符粘连可以降低识别率
             x += font_size * random.randrange(6, 8) / 10
 
-        buf = StringIO()
+        buf = BytesIO()
         image.save(buf, "gif")
 
         self.django_request.session[self.session_key] = "".join(code)
