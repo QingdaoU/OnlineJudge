@@ -6,6 +6,7 @@ from zipfile import ZipFile
 from django.conf import settings
 
 from utils.api.tests import APITestCase
+
 from .models import ProblemTag
 from .views.admin import TestCaseUploadAPI
 

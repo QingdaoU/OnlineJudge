@@ -1,6 +1,5 @@
 from django.core.exceptions import MultipleObjectsReturned
 from django.db.models import Q
-from django.utils.translation import ugettext as _
 
 from utils.api import APIView, validate_serializer
 from utils.shortcuts import rand_str
@@ -21,21 +20,21 @@ class UserAdminAPI(APIView):
         try:
             user = User.objects.get(id=data["id"])
         except User.DoesNotExist:
-            return self.error(_("User does not exist"))
+            return self.error("User does not exist")
         try:
             user = User.objects.get(username=data["username"])
             if user.id != data["id"]:
-                return self.error(_("Username already exists"))
+                return self.error("Username already exists")
         except User.DoesNotExist:
             pass
 
         try:
             user = User.objects.get(email=data["email"])
             if user.id != data["id"]:
-                return self.error(_("Email already exists"))
+                return self.error("Email already exists")
         # Some old data has duplicate email
         except MultipleObjectsReturned:
-            return self.error(_("Email already exists"))
+            return self.error("Email already exists")
         except User.DoesNotExist:
             pass
 
@@ -85,7 +84,7 @@ class UserAdminAPI(APIView):
             try:
                 user = User.objects.get(id=user_id)
             except User.DoesNotExist:
-                return self.error(_("User does not exist"))
+                return self.error("User does not exist")
             return self.success(UserSerializer(user).data)
 
         user = User.objects.all().order_by("-create_time")

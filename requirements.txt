@@ -1,13 +1,10 @@
 django==1.9.6
 djangorestframework==3.4.0
-pillow
-jsonfield
 otpauth
-flake8-quotes
-pytz
-coverage
+pillow
 python-dateutil
 celery
 Envelopes
+pytz
+jsonfield
 qrcode
-flake8-coding
