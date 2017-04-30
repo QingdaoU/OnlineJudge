@@ -1,6 +1,8 @@
+from django import forms
+
 from utils.api import DateTimeTZField, serializers
 
-from .models import AdminType, ProblemPermission, User
+from .models import AdminType, ProblemPermission, User, UserProfile
 
 
 class UserLoginSerializer(serializers.Serializer):
@@ -32,6 +34,18 @@ class UserSerializer(serializers.ModelSerializer):
                   "create_time", "last_login", "two_factor_auth", "open_api", "is_disabled"]
 
 
+class UserProfileSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = UserProfile
+
+
+class UserInfoSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = UserProfile
+
+
 class EditUserSerializer(serializers.Serializer):
     id = serializers.IntegerField()
     username = serializers.CharField(max_length=30)
@@ -44,6 +58,16 @@ class EditUserSerializer(serializers.Serializer):
     open_api = serializers.BooleanField()
     two_factor_auth = serializers.BooleanField()
     is_disabled = serializers.BooleanField()
+
+
+class EditUserProfileSerializer(serializers.Serializer):
+    avatar = serializers.CharField(max_length=100, allow_null=True, required=False)
+    blog = serializers.URLField(allow_null=True, required=False)
+    mood = serializers.CharField(max_length=200, allow_null=True, required=False)
+    phone_number = serializers.CharField(max_length=15, allow_null=True, required=False, )
+    school = serializers.CharField(max_length=200, allow_null=True, required=False)
+    major = serializers.CharField(max_length=200, allow_null=True, required=False)
+    student_id = serializers.CharField(max_length=15, allow_null=True, required=False)
 
 
 class ApplyResetPasswordSerializer(serializers.Serializer):
@@ -64,3 +88,7 @@ class SSOSerializer(serializers.Serializer):
 
 class TwoFactorAuthCodeSerializer(serializers.Serializer):
     code = serializers.IntegerField()
+
+
+class AvatarUploadForm(forms.Form):
+    file = forms.FileField()

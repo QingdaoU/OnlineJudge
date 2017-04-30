@@ -4,25 +4,37 @@ from io import StringIO
 import qrcode
 from django.conf import settings
 from django.http import HttpResponse
+from django.views.decorators.csrf import ensure_csrf_cookie
+from django.utils.decorators import method_decorator
 from otpauth import OtpAuth
 
 from conf.models import WebsiteConfig
-from utils.api import APIView, validate_serializer
+from utils.api import APIView, validate_serializer, CSRFExemptAPIView
 from utils.shortcuts import rand_str
 
 from ..decorators import login_required
-from ..models import User
+from ..models import User, UserProfile
 from ..serializers import (EditUserSerializer, SSOSerializer,
-                           TwoFactorAuthCodeSerializer, UserSerializer)
+                           TwoFactorAuthCodeSerializer, UserSerializer,
+                           UserProfileSerializer, UserInfoSerializer,
+                           EditUserProfileSerializer, AvatarUploadForm)
 
 
 class UserInfoAPI(APIView):
-    @login_required
-    def get(self, request):
+    # @login_required
+    @method_decorator(ensure_csrf_cookie)
+    def get(self, request, **kwargs):
         """
         Return user info api
         """
-        return self.success(UserSerializer(request.user).data)
+        try:
+            user = User.objects.get(username=kwargs["username"])
+        except User.DoesNotExist:
+            return self.error("User does not exist")
+        profile = UserProfile.objects.get(user=user)
+        dit = UserProfileSerializer(profile).data
+        dit['user'] = UserSerializer(user).data
+        return self.success(dit)
 
 
 class UserProfileAPI(APIView):
@@ -31,14 +43,22 @@ class UserProfileAPI(APIView):
         """
         Return user info api
         """
-        return self.success(UserSerializer(request.user).data)
+        try:
+            user = User.objects.get(id=request.user.id)
+        except User.DoesNotExist:
+            return self.error("User does not exist")
+        profile = UserProfile.objects.get(user=user)
+        dit = UserProfileSerializer(profile).data
+        dit['user'] = UserSerializer(user).data
+        return self.success(dit)
 
-    @validate_serializer(EditUserSerializer)
+    @validate_serializer(EditUserProfileSerializer)
     @login_required
     def put(self, request):
         data = request.data
         user_profile = request.user.userprofile
-        if data["avatar"]:
+        print(data)
+        if data.get("avatar"):
             user_profile.avatar = data["avatar"]
         else:
             user_profile.mood = data["mood"]
@@ -52,21 +72,25 @@ class UserProfileAPI(APIView):
         return self.success("Succeeded")
 
 
-class AvatarUploadAPI(APIView):
-    def post(self, request):
-        if "file" not in request.FILES:
-            return self.error("Upload failed")
+class AvatarUploadAPI(CSRFExemptAPIView):
+    request_parsers = ()
 
-        f = request.FILES["file"]
-        if f.size > 1024 * 1024:
+    def post(self, request):
+        form = AvatarUploadForm(request.POST, request.FILES)
+        if form.is_valid():
+            avatar = form.cleaned_data["file"]
+        else:
+            return self.error("Upload failed")
+        if avatar.size > 1024 * 1024:
             return self.error("Picture too large")
-        if os.path.splitext(f.name)[-1].lower() not in [".gif", ".jpg", ".jpeg", ".bmp", ".png"]:
+        if os.path.splitext(avatar.name)[-1].lower() not in [".gif", ".jpg", ".jpeg", ".bmp", ".png"]:
             return self.error("Unsupported file format")
 
-        name = "avatar_" + rand_str(5) + os.path.splitext(f.name)[-1]
+        name = "avatar_" + rand_str(5) + os.path.splitext(avatar.name)[-1]
         with open(os.path.join(settings.IMAGE_UPLOAD_DIR, name), "wb") as img:
-            for chunk in request.FILES["file"]:
+            for chunk in avatar:
                 img.write(chunk)
+        print(os.path.join(settings.IMAGE_UPLOAD_DIR, name))
         return self.success({"path": "/static/upload/" + name})
 
 
