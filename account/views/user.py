@@ -1,5 +1,5 @@
 import os
-from io import StringIO
+from io import BytesIO
 
 import qrcode
 from django.conf import settings
@@ -140,7 +140,7 @@ class TwoFactorAuthAPI(APIView):
 
         config = WebsiteConfig.objects.first()
         image = qrcode.make(OtpAuth(token).to_uri("totp", config.base_url, config.name))
-        buf = StringIO()
+        buf = BytesIO()
         image.save(buf, "gif")
 
         return HttpResponse(buf.getvalue(), "image/gif")

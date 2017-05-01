@@ -52,6 +52,12 @@ class UserLoginAPI(APIView):
         return self.success({})
 
 
+class UserLogoutAPI(APIView):
+    def get(self, request):
+        auth.logout(request)
+        return self.success({})
+
+
 class UserRegisterAPI(APIView):
     @validate_serializer(UserRegisterSerializer)
     def post(self, request):
