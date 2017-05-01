@@ -29,7 +29,8 @@ class TestCaseUploadAPITest(APITestCase):
         self.create_super_admin()
 
     def test_filter_file_name(self):
-        self.assertEqual(self.api.filter_name_list(["1.in", "1.out", "2.in", ".DS_Store"], spj=False), ["1.in", "1.out"])
+        self.assertEqual(self.api.filter_name_list(["1.in", "1.out", "2.in", ".DS_Store"], spj=False),
+                         ["1.in", "1.out"])
         self.assertEqual(self.api.filter_name_list(["2.in", "2.out"], spj=False), [])
 
         self.assertEqual(self.api.filter_name_list(["1.in", "1.out", "2.in"], spj=True), ["1.in", "2.in"])

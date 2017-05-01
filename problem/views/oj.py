@@ -1,4 +1,4 @@
-from django.db.models import Q, Count
+from django.db.models import Q
 from utils.api import APIView
 
 from ..models import ProblemTag, Problem
