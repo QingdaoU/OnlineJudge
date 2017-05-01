@@ -37,7 +37,7 @@ class ProblemAPI(APIView):
             problems = problems.filter(Q(title__contains=keyword) | Q(description__contains=keyword))
 
         # 难度筛选
-        difficulty_rank = request.GET.get('difficulty', None)
+        difficulty_rank = request.GET.get("difficulty", None)
         if difficulty_rank:
             problems = problems.filter(difficulty=difficulty_rank)
 
