@@ -7,9 +7,7 @@ from ..serializers import ProblemSerializer, TagSerializer
 
 class ProblemTagAPI(APIView):
     def get(self, request):
-        tags = ProblemTag.objects.annotate(problem_number=Count("problem"))\
-            .filter(problem_number__gt=0).order_by("-problem_number")
-        return self.success(TagSerializer(tags, many=True).data)
+        return self.success(TagSerializer(ProblemTag.objects.all(), many=True).data)
 
 
 class ProblemAPI(APIView):

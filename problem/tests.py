@@ -17,7 +17,9 @@ class ProblemTagListAPITest(APITestCase):
         ProblemTag.objects.create(name="name2")
         resp = self.client.get(self.reverse("problem_tag_list_api"))
         self.assertSuccess(resp)
-        self.assertEqual(resp.data["data"], ["name1", "name2"])
+        resp_data = resp.data['data']
+        self.assertEqual(resp_data[0]["name"], "name1")
+        self.assertEqual(resp_data[1]["name"], "name2")
 
 
 class TestCaseUploadAPITest(APITestCase):
@@ -76,9 +78,9 @@ class TestCaseUploadAPITest(APITestCase):
                     self.assertEqual(f.read(), name + "\n" + name + "\n" + "end")
 
 
-class ProblemAPITest(APITestCase):
+class ProblemAdminAPITest(APITestCase):
     def setUp(self):
-        self.url = self.reverse("problem_api")
+        self.url = self.reverse("problem_admin_api")
         self.create_super_admin()
         self.data = {"_id": "A-110", "title": "test", "description": "<p>test</p>", "input_description": "test",
                      "output_description": "test", "time_limit": 1000, "memory_limit": 256, "difficulty": "Low",
