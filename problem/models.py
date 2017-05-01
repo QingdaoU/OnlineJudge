@@ -18,6 +18,12 @@ class ProblemRuleType(object):
     OI = "OI"
 
 
+class ProblemDifficulty(object):
+    High = "High"
+    Mid = "Mid"
+    Low = "Low"
+
+
 class AbstractProblem(models.Model):
     title = models.CharField(max_length=128)
     # HTML
@@ -49,19 +55,19 @@ class AbstractProblem(models.Model):
     difficulty = models.CharField(max_length=32)
     tags = models.ManyToManyField(ProblemTag)
     source = models.CharField(max_length=200, blank=True, null=True)
-    total_submit_number = models.IntegerField(default=0)
-    total_accepted_number = models.IntegerField(default=0)
+    total_submit_number = models.BigIntegerField(default=0)
+    total_accepted_number = models.BigIntegerField(default=0)
 
     class Meta:
         db_table = "problem"
         abstract = True
 
     def add_submission_number(self):
-        self.accepted_problem_number = models.F("total_submit_number") + 1
+        self.total_submit_number = models.F("total_submit_number") + 1
         self.save()
 
     def add_ac_number(self):
-        self.accepted_problem_number = models.F("total_accepted_number") + 1
+        self.total_accepted_number = models.F("total_accepted_number") + 1
         self.save()
 
 
@@ -77,4 +83,4 @@ class ContestProblem(AbstractProblem):
 
     class Meta:
         db_table = "contest_problem"
-        unique_together = (("_id", "contest"), )
+        unique_together = (("_id", "contest"),)
