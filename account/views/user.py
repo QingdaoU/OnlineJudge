@@ -14,9 +14,8 @@ from utils.shortcuts import rand_str
 
 from ..decorators import login_required
 from ..models import User, UserProfile
-from ..serializers import (EditUserSerializer, SSOSerializer,
-                           TwoFactorAuthCodeSerializer, UserSerializer,
-                           UserProfileSerializer, UserInfoSerializer,
+from ..serializers import (SSOSerializer, TwoFactorAuthCodeSerializer,
+                           UserSerializer, UserProfileSerializer,
                            EditUserProfileSerializer, AvatarUploadForm)
 
 
@@ -33,7 +32,7 @@ class UserInfoAPI(APIView):
             return self.error("User does not exist")
         profile = UserProfile.objects.get(user=user)
         dit = UserProfileSerializer(profile).data
-        dit['user'] = UserSerializer(user).data
+        dit["user"] = UserSerializer(user).data
         return self.success(dit)
 
 
@@ -49,7 +48,7 @@ class UserProfileAPI(APIView):
             return self.error("User does not exist")
         profile = UserProfile.objects.get(user=user)
         dit = UserProfileSerializer(profile).data
-        dit['user'] = UserSerializer(user).data
+        dit["user"] = UserSerializer(user).data
         return self.success(dit)
 
     @validate_serializer(EditUserProfileSerializer)

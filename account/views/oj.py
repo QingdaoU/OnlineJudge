@@ -66,8 +66,8 @@ class UserRegisterAPI(APIView):
         """
         data = request.data
         captcha = Captcha(request)
-        # if not captcha.check(data["captcha"]):
-        #     return self.error("Invalid captcha")
+        if not captcha.check(data["captcha"]):
+            return self.error("Invalid captcha")
         try:
             User.objects.get(username=data["username"])
             return self.error("Username already exists")
