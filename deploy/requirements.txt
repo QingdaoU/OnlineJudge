@@ -11,3 +11,4 @@ celery
 Envelopes
 qrcode
 flake8-coding
+redis
