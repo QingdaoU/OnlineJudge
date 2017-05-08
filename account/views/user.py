@@ -19,6 +19,24 @@ from ..serializers import (SSOSerializer, TwoFactorAuthCodeSerializer,
                            EditUserProfileSerializer, AvatarUploadForm)
 
 
+class UserNameAPI(APIView):
+    def get(self, request):
+        """
+        Return Username to valid login status
+        """
+        try:
+            user = User.objects.get(id=request.user.id)
+        except User.DoesNotExist:
+            return self.success({
+                "username": "User does not exist",
+                "isLogin": False
+            })
+        return self.success({
+            "username": user.username,
+            "isLogin": True
+        })
+
+
 class UserInfoAPI(APIView):
     # @login_required
     @method_decorator(ensure_csrf_cookie)

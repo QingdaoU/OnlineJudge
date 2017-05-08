@@ -44,3 +44,17 @@ def rand_str(length=32, type="lower_hex"):
         return random.choice("123456789abcdef") + get_random_string(length - 1, allowed_chars="0123456789abcdef")
     else:
         return random.choice("123456789") + get_random_string(length - 1, allowed_chars="0123456789")
+
+
+def build_query_string(kv_data, ignore_none=True):
+    # {"a": 1, "b": "test"} -> "?a=1&b=test"
+    query_string = ""
+    for k, v in kv_data.iteritems():
+        if ignore_none is True and kv_data[k] is None:
+            continue
+        if query_string != "":
+            query_string += "&"
+        else:
+            query_string = "?"
+        query_string += (k + "=" + str(v))
+    return query_string

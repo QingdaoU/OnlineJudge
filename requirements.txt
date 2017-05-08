@@ -8,3 +8,4 @@ Envelopes
 pytz
 jsonfield
 qrcode
+redis
