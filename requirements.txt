@@ -1,4 +1,5 @@
 django==1.9.6
+django-redis
 djangorestframework==3.4.0
 otpauth
 pillow
@@ -8,3 +9,4 @@ Envelopes
 pytz
 jsonfield
 qrcode
+requests

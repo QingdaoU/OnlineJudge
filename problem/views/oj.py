@@ -16,14 +16,14 @@ class ProblemAPI(APIView):
         problem_id = request.GET.get("id")
         if problem_id:
             try:
-                problem = Problem.objects.get(id=problem_id)
+                problem = Problem.objects.get(id=problem_id, visible=True)
                 return self.success(ProblemSerializer(problem).data)
             except Problem.DoesNotExist:
                 return self.error("Problem does not exist")
 
         problems = Problem.objects.filter(visible=True)
         # 按照标签筛选
-        tag_text = request.GET.get("tag", None)
+        tag_text = request.GET.get("tag")
         if tag_text:
             try:
                 tag = ProblemTag.objects.get(name=tag_text)
@@ -37,7 +37,7 @@ class ProblemAPI(APIView):
             problems = problems.filter(Q(title__contains=keyword) | Q(description__contains=keyword))
 
         # 难度筛选
-        difficulty_rank = request.GET.get("difficulty", None)
+        difficulty_rank = request.GET.get("difficulty")
         if difficulty_rank:
             problems = problems.filter(difficulty=difficulty_rank)
 

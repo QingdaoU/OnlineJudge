@@ -8,12 +8,6 @@ class AdminType(object):
     ADMIN = "Admin"
     SUPER_ADMIN = "Super Admin"
 
-
-class ProblemSolutionStatus(object):
-    ACCEPTED = 1
-    PENDING = 2
-
-
 class ProblemPermission(object):
     NONE = "None"
     OWN = "Own"
@@ -75,7 +69,7 @@ def _random_avatar():
 class UserProfile(models.Model):
     user = models.OneToOneField(User)
     # Store user problem solution status with json string format
-    # {"problems": {1: ProblemSolutionStatus.ACCEPTED}, "contest_problems": {20: ProblemSolutionStatus.PENDING)}
+    # {"problems": {1: JudgeStatus.ACCEPTED}, "contest_problems": {20: JudgeStatus.PENDING)}
     problems_status = JSONField(default={})
     avatar = models.CharField(max_length=50, default=_random_avatar)
     blog = models.URLField(blank=True, null=True)
