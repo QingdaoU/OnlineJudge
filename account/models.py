@@ -8,6 +8,7 @@ class AdminType(object):
     ADMIN = "Admin"
     SUPER_ADMIN = "Super Admin"
 
+
 class ProblemPermission(object):
     NONE = "None"
     OWN = "Own"

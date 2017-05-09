@@ -5,7 +5,6 @@ from account.decorators import login_required
 from account.models import AdminType, User
 from problem.models import Problem
 
-from utils.api import CSRFExemptAPIView
 from utils.api import APIView, validate_serializer
 from utils.shortcuts import build_query_string
 from utils.throttling import TokenBucket, BucketController
@@ -40,7 +39,7 @@ def _submit_code(response, user, problem_id, language, code):
 
     try:
         _judge.delay(submission, problem)
-    except Exception as e:
+    except Exception:
         return response.error("Failed")
 
     return response.success({"submission_id": submission.id})

@@ -1,4 +1,3 @@
-import time
 import json
 import requests
 import hashlib
@@ -12,9 +11,8 @@ from django_redis import get_redis_connection
 from judge.languages import languages
 from account.models import User, UserProfile
 from conf.models import JudgeServer, JudgeServerToken
-from contest.models import Contest
 from problem.models import Problem, ProblemRuleType
-from submission.models import Submission, JudgeStatus
+from submission.models import JudgeStatus
 
 logger = logging.getLogger(__name__)
 
