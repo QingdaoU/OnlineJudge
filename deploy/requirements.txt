@@ -11,3 +11,5 @@ celery
 Envelopes
 qrcode
 flake8-coding
+requests
+django-redis

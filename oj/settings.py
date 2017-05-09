@@ -45,6 +45,7 @@ INSTALLED_APPS = (
     'problem',
     'contest',
     'utils',
+    'submission',
 
     'rest_framework',
 )
