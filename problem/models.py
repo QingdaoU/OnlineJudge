@@ -64,11 +64,11 @@ class AbstractProblem(models.Model):
 
     def add_submission_number(self):
         self.total_submit_number = models.F("total_submit_number") + 1
-        self.save(update_fields=['total_submit_number'])
+        self.save(update_fields=["total_submit_number"])
 
     def add_ac_number(self):
         self.total_accepted_number = models.F("total_accepted_number") + 1
-        self.save(update_fields=['total_accepted_number'])
+        self.save(update_fields=["total_accepted_number"])
 
 
 class Problem(AbstractProblem):

@@ -50,7 +50,7 @@ class JudgeDispatcher(object):
     def choose_judge_server():
         with transaction.atomic():
             # TODO: use more reasonable way
-            servers = JudgeServer.objects.select_for_update().all().order_by('task_number')
+            servers = JudgeServer.objects.select_for_update().all().order_by("task_number")
             servers = [s for s in servers if s.status == "normal"]
             if servers:
                 server = servers[0]
@@ -69,13 +69,13 @@ class JudgeDispatcher(object):
     def judge(self, output=False):
         server = self.choose_judge_server()
         if not server:
-            data = {'submission_id': self.submission_obj.id, 'problem_id': self.problem_obj.id}
+            data = {"submission_id": self.submission_obj.id, "problem_id": self.problem_obj.id}
             self.redis_conn.lpush(WAITING_QUEUE, json.dumps(data))
             return
 
-        language = list(filter(lambda item: self.submission_obj.language == item['name'], languages))[0]
+        language = list(filter(lambda item: self.submission_obj.language == item["name"], languages))[0]
         data = {
-            "language_config": language['config'],
+            "language_config": language["config"],
             "src": self.submission_obj.code,
             "max_cpu_time": self.problem_obj.time_limit,
             "max_memory": 1024 * 1024 * self.problem_obj.memory_limit,
@@ -85,15 +85,15 @@ class JudgeDispatcher(object):
         # TODO: try catch
         resp = self._request(urljoin(server.service_url, "/judge"), data=data)
         self.submission_obj.info = resp
-        if resp['err']:
+        if resp["err"]:
             self.submission_obj.result = JudgeStatus.COMPILE_ERROR
         else:
-            error_test_case = list(filter(lambda case: case['result'] != 0, resp['data']))
+            error_test_case = list(filter(lambda case: case["result"] != 0, resp["data"]))
             # 多个测试点全部正确AC，否则ACM模式下取第一个测试点状态
             if not error_test_case:
                 self.submission_obj.result = JudgeStatus.ACCEPTED
             elif self.problem_obj.rule_type == ProblemRuleType.ACM:
-                self.submission_obj.result = error_test_case[0]['result']
+                self.submission_obj.result = error_test_case[0]["result"]
             else:
                 self.submission_obj.result = JudgeStatus.PARTIALLY_ACCEPTED
         self.submission_obj.save()

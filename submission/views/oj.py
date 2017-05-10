@@ -30,13 +30,13 @@ class SubmissionAPI(APIView):
 
         data = request.data
         try:
-            problem = Problem.objects.get(id=data['problem_id'])
+            problem = Problem.objects.get(id=data["problem_id"])
         except Problem.DoesNotExist:
             return self.error("Problem not exist")
         # TODO: user_id
         submission = Submission.objects.create(user_id=1,
-                                               language=data['language'],
-                                               code=data['code'],
+                                               language=data["language"],
+                                               code=data["code"],
                                                problem_id=problem.id)
         judge_task.delay(submission.id, problem.id)
         # JudgeDispatcher(submission.id, problem.id).judge()
