@@ -34,16 +34,11 @@ CACHES = {
     }
 }
 
-REDIS_CACHE = {
-    "host": "127.0.0.1",
-    "port": 6379,
-    "db": 1
-}
-
+# For celery
 REDIS_QUEUE = {
     "host": "127.0.0.1",
     "port": 6379,
-    "db": 2
+    "db": 4
 }
 
 DEBUG = True

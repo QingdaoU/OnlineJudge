@@ -9,23 +9,32 @@ from django.db.models import F
 from django_redis import get_redis_connection
 
 from judge.languages import languages
-from account.models import User, UserProfile
+from account.models import User
 from conf.models import JudgeServer, JudgeServerToken
 from problem.models import Problem, ProblemRuleType
-from submission.models import JudgeStatus
+from submission.models import JudgeStatus, Submission
 
 logger = logging.getLogger(__name__)
 
 WAITING_QUEUE = "waiting_queue"
 
 
+# 继续处理在队列中的问题
+def process_pending_task(redis_conn):
+    if redis_conn.llen(WAITING_QUEUE):
+        # 防止循环引入
+        from submission.tasks import judge_task
+        data = json.loads(redis_conn.rpop(WAITING_QUEUE))
+        judge_task.delay(**data)
+
+
 class JudgeDispatcher(object):
-    def __init__(self, submission_obj, problem_obj):
+    def __init__(self, submission_id, problem_id):
         token = JudgeServerToken.objects.first().token
         self.token = hashlib.sha256(token.encode("utf-8")).hexdigest()
         self.redis_conn = get_redis_connection("JudgeQueue")
-        self.submission_obj = submission_obj
-        self.problem_obj = problem_obj
+        self.submission_obj = Submission.objects.get(pk=submission_id)
+        self.problem_obj = Problem.objects.get(pk=problem_id)
 
     def _request(self, url, data=None):
         kwargs = {"headers": {"X-Judge-Server-Token": self.token,
@@ -41,10 +50,10 @@ class JudgeDispatcher(object):
     def choose_judge_server():
         with transaction.atomic():
             # TODO: use more reasonable way
-            servers = JudgeServer.objects.select_for_update().filter(
-                status="normal").order_by("task_number")
-            if servers.exists():
-                server = servers.first()
+            servers = JudgeServer.objects.select_for_update().all().order_by('task_number')
+            servers = [s for s in servers if s.status == "normal"]
+            if servers:
+                server = servers[0]
                 server.used_instance_number = F("task_number") + 1
                 server.save()
                 return server
@@ -60,28 +69,31 @@ class JudgeDispatcher(object):
     def judge(self, output=False):
         server = self.choose_judge_server()
         if not server:
-            self.redis_conn.lpush(WAITING_QUEUE, self.submission_obj.id)
+            data = {'submission_id': self.submission_obj.id, 'problem_id': self.problem_obj.id}
+            self.redis_conn.lpush(WAITING_QUEUE, json.dumps(data))
             return
 
         language = list(filter(lambda item: self.submission_obj.language == item['name'], languages))[0]
-        data = {"language_config": language['config'],
-                "src": self.submission_obj.code,
-                "max_cpu_time": self.problem_obj.time_limit,
-                "max_memory": self.problem_obj.memory_limit,
-                "test_case_id": self.problem_obj.test_case_id,
-                "output": output}
+        data = {
+            "language_config": language['config'],
+            "src": self.submission_obj.code,
+            "max_cpu_time": self.problem_obj.time_limit,
+            "max_memory": 1024 * 1024 * self.problem_obj.memory_limit,
+            "test_case_id": self.problem_obj.test_case_id,
+            "output": output
+        }
         # TODO: try catch
         resp = self._request(urljoin(server.service_url, "/judge"), data=data)
         self.submission_obj.info = resp
         if resp['err']:
             self.submission_obj.result = JudgeStatus.COMPILE_ERROR
         else:
-            error_test_case = list(filter(lambda case: case['result'] != 0, resp))
+            error_test_case = list(filter(lambda case: case['result'] != 0, resp['data']))
             # 多个测试点全部正确AC，否则ACM模式下取第一个测试点状态
             if not error_test_case:
                 self.submission_obj.result = JudgeStatus.ACCEPTED
-            elif self.problem_obj.rule_tyle == ProblemRuleType.ACM:
-                self.submission_obj.result = error_test_case[0].result
+            elif self.problem_obj.rule_type == ProblemRuleType.ACM:
+                self.submission_obj.result = error_test_case[0]['result']
             else:
                 self.submission_obj.result = JudgeStatus.PARTIALLY_ACCEPTED
         self.submission_obj.save()
@@ -92,37 +104,36 @@ class JudgeDispatcher(object):
             pass
         else:
             self.update_problem_status()
-        # 取redis中等待中的提交
-        if self.redis_conn.llen(WAITING_QUEUE):
-            pass
+        process_pending_task(self.redis_conn)
 
     def compile_spj(self, service_url, src, spj_version, spj_compile_config, test_case_id):
         data = {"src": src, "spj_version": spj_version,
-                "spj_compile_config": spj_compile_config, "test_case_id": test_case_id}
-        return self._request(service_url + "/compile_spj", data=data)
+                "spj_compile_config": spj_compile_config,
+                "test_case_id": test_case_id}
+        return self._request(urljoin(service_url, "compile_spj"), data=data)
 
     def update_problem_status(self):
         with transaction.atomic():
-            problem = Problem.objects.select_for_update().get(id=self.problem_obj.problem_id)
-            # 更新普通题目的计数器
-            problem.add_submission_number()
-
-            # 更新用户做题状态
+            problem = Problem.objects.select_for_update().get(id=self.problem_obj.id)
             user = User.objects.select_for_update().get(id=self.submission_obj.user_id)
-            problems_status = UserProfile.objects.get(user=user).problem_status
+            # 更新提交计数器
+            problem.add_submission_number()
+            user_profile = user.userprofile
+            user_profile.add_submission_number()
 
+            if self.submission_obj.result == JudgeStatus.ACCEPTED:
+                problem.add_ac_number()
+
+            problems_status = user_profile.problems_status
             if "problems" not in problems_status:
                 problems_status["problems"] = {}
-
-            # 增加用户提交计数器
-            user.userprofile.add_submission_number()
 
             # 之前状态不是ac, 现在是ac了 需要更新用户ac题目数量计数器,这里需要判重
             if problems_status["problems"].get(str(problem.id), JudgeStatus.WRONG_ANSWER) != JudgeStatus.ACCEPTED:
                 if self.submission_obj.result == JudgeStatus.ACCEPTED:
-                    user.userprofile.add_accepted_problem_number()
+                    user_profile.add_accepted_problem_number()
                     problems_status["problems"][str(problem.id)] = JudgeStatus.ACCEPTED
                 else:
                     problems_status["problems"][str(problem.id)] = JudgeStatus.WRONG_ANSWER
-            user.problems_status = problems_status
-            user.save(update_fields=["problems_status"])
+            user_profile.problems_status = problems_status
+            user_profile.save(update_fields=["problems_status"])

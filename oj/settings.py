@@ -164,8 +164,6 @@ BROKER_URL = 'redis://%s:%s/%s' % (REDIS_QUEUE["host"], str(REDIS_QUEUE["port"])
 CELERY_ACCEPT_CONTENT = ["json"]
 CELERY_TASK_SERIALIZER = "json"
 
-DATABASE_ROUTERS = ['oj.db_router.DBRouter']
-
 IMAGE_UPLOAD_DIR = os.path.join(BASE_DIR, 'upload/')
 
 # 用于限制用户恶意提交大量代码

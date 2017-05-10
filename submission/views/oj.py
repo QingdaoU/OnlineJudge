@@ -4,53 +4,43 @@ from django_redis import get_redis_connection
 from account.decorators import login_required
 from account.models import AdminType, User
 from problem.models import Problem
-
+from submission.tasks import judge_task
 from utils.api import APIView, validate_serializer
 from utils.shortcuts import build_query_string
 from utils.throttling import TokenBucket, BucketController
-
 from ..models import Submission
 from ..serializers import CreateSubmissionSerializer
-from ..tasks import _judge
-
-
-def _submit_code(response, user, problem_id, language, code):
-    controller = BucketController(user_id=user.id,
-                                  redis_conn=get_redis_connection("Throttling"),
-                                  default_capacity=30)
-    bucket = TokenBucket(fill_rate=10,
-                         capacity=20,
-                         last_capacity=controller.last_capacity,
-                         last_timestamp=controller.last_timestamp)
-    if bucket.consume():
-        controller.last_capacity -= 1
-    else:
-        return response.error("Please wait %d seconds" % int(bucket.expected_time() + 1))
-
-    try:
-        problem = Problem.objects.get(id=problem_id)
-    except Problem.DoesNotExist:
-        return response.error("Problem not exist")
-
-    submission = Submission.objects.create(user_id=user.id,
-                                           language=language,
-                                           code=code,
-                                           problem_id=problem.id)
-
-    try:
-        _judge.delay(submission, problem)
-    except Exception:
-        return response.error("Failed")
-
-    return response.success({"submission_id": submission.id})
 
 
 class SubmissionAPI(APIView):
     @validate_serializer(CreateSubmissionSerializer)
+    # TODO: login
     # @login_required
     def post(self, request):
+        controller = BucketController(user_id=request.user.id,
+                                      redis_conn=get_redis_connection("Throttling"),
+                                      default_capacity=30)
+        bucket = TokenBucket(fill_rate=10, capacity=20,
+                             last_capacity=controller.last_capacity,
+                             last_timestamp=controller.last_timestamp)
+        if bucket.consume():
+            controller.last_capacity -= 1
+        else:
+            return self.error("Please wait %d seconds" % int(bucket.expected_time() + 1))
+
         data = request.data
-        return _submit_code(self, request.user, data["problem_id"], data["language"], data["code"])
+        try:
+            problem = Problem.objects.get(id=data['problem_id'])
+        except Problem.DoesNotExist:
+            return self.error("Problem not exist")
+        # TODO: user_id
+        submission = Submission.objects.create(user_id=1,
+                                               language=data['language'],
+                                               code=data['code'],
+                                               problem_id=problem.id)
+        judge_task.delay(submission.id, problem.id)
+        # JudgeDispatcher(submission.id, problem.id).judge()
+        return self.success({"submission_id": submission.id})
 
     @login_required
     def get(self, request):

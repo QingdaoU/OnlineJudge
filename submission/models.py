@@ -1,7 +1,6 @@
 from django.db import models
 from jsonfield import JSONField
 
-from utils.models import RichTextField
 from utils.shortcuts import rand_str
 
 
@@ -25,7 +24,7 @@ class Submission(models.Model):
     problem_id = models.IntegerField(db_index=True)
     created_time = models.DateTimeField(auto_now_add=True)
     user_id = models.IntegerField(db_index=True)
-    code = RichTextField()
+    code = models.TextField()
     result = models.IntegerField(default=JudgeStatus.PENDING)
     # 判题结果的详细信息
     info = JSONField(default={})

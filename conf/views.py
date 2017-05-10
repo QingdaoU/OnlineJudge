@@ -1,9 +1,11 @@
 import hashlib
 
 from django.utils import timezone
+from django_redis import get_redis_connection
 
 from account.decorators import super_admin_required
 from judge.languages import languages, spj_languages
+from judge.dispatcher import process_pending_task
 from utils.api import APIView, CSRFExemptAPIView, validate_serializer
 from utils.shortcuts import rand_str
 
@@ -126,6 +128,10 @@ class JudgeServerHeartbeatAPI(CSRFExemptAPIView):
                                        service_url=service_url,
                                        last_heartbeat=timezone.now(),
                                        )
+            # 新server上线 处理队列中的，防止没有新的提交而导致一直waiting
+            conn = get_redis_connection("JudgeQueue")
+            process_pending_task(conn)
+
         return self.success()
 
 
