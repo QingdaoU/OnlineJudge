@@ -5,14 +5,15 @@ from account.decorators import login_required
 from account.models import AdminType, User
 from problem.models import Problem
 from submission.tasks import judge_task
+# from judge.dispatcher import JudgeDispatcher
 from utils.api import APIView, validate_serializer
 from utils.shortcuts import build_query_string
 from utils.throttling import TokenBucket, BucketController
 from ..models import Submission, JudgeStatus
-from ..serializers import CreateSubmissionSerializer
+from ..serializers import CreateSubmissionSerializer, SubmissionModelSerializer
 
 
-def _submit(response, user, problem_id, language, code):
+def _submit(response, user, problem_id, language, code, contest_id=None):
     # TODO: 预设默认值，需修改
     controller = BucketController(user_id=user.id,
                                   redis_conn=get_redis_connection("Throttling"),
@@ -34,34 +35,31 @@ def _submit(response, user, problem_id, language, code):
     submission = Submission.objects.create(user_id=user.id,
                                            language=language,
                                            code=code,
-                                           problem_id=problem.id)
-
+                                           problem_id=problem.id,
+                                           contest_id=contest_id)
+    # 暂时保留 方便排错
+    # JudgeDispatcher(submission.id, problem.id).judge()
     judge_task.delay(submission.id, problem.id)
     return response.success({"submission_id": submission.id})
 
 
 class SubmissionAPI(APIView):
     @validate_serializer(CreateSubmissionSerializer)
-    # TODO: login
-    # @login_required
+    @login_required
     def post(self, request):
         data = request.data
         return _submit(self, request.user, data["problem_id"], data["language"], data["code"])
 
     @login_required
     def get(self, request):
-        submission_id = request.GET.get("submission_id")
+        submission_id = request.GET.get("id")
         if not submission_id:
             return self.error("Parameter error")
         try:
             submission = Submission.objects.get(id=submission_id, user_id=request.user.id)
         except Submission.DoesNotExist:
             return self.error("Submission not exist")
-
-        response_data = {"result": submission.result}
-        if submission.result == 0:
-            response_data["accepted_answer_time"] = submission.accepted_answer_time
-        return self.success(response_data)
+        return self.success(SubmissionModelSerializer(submission).data)
 
 
 class MyProblemSubmissionListAPI(APIView):

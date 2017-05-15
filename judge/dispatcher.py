@@ -3,6 +3,7 @@ import requests
 import hashlib
 import logging
 from urllib.parse import urljoin
+from functools import reduce
 
 from django.db import transaction
 from django.db.models import F
@@ -82,6 +83,8 @@ class JudgeDispatcher(object):
             "test_case_id": self.problem_obj.test_case_id,
             "output": output
         }
+        self.submission_obj.result = JudgeStatus.JUDGING
+        self.submission_obj.save()
         # TODO: try catch
         resp = self._request(urljoin(server.service_url, "/judge"), data=data)
         self.submission_obj.info = resp
@@ -92,6 +95,7 @@ class JudgeDispatcher(object):
             # 多个测试点全部正确AC，否则ACM模式下取第一个测试点状态
             if not error_test_case:
                 self.submission_obj.result = JudgeStatus.ACCEPTED
+                self.submission_obj.accepted_time = reduce(lambda x, y: x + y["cpu_time"], resp["data"], 0)
             elif self.problem_obj.rule_type == ProblemRuleType.ACM:
                 self.submission_obj.result = error_test_case[0]["result"]
             else:
