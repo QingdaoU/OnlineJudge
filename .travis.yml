@@ -2,6 +2,7 @@ language: python
 python:
     - "3.5"
 install:
+    - sudo apt-get install -qq redis-server && redis-server &
     - pip install -r deploy/requirements.txt
     - mkdir log test_case upload
     - cp oj/custom_settings.example.py oj/custom_settings.py
