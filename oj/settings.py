@@ -124,18 +124,6 @@ LOGGING = {
         # 日志格式
     },
     'handlers': {
-        'django_error': {
-            'level': 'DEBUG',
-            'class': 'logging.handlers.RotatingFileHandler',
-            'filename': LOG_PATH + 'django.log',
-            'formatter': 'standard'
-        },
-        'app_info': {
-            'level': 'DEBUG',
-            'class': 'logging.handlers.RotatingFileHandler',
-            'filename': LOG_PATH + 'app_info.log',
-            'formatter': 'standard'
-        },
         'console': {
             'level': 'DEBUG',
             'class': 'logging.StreamHandler',
@@ -144,12 +132,12 @@ LOGGING = {
     },
     'loggers': {
         'app_info': {
-            'handlers': ['app_info', "console"],
+            'handlers': ["console"],
             'level': 'DEBUG',
             'propagate': True
         },
         'django.request': {
-            'handlers': ['django_error', 'console'],
+            'handlers': ['console'],
             'level': 'DEBUG',
             'propagate': True,
         },

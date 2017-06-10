@@ -11,7 +11,7 @@ static_src_path = "static/src/"
 static_release_path = "static/release/"
 
 print "Begin to compress js"
-if os.system("node static/src/js/r.js -o static/src/js/build.js"):
+if os.system("nodejs static/src/js/r.js -o static/src/js/build.js"):
     print "Failed to compress js, exit"
     exit()
 
