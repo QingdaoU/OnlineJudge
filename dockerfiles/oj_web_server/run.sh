@@ -3,9 +3,16 @@ if [ ! -f "/code/oj/custom_settings.py" ]; then
  cp /code/oj/custom_settings.example.py /code/oj/custom_settings.py
  echo "SECRET_KEY=\"`cat /dev/urandom | head -1 | md5sum | head -c 32`\"" >> /code/oj/custom_settings.py
 fi
+
+ca_base_dir="/code/ssl"
+if [ ! -f "$ca_base_dir/server.key" ]; then
+    openssl req -x509 -newkey rsa:2048 -keyout "$ca_base_dir/server.key" -out "$ca_base_dir/server.crt" -days 1000 \
+        -subj "/C=CN/ST=Beijing/L=Beijing/O=Beijing OnlineJudge Technology Co., Ltd./OU=Service Infrastructure Department/CN=`hostname`" -nodes
+fi
+
 find /code -name "*.pyc" -delete
 # python -m compileall /code
-chown -R nobody:nogroup /code/log /code/test_case /code/upload
+chown -R nobody:nogroup /code/log /code/test_case /code/upload /code/ssl
 cd /code
 n=0
 until [ $n -ge 5 ]
