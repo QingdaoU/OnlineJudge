@@ -7,5 +7,4 @@ ADD . /code
 WORKDIR /code
 RUN pip install -i https://pypi.douban.com/simple -r dockerfiles/oj_web_server/requirements.txt
 RUN python tools/release_static.py
-EXPOSE 80
 CMD bash /code/dockerfiles/oj_web_server/run.sh

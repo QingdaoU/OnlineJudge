@@ -68,4 +68,3 @@ custom_settings.py
 docker-compose.yml
 *.zip
 rsyncd.passwd
-oj.conf
