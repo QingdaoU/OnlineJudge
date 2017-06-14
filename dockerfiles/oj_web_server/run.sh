@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
-if [ ! -f "/code/oj/custom_settings.py" ]; then
- cp /code/oj/custom_settings.example.py /code/oj/custom_settings.py
- echo "SECRET_KEY=\"`cat /dev/urandom | head -1 | md5sum | head -c 32`\"" >> /code/oj/custom_settings.py
+if [ ! -f "/code/oj/secret_key.py" ]; then
+ echo "SECRET_KEY=\"`cat /dev/urandom | head -1 | md5sum | head -c 32`\"" >> /code/oj/secret_key.py
 fi
 
 ca_base_dir="/code/ssl"

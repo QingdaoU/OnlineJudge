@@ -23,6 +23,7 @@ elif ENV == "server":
     from .server_settings import *
 
 from .custom_settings import *
+from .secret_key import *
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
