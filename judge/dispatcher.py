@@ -3,7 +3,6 @@ import requests
 import hashlib
 import logging
 from urllib.parse import urljoin
-from functools import reduce
 
 from django.db import transaction
 from django.db.models import F
@@ -74,17 +73,28 @@ class JudgeDispatcher(object):
             self.redis_conn.lpush(WAITING_QUEUE, json.dumps(data))
             return
 
-        language = list(filter(lambda item: self.submission_obj.language == item["name"], languages))[0]
+        sub_config = list(filter(lambda item: self.submission_obj.language == item["name"], languages))[0]
+        spj_config = {}
+        if self.problem_obj.spj_code:
+            for lang in languages:
+                if lang["name"] == self.problem_obj.spj_language:
+                    spj_config = lang["spj"]
+                    break
         data = {
-            "language_config": language["config"],
+            "language_config": sub_config["config"],
             "src": self.submission_obj.code,
             "max_cpu_time": self.problem_obj.time_limit,
             "max_memory": 1024 * 1024 * self.problem_obj.memory_limit,
             "test_case_id": self.problem_obj.test_case_id,
-            "output": output
+            "output": output,
+            "spj_version": self.problem_obj.spj_version,
+            "spj_config": spj_config.get("config"),
+            "spj_compile_config": spj_config.get("compile"),
+            "spj_src": self.problem_obj.spj_code
         }
         self.submission_obj.result = JudgeStatus.JUDGING
         self.submission_obj.save()
+
         # TODO: try catch
         resp = self._request(urljoin(server.service_url, "/judge"), data=data)
         self.submission_obj.info = resp
@@ -92,10 +102,11 @@ class JudgeDispatcher(object):
             self.submission_obj.result = JudgeStatus.COMPILE_ERROR
         else:
             error_test_case = list(filter(lambda case: case["result"] != 0, resp["data"]))
-            # 多个测试点全部正确AC，否则ACM模式下取第一个测试点状态
+            # 多个测试点全部正确AC，否则 ACM模式下取第一个错误的测试点状态, OI模式对应为部分正确
             if not error_test_case:
                 self.submission_obj.result = JudgeStatus.ACCEPTED
-                self.submission_obj.accepted_time = reduce(lambda x, y: x + y["cpu_time"], resp["data"], 0)
+                # AC 用时保存为多个测试点中最长的那个
+                self.submission_obj.accepted_time = max([x["cpu_time"] for x in resp["data"]])
             elif self.problem_obj.rule_type == ProblemRuleType.ACM:
                 self.submission_obj.result = error_test_case[0]["result"]
             else:
