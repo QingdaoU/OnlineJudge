@@ -16,10 +16,10 @@ DEFAULT_CONTEST_DATA = {"title": "test title", "description": "test description"
                         "visible": True, "real_time_rank": True}
 
 
-class ContestAPITest(APITestCase):
+class ContestAdminAPITest(APITestCase):
     def setUp(self):
         self.create_super_admin()
-        self.url = self.reverse("contest_api")
+        self.url = self.reverse("contest_admin_api")
         self.data = DEFAULT_CONTEST_DATA
 
     def test_create_contest(self):
@@ -55,6 +55,26 @@ class ContestAPITest(APITestCase):
         self.assertSuccess(response)
 
 
+class ContestAPITest(APITestCase):
+    def setUp(self):
+        self.create_admin()
+        self.url = self.reverse("contest_api")
+
+    def create_contest(self):
+        url = self.reverse("contest_admin_api")
+        return self.client.post(url, data=DEFAULT_CONTEST_DATA)
+
+    def test_get_contest_list(self):
+        self.create_contest()
+        response = self.client.get(self.url)
+        self.assertSuccess(response)
+
+    def test_get_one_contest(self):
+        contest_id = self.create_contest().data["data"]["id"]
+        response = self.client.get("{}?id={}".format(self.url, contest_id))
+        self.assertSuccess(response)
+
+
 class ContestAnnouncementAPITest(APITestCase):
     def setUp(self):
         self.create_super_admin()
@@ -63,7 +83,7 @@ class ContestAnnouncementAPITest(APITestCase):
         self.data = {"title": "test title", "content": "test content", "contest_id": contest_id}
 
     def create_contest(self):
-        url = self.reverse("contest_api")
+        url = self.reverse("contest_admin_api")
         data = DEFAULT_CONTEST_DATA
         return self.client.post(url, data=data)
 
@@ -92,10 +112,10 @@ class ContestAnnouncementAPITest(APITestCase):
 class ContestAnnouncementListAPITest(APITestCase):
     def setUp(self):
         self.create_super_admin()
-        self.url = self.reverse("contest_list_api")
+        self.url = self.reverse("contest_announcement_api")
 
     def create_contest_announcements(self):
-        contest_id = self.client.post(self.reverse("contest_api"), data=DEFAULT_CONTEST_DATA).data["data"]["id"]
+        contest_id = self.client.post(self.reverse("contest_admin_api"), data=DEFAULT_CONTEST_DATA).data["data"]["id"]
         url = self.reverse("contest_announcement_admin_api")
         self.client.post(url, data={"title": "test title1", "content": "test content1", "contest_id": contest_id})
         self.client.post(url, data={"title": "test title2", "content": "test content2", "contest_id": contest_id})
