@@ -279,14 +279,13 @@ def group_list_page(request, page=1):
         previous_page = current_page.previous_page_number()
     except Exception:
         pass
-    next_page = None
     try:
         next_page = current_page.next_page_number()
     except Exception:
         pass
 
     return render(request, "oj/group/group_list.html", {
-        "groups": groups,
+        "groups": current_page.object_list,
         "contests": current_page, "page": int(page),
         "previous_page": previous_page, "next_page": next_page,
         "keyword": keyword
