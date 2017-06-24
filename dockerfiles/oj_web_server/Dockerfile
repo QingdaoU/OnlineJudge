@@ -1,15 +1,10 @@
-FROM python:2.7
+FROM ubuntu:16.04
 ENV PYTHONBUFFERED 1
-RUN mkdir -p /code/log /code/test_case /code/upload
-WORKDIR /code
-ADD requirements.txt /code/
-RUN pip install -i http://pypi.douban.com/simple  -r requirements.txt --trusted-host pypi.douban.com
-RUN rm /etc/apt/sources.list
-ADD sources.list /etc/apt/
+RUN apt-get update && apt-get install -y nginx python-pip libmysqlclient-dev curl nodejs
 RUN curl -sL https://deb.nodesource.com/setup | bash -
-RUN apt-get -y install nodejs
-ADD gunicorn.conf /etc
-ADD supervisord.conf /etc
-ADD task_queue.conf /etc
-EXPOSE 8080
+RUN apt-get install nodejs
+ADD . /code
+WORKDIR /code
+RUN pip install -i https://pypi.douban.com/simple -r dockerfiles/oj_web_server/requirements.txt
+RUN python tools/release_static.py
 CMD bash /code/dockerfiles/oj_web_server/run.sh

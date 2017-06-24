@@ -2,7 +2,7 @@ django==1.9.6
 MySQL-python
 redis
 django-redis-sessions
-djangorestframework
+djangorestframework==3.2.5
 django-rest-swagger
 gunicorn
 coverage

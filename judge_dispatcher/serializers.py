@@ -6,7 +6,7 @@ from .models import JudgeServer
 
 class CreateJudgesSerializer(serializers.Serializer):
     name = serializers.CharField(max_length=30)
-    ip = serializers.IPAddressField()
+    ip = serializers.CharField(max_length=128)
     port = serializers.IntegerField()
     # 这个服务器最大可能运行的判题实例数量
     max_instance_number = serializers.IntegerField()
@@ -16,7 +16,7 @@ class CreateJudgesSerializer(serializers.Serializer):
 class EditJudgesSerializer(serializers.Serializer):
     id = serializers.IntegerField()
     name = serializers.CharField(max_length=30)
-    ip = serializers.IPAddressField()
+    ip = serializers.CharField(max_length=128)
     port = serializers.IntegerField()
     # 这个服务器最大可能运行的判题实例数量
     max_instance_number = serializers.IntegerField()
