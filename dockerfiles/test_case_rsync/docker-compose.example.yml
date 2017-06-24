@@ -1,9 +1,9 @@
 oj_rsync_master:
     image: oj_rsync
     volumes:
-        - /home/OnlineJudge:/OnlineJudge
-        - /home/test_case:/OnlineJudge/test_case
-        - /home/log:/OnlineJudge/log
+        - /home/OJ/OnlineJudge:/OnlineJudge
+        - /home/OJ/test_case:/OnlineJudge/test_case
+        - /home/OJ/log:/OnlineJudge/log
     ports:
         - "0.0.0.0:873:873"
     environment:
@@ -12,9 +12,9 @@ oj_rsync_master:
 oj_rsync_slave:
     image: oj_rsync
     volumes:
-        - /home/OnlineJudge:/OnlineJudge
-        - /home/test_case:/OnlineJudge/test_case
-        - /home/log:/OnlineJudge/log
+        - /home/OJ/OnlineJudge:/OnlineJudge
+        - /home/OJ/test_case:/OnlineJudge/test_case
+        - /home/OJ/log:/OnlineJudge/log
     environment:
         - TZ=Asia/Shanghai
         - RSYNC_MODE=slave

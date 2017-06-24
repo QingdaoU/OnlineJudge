@@ -1,4 +1,8 @@
-# OnlineJudge [![Build Status](https://travis-ci.org/QingdaoU/OnlineJudge.svg?branch=master)](https://travis-ci.org/QingdaoU/OnlineJudge)
+# OnlineJudge 一键安装版[![Build Status](https://travis-ci.org/xudianc/OnlineJudge.svg?branch=master)](https://travis-ci.org/xudianc/OnlineJudge)
+ - 克隆后cd进入OnlineJudge目录下，管理员运行./deploy.sh即可
+ 
+-----------------------------------------------------------------
+## OnlineJudge
 
 由于作者工作学习繁忙, 目前只能保证有时间的时候修复部分BUG。
 

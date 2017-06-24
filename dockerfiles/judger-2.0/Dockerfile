@@ -9,7 +9,7 @@ RUN echo debconf shared/accepted-oracle-license-v1-1 select true | debconf-set-s
 RUN echo debconf shared/accepted-oracle-license-v1-1 seen true | debconf-set-selections
 RUN apt-get update
 RUN apt-get install -y oracle-java8-installer
-RUN cd /tmp && git clone https://github.com/xudianc/Judger && cd Judger && python setup.py install
+RUN cd /tmp && git clone -b 2.0 https://github.com/xudianc/Judger && cd Judger && bash ./install.sh
 RUN mkdir -p /var/judger/run/ && mkdir /var/judger/test_case/ && mkdir /var/judger/code/
 RUN chmod -R 777 /var/judger/run/
 RUN rm /var/cache/oracle-jdk8-installer/*

@@ -71,7 +71,7 @@ class JudgeClient(object):
         output_path = os.path.join(self._judge_base_path, str(test_case_id) + ".out")
 
         try:
-            f = open(output_path, "rb")
+            f = open(output_path, "r")
         except IOError:
             # 文件不存在等引发的异常 返回结果错误
             return "", False

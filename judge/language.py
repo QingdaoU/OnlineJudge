@@ -19,8 +19,8 @@ languages = {
         "code": 2,
         "compile_max_cpu_time": 3000,
         "compile_max_memory": 256 * 1024 * 1024,
-        "compile_command": "/usr/bin/g++ -DONLINE_JUDGE -O2 -w -fmax-errors=3 -std=c++11 {src_path} -lm -o {exe_path}/main",
-        "spj_compile_command": "/usr/bin/g++ -DONLINE_JUDGE -O2 -Werror -fmax-errors=3 -std=c++11 {src_path} -lm -o {exe_path}",
+        "compile_command": "/usr/bin/g++ -DONLINE_JUDGE -O2 -w -fmax-errors=3 -std=c++14 {src_path} -lm -o {exe_path}/main",
+        "spj_compile_command": "/usr/bin/g++ -DONLINE_JUDGE -O2 -Werror -fmax-errors=3 -std=c++1z {src_path} -lm -o {exe_path}",
         "execute_command": "{exe_path}/main",
         "use_sandbox": True
     },
@@ -31,8 +31,8 @@ languages = {
         "compile_max_cpu_time": 3000,
         "compile_max_memory": -1,
         "compile_command": "/usr/bin/javac {src_path} -d {exe_path} -encoding UTF8",
-        "execute_command": "/usr/bin/java -cp {exe_path} -Xss1M -XX:MaxPermSize=16M "
-                           "-XX:PermSize=8M -Xms16M -Xmx{max_memory} -Djava.security.manager "
+        "execute_command": "/usr/bin/java -cp {exe_path} -Xss1M -XX:MaxMetaspaceSize=16M "
+                           "-XX:MetaspaceSize=8M -Xms16M -Xmx{max_memory} -Djava.security.manager "
                            "-Djava.security.policy==policy -Djava.awt.headless=true Main",
         "use_sandbox": False
     }
