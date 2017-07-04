@@ -65,6 +65,7 @@ class APIView(View):
             for parser in self.request_parsers:
                 if content_type.startswith(parser.content_type):
                     break
+            # else means the for loop is not interrupted by break
             else:
                 raise ValueError("unknown content_type '%s'" % content_type)
             if body:

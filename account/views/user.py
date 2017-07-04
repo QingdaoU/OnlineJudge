@@ -15,11 +15,12 @@ from utils.shortcuts import rand_str
 from ..decorators import login_required
 from ..models import User, UserProfile
 from ..serializers import (SSOSerializer, TwoFactorAuthCodeSerializer,
-                           UserSerializer, UserProfileSerializer,
+                           UserProfileSerializer,
                            EditUserProfileSerializer, AvatarUploadForm)
 
 
 class UserNameAPI(APIView):
+    @method_decorator(ensure_csrf_cookie)
     def get(self, request):
         """
         Return Username to valid login status
@@ -37,37 +38,22 @@ class UserNameAPI(APIView):
         })
 
 
-class UserInfoAPI(APIView):
-    # @login_required
-    @method_decorator(ensure_csrf_cookie)
-    def get(self, request, **kwargs):
-        """
-        Return user info api
-        """
-        try:
-            user = User.objects.get(username=kwargs["username"])
-        except User.DoesNotExist:
-            return self.error("User does not exist")
-        profile = UserProfile.objects.get(user=user)
-        dit = UserProfileSerializer(profile).data
-        dit["user"] = UserSerializer(user).data
-        return self.success(dit)
-
-
 class UserProfileAPI(APIView):
     @login_required
-    def get(self, request):
+    def get(self, request, **kwargs):
         """
-        Return user info api
+        Return user info according username or user_id
         """
+        username = request.GET.get("username")
         try:
-            user = User.objects.get(id=request.user.id)
+            if username:
+                user = User.objects.get(username=username)
+            else:
+                user = request.user
         except User.DoesNotExist:
             return self.error("User does not exist")
         profile = UserProfile.objects.get(user=user)
-        dit = UserProfileSerializer(profile).data
-        dit["user"] = UserSerializer(user).data
-        return self.success(dit)
+        return self.success(UserProfileSerializer(profile).data)
 
     @validate_serializer(EditUserProfileSerializer)
     @login_required
