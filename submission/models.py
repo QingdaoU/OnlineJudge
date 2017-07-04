@@ -30,9 +30,8 @@ class Submission(models.Model):
     info = JSONField(default={})
     language = models.CharField(max_length=20)
     shared = models.BooleanField(default=False)
-    # 题目状态为 Accepted 时才会存储相关info
-    accepted_time = models.IntegerField(blank=True, null=True)
-    accepted_info = JSONField(default={})
+    # 存储该提交所用时间和内存值，方便提交列表显示
+    statistic_info = JSONField(default={})
 
     class Meta:
         db_table = "submission"

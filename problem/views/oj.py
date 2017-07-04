@@ -16,7 +16,7 @@ class ProblemAPI(APIView):
         problem_id = request.GET.get("id")
         if problem_id:
             try:
-                problem = Problem.objects.get(id=problem_id, visible=True)
+                problem = Problem.objects.get(_id=problem_id, visible=True)
                 return self.success(ProblemSerializer(problem).data)
             except Problem.DoesNotExist:
                 return self.error("Problem does not exist")

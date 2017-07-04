@@ -28,14 +28,14 @@ def _submit(response, user, problem_id, language, code, contest_id=None):
         return response.error("Please wait %d seconds" % int(bucket.expected_time() + 1))
 
     try:
-        problem = Problem.objects.get(id=problem_id)
+        problem = Problem.objects.get(_id=problem_id)
     except Problem.DoesNotExist:
         return response.error("Problem not exist")
 
     submission = Submission.objects.create(user_id=user.id,
                                            language=language,
                                            code=code,
-                                           problem_id=problem.id,
+                                           problem_id=problem._id,
                                            contest_id=contest_id)
     # todo 暂时保留 方便排错
     # JudgeDispatcher(submission.id, problem.id).judge()
@@ -60,8 +60,13 @@ class SubmissionAPI(APIView):
                 return self.error("Submission not exist")
             return self.success(SubmissionModelSerializer(submission).data)
 
+        contest_id = request.GET.get("contest_id")
+        if contest_id:
+            subs = Submission.objects.filter(contest_id__isnull=False)
+        else:
+            subs = Submission.objects.filter(contest_id__isnull=True)
+
         problem_id = request.GET.get("problem_id")
-        subs = Submission.objects.filter(contest_id__isnull=True)
         if problem_id:
             subs = subs.filter(problem_id=problem_id)
 
