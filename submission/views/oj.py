@@ -60,12 +60,12 @@ class SubmissionAPI(APIView):
                 return self.error("Submission not exist")
             return self.success(SubmissionModelSerializer(submission).data)
 
-        problem_id = request.GET.get('problem_id')
+        problem_id = request.GET.get("problem_id")
         subs = Submission.objects.filter(contest_id__isnull=True)
         if problem_id:
             subs = subs.filter(problem_id=problem_id)
 
-        if request.GET.get('myself'):
+        if request.GET.get("myself"):
             subs = subs.filter(user_id=request.user.id)
         # todo: paginate
         return self.success(SubmissionModelSerializer(subs, many=True).data)
