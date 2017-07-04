@@ -37,7 +37,7 @@ def _submit(response, user, problem_id, language, code, contest_id=None):
                                            code=code,
                                            problem_id=problem.id,
                                            contest_id=contest_id)
-    # 暂时保留 方便排错
+    # todo 暂时保留 方便排错
     # JudgeDispatcher(submission.id, problem.id).judge()
     judge_task.delay(submission.id, problem.id)
     return response.success({"submission_id": submission.id})
@@ -53,40 +53,28 @@ class SubmissionAPI(APIView):
     @login_required
     def get(self, request):
         submission_id = request.GET.get("id")
-        if not submission_id:
-            return self.error("Parameter error")
-        try:
-            submission = Submission.objects.get(id=submission_id, user_id=request.user.id)
-        except Submission.DoesNotExist:
-            return self.error("Submission not exist")
-        return self.success(SubmissionModelSerializer(submission).data)
+        if submission_id:
+            try:
+                submission = Submission.objects.get(id=submission_id, user_id=request.user.id)
+            except Submission.DoesNotExist:
+                return self.error("Submission not exist")
+            return self.success(SubmissionModelSerializer(submission).data)
 
+        problem_id = request.GET.get('problem_id')
+        subs = Submission.objects.filter(contest_id__isnull=True)
+        if problem_id:
+            subs = subs.filter(problem_id=problem_id)
 
-class MyProblemSubmissionListAPI(APIView):
-    """
-    用户单个题目的全部提交列表
-    """
-
-    def get(self, request):
-        problem_id = request.GET.get("problem_id")
-        try:
-            problem = Problem.objects.get(id=problem_id, visible=True)
-        except Problem.DoesNotExist:
-            return self.error("Problem not exist")
-
-        submissions = Submission.objects.filter(user_id=request.user.id, problem_id=problem.id,
-                                                contest_id__isnull=True). \
-            order_by("-created_time"). \
-            values("id", "result", "created_time", "accepted_time", "language")
-
-        return self.success({"submissions": submissions, "problem": problem})
+        if request.GET.get('myself'):
+            subs = subs.filter(user_id=request.user.id)
+        # todo: paginate
+        return self.success(SubmissionModelSerializer(subs, many=True).data)
 
 
 class SubmissionListAPI(APIView):
     """
     所有提交的列表
     """
-
     def get(self, request, **kwargs):
         submission_filter = {"my": None, "user_id": None}
         show_all = False
