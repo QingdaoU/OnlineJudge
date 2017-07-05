@@ -11,12 +11,42 @@ class CreateSubmissionSerializer(serializers.Serializer):
 
 
 class SubmissionModelSerializer(serializers.ModelSerializer):
-    username = serializers.SerializerMethodField()
     info = serializers.JSONField()
     statistic_info = serializers.JSONField()
 
     class Meta:
         model = Submission
+
+
+# 不显示submission info详情的serializer
+class SubmissionSafeSerializer(serializers.ModelSerializer):
+    username = serializers.SerializerMethodField()
+    statistic_info = serializers.JSONField()
+
+    class Meta:
+        model = Submission
+        exclude = ('info', 'contest_id')
+
+    @staticmethod
+    def get_username(obj):
+        return User.objects.get(id=obj.user_id).username
+
+
+class SubmissionListSerializer(SubmissionSafeSerializer):
+    username = serializers.SerializerMethodField()
+    statistic_info = serializers.JSONField()
+    show_link = serializers.SerializerMethodField()
+
+    def __init__(self, *args, **kwargs):
+        self.user = kwargs.pop('user', None)
+        super().__init__(*args, **kwargs)
+
+    class Meta:
+        model = Submission
+        exclude = ('info', 'contest_id', 'code')
+
+    def get_show_link(self, obj):
+        return obj.check_user_permission(self.user)
 
     @staticmethod
     def get_username(obj):

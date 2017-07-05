@@ -1,16 +1,16 @@
-from django.core.paginator import Paginator
 from django_redis import get_redis_connection
 
 from account.decorators import login_required
 from account.models import AdminType, User
-from problem.models import Problem
+from problem.models import Problem, ProblemRuleType
 from submission.tasks import judge_task
 # from judge.dispatcher import JudgeDispatcher
 from utils.api import APIView, validate_serializer
-from utils.shortcuts import build_query_string
 from utils.throttling import TokenBucket, BucketController
 from ..models import Submission, JudgeStatus
 from ..serializers import CreateSubmissionSerializer, SubmissionModelSerializer
+from ..serializers import SubmissionSafeSerializer, SubmissionListSerializer
+
 
 
 def _submit(response, user, problem_id, language, code, contest_id=None):
@@ -53,16 +53,29 @@ class SubmissionAPI(APIView):
     @login_required
     def get(self, request):
         submission_id = request.GET.get("id")
-        if submission_id:
-            try:
-                submission = Submission.objects.get(id=submission_id, user_id=request.user.id)
-            except Submission.DoesNotExist:
-                return self.error("Submission not exist")
-            return self.success(SubmissionModelSerializer(submission).data)
+        if not submission_id:
+            return self.error("Parameter id doesn't exist.")
+        try:
+            submission = Submission.objects.get(id=submission_id, user_id=request.user.id)
+        except Submission.DoesNotExist:
+            return self.error("Submission doesn't exist.")
+        if not submission.check_user_permission(request.user):
+            return self.error("No permission for this submission.")
 
+        # check problem'rule is ACM or IO.
+        if Problem.objects.filter(_id=submission.problem_id,
+                                  visible=True,
+                                  rule_type=ProblemRuleType.ACM
+                                  ).exists():
+            return self.success(SubmissionSafeSerializer(submission).data)
+        return self.success(SubmissionModelSerializer(submission).data)
+
+
+class SubmissionListAPI(APIView):
+    def get(self, request):
         contest_id = request.GET.get("contest_id")
         if contest_id:
-            subs = Submission.objects.filter(contest_id__isnull=False)
+            subs = Submission.objects.filter(contest_id=contest_id)
         else:
             subs = Submission.objects.filter(contest_id__isnull=True)
 
@@ -73,87 +86,7 @@ class SubmissionAPI(APIView):
         if request.GET.get("myself"):
             subs = subs.filter(user_id=request.user.id)
         # todo: paginate
-        return self.success(SubmissionModelSerializer(subs, many=True).data)
-
-
-class SubmissionListAPI(APIView):
-    """
-    所有提交的列表
-    """
-    def get(self, request, **kwargs):
-        submission_filter = {"my": None, "user_id": None}
-        show_all = False
-        page = kwargs.get("page", 1)
-
-        user_id = request.GET.get("user_id")
-        if user_id and request.user.admin_type == AdminType.SUPER_ADMIN:
-            submission_filter["user_id"] = user_id
-            submissions = Submission.objects.filter(user_id=user_id, contest_id__isnull=True)
-        else:
-            show_all = True
-            if request.GET.get("my") == "true":
-                submission_filter["my"] = "true"
-                show_all = False
-            if show_all:
-                submissions = Submission.objects.filter(contest_id__isnull=True)
-            else:
-                submissions = Submission.objects.filter(user_id=request.user.id, contest_id__isnull=True)
-
-        submissions = submissions.values("id", "user_id", "problem_id", "result", "created_time",
-                                         "accepted_time", "language").order_by("-created_time")
-        language = request.GET.get("language")
-        if language:
-            submissions = submissions.filter(language=language)
-            submission_filter["language"] = language
-
-        result = request.GET.get("result")
-        if result:
-            # TODO： 转换为数字结果
-            submissions = submissions.filter(result=int(result))
-            submission_filter["result"] = result
-
-        paginator = Paginator(submissions, 20)
-        try:
-            submissions = paginator.page(int(page))
-        except Exception:
-            return self.error("Page not exist")
-
-        # Cache
-        cache_result = {"problem": {}, "user": {}}
-        for item in submissions:
-            problem_id = item["problem_id"]
-            if problem_id not in cache_result["problem"]:
-                problem = Problem.objects.get(id=problem_id)
-                cache_result["problem"][problem_id] = problem.title
-            item["title"] = cache_result["problem"][problem_id]
-
-            user_id = item["user_id"]
-            if user_id not in cache_result["user"]:
-                user = User.objects.get(id=user_id)
-                cache_result["user"][user_id] = user
-            item["user"] = cache_result["user"][user_id]
-
-            if item["user_id"] == request.user.id or request.user.admin_type == AdminType.SUPER_ADMIN:
-                item["show_link"] = True
-            else:
-                item["show_link"] = False
-
-        previous_page = next_page = None
-        try:
-            previous_page = submissions.previous_page_number()
-        except Exception:
-            pass
-        try:
-            next_page = submissions.next_page_number()
-        except Exception:
-            pass
-
-        return self.success({"submissions": submissions.object_list, "page": int(page),
-                             "previous_page": previous_page, "next_page": next_page,
-                             "start_id": int(page) * 20 - 20,
-                             "query": build_query_string(submission_filter),
-                             "submission_filter": submission_filter,
-                             "show_all": show_all})
+        return self.success(SubmissionListSerializer(subs, many=True, user=request.user).data)
 
 
 def _get_submission(submission_id, user):
@@ -192,7 +125,7 @@ class SubmissionDetailAPI(APIView):
                 pass
             else:
                 problem = Problem.objects.get(id=submission.problem_id, visible=True)
-        except (Problem.DoesNotExist, ):
+        except (Problem.DoesNotExist,):
             return self.error("Submission not exist")
 
         if submission.result in [JudgeStatus.COMPILE_ERROR, JudgeStatus.SYSTEM_ERROR, JudgeStatus.PENDING]:

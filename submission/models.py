@@ -1,5 +1,6 @@
 from django.db import models
 from jsonfield import JSONField
+from account.models import AdminType
 
 from utils.shortcuts import rand_str
 
@@ -32,6 +33,11 @@ class Submission(models.Model):
     shared = models.BooleanField(default=False)
     # 存储该提交所用时间和内存值，方便提交列表显示
     statistic_info = JSONField(default={})
+
+    def check_user_permission(self, user):
+        return self.user_id == user.id or \
+               self.shared is True or \
+               user.admin_type == AdminType.SUPER_ADMIN
 
     class Meta:
         db_table = "submission"
