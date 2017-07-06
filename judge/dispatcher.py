@@ -100,16 +100,17 @@ class JudgeDispatcher(object):
         self.submission_obj.info = resp
         if resp["err"]:
             self.submission_obj.result = JudgeStatus.COMPILE_ERROR
+            self.submission_obj.statistic_info["err_info"] = resp["data"]
         else:
             # 用时和内存占用保存为多个测试点中最长的那个
             self.submission_obj.statistic_info["time_cost"] = max([x["cpu_time"] for x in resp["data"]])
             self.submission_obj.statistic_info["memory_cost"] = max([x["memory"] for x in resp["data"]])
 
             error_test_case = list(filter(lambda case: case["result"] != 0, resp["data"]))
-            # 多个测试点全部正确AC，否则 ACM模式下取第一个错误的测试点状态, OI模式对应为部分正确
+            # 多个测试点全部正确则AC，否则 ACM模式下取第一个错误的测试点的状态, OI模式若全部错误则取第一个错误测试点状态，否则为部分正确
             if not error_test_case:
                 self.submission_obj.result = JudgeStatus.ACCEPTED
-            elif self.problem_obj.rule_type == ProblemRuleType.ACM:
+            elif self.problem_obj.rule_type == ProblemRuleType.ACM or len(error_test_case) == len(resp["data"]):
                 self.submission_obj.result = error_test_case[0]["result"]
             else:
                 self.submission_obj.result = JudgeStatus.PARTIALLY_ACCEPTED

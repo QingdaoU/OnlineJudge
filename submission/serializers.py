@@ -25,7 +25,7 @@ class SubmissionSafeSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Submission
-        exclude = ('info', 'contest_id')
+        exclude = ("info", "contest_id")
 
     @staticmethod
     def get_username(obj):
@@ -38,14 +38,16 @@ class SubmissionListSerializer(SubmissionSafeSerializer):
     show_link = serializers.SerializerMethodField()
 
     def __init__(self, *args, **kwargs):
-        self.user = kwargs.pop('user', None)
+        self.user = kwargs.pop("user", None)
         super().__init__(*args, **kwargs)
 
     class Meta:
         model = Submission
-        exclude = ('info', 'contest_id', 'code')
+        exclude = ("info", "contest_id", "code")
 
     def get_show_link(self, obj):
+        if self.user.id is None:
+            return False
         return obj.check_user_permission(self.user)
 
     @staticmethod

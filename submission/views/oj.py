@@ -12,7 +12,6 @@ from ..serializers import CreateSubmissionSerializer, SubmissionModelSerializer
 from ..serializers import SubmissionSafeSerializer, SubmissionListSerializer
 
 
-
 def _submit(response, user, problem_id, language, code, contest_id=None):
     # TODO: 预设默认值，需修改
     controller = BucketController(user_id=user.id,
@@ -83,7 +82,7 @@ class SubmissionListAPI(APIView):
         if problem_id:
             subs = subs.filter(problem_id=problem_id)
 
-        if request.GET.get("myself"):
+        if request.GET.get("myself") and request.GET["myself"] == "1":
             subs = subs.filter(user_id=request.user.id)
         # todo: paginate
         return self.success(SubmissionListSerializer(subs, many=True, user=request.user).data)
