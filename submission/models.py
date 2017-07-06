@@ -32,6 +32,7 @@ class Submission(models.Model):
     language = models.CharField(max_length=20)
     shared = models.BooleanField(default=False)
     # 存储该提交所用时间和内存值，方便提交列表显示
+    # {time_cost: "", memory_cost: "", err_info: "", score: 0}
     statistic_info = JSONField(default={})
 
     def check_user_permission(self, user):

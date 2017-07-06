@@ -112,7 +112,7 @@ class APIView(View):
             if object_serializer:
                 return object_serializer(query_set, many=True).data
             else:
-                return query_set
+                return {"results": query_set, "total": query_set.count()}
         try:
             limit = int(request.GET.get("limit", "100"))
         except ValueError:

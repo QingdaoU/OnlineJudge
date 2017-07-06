@@ -84,8 +84,9 @@ class SubmissionListAPI(APIView):
 
         if request.GET.get("myself") and request.GET["myself"] == "1":
             subs = subs.filter(user_id=request.user.id)
-        # todo: paginate
-        return self.success(SubmissionListSerializer(subs, many=True, user=request.user).data)
+        data = self.paginate_data(request, subs)
+        data["results"] = SubmissionListSerializer(data["results"], many=True, user=request.user).data
+        return self.success(data)
 
 
 def _get_submission(submission_id, user):
