@@ -478,7 +478,7 @@ class TwoFactorAuthAPIView(APIView):
 
 
 def user_rank_page(request, page=1):
-    ranks = UserProfile.objects.filter(submission_number__gt=0).order_by("-accepted_problem_number", "-submission_number")
+    ranks = UserProfile.objects.filter(submission_number__gt=0).order_by("-accepted_problem_number", "submission_number")
     paginator = Paginator(ranks, 20)
     try:
         ranks = paginator.page(int(page))
