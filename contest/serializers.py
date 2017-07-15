@@ -25,7 +25,7 @@ class ContestSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Contest
-
+        exclude = ('password', 'visible')
 
 class EditConetestSeriaizer(serializers.Serializer):
     id = serializers.IntegerField()
