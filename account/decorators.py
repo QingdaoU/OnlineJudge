@@ -4,6 +4,8 @@ from utils.api import JSONResponse
 
 from .models import ProblemPermission
 
+from contest.models import Contest, ContestType, ContestStatus
+
 
 class BasePermissionDecorator(object):
     def __init__(self, func):
@@ -53,3 +55,42 @@ class problem_permission_required(admin_role_required):
         if self.request.user.problem_permission == ProblemPermission.NONE:
             return False
         return True
+
+
+def check_contest_permission(func):
+    """
+    只供Class based view 使用，检查用户是否有权进入该contest，
+    若通过验证，在view中可通过self.contest获得该contest
+    """
+    @functools.wraps(func)
+    def _check_permission(*args, **kwargs):
+        self = args[0]
+        request = args[1]
+        user = request.user
+        if kwargs.get('contest_id'):
+            contest_id = kwargs.pop('contest_id')
+        else:
+            contest_id = request.GET.get('contest_id')
+        if not contest_id:
+            return self.error("Parameter contest_id not exist.")
+
+        try:
+            # use self.contest to avoid query contest again in view.
+            self.contest = Contest.objects.get(id=contest_id, visible=True)
+        except Contest.DoesNotExist:
+            return self.error("Contest %s doesn't exist" % contest_id)
+
+        if self.contest.contest_type == ContestType.PASSWORD_PROTECTED_CONTEST:
+            # Anonymous
+            if not user.is_authenticated():
+                return self.error("Please login in first.")
+            # creator
+            if request.user == self.contest.created_by:
+                return func(*args, **kwargs)
+            # password error
+            if ("contests" not in request.session) or (self.contest.id not in request.session["contests"]):
+                return self.error("Password is required.")
+
+        return func(*args, **kwargs)
+
+    return _check_permission

@@ -1,8 +1,9 @@
-from utils.api import APIView
+from utils.api import APIView, validate_serializer
+from account.decorators import login_required
 
 from ..models import ContestAnnouncement, Contest
 from ..serializers import ContestAnnouncementSerializer
-from ..serializers import ContestSerializer
+from ..serializers import ContestSerializer, ContestPasswordVerifySerializer
 
 
 class ContestAnnouncementListAPI(APIView):
@@ -17,18 +18,39 @@ class ContestAnnouncementListAPI(APIView):
         return self.success(ContestAnnouncementSerializer(data, many=True).data)
 
 
-class ContestListAPI(APIView):
+class ContestAPI(APIView):
     def get(self, request):
-        contest_id = request.GET.get("id")
+        contest_id = request.GET.get("contest_id")
         if contest_id:
             try:
                 contest = Contest.objects.get(id=contest_id, visible=True)
                 return self.success(ContestSerializer(contest).data)
             except Contest.DoesNotExist:
-                return self.error("Contest Doesn't exist.")
+                return self.error("Contest doesn't exist.")
 
         contests = Contest.objects.filter(visible=True)
         keyword = request.GET.get("keyword")
         if keyword:
             contests = contests.filter(title__contains=keyword)
         return self.success(self.paginate_data(request, contests, ContestSerializer))
+
+
+class ContestPasswordVerifyAPI(APIView):
+    @validate_serializer(ContestPasswordVerifySerializer)
+    @login_required
+    def get(self, request):
+        data = request.data
+        try:
+            contest = Contest.objects.get(id=data["contest_id"], visible=True, password__isnull=False)
+        except Contest.DoesNotExist:
+            return self.error("Contest %s doesn't exist." % data["contest_id"])
+        if contest.password != data["password"]:
+            return self.error("Password doesn't match.")
+
+        # password verify OK.
+        if "contests" not in request.session:
+            request.session["contests"] = []
+        request.session["contests"].append(int(data["contest_id"]))
+        # https://docs.djangoproject.com/en/dev/topics/http/sessions/#when-sessions-are-saved
+        request.session.modified = True
+        return self.success(True)

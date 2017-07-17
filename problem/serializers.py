@@ -4,6 +4,7 @@ from judge.languages import language_names, spj_language_names
 from utils.api import DateTimeTZField, UsernameSerializer, serializers
 
 from .models import Problem, ProblemRuleType, ProblemTag
+from .models import ContestProblem
 
 
 class TestCaseUploadForm(forms.Form):
@@ -85,3 +86,17 @@ class ProblemSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Problem
+
+
+class ContestProblemSerializer(serializers.ModelSerializer):
+    samples = serializers.JSONField()
+    test_case_score = serializers.JSONField()
+    languages = serializers.JSONField()
+    template = serializers.JSONField()
+    tags = serializers.SlugRelatedField(many=True, slug_field="name", read_only=True)
+    create_time = DateTimeTZField()
+    last_update_time = DateTimeTZField()
+    created_by = UsernameSerializer()
+
+    class Meta:
+        model = ContestProblem

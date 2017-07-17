@@ -12,9 +12,9 @@ class ContestType(object):
 
 
 class ContestStatus(object):
-    CONTEST_NOT_START = "Not Started"
-    CONTEST_ENDED = "Ended"
-    CONTEST_UNDERWAY = "Underway"
+    CONTEST_NOT_START = "1"
+    CONTEST_ENDED = "-1"
+    CONTEST_UNDERWAY = "0"
 
 
 class ContestRuleType(object):
@@ -58,6 +58,7 @@ class Contest(models.Model):
 
     class Meta:
         db_table = "contest"
+        ordering = ("create_time",)
 
 
 class ContestRank(models.Model):

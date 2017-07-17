@@ -1,8 +1,9 @@
 from django.db.models import Q
 from utils.api import APIView
-
-from ..models import ProblemTag, Problem
+from account.decorators import login_required, check_contest_permission
+from ..models import ProblemTag, Problem, ContestProblem
 from ..serializers import ProblemSerializer, TagSerializer
+from ..serializers import ContestProblemSerializer
 
 
 class ProblemTagAPI(APIView):
@@ -42,3 +43,10 @@ class ProblemAPI(APIView):
             problems = problems.filter(difficulty=difficulty_rank)
 
         return self.success(self.paginate_data(request, problems, ProblemSerializer))
+
+
+class ContestProblemAPI(APIView):
+    @check_contest_permission
+    def get(self, request):
+        contest_problems = ContestProblem.objects.filter(contest=self.contest, visible=True)
+        return self.success(ContestProblemSerializer(contest_problems, many=True).data)

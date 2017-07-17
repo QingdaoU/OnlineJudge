@@ -42,6 +42,7 @@ class Submission(models.Model):
 
     class Meta:
         db_table = "submission"
+        ordering = ("-created_time",)
 
     def __str__(self):
         return self.id
