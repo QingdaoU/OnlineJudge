@@ -1,13 +1,12 @@
 from django_redis import get_redis_connection
 
 from account.decorators import login_required
-from account.models import AdminType, User
 from problem.models import Problem, ProblemRuleType
 from submission.tasks import judge_task
 # from judge.dispatcher import JudgeDispatcher
 from utils.api import APIView, validate_serializer
 from utils.throttling import TokenBucket, BucketController
-from ..models import Submission, JudgeStatus
+from ..models import Submission
 from ..serializers import CreateSubmissionSerializer, SubmissionModelSerializer
 from ..serializers import SubmissionSafeSerializer, SubmissionListSerializer
 
@@ -87,5 +86,3 @@ class SubmissionListAPI(APIView):
         data = self.paginate_data(request, subs)
         data["results"] = SubmissionListSerializer(data["results"], many=True, user=request.user).data
         return self.success(data)
-
-

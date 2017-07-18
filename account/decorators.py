@@ -4,7 +4,7 @@ from utils.api import JSONResponse
 
 from .models import ProblemPermission
 
-from contest.models import Contest, ContestType, ContestStatus
+from contest.models import Contest, ContestType
 
 
 class BasePermissionDecorator(object):
@@ -67,10 +67,10 @@ def check_contest_permission(func):
         self = args[0]
         request = args[1]
         user = request.user
-        if kwargs.get('contest_id'):
-            contest_id = kwargs.pop('contest_id')
+        if kwargs.get("contest_id"):
+            contest_id = kwargs.pop("contest_id")
         else:
-            contest_id = request.GET.get('contest_id')
+            contest_id = request.GET.get("contest_id")
         if not contest_id:
             return self.error("Parameter contest_id not exist.")
 

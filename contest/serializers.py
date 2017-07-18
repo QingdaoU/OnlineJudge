@@ -2,8 +2,6 @@ from utils.api import DateTimeTZField, UsernameSerializer, serializers
 
 from .models import Contest, ContestAnnouncement, ContestRuleType
 
-from problem.serializers import ContestProblemSerializer
-
 
 class CreateConetestSeriaizer(serializers.Serializer):
     title = serializers.CharField(max_length=128)
@@ -43,7 +41,7 @@ class ContestAdminSerializer(serializers.ModelSerializer):
 class ContestSerializer(ContestAdminSerializer):
     class Meta:
         model = Contest
-        exclude = ('password', 'visible')
+        exclude = ("password", "visible")
 
 
 class ContestAnnouncementSerializer(serializers.ModelSerializer):

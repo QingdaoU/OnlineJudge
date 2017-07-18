@@ -1,6 +1,6 @@
 from django.db.models import Q
 from utils.api import APIView
-from account.decorators import login_required, check_contest_permission
+from account.decorators import check_contest_permission
 from ..models import ProblemTag, Problem, ContestProblem
 from ..serializers import ProblemSerializer, TagSerializer
 from ..serializers import ContestProblemSerializer

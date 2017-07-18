@@ -208,18 +208,17 @@ class ContestProblemTest(APITestCase):
     def test_get_one_contest_problem(self):
         contest_id = self.contest.data["data"]["id"]
         problem_id = self.problem.data["data"]["_id"]
-        resp = self.client.get("{}?contest_id={}&problem_id={}".format(self.url,contest_id, problem_id))
+        resp = self.client.get("{}?contest_id={}&problem_id={}".format(self.url, contest_id, problem_id))
         self.assertSuccess(resp)
 
     def test_regular_user_get_contest_problem(self):
         self.create_user("test", "test123")
         contest_id = self.contest.data["data"]["id"]
         problem_id = self.problem.data["data"]["_id"]
-        resp = self.client.get("{}?contest_id={}&problem_id={}".format(self.url,contest_id, problem_id))
+        resp = self.client.get("{}?contest_id={}&problem_id={}".format(self.url, contest_id, problem_id))
         self.assertFailed(resp)
 
         url = self.reverse("contest_password_api")
         self.client.post(url, {"contest_id": contest_id, "password": DEFAULT_CONTEST_DATA["password"]})
-        resp = self.client.get("{}?contest_id={}&problem_id={}".format(self.url,contest_id, problem_id))
+        resp = self.client.get("{}?contest_id={}&problem_id={}".format(self.url, contest_id, problem_id))
         self.assertSuccess(resp)
-    
