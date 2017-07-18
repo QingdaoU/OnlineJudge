@@ -48,5 +48,13 @@ class ProblemAPI(APIView):
 class ContestProblemAPI(APIView):
     @check_contest_permission
     def get(self, request):
+        problem_id = request.GET.get("problem_id")
+        if problem_id:
+            try:
+                problem = ContestProblem.objects.get(_id=problem_id, contest=self.contest, visible=True)
+            except ContestProblem.DoesNotExist:
+                return self.error("Problem does not exist.")
+            return self.success(ContestProblemSerializer(problem).data)
+
         contest_problems = ContestProblem.objects.filter(contest=self.contest, visible=True)
         return self.success(ContestProblemSerializer(contest_problems, many=True).data)

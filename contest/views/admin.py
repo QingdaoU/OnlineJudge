@@ -3,7 +3,7 @@ import dateutil.parser
 from utils.api import APIView, validate_serializer
 
 from ..models import Contest, ContestAnnouncement
-from ..serializers import (ContestAnnouncementSerializer, ContestSerializer,
+from ..serializers import (ContestAnnouncementSerializer, ContestAdminSerializer,
                            CreateConetestSeriaizer,
                            CreateContestAnnouncementSerializer,
                            EditConetestSeriaizer)
@@ -21,7 +21,7 @@ class ContestAPI(APIView):
         if not data["password"]:
             data["password"] = None
         contest = Contest.objects.create(**data)
-        return self.success(ContestSerializer(contest).data)
+        return self.success(ContestAdminSerializer(contest).data)
 
     @validate_serializer(EditConetestSeriaizer)
     def put(self, request):
@@ -41,7 +41,7 @@ class ContestAPI(APIView):
         for k, v in data.items():
             setattr(contest, k, v)
         contest.save()
-        return self.success(ContestSerializer(contest).data)
+        return self.success(ContestAdminSerializer(contest).data)
 
     def get(self, request):
         contest_id = request.GET.get("id")
@@ -50,7 +50,7 @@ class ContestAPI(APIView):
                 contest = Contest.objects.get(id=contest_id)
                 if request.user.is_admin() and contest.created_by != request.user:
                     return self.error("Contest does not exist")
-                return self.success(ContestSerializer(contest).data)
+                return self.success(ContestAdminSerializer(contest).data)
             except Contest.DoesNotExist:
                 return self.error("Contest does not exist")
 
@@ -62,7 +62,7 @@ class ContestAPI(APIView):
 
         if request.user.is_admin():
             contests = contests.filter(created_by=request.user)
-        return self.success(self.paginate_data(request, contests, ContestSerializer))
+        return self.success(self.paginate_data(request, contests, ContestAdminSerializer))
 
 
 class ContestAnnouncementAPI(APIView):

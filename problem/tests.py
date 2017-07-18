@@ -9,6 +9,17 @@ from utils.api.tests import APITestCase
 
 from .models import ProblemTag
 from .views.admin import TestCaseUploadAPI
+from contest.tests import DEFAULT_CONTEST_DATA
+
+DEFAULT_PROBLEM_DATA = {"_id": "A-110", "title": "test", "description": "<p>test</p>", "input_description": "test",
+                        "output_description": "test", "time_limit": 1000, "memory_limit": 256, "difficulty": "Low",
+                        "visible": True, "tags": ["test"], "languages": ["C", "C++", "Java", "Python2"], "template": {},
+                        "samples": [{"input": "test", "output": "test"}], "spj": False, "spj_language": "C",
+                        "spj_code": "", "test_case_id": "499b26290cc7994e0b497212e842ea85",
+                        "test_case_score": [{"output_name": "1.out", "input_name": "1.in", "output_size": 0,
+                                             "stripped_output_md5": "d41d8cd98f00b204e9800998ecf8427e",
+                                             "input_size": 0, "score": 0}],
+                        "rule_type": "ACM", "hint": "<p>test</p>", "source": "test"}
 
 
 class ProblemTagListAPITest(APITestCase):
@@ -83,15 +94,7 @@ class ProblemAdminAPITest(APITestCase):
     def setUp(self):
         self.url = self.reverse("problem_admin_api")
         self.create_super_admin()
-        self.data = {"_id": "A-110", "title": "test", "description": "<p>test</p>", "input_description": "test",
-                     "output_description": "test", "time_limit": 1000, "memory_limit": 256, "difficulty": "Low",
-                     "visible": True, "tags": ["test"], "languages": ["C", "C++", "Java", "Python2"], "template": {},
-                     "samples": [{"input": "test", "output": "test"}], "spj": False, "spj_language": "C",
-                     "spj_code": "", "test_case_id": "499b26290cc7994e0b497212e842ea85",
-                     "test_case_score": [{"output_name": "1.out", "input_name": "1.in", "output_size": 0,
-                                          "stripped_output_md5": "d41d8cd98f00b204e9800998ecf8427e",
-                                          "input_size": 0, "score": 0}],
-                     "rule_type": "ACM", "hint": "<p>test</p>", "source": "test"}
+        self.data = DEFAULT_PROBLEM_DATA
 
     def test_create_problem(self):
         resp = self.client.post(self.url, data=self.data)
@@ -131,3 +134,92 @@ class ProblemAdminAPITest(APITestCase):
         data["id"] = problem_id
         resp = self.client.put(self.url, data=data)
         self.assertSuccess(resp)
+
+
+class ProblemAPITest(APITestCase):
+    def setUp(self):
+        self.url = self.reverse("problem_api")
+        self.create_admin()
+
+    def create_problem(self):
+        url = self.reverse("problem_admin_api")
+        return self.client.post(url, data=DEFAULT_PROBLEM_DATA)
+
+    def test_get_problem_list(self):
+        self.create_problem()
+        resp = self.client.get(self.url)
+        self.assertSuccess(resp)
+
+    def get_one_problem(self):
+        problem_id = self.create_problem().data["data"]["_id"]
+        resp = self.client.get(self.url + "?id=" + str(problem_id))
+        self.assertSuccess(resp)
+
+
+class ContestProblemAdminTest(APITestCase):
+    def setUp(self):
+        self.url = self.reverse("contest_problem_admin_api")
+        self.create_admin()
+
+    def create_contest(self):
+        url = self.reverse("contest_admin_api")
+        return self.client.post(url, data=DEFAULT_CONTEST_DATA)
+
+    def test_create_contest_problem(self):
+        contest = self.create_contest()
+        data = DEFAULT_PROBLEM_DATA
+        data["contest_id"] = contest.data["data"]["id"]
+        resp = self.client.post(self.url, data=data)
+        self.assertSuccess(resp)
+        return resp
+
+    def test_get_contest_problem(self):
+        contest = self.test_create_contest_problem()
+        contest_id = contest.data["data"]["id"]
+        resp = self.client.get(self.url + "?contest_id=" + str(contest_id))
+        self.assertSuccess(resp)
+        self.assertEqual(len(resp.data["data"]), 1)
+
+    def test_get_one_contest_problem(self):
+        contest = self.test_create_contest_problem()
+        contest_id = contest.data["data"]["id"]
+        resp = self.client.get(self.url + "?id=" + str(contest_id))
+        self.assertSuccess(resp)
+
+
+class ContestProblemTest(APITestCase):
+    def setUp(self):
+        self.url = self.reverse("contest_problem_api")
+        self.create_admin()
+
+        url = self.reverse("contest_admin_api")
+        self.contest = self.client.post(url, data=DEFAULT_CONTEST_DATA)
+        self.data = DEFAULT_PROBLEM_DATA
+        self.data["contest"] = self.contest.data["data"]["id"]
+        url = self.reverse("contest_problem_admin_api")
+        self.problem = self.client.post(url, self.data)
+
+    def test_get_contest_problem_list(self):
+        contest_id = self.contest.data["data"]["id"]
+        resp = self.client.get(self.url + "?contest_id=" + str(contest_id))
+        self.assertSuccess(resp)
+        self.assertEqual(len(resp.data["data"]), 1)
+
+    def test_get_one_contest_problem(self):
+        contest_id = self.contest.data["data"]["id"]
+        problem_id = self.problem.data["data"]["_id"]
+        resp = self.client.get("{}?contest_id={}&problem_id={}".format(self.url,contest_id, problem_id))
+        self.assertSuccess(resp)
+
+    def test_regular_user_get_contest_problem(self):
+        self.create_user("test", "test123")
+        contest_id = self.contest.data["data"]["id"]
+        problem_id = self.problem.data["data"]["_id"]
+        resp = self.client.get("{}?contest_id={}&problem_id={}".format(self.url,contest_id, problem_id))
+        self.assertFailed(resp)
+
+        url = self.reverse("contest_password_api")
+        self.client.post(url, {"contest_id": contest_id, "password": DEFAULT_CONTEST_DATA["password"]})
+        resp = self.client.get("{}?contest_id={}&problem_id={}".format(self.url,contest_id, problem_id))
+        self.assertSuccess(resp)
+    

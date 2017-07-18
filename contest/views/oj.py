@@ -38,7 +38,7 @@ class ContestAPI(APIView):
 class ContestPasswordVerifyAPI(APIView):
     @validate_serializer(ContestPasswordVerifySerializer)
     @login_required
-    def get(self, request):
+    def post(self, request):
         data = request.data
         try:
             contest = Contest.objects.get(id=data["contest_id"], visible=True, password__isnull=False)

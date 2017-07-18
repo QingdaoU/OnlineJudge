@@ -27,7 +27,7 @@ class EditConetestSeriaizer(serializers.Serializer):
     real_time_rank = serializers.BooleanField()
 
 
-class ContestSerializer(serializers.ModelSerializer):
+class ContestAdminSerializer(serializers.ModelSerializer):
     start_time = DateTimeTZField()
     end_time = DateTimeTZField()
     create_time = DateTimeTZField()
@@ -36,6 +36,11 @@ class ContestSerializer(serializers.ModelSerializer):
     status = serializers.CharField()
     contest_type = serializers.CharField()
 
+    class Meta:
+        model = Contest
+
+
+class ContestSerializer(ContestAdminSerializer):
     class Meta:
         model = Contest
         exclude = ('password', 'visible')
