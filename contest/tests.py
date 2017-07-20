@@ -84,6 +84,31 @@ class ContestAPITest(APITestCase):
         resp = self.client.post(url, {"contest_id": contest_id, "password": DEFAULT_CONTEST_DATA["password"]})
         self.assertSuccess(resp)
 
+    def test_contest_access(self):
+        contest_id = self.create_contest().data["data"]["id"]
+        self.create_user("test", "test123")
+        url = self.reverse("contest_access_api")
+        resp = self.client.get(url + "?contest_id=" + str(contest_id))
+        self.assertFalse(resp.data["data"]["Access"])
+
+        password_url = self.reverse("contest_password_api")
+        resp = self.client.post(password_url, {"contest_id": contest_id, "password": DEFAULT_CONTEST_DATA["password"]})
+        self.assertSuccess(resp)
+        resp = self.client.get(url + "?contest_id=" + str(contest_id))
+        self.assertSuccess(resp)
+
+    # def test_get_not_started_contest(self):
+    #     contest_id = self.create_contest().data["data"]["id"]
+    #     resp = self.client.get(self.url + "?id=" + str(contest_id))
+    #     self.assertSuccess(resp)
+    #
+    #     self.create_user("test", "1234")
+    #     url = self.reverse("contest_password_api")
+    #     resp = self.client.post(url, {"contest_id": contest_id, "password": DEFAULT_CONTEST_DATA["password"]})
+    #     self.assertSuccess(resp)
+    #     resp = self.client.get(self.url + "?id=" + str(contest_id))
+    #     self.assertFailed(resp)
+
 
 class ContestAnnouncementAPITest(APITestCase):
     def setUp(self):

@@ -4,7 +4,7 @@ from utils.api import JSONResponse
 
 from .models import ProblemPermission
 
-from contest.models import Contest, ContestType
+from contest.models import Contest, ContestType, ContestStatus
 
 
 class BasePermissionDecorator(object):
@@ -80,12 +80,15 @@ def check_contest_permission(func):
         except Contest.DoesNotExist:
             return self.error("Contest %s doesn't exist" % contest_id)
 
+        if self.contest.status == ContestStatus.CONTEST_NOT_START and user != self.contest.created_by:
+            return self.error("Contest has not started yet.")
+
         if self.contest.contest_type == ContestType.PASSWORD_PROTECTED_CONTEST:
             # Anonymous
             if not user.is_authenticated():
                 return self.error("Please login in first.")
             # creator
-            if request.user == self.contest.created_by:
+            if user == self.contest.created_by:
                 return func(*args, **kwargs)
             # password error
             if ("contests" not in request.session) or (self.contest.id not in request.session["contests"]):

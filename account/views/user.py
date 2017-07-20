@@ -39,15 +39,19 @@ class UserNameAPI(APIView):
 
 
 class UserProfileAPI(APIView):
-    @login_required
+    """
+    判断是否登录， 若登录返回用户信息
+    """
+    @method_decorator(ensure_csrf_cookie)
     def get(self, request, **kwargs):
-        """
-        Return user info according username or user_id
-        """
+        user = request.user
+        if not user.is_authenticated():
+            return self.success(0)
+
         username = request.GET.get("username")
         try:
             if username:
-                user = User.objects.get(username=username)
+                user = User.objects.get(username=username, is_disabled=False)
             else:
                 user = request.user
         except User.DoesNotExist:

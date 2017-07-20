@@ -14,7 +14,7 @@ class ProblemTagAPI(APIView):
 class ProblemAPI(APIView):
     def get(self, request):
         # 问题详情页
-        problem_id = request.GET.get("id")
+        problem_id = request.GET.get("problem_id")
         if problem_id:
             try:
                 problem = Problem.objects.get(_id=problem_id, visible=True)

@@ -1,7 +1,7 @@
 from utils.api import APIView, validate_serializer
 from account.decorators import login_required
 
-from ..models import ContestAnnouncement, Contest
+from ..models import ContestAnnouncement, Contest, ContestStatus
 from ..serializers import ContestAnnouncementSerializer
 from ..serializers import ContestSerializer, ContestPasswordVerifySerializer
 
@@ -20,13 +20,13 @@ class ContestAnnouncementListAPI(APIView):
 
 class ContestAPI(APIView):
     def get(self, request):
-        contest_id = request.GET.get("contest_id")
+        contest_id = request.GET.get("id")
         if contest_id:
             try:
                 contest = Contest.objects.get(id=contest_id, visible=True)
-                return self.success(ContestSerializer(contest).data)
             except Contest.DoesNotExist:
                 return self.error("Contest doesn't exist.")
+            return self.success(ContestSerializer(contest).data)
 
         contests = Contest.objects.filter(visible=True)
         keyword = request.GET.get("keyword")
@@ -54,3 +54,17 @@ class ContestPasswordVerifyAPI(APIView):
         # https://docs.djangoproject.com/en/dev/topics/http/sessions/#when-sessions-are-saved
         request.session.modified = True
         return self.success(True)
+
+
+class ContestAccessAPI(APIView):
+    @login_required
+    def get(self, request):
+        contest_id = request.GET.get("contest_id")
+        if not contest_id:
+            return self.error("Parameter contest_id not exist.")
+        if "contests" not in request.session:
+            request.session["contests"] = []
+        if int(contest_id) in request.session["contests"]:
+            return self.success({"Access": True})
+        else:
+            return self.success({"Access": False})
