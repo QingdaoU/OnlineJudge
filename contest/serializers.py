@@ -1,6 +1,7 @@
 from utils.api import DateTimeTZField, UsernameSerializer, serializers
 
 from .models import Contest, ContestAnnouncement, ContestRuleType
+from .models import ACMContestRank, OIContestRank
 
 
 class CreateConetestSeriaizer(serializers.Serializer):
@@ -61,3 +62,19 @@ class CreateContestAnnouncementSerializer(serializers.Serializer):
 class ContestPasswordVerifySerializer(serializers.Serializer):
     contest_id = serializers.IntegerField()
     password = serializers.CharField(max_length=30, required=True)
+
+
+class ACMContestRankSerializer(serializers.ModelSerializer):
+    user = UsernameSerializer()
+    submission_info = serializers.JSONField()
+
+    class Meta:
+        model = ACMContestRank
+
+
+class OIContestRankSerializer(serializers.ModelSerializer):
+    user = UsernameSerializer()
+    submission_info = serializers.JSONField()
+
+    class Meta:
+        model = OIContestRank

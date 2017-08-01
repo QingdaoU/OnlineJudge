@@ -12,8 +12,13 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
+        migrations.RenameField(
+            model_name='submission',
+            old_name='created_time',
+            new_name='create_time',
+        ),
         migrations.AlterModelOptions(
             name='submission',
-            options={'ordering': ('-created_time',)},
-        ),
+            options={'ordering': ('-create_time',)},
+        )
     ]

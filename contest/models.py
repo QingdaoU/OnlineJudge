@@ -58,7 +58,7 @@ class Contest(models.Model):
 
     class Meta:
         db_table = "contest"
-        ordering = ("create_time",)
+        ordering = ("-create_time",)
 
 
 class ContestRank(models.Model):
@@ -91,6 +91,9 @@ class OIContestRank(ContestRank):
     class Meta:
         db_table = "oi_contest_rank"
 
+    def update_rank(self, submission):
+        self.total_submission_number += 1
+
 
 class ContestAnnouncement(models.Model):
     contest = models.ForeignKey(Contest)
@@ -101,3 +104,4 @@ class ContestAnnouncement(models.Model):
 
     class Meta:
         db_table = "contest_announcement"
+        ordering = ("-create_time",)

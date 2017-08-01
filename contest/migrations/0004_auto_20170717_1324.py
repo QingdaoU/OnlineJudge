@@ -14,6 +14,10 @@ class Migration(migrations.Migration):
     operations = [
         migrations.AlterModelOptions(
             name='contest',
-            options={'ordering': ('create_time',)},
+            options={'ordering': ('-create_time',)},
+        ),
+        migrations.AlterModelOptions(
+            name='contestannouncement',
+            options={'ordering': ('-create_time',)},
         ),
     ]

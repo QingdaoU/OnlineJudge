@@ -130,7 +130,7 @@ class APIView(View):
             count = query_set.count()
             results = object_serializer(results, many=True).data
         else:
-            count = len(query_set)
+            count = query_set.count()
         data = {"results": results,
                 "total": count}
         return data

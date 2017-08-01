@@ -23,7 +23,7 @@ class Submission(models.Model):
     id = models.CharField(max_length=32, default=rand_str, primary_key=True, db_index=True)
     contest_id = models.IntegerField(db_index=True, null=True)
     problem_id = models.IntegerField(db_index=True)
-    created_time = models.DateTimeField(auto_now_add=True)
+    create_time = models.DateTimeField(auto_now_add=True)
     user_id = models.IntegerField(db_index=True)
     code = models.TextField()
     result = models.IntegerField(default=JudgeStatus.PENDING)
@@ -42,7 +42,7 @@ class Submission(models.Model):
 
     class Meta:
         db_table = "submission"
-        ordering = ("-created_time",)
+        ordering = ("-create_time",)
 
     def __str__(self):
         return self.id

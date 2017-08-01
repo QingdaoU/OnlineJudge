@@ -8,6 +8,7 @@ class CreateSubmissionSerializer(serializers.Serializer):
     problem_id = serializers.IntegerField()
     language = serializers.ChoiceField(choices=language_names)
     code = serializers.CharField(max_length=20000)
+    contest_id = serializers.IntegerField(required=False)
 
 
 class SubmissionModelSerializer(serializers.ModelSerializer):
@@ -32,7 +33,7 @@ class SubmissionSafeSerializer(serializers.ModelSerializer):
         return User.objects.get(id=obj.user_id).username
 
 
-class SubmissionListSerializer(SubmissionSafeSerializer):
+class SubmissionListSerializer(serializers.ModelSerializer):
     username = serializers.SerializerMethodField()
     statistic_info = serializers.JSONField()
     show_link = serializers.SerializerMethodField()

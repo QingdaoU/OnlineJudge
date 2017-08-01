@@ -1,7 +1,7 @@
 from django.conf.urls import url
 
 from ..views.user import (SSOAPI, AvatarUploadAPI, TwoFactorAuthAPI,
-                          UserNameAPI, UserProfileAPI)
+                          UserProfileAPI)
 
 urlpatterns = [
     # url(r"^username/?$", UserNameAPI.as_view(), name="user_name_api"),
