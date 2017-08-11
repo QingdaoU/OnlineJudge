@@ -359,7 +359,7 @@ def contest_problem_page(request, contest_id, contest_problem_id):
     """
     contest = Contest.objects.get(id=contest_id)
     try:
-        problem = ContestProblem.objects.get(id=contest_problem_id, visible=True)
+        problem = ContestProblem.objects.get(contest=contest, id=contest_problem_id, visible=True)
     except ContestProblem.DoesNotExist:
         return error_page(request, u"比赛题目不存在")
     warning = u"您已经提交过本题的正确答案，重复提交可能造成时间累计。"
