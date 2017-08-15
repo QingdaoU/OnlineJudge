@@ -1,19 +1,19 @@
-import json
-import requests
 import hashlib
+import json
 import logging
 from urllib.parse import urljoin
 
+import requests
+from django.core.cache import cache
 from django.db import transaction
 from django.db.models import F
 from django_redis import get_redis_connection
-from django.core.cache import cache
 
-from judge.languages import languages
 from account.models import User
 from conf.models import JudgeServer, JudgeServerToken
-from problem.models import Problem, ProblemRuleType, ContestProblem
 from contest.models import ContestRuleType, ACMContestRank, OIContestRank
+from judge.languages import languages
+from problem.models import Problem, ProblemRuleType, ContestProblem
 from submission.models import JudgeStatus, Submission
 
 logger = logging.getLogger(__name__)
@@ -25,7 +25,7 @@ WAITING_QUEUE = "waiting_queue"
 def process_pending_task(redis_conn):
     if redis_conn.llen(WAITING_QUEUE):
         # 防止循环引入
-        from submission.tasks import judge_task
+        from judge.tasks import judge_task
         data = json.loads(redis_conn.rpop(WAITING_QUEUE))
         judge_task.delay(**data)
 
