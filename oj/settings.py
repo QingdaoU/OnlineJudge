@@ -159,6 +159,42 @@ REST_FRAMEWORK = {
     )
 }
 
+CACHE_JUDGE_QUEUE = "judge_queue"
+CACHE_THROTTLING = "throttling"
+
+
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": "redis://127.0.0.1:6379/1",
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        }
+    },
+    CACHE_JUDGE_QUEUE: {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": "redis://127.0.0.1:6379/2",
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        }
+    },
+    CACHE_THROTTLING: {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": "redis://127.0.0.1:6379/3",
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        }
+    }
+}
+
+# For celery
+REDIS_QUEUE = {
+    "host": "127.0.0.1",
+    "port": 6379,
+    "db": 4
+}
+
+
 # for celery
 BROKER_URL = 'redis://%s:%s/%s' % (REDIS_QUEUE["host"], str(REDIS_QUEUE["port"]), str(REDIS_QUEUE["db"]))
 CELERY_ACCEPT_CONTENT = ["json"]

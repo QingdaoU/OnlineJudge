@@ -7,7 +7,6 @@ import requests
 from django.core.cache import cache
 from django.db import transaction
 from django.db.models import F
-from django_redis import get_redis_connection
 
 from account.models import User
 from conf.models import JudgeServer, JudgeServerToken
@@ -15,18 +14,18 @@ from contest.models import ContestRuleType, ACMContestRank, OIContestRank
 from judge.languages import languages
 from problem.models import Problem, ProblemRuleType, ContestProblem
 from submission.models import JudgeStatus, Submission
+from utils.cache import judge_queue_cache
+from utils.constants import CacheKey
 
 logger = logging.getLogger(__name__)
 
-WAITING_QUEUE = "waiting_queue"
-
 
 # 继续处理在队列中的问题
-def process_pending_task(redis_conn):
-    if redis_conn.llen(WAITING_QUEUE):
+def process_pending_task():
+    if judge_queue_cache.llen(CacheKey.waiting_queue):
         # 防止循环引入
         from judge.tasks import judge_task
-        data = json.loads(redis_conn.rpop(WAITING_QUEUE))
+        data = json.loads(judge_queue_cache.rpop(CacheKey.waiting_queue))
         judge_task.delay(**data)
 
 
@@ -34,7 +33,7 @@ class JudgeDispatcher(object):
     def __init__(self, submission_id, problem_id):
         token = JudgeServerToken.objects.first().token
         self.token = hashlib.sha256(token.encode("utf-8")).hexdigest()
-        self.redis_conn = get_redis_connection("JudgeQueue")
+        self.redis_conn = judge_queue_cache
         self.submission = Submission.objects.get(pk=submission_id)
         if self.submission.contest_id:
             self.problem = ContestProblem.objects.select_related("contest")\
@@ -77,7 +76,7 @@ class JudgeDispatcher(object):
         server = self.choose_judge_server()
         if not server:
             data = {"submission_id": self.submission.id, "problem_id": self.problem.id}
-            self.redis_conn.lpush(WAITING_QUEUE, json.dumps(data))
+            self.redis_conn.lpush(CacheKey.waiting_queue, json.dumps(data))
             return
 
         sub_config = list(filter(lambda item: self.submission.language == item["name"], languages))[0]
@@ -130,7 +129,7 @@ class JudgeDispatcher(object):
         else:
             self.update_problem_status()
         # 至此判题结束，尝试处理任务队列中剩余的任务
-        process_pending_task(self.redis_conn)
+        process_pending_task()
 
     def compile_spj(self, service_url, src, spj_version, spj_compile_config, test_case_id):
         data = {"src": src, "spj_version": spj_version,

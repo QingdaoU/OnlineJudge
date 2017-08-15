@@ -1,4 +1,3 @@
-from django_redis import get_redis_connection
 
 from account.decorators import login_required, check_contest_permission
 from judge.tasks import judge_task
@@ -9,6 +8,7 @@ from utils.throttling import TokenBucket, BucketController
 from ..models import Submission
 from ..serializers import CreateSubmissionSerializer, SubmissionModelSerializer
 from ..serializers import SubmissionSafeSerializer, SubmissionListSerializer
+from utils.cache import throttling_cache
 
 
 # from judge.dispatcher import JudgeDispatcher
@@ -17,7 +17,7 @@ from ..serializers import SubmissionSafeSerializer, SubmissionListSerializer
 def _submit(response, user, problem_id, language, code, contest_id):
     # TODO: 预设默认值，需修改
     controller = BucketController(user_id=user.id,
-                                  redis_conn=get_redis_connection("Throttling"),
+                                  redis_conn=throttling_cache,
                                   default_capacity=30)
     bucket = TokenBucket(fill_rate=10, capacity=20,
                          last_capacity=controller.last_capacity,
