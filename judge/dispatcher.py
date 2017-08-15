@@ -14,7 +14,7 @@ from contest.models import ContestRuleType, ACMContestRank, OIContestRank
 from judge.languages import languages
 from problem.models import Problem, ProblemRuleType, ContestProblem
 from submission.models import JudgeStatus, Submission
-from utils.cache import judge_queue_cache
+from utils.cache import judge_cache
 from utils.constants import CacheKey
 
 logger = logging.getLogger(__name__)
@@ -22,10 +22,10 @@ logger = logging.getLogger(__name__)
 
 # 继续处理在队列中的问题
 def process_pending_task():
-    if judge_queue_cache.llen(CacheKey.waiting_queue):
+    if judge_cache.llen(CacheKey.waiting_queue):
         # 防止循环引入
         from judge.tasks import judge_task
-        data = json.loads(judge_queue_cache.rpop(CacheKey.waiting_queue))
+        data = json.loads(judge_cache.rpop(CacheKey.waiting_queue))
         judge_task.delay(**data)
 
 
@@ -33,7 +33,7 @@ class JudgeDispatcher(object):
     def __init__(self, submission_id, problem_id):
         token = JudgeServerToken.objects.first().token
         self.token = hashlib.sha256(token.encode("utf-8")).hexdigest()
-        self.redis_conn = judge_queue_cache
+        self.redis_conn = judge_cache
         self.submission = Submission.objects.get(pk=submission_id)
         if self.submission.contest_id:
             self.problem = ContestProblem.objects.select_related("contest")\
@@ -98,8 +98,8 @@ class JudgeDispatcher(object):
             "spj_compile_config": spj_config.get("compile"),
             "spj_src": self.problem.spj_code
         }
-        self.submission.result = JudgeStatus.JUDGING
-        self.submission.save()
+
+        Submission.objects.filter(id=self.submission.id).update(result=JudgeStatus.JUDGING)
 
         # TODO: try catch
         resp = self._request(urljoin(server.service_url, "/judge"), data=data)
@@ -123,11 +123,12 @@ class JudgeDispatcher(object):
         self.submission.save()
         self.release_judge_res(server.id)
 
+        self.update_problem_status()
+
         if self.submission.contest_id:
-            self.update_contest_problem_status()
             self.update_contest_rank()
         else:
-            self.update_problem_status()
+            self.update_user_profile()
         # 至此判题结束，尝试处理任务队列中剩余的任务
         process_pending_task()
 
@@ -138,13 +139,21 @@ class JudgeDispatcher(object):
         return self._request(urljoin(service_url, "compile_spj"), data=data)
 
     def update_problem_status(self):
+        self.problem.add_submission_number()
+        if self.submission.result == JudgeStatus.ACCEPTED:
+            self.problem.add_ac_number()
         with transaction.atomic():
-            # 更新problem计数器
-            self.problem = Problem.objects.select_for_update().get(id=self.problem.id)
-            self.problem.add_submission_number()
-            if self.submission.result == JudgeStatus.ACCEPTED:
-                self.problem.add_ac_number()
+            if self.submission.contest_id:
+                problem = ContestProblem.objects.select_for_update().get(_id=self.problem.id, contest_id=self.contest.id)
+            else:
+                problem = Problem.objects.select_related().get(_id=self.problem.id)
+            info = problem.statistic_info
+            info[self.submission.result] = info.get(self.submission.result, 0) + 1
+            problem.statistic_info = info
+            problem.save(update_fields=["statistic_info"])
 
+    def update_user_profile(self):
+        with transaction.atomic():
             # 更新user profile
             user = User.objects.select_for_update().get(id=self.submission.user_id)
             user_profile = user.userprofile
@@ -162,13 +171,6 @@ class JudgeDispatcher(object):
                     problems_status["problems"][str(self.problem.id)] = JudgeStatus.WRONG_ANSWER
             user_profile.problems_status = problems_status
             user_profile.save(update_fields=["problems_status"])
-
-    def update_contest_problem_status(self):
-        with transaction.atomic():
-            problem = ContestProblem.objects.select_for_update().get(id=self.problem.id)
-            problem.add_submission_number()
-            if self.submission.result == JudgeStatus.ACCEPTED:
-                problem.add_ac_number()
 
     def update_contest_rank(self):
         if self.contest.real_time_rank:

@@ -57,6 +57,9 @@ class AbstractProblem(models.Model):
     source = models.CharField(max_length=200, blank=True, null=True)
     total_submit_number = models.BigIntegerField(default=0)
     total_accepted_number = models.BigIntegerField(default=0)
+    # {0: 0, 1: 0, 2: 0, 3: 0  ...}
+    # the first number means JudgeStatus, the second number present count
+    statistic_info = JSONField(default={})
 
     class Meta:
         db_table = "problem"

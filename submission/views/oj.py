@@ -95,21 +95,21 @@ class SubmissionListAPI(APIView):
         if request.GET.get("contest_id"):
             return self._get_contest_submission_list(request)
 
-        subs = Submission.objects.filter(contest_id__isnull=True)
-        return self.process_submissions(request, subs)
+        submissions = Submission.objects.filter(contest_id__isnull=True)
+        return self.process_submissions(request, submissions)
 
     @check_contest_permission
     def _get_contest_submission_list(self, request):
         subs = Submission.objects.filter(contest_id=self.contest.id)
         return self.process_submissions(request, subs)
 
-    def process_submissions(self, request, subs):
+    def process_submissions(self, request, submissions):
         problem_id = request.GET.get("problem_id")
         if problem_id:
-            subs = subs.filter(problem_id=problem_id)
+            submissions = submissions.filter(problem_id=problem_id)
 
         if request.GET.get("myself") and request.GET["myself"] == "1":
-            subs = subs.filter(user_id=request.user.id)
-        data = self.paginate_data(request, subs)
+            submissions = submissions.filter(user_id=request.user.id)
+        data = self.paginate_data(request, submissions)
         data["results"] = SubmissionListSerializer(data["results"], many=True, user=request.user).data
         return self.success(data)
