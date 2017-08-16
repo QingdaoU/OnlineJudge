@@ -25,7 +25,7 @@ def process_pending_task():
     if judge_cache.llen(CacheKey.waiting_queue):
         # 防止循环引入
         from judge.tasks import judge_task
-        data = json.loads(judge_cache.rpop(CacheKey.waiting_queue))
+        data = json.loads(judge_cache.rpop(CacheKey.waiting_queue).decode("utf-8"))
         judge_task.delay(**data)
 
 
@@ -148,7 +148,8 @@ class JudgeDispatcher(object):
             else:
                 problem = Problem.objects.select_related().get(_id=self.problem.id)
             info = problem.statistic_info
-            info[self.submission.result] = info.get(self.submission.result, 0) + 1
+            result = str(self.submission.result)
+            info[result] = info.get(result, 0) + 1
             problem.statistic_info = info
             problem.save(update_fields=["statistic_info"])
 

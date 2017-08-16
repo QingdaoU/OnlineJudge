@@ -1,6 +1,7 @@
 
 from account.decorators import login_required, check_contest_permission
 from judge.tasks import judge_task
+# from judge.dispatcher import JudgeDispatcher
 from problem.models import Problem, ProblemRuleType, ContestProblem
 from contest.models import Contest, ContestStatus
 from utils.api import APIView, validate_serializer
@@ -9,9 +10,6 @@ from ..models import Submission
 from ..serializers import CreateSubmissionSerializer, SubmissionModelSerializer
 from ..serializers import SubmissionSafeSerializer, SubmissionListSerializer
 from utils.cache import throttling_cache
-
-
-# from judge.dispatcher import JudgeDispatcher
 
 
 def _submit(response, user, problem_id, language, code, contest_id):

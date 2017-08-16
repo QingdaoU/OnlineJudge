@@ -83,6 +83,7 @@ class ProblemSerializer(serializers.ModelSerializer):
     create_time = DateTimeTZField()
     last_update_time = DateTimeTZField()
     created_by = UsernameSerializer()
+    statistic_info = serializers.JSONField()
 
     class Meta:
         model = Problem
@@ -97,6 +98,7 @@ class ContestProblemSerializer(serializers.ModelSerializer):
     create_time = DateTimeTZField()
     last_update_time = DateTimeTZField()
     created_by = UsernameSerializer()
+    statistic_info = serializers.JSONField()
 
     class Meta:
         model = ContestProblem
