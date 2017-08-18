@@ -1,7 +1,11 @@
-from django.http import HttpResponse
+from base64 import b64encode
 
-from utils.captcha import Captcha
+from . import Captcha
+from ..api import APIView
 
 
-def show_captcha(request):
-    return HttpResponse(Captcha(request).display(), content_type="image/gif")
+class CaptchaAPIView(APIView):
+    def get(self, request):
+        img_prefix = "data:image/png;base64,"
+        img = img_prefix + b64encode(Captcha(request).get()).decode("utf-8")
+        return self.success(img)
