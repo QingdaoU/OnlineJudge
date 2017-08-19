@@ -11,11 +11,15 @@ class UserLoginSerializer(serializers.Serializer):
     tfa_code = serializers.CharField(min_length=6, max_length=6, required=False, allow_null=True)
 
 
+class UsernameOrEmailCheckSerializer(serializers.Serializer):
+    username = serializers.CharField(max_length=30, required=False)
+    email = serializers.EmailField(max_length=30, required=False)
+
 class UserRegisterSerializer(serializers.Serializer):
     username = serializers.CharField(max_length=30)
     password = serializers.CharField(max_length=30, min_length=6)
-    email = serializers.EmailField(max_length=254)
-    captcha = serializers.CharField(max_length=4, min_length=4)
+    email = serializers.EmailField(max_length=30)
+    captcha = serializers.CharField(max_length=4, min_length=1)
 
 
 class UserChangePasswordSerializer(serializers.Serializer):

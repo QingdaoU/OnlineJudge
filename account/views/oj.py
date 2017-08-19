@@ -16,7 +16,7 @@ from ..models import User, UserProfile
 from ..serializers import (ApplyResetPasswordSerializer,
                            ResetPasswordSerializer,
                            UserChangePasswordSerializer, UserLoginSerializer,
-                           UserRegisterSerializer)
+                           UserRegisterSerializer, UsernameOrEmailCheckSerializer)
 from ..tasks import send_email_async
 
 
@@ -58,6 +58,27 @@ class UserLogoutAPI(APIView):
         return self.success({})
 
 
+class UsernameOrEmailCheck(APIView):
+    @validate_serializer(UsernameOrEmailCheckSerializer)
+    def post(self, request):
+        """
+        check username or email is duplicate
+        """
+        data = request.data
+        # True means OK.
+        result = {
+            "username": True,
+            "email": True
+        }
+        if data.get("username"):
+            if User.objects.filter(username=data["username"]).exists():
+                result["username"] = False
+        if data.get("email"):
+            if User.objects.filter(email=data["email"]).exists():
+                result["email"] = False
+        return self.success(result)
+
+
 class UserRegisterAPI(APIView):
     @validate_serializer(UserRegisterSerializer)
     def post(self, request):
@@ -66,7 +87,7 @@ class UserRegisterAPI(APIView):
         """
         data = request.data
         captcha = Captcha(request)
-        if not captcha.check(data["captcha"]):
+        if not captcha.validate(data["captcha"]):
             return self.error("Invalid captcha")
         try:
             User.objects.get(username=data["username"])

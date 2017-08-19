@@ -2,7 +2,7 @@ from django.conf.urls import url
 
 from ..views.oj import (ApplyResetPasswordAPI, ResetPasswordAPI,
                         UserChangePasswordAPI, UserRegisterAPI,
-                        UserLoginAPI, UserLogoutAPI)
+                        UserLoginAPI, UserLogoutAPI, UsernameOrEmailCheck)
 
 from utils.captcha.views import CaptchaAPIView
 
@@ -14,4 +14,5 @@ urlpatterns = [
     url(r"^apply_reset_password/?$", ApplyResetPasswordAPI.as_view(), name="apply_reset_password_api"),
     url(r"^reset_password/?$", ResetPasswordAPI.as_view(), name="apply_reset_password_api"),
     url(r"^captcha/?$", CaptchaAPIView.as_view(), name="show_captcha"),
+    url(r"^check_username_or_email", UsernameOrEmailCheck.as_view(), name="check_username_or_email")
 ]
