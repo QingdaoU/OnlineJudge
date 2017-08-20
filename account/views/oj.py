@@ -18,10 +18,10 @@ from utils.shortcuts import rand_str
 
 from ..decorators import login_required
 from ..models import User, UserProfile
-from ..serializers import (ApplyResetPasswordSerializer,
-                           ResetPasswordSerializer,
+from ..serializers import (ApplyResetPasswordSerializer, ResetPasswordSerializer,
                            UserChangePasswordSerializer, UserLoginSerializer,
-                           UserRegisterSerializer, UsernameOrEmailCheckSerializer)
+                           UserRegisterSerializer, UsernameOrEmailCheckSerializer,
+                           RankInfoSerializer)
 from ..serializers import (SSOSerializer, TwoFactorAuthCodeSerializer,
                            UserProfileSerializer,
                            EditUserProfileSerializer, AvatarUploadForm)
@@ -32,6 +32,7 @@ class UserProfileAPI(APIView):
     """
     判断是否登录， 若登录返回用户信息
     """
+
     @method_decorator(ensure_csrf_cookie)
     def get(self, request, **kwargs):
         user = request.user
@@ -321,3 +322,16 @@ class ResetPasswordAPI(APIView):
         user.set_password(data["password"])
         user.save()
         return self.success("Succeeded")
+
+
+class UserRankAPI(APIView):
+    def get(self, request):
+        rule_type = request.GET.get("rule")
+        if rule_type not in ["acm", "oi"]:
+            rule_type = "acm"
+        profiles = UserProfile.objects.select_related("user").filter(submission_number__gt=0)
+        if rule_type == "acm":
+            profiles = profiles.order_by("-accepted_number", "submission_number")
+        else:
+            profiles = profiles.order_by("-total_score")
+        return self.success(self.paginate_data(request, profiles, RankInfoSerializer))

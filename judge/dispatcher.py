@@ -40,7 +40,7 @@ class JudgeDispatcher(object):
                 .get(_id=problem_id, contest_id=self.submission.contest_id)
             self.contest = self.problem.contest
         else:
-            self.problem = Problem.objects.get(pk=problem_id)
+            self.problem = Problem.objects.get(_id=problem_id)
 
     def _request(self, url, data=None):
         kwargs = {"headers": {"X-Judge-Server-Token": self.token,
@@ -75,7 +75,7 @@ class JudgeDispatcher(object):
     def judge(self, output=False):
         server = self.choose_judge_server()
         if not server:
-            data = {"submission_id": self.submission.id, "problem_id": self.problem.id}
+            data = {"submission_id": self.submission.id, "problem_id": self.problem._id}
             self.redis_conn.lpush(CacheKey.waiting_queue, json.dumps(data))
             return
 
@@ -111,6 +111,7 @@ class JudgeDispatcher(object):
             # 用时和内存占用保存为多个测试点中最长的那个
             self.submission.statistic_info["time_cost"] = max([x["cpu_time"] for x in resp["data"]])
             self.submission.statistic_info["memory_cost"] = max([x["memory"] for x in resp["data"]])
+            # todo OI statistic_info["score"]
 
             error_test_case = list(filter(lambda case: case["result"] != 0, resp["data"]))
             # 多个测试点全部正确则AC，否则 ACM模式下取第一个错误的测试点的状态, OI模式若全部错误则取第一个错误测试点状态，否则为部分正确
@@ -144,9 +145,9 @@ class JudgeDispatcher(object):
             self.problem.add_ac_number()
         with transaction.atomic():
             if self.submission.contest_id:
-                problem = ContestProblem.objects.select_for_update().get(_id=self.problem.id, contest_id=self.contest.id)
+                problem = ContestProblem.objects.select_for_update().get(_id=self.problem._id, contest_id=self.contest.id)
             else:
-                problem = Problem.objects.select_related().get(_id=self.problem.id)
+                problem = Problem.objects.select_related().get(_id=self.problem._id)
             info = problem.statistic_info
             result = str(self.submission.result)
             info[result] = info.get(result, 0) + 1
@@ -155,21 +156,35 @@ class JudgeDispatcher(object):
 
     def update_user_profile(self):
         with transaction.atomic():
-            # 更新user profile
             user = User.objects.select_for_update().get(id=self.submission.user_id)
             user_profile = user.userprofile
             user_profile.add_submission_number()
             problems_status = user_profile.problems_status
-            if "problems" not in problems_status:
-                problems_status["problems"] = {}
 
-            # 之前状态不是ac, 现在是ac了 需要更新用户ac题目数量计数器,这里需要判重
-            if problems_status["problems"].get(str(self.problem.id), JudgeStatus.WRONG_ANSWER) != JudgeStatus.ACCEPTED:
-                if self.submission.result == JudgeStatus.ACCEPTED:
-                    user_profile.add_accepted_problem_number()
-                    problems_status["problems"][str(self.problem.id)] = JudgeStatus.ACCEPTED
+            problem_id = str(self.problem._id)
+            if self.problem.rule_type == ProblemRuleType.ACM:
+                if problem_id not in problems_status:
+                    problems_status[problem_id] = {"status": self.submission.result}
+                    if self.submission.result == JudgeStatus.ACCEPTED:
+                        user_profile.add_accepted_problem_number()
+                # 以前提交过, ac了直接略过
+                elif problems_status[problem_id]["status"] != JudgeStatus.ACCEPTED:
+                    if self.submission.result == JudgeStatus.ACCEPTED:
+                        user_profile.add_accepted_problem_number()
+                        problems_status[problem_id]["status"] = JudgeStatus.ACCEPTED
+                    else:
+                        problems_status[problem_id]["status"] = self.submission.result
+
+            else:
+                score = self.submission.statistic_info["score"]
+                if problem_id not in problems_status:
+                    user_profile.add_score(score)
+                    problems_status[problem_id] = {"score": score}
                 else:
-                    problems_status["problems"][str(self.problem.id)] = JudgeStatus.WRONG_ANSWER
+                    # 加上本次 减掉上次的score
+                    user_profile.add_score(score, problems_status[problem_id]["score"])
+                    problems_status[problem_id] = {"score": score}
+
             user_profile.problems_status = problems_status
             user_profile.save(update_fields=["problems_status"])
 

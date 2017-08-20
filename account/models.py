@@ -69,27 +69,37 @@ def _random_avatar():
 
 class UserProfile(models.Model):
     user = models.OneToOneField(User)
-    # Store user problem solution status with json string format
-    # {"problems": {1: JudgeStatus.ACCEPTED}, "contest_problems": {20: JudgeStatus.PENDING)}
+    # Store user problem solution status with json string format, Only for problems not contest_problems
+    # ACM: {1: {status: JudgeStatus.ACCEPTED}}
+    # OI: {1: {score: 33}}
     problems_status = JSONField(default={})
     avatar = models.CharField(max_length=50, default=_random_avatar)
     blog = models.URLField(blank=True, null=True)
     mood = models.CharField(max_length=200, blank=True, null=True)
-    accepted_problem_number = models.IntegerField(default=0)
-    submission_number = models.IntegerField(default=0)
     phone_number = models.CharField(max_length=15, blank=True, null=True)
     school = models.CharField(max_length=200, blank=True, null=True)
     major = models.CharField(max_length=200, blank=True, null=True)
     student_id = models.CharField(max_length=15, blank=True, null=True)
     time_zone = models.CharField(max_length=32, blank=True, null=True)
     language = models.CharField(max_length=32, blank=True, null=True)
+    # for ACM
+    accepted_number = models.IntegerField(default=0)
+    # for OI
+    total_score = models.BigIntegerField(default=0)
+    submission_number = models.IntegerField(default=0)
 
     def add_accepted_problem_number(self):
-        self.accepted_problem_number = models.F("accepted_problem_number") + 1
+        self.accepted_number = models.F("accepted_number") + 1
         self.save()
 
     def add_submission_number(self):
         self.submission_number = models.F("submission_number") + 1
+        self.save()
+
+    # 计算总分时， 应先减掉上次该题所得分数， 然后再加上本次所得分数
+    def add_score(self, this_time_score, last_time_score=None):
+        last_time_score = last_time_score or 0
+        self.total_score = models.F("total_score") - last_time_score + this_time_score
         self.save()
 
     class Meta:

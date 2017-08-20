@@ -1,6 +1,6 @@
 from django import forms
 
-from utils.api import DateTimeTZField, serializers
+from utils.api import DateTimeTZField, serializers, UsernameSerializer
 
 from .models import AdminType, ProblemPermission, User, UserProfile
 
@@ -97,3 +97,10 @@ class TwoFactorAuthCodeSerializer(serializers.Serializer):
 
 class AvatarUploadForm(forms.Form):
     file = forms.FileField()
+
+
+class RankInfoSerializer(serializers.ModelSerializer):
+    user = UsernameSerializer()
+
+    class Meta:
+        model = UserProfile
