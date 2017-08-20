@@ -15,6 +15,7 @@ class UsernameOrEmailCheckSerializer(serializers.Serializer):
     username = serializers.CharField(max_length=30, required=False)
     email = serializers.EmailField(max_length=30, required=False)
 
+
 class UserRegisterSerializer(serializers.Serializer):
     username = serializers.CharField(max_length=30)
     password = serializers.CharField(max_length=30, min_length=6)
@@ -46,7 +47,6 @@ class UserProfileSerializer(serializers.ModelSerializer):
 
 
 class UserInfoSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = UserProfile
 

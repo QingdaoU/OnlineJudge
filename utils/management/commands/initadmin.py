@@ -13,7 +13,7 @@ class Command(BaseCommand):
                                                      "would you like to reset it's password?\n"
                                                      "Input yes to confirm: "))
                 if input() == "yes":
-                    # for dev
+                    # todo remove this in product env
                     # rand_password = rand_str(length=6)
                     rand_password = "rootroot"
                     admin.save()
