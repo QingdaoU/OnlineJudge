@@ -237,7 +237,7 @@ class UserRegisterAPI(APIView):
         """
         data = request.data
         captcha = Captcha(request)
-        if not captcha.validate(data["captcha"]):
+        if not captcha.check(data["captcha"]):
             return self.error("Invalid captcha")
         if User.objects.filter(username=data["username"]).exists():
             return self.error("Username already exists")
@@ -260,7 +260,7 @@ class UserChangePasswordAPI(APIView):
         """
         data = request.data
         captcha = Captcha(request)
-        if not captcha.validate(data["captcha"]):
+        if not captcha.check(data["captcha"]):
             return self.error("Invalid captcha")
         username = request.user.username
         user = auth.authenticate(username=username, password=data["old_password"])
