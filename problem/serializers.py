@@ -74,7 +74,7 @@ class TagSerializer(serializers.ModelSerializer):
         model = ProblemTag
 
 
-class ProblemSerializer(serializers.ModelSerializer):
+class BaseProblemSerializer(serializers.ModelSerializer):
     samples = serializers.JSONField()
     test_case_score = serializers.JSONField()
     languages = serializers.JSONField()
@@ -85,20 +85,24 @@ class ProblemSerializer(serializers.ModelSerializer):
     created_by = UsernameSerializer()
     statistic_info = serializers.JSONField()
 
+
+class ProblemAdminSerializer(BaseProblemSerializer):
     class Meta:
         model = Problem
 
 
-class ContestProblemSerializer(serializers.ModelSerializer):
-    samples = serializers.JSONField()
-    test_case_score = serializers.JSONField()
-    languages = serializers.JSONField()
-    template = serializers.JSONField()
-    tags = serializers.SlugRelatedField(many=True, slug_field="name", read_only=True)
-    create_time = DateTimeTZField()
-    last_update_time = DateTimeTZField()
-    created_by = UsernameSerializer()
-    statistic_info = serializers.JSONField()
-
+class ContestProblemAdminSerializer(BaseProblemSerializer):
     class Meta:
         model = ContestProblem
+
+
+class ProblemSerializer(BaseProblemSerializer):
+    class Meta:
+        model = Problem
+        exclude = ("test_case_score", "test_case_id", "visible")
+
+
+class ContestProblemSerializer(BaseProblemSerializer):
+    class Meta:
+        model = ContestProblem
+        exclude = ("test_case_score", "test_case_id", "visible", "is_public")

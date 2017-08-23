@@ -55,7 +55,7 @@ class SubmissionAPI(APIView):
             except Contest.DoesNotExist:
                 return self.error("Contest doesn't exist.")
             if contest.status != ContestStatus.CONTEST_UNDERWAY and request.user != contest.created_by:
-                return self.error("You have no permission to submit code.")
+                return self.error("Contest have not started or have ended, you can't submit code.")
         return _submit(self, request.user, data["problem_id"], data["language"], data["code"], data.get("contest_id"))
 
     @login_required
@@ -64,7 +64,7 @@ class SubmissionAPI(APIView):
         if not submission_id:
             return self.error("Parameter id doesn't exist.")
         try:
-            submission = Submission.objects.get(id=submission_id, user_id=request.user.id)
+            submission = Submission.objects.get(id=submission_id)
         except Submission.DoesNotExist:
             return self.error("Submission doesn't exist.")
         if not submission.check_user_permission(request.user):

@@ -33,7 +33,7 @@ class Command(BaseCommand):
             rand_password = "rootroot"
             user.set_password(rand_password)
             user.save()
-            UserProfile.objects.create(user=user, time_zone="Asia/Shanghai")
+            UserProfile.objects.create(user=user)
             self.stdout.write(self.style.SUCCESS("Successfully created super admin user.\n"
                                                  "Username: root\nPassword: %s\n"
                                                  "Remember to change password and turn on two factors auth "

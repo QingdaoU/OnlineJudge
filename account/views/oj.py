@@ -247,7 +247,7 @@ class UserRegisterAPI(APIView):
         user = User.objects.create(username=data["username"], email=data["email"])
         user.set_password(data["password"])
         user.save()
-        UserProfile.objects.create(user=user, time_zone=settings.USER_DEFAULT_TZ)
+        UserProfile.objects.create(user=user)
         return self.success("Succeeded")
 
 

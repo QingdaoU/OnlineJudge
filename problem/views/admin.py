@@ -13,7 +13,8 @@ from utils.shortcuts import rand_str
 from ..models import ContestProblem, Problem, ProblemRuleType, ProblemTag
 from ..serializers import (CreateContestProblemSerializer,
                            CreateProblemSerializer, EditProblemSerializer,
-                           ProblemSerializer, TestCaseUploadForm)
+                           ProblemAdminSerializer, TestCaseUploadForm,
+                           ContestProblemAdminSerializer)
 
 
 class TestCaseUploadAPI(CSRFExemptAPIView):
@@ -154,7 +155,7 @@ class ProblemAPI(APIView):
             except ProblemTag.DoesNotExist:
                 tag = ProblemTag.objects.create(name=item)
             problem.tags.add(tag)
-        return self.success(ProblemSerializer(problem).data)
+        return self.success(ProblemAdminSerializer(problem).data)
 
     @problem_permission_required
     def get(self, request):
@@ -165,7 +166,7 @@ class ProblemAPI(APIView):
                 problem = Problem.objects.get(id=problem_id)
                 if not user.can_mgmt_all_problem() and problem.created_by != user:
                     return self.error("Problem does not exist")
-                return self.success(ProblemSerializer(problem).data)
+                return self.success(ProblemAdminSerializer(problem).data)
             except Problem.DoesNotExist:
                 return self.error("Problem does not exist")
 
@@ -175,7 +176,7 @@ class ProblemAPI(APIView):
         keyword = request.GET.get("keyword")
         if keyword:
             problems = problems.filter(title__contains=keyword)
-        return self.success(self.paginate_data(request, problems, ProblemSerializer))
+        return self.success(self.paginate_data(request, problems, ProblemAdminSerializer))
 
     @validate_serializer(EditProblemSerializer)
     @problem_permission_required
@@ -282,7 +283,7 @@ class ContestProblemAPI(APIView):
             except ProblemTag.DoesNotExist:
                 tag = ProblemTag.objects.create(name=item)
             problem.tags.add(tag)
-        return self.success(ProblemSerializer(problem).data)
+        return self.success(ContestProblemAdminSerializer(problem).data)
 
     def get(self, request):
         problem_id = request.GET.get("id")
@@ -295,7 +296,7 @@ class ContestProblemAPI(APIView):
                     return self.error("Problem does not exist")
             except ContestProblem.DoesNotExist:
                 return self.error("Problem does not exist")
-            return self.success(ProblemSerializer(problem).data)
+            return self.success(ProblemAdminSerializer(problem).data)
 
         if not contest_id:
             return self.error("Contest id is required")
@@ -306,4 +307,4 @@ class ContestProblemAPI(APIView):
         keyword = request.GET.get("keyword")
         if keyword:
             problems = problems.filter(title__contains=keyword)
-        return self.success(self.paginate_data(request, problems, ProblemSerializer))
+        return self.success(self.paginate_data(request, problems, ContestProblemAdminSerializer))

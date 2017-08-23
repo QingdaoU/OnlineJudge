@@ -80,7 +80,6 @@ class UserProfile(models.Model):
     school = models.CharField(max_length=200, blank=True, null=True)
     major = models.CharField(max_length=200, blank=True, null=True)
     student_id = models.CharField(max_length=15, blank=True, null=True)
-    time_zone = models.CharField(max_length=32, blank=True, null=True)
     language = models.CharField(max_length=32, blank=True, null=True)
     # for ACM
     accepted_number = models.IntegerField(default=0)

@@ -61,7 +61,7 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.security.SecurityMiddleware',
     'account.middleware.AdminRoleRequiredMiddleware',
     'account.middleware.SessionSecurityMiddleware',
-    'account.middleware.TimezoneMiddleware'
+    # 'account.middleware.TimezoneMiddleware'
 )
 
 ROOT_URLCONF = 'oj.urls'
@@ -96,9 +96,6 @@ USE_I18N = True
 USE_L10N = True
 
 USE_TZ = True
-
-# in user's profile
-USER_DEFAULT_TZ = 'Asia/Shanghai'
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.8/howto/static-files/

@@ -89,9 +89,10 @@ class ContestAccessAPI(APIView):
 
 class ContestRankAPI(APIView):
     def get_rank(self):
-        if self.contest.contest_type == ContestRuleType.ACM:
+        if self.contest.rule_type == ContestRuleType.ACM:
             rank = ACMContestRank.objects.filter(contest=self.contest). \
                 select_related("user").order_by("-total_ac_number", "total_time")
+            print(rank)
             return ACMContestRankSerializer(rank, many=True).data
         else:
             rank = OIContestRank.objects.filter(contest=self.contest). \

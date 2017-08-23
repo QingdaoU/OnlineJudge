@@ -11,7 +11,7 @@ class APITestCase(TestCase):
     def create_user(self, username, password, admin_type=AdminType.REGULAR_USER, login=True, problem_permission=ProblemPermission.NONE):
         user = User.objects.create(username=username, admin_type=admin_type, problem_permission=problem_permission)
         user.set_password(password)
-        UserProfile.objects.create(user=user, time_zone="Asia/Shanghai")
+        UserProfile.objects.create(user=user)
         user.save()
         if login:
             self.client.login(username=username, password=password)
