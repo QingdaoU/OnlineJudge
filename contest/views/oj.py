@@ -1,7 +1,9 @@
+import pickle
 from django.utils.timezone import now
 from django.db.models import Q
-from django.core.cache import cache
 from utils.api import APIView, validate_serializer
+from utils.cache import default_cache
+from utils.constants import CacheKey
 from account.decorators import login_required, check_contest_permission
 
 from ..models import ContestAnnouncement, Contest, ContestStatus, ContestRuleType
@@ -90,20 +92,25 @@ class ContestAccessAPI(APIView):
 class ContestRankAPI(APIView):
     def get_rank(self):
         if self.contest.rule_type == ContestRuleType.ACM:
-            rank = ACMContestRank.objects.filter(contest=self.contest). \
-                select_related("user").order_by("-total_ac_number", "total_time")
-            print(rank)
-            return ACMContestRankSerializer(rank, many=True).data
+            return ACMContestRank.objects.filter(contest=self.contest). \
+                select_related("user").order_by("-accepted_number", "total_time")
         else:
-            rank = OIContestRank.objects.filter(contest=self.contest). \
+            return OIContestRank.objects.filter(contest=self.contest). \
                 select_related("user").order_by("-total_score")
-            return OIContestRankSerializer(rank, many=True).data
 
     @check_contest_permission
     def get(self, request):
-        cache_key = str(self.contest.id) + "_rank_cache"
-        rank = cache.get(cache_key)
-        if not rank:
-            rank = self.get_rank()
-            cache.set(cache_key, rank)
-        return self.success(rank)
+        if self.contest.rule_type == ContestRuleType.ACM:
+            model, serializer = ACMContestRank, ACMContestRankSerializer
+        else:
+            model, serializer = OIContestRank, OIContestRankSerializer
+
+        cache_key = CacheKey.contest_rank_cache + str(self.contest.id)
+        qs = default_cache.get(cache_key)
+        if not qs:
+            ranks = self.get_rank()
+            default_cache.set(cache_key, pickle.dumps(ranks))
+        else:
+            ranks = pickle.loads(qs)
+
+        return self.success(self.paginate_data(request, ranks, serializer))

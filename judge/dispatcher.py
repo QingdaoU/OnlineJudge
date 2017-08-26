@@ -210,29 +210,29 @@ class JudgeDispatcher(object):
             if info["is_ac"]:
                 return
 
-            rank.total_submission_number += 1
+            rank.submission_number += 1
             if self.submission.result == JudgeStatus.ACCEPTED:
-                rank.total_ac_number += 1
+                rank.accepted_number += 1
                 info["is_ac"] = True
                 info["ac_time"] = (self.submission.create_time - self.contest.start_time).total_seconds()
                 rank.total_time += info["ac_time"] + info["error_number"] * 20 * 60
 
-                if problem.total_accepted_number == 1:
+                if problem.accepted_number == 1:
                     info["is_first_ac"] = True
             else:
                 info["error_number"] += 1
 
         # 第一次提交
         else:
-            rank.total_submission_number += 1
+            rank.submission_number += 1
             info = {"is_ac": False, "ac_time": 0, "error_number": 0, "is_first_ac": False}
             if self.submission.result == JudgeStatus.ACCEPTED:
-                rank.total_ac_number += 1
+                rank.accepted_number += 1
                 info["is_ac"] = True
                 info["ac_time"] = (self.submission.create_time - self.contest.start_time).total_seconds()
                 rank.total_time += info["ac_time"]
 
-                if problem.total_accepted_number == 1:
+                if problem.accepted_number == 1:
                     info["is_first_ac"] = True
 
             else:

@@ -55,8 +55,8 @@ class AbstractProblem(models.Model):
     difficulty = models.CharField(max_length=32)
     tags = models.ManyToManyField(ProblemTag)
     source = models.CharField(max_length=200, blank=True, null=True)
-    total_submit_number = models.BigIntegerField(default=0)
-    total_accepted_number = models.BigIntegerField(default=0)
+    submission_number = models.BigIntegerField(default=0)
+    accepted_number = models.BigIntegerField(default=0)
     # {0: 0, 1: 0, 2: 0, 3: 0  ...}
     # the first number means JudgeStatus, the second number present count
     statistic_info = JSONField(default={})
@@ -66,12 +66,12 @@ class AbstractProblem(models.Model):
         abstract = True
 
     def add_submission_number(self):
-        self.total_submit_number = models.F("total_submit_number") + 1
-        self.save(update_fields=["total_submit_number"])
+        self.submission_number = models.F("submission_number") + 1
+        self.save(update_fields=["submission_number"])
 
     def add_ac_number(self):
-        self.total_accepted_number = models.F("total_accepted_number") + 1
-        self.save(update_fields=["total_accepted_number"])
+        self.accepted_number = models.F("accepted_number") + 1
+        self.save(update_fields=["accepted_number"])
 
 
 class Problem(AbstractProblem):
