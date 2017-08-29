@@ -1,5 +1,4 @@
 from .models import Submission
-from account.models import User
 from utils.api import serializers
 from judge.languages import language_names
 
@@ -21,20 +20,14 @@ class SubmissionModelSerializer(serializers.ModelSerializer):
 
 # 不显示submission info详情的serializer
 class SubmissionSafeSerializer(serializers.ModelSerializer):
-    username = serializers.SerializerMethodField()
     statistic_info = serializers.JSONField()
 
     class Meta:
         model = Submission
         exclude = ("info", "contest_id")
 
-    @staticmethod
-    def get_username(obj):
-        return User.objects.get(id=obj.user_id).username
-
 
 class SubmissionListSerializer(serializers.ModelSerializer):
-    username = serializers.SerializerMethodField()
     statistic_info = serializers.JSONField()
     show_link = serializers.SerializerMethodField()
 
@@ -47,10 +40,7 @@ class SubmissionListSerializer(serializers.ModelSerializer):
         exclude = ("info", "contest_id", "code")
 
     def get_show_link(self, obj):
-        if self.user.id is None:
+        # 没传user或为匿名user
+        if self.user is None or self.user.id is None:
             return False
         return obj.check_user_permission(self.user)
-
-    @staticmethod
-    def get_username(obj):
-        return User.objects.get(id=obj.user_id).username

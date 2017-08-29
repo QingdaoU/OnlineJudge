@@ -17,12 +17,12 @@ class ProblemAPI(APIView):
         problem_id = request.GET.get("problem_id")
         if problem_id:
             try:
-                problem = Problem.objects.get(_id=problem_id, visible=True)
+                problem = Problem.objects.select_related("created_by").get(_id=problem_id, visible=True)
                 return self.success(ProblemSerializer(problem).data)
             except Problem.DoesNotExist:
                 return self.error("Problem does not exist")
 
-        problems = Problem.objects.filter(visible=True)
+        problems = Problem.objects.select_related("created_by").filter(visible=True)
         # 按照标签筛选
         tag_text = request.GET.get("tag")
         if tag_text:
@@ -51,10 +51,10 @@ class ContestProblemAPI(APIView):
         problem_id = request.GET.get("problem_id")
         if problem_id:
             try:
-                problem = ContestProblem.objects.get(_id=problem_id, contest=self.contest, visible=True)
+                problem = ContestProblem.objects.select_related("created_by").get(_id=problem_id, contest=self.contest, visible=True)
             except ContestProblem.DoesNotExist:
                 return self.error("Problem does not exist.")
             return self.success(ContestProblemSerializer(problem).data)
 
-        contest_problems = ContestProblem.objects.filter(contest=self.contest, visible=True)
+        contest_problems = ContestProblem.objects.select_related("created_by").filter(contest=self.contest, visible=True)
         return self.success(ContestProblemSerializer(contest_problems, many=True).data)

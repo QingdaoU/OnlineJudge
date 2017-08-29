@@ -25,6 +25,7 @@ class Submission(models.Model):
     problem_id = models.IntegerField(db_index=True)
     create_time = models.DateTimeField(auto_now_add=True)
     user_id = models.IntegerField(db_index=True)
+    username = models.CharField(max_length=30)
     code = models.TextField()
     result = models.IntegerField(default=JudgeStatus.PENDING)
     # 判题结果的详细信息

@@ -76,7 +76,7 @@ def check_contest_permission(func):
 
         try:
             # use self.contest to avoid query contest again in view.
-            self.contest = Contest.objects.get(id=contest_id, visible=True)
+            self.contest = Contest.objects.select_related("created_by").get(id=contest_id, visible=True)
         except Contest.DoesNotExist:
             return self.error("Contest %s doesn't exist" % contest_id)
 

@@ -18,7 +18,7 @@ class ContestAnnouncementListAPI(APIView):
         contest_id = request.GET.get("contest_id")
         if not contest_id:
             return self.error("Invalid parameter")
-        data = ContestAnnouncement.objects.filter(contest_id=contest_id)
+        data = ContestAnnouncement.objects.select_related("created_by").filter(contest_id=contest_id)
         max_id = request.GET.get("max_id")
         if max_id:
             data = data.filter(id__gt=max_id)
@@ -30,12 +30,12 @@ class ContestAPI(APIView):
         contest_id = request.GET.get("id")
         if contest_id:
             try:
-                contest = Contest.objects.get(id=contest_id, visible=True)
+                contest = Contest.objects.select_related("created_by").get(id=contest_id, visible=True)
             except Contest.DoesNotExist:
                 return self.error("Contest doesn't exist.")
             return self.success(ContestSerializer(contest).data)
 
-        contests = Contest.objects.filter(visible=True)
+        contests = Contest.objects.select_related("created_by").filter(visible=True)
         keyword = request.GET.get("keyword")
         rule_type = request.GET.get("rule_type")
         status = request.GET.get("status")
@@ -101,9 +101,9 @@ class ContestRankAPI(APIView):
     @check_contest_permission
     def get(self, request):
         if self.contest.rule_type == ContestRuleType.ACM:
-            model, serializer = ACMContestRank, ACMContestRankSerializer
+            serializer = ACMContestRankSerializer
         else:
-            model, serializer = OIContestRank, OIContestRankSerializer
+            serializer = OIContestRankSerializer
 
         cache_key = CacheKey.contest_rank_cache + str(self.contest.id)
         qs = default_cache.get(cache_key)

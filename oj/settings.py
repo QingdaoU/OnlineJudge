@@ -61,7 +61,6 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.security.SecurityMiddleware',
     'account.middleware.AdminRoleRequiredMiddleware',
     'account.middleware.SessionSecurityMiddleware',
-    # 'account.middleware.TimezoneMiddleware'
 )
 
 ROOT_URLCONF = 'oj.urls'

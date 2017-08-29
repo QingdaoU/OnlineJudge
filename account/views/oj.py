@@ -47,7 +47,7 @@ class UserProfileAPI(APIView):
                 user = request.user
         except User.DoesNotExist:
             return self.error("User does not exist")
-        profile = UserProfile.objects.get(user=user)
+        profile = UserProfile.objects.select_related("user").get(user=user)
         return self.success(UserProfileSerializer(profile).data)
 
     @validate_serializer(EditUserProfileSerializer)

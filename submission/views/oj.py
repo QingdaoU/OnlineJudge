@@ -34,6 +34,7 @@ def _submit(response, user, problem_id, language, code, contest_id):
         return response.error("Problem not exist")
 
     submission = Submission.objects.create(user_id=user.id,
+                                           username=user.username,
                                            language=language,
                                            code=code,
                                            problem_id=problem._id,
