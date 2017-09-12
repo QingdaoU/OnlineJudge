@@ -57,8 +57,7 @@ class AbstractProblem(models.Model):
     source = models.CharField(max_length=200, blank=True, null=True)
     submission_number = models.BigIntegerField(default=0)
     accepted_number = models.BigIntegerField(default=0)
-    # {0: 0, 1: 0, 2: 0, 3: 0  ...}
-    # the first number means JudgeStatus, the second number present count
+    # ACM rule_type: {JudgeStatus.ACCEPTED: 3, JudgeStaus.WRONG_ANSWER: 11}, the number means count
     statistic_info = JSONField(default={})
 
     class Meta:

@@ -24,7 +24,6 @@ class UserManager(models.Manager):
 
 class User(AbstractBaseUser):
     username = models.CharField(max_length=30, unique=True)
-    real_name = models.CharField(max_length=30, null=True)
     email = models.EmailField(max_length=254, null=True)
     create_time = models.DateTimeField(auto_now_add=True, null=True)
     # One of UserType
@@ -69,17 +68,19 @@ def _random_avatar():
 
 class UserProfile(models.Model):
     user = models.OneToOneField(User)
-    # Store user problem solution status with json string format, Only for problems not contest_problems
-    # ACM: {1: {status: JudgeStatus.ACCEPTED}}
-    # OI: {1: {score: 33}}
-    problems_status = JSONField(default={})
+    # Store user problem solution status with json string format
+    # {problems: {1: JudgeStatus.ACCEPTED}, contest_problems: {1: JudgeStatus.ACCEPTED}}, record problem_id and status
+    acm_problems_status = JSONField(default={})
+    # {problems: {1: 33}, contest_problems: {1: 44}, record problem_id and score
+    oi_problems_status = JSONField(default={})
+
+    real_name = models.CharField(max_length=30, blank=True, null=True)
     avatar = models.CharField(max_length=50, default=_random_avatar)
     blog = models.URLField(blank=True, null=True)
     mood = models.CharField(max_length=200, blank=True, null=True)
     phone_number = models.CharField(max_length=15, blank=True, null=True)
     school = models.CharField(max_length=200, blank=True, null=True)
     major = models.CharField(max_length=200, blank=True, null=True)
-    student_id = models.CharField(max_length=15, blank=True, null=True)
     language = models.CharField(max_length=32, blank=True, null=True)
     # for ACM
     accepted_number = models.IntegerField(default=0)

@@ -1,20 +1,19 @@
 import os
 import qrcode
-from io import BytesIO
 from datetime import timedelta
 from otpauth import OtpAuth
 
 from django.conf import settings
 from django.contrib import auth
 from django.utils.timezone import now
-from django.http import HttpResponse
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.utils.decorators import method_decorator
+from django.template.loader import render_to_string
 
 from conf.models import WebsiteConfig
 from utils.api import APIView, validate_serializer, CSRFExemptAPIView
 from utils.captcha import Captcha
-from utils.shortcuts import rand_str
+from utils.shortcuts import rand_str, img2base64
 
 from ..decorators import login_required
 from ..models import User, UserProfile
@@ -29,16 +28,14 @@ from ..tasks import send_email_async
 
 
 class UserProfileAPI(APIView):
-    """
-    判断是否登录， 若登录返回用户信息
-    """
-
     @method_decorator(ensure_csrf_cookie)
     def get(self, request, **kwargs):
+        """
+        判断是否登录， 若登录返回用户信息
+        """
         user = request.user
         if not user.is_authenticated():
             return self.success(0)
-
         username = request.GET.get("username")
         try:
             if username:
@@ -55,19 +52,10 @@ class UserProfileAPI(APIView):
     def put(self, request):
         data = request.data
         user_profile = request.user.userprofile
-        print(data)
-        if data.get("avatar"):
-            user_profile.avatar = data["avatar"]
-        else:
-            user_profile.mood = data["mood"]
-            user_profile.blog = data["blog"]
-            user_profile.school = data["school"]
-            user_profile.student_id = data["student_id"]
-            user_profile.phone_number = data["phone_number"]
-            user_profile.major = data["major"]
-            # Timezone & language 暂时不加
+        for k, v in data.items():
+            setattr(user_profile, k, v)
         user_profile.save()
-        return self.success("Succeeded")
+        return self.success(UserProfileSerializer(user_profile).data)
 
 
 class AvatarUploadAPI(CSRFExemptAPIView):
@@ -137,11 +125,9 @@ class TwoFactorAuthAPI(APIView):
         user.save()
 
         config = WebsiteConfig.objects.first()
-        image = qrcode.make(OtpAuth(token).to_uri("totp", config.base_url, config.name))
-        buf = BytesIO()
-        image.save(buf, "gif")
-
-        return HttpResponse(buf.getvalue(), "image/gif")
+        label = f"{config.name_shortcut}:{user.username}@{config.base_url}"
+        image = qrcode.make(OtpAuth(token).to_uri("totp", label, config.name))
+        return self.success(img2base64(image))
 
     @login_required
     @validate_serializer(TwoFactorAuthCodeSerializer)
@@ -215,17 +201,17 @@ class UsernameOrEmailCheck(APIView):
         check username or email is duplicate
         """
         data = request.data
-        # True means OK.
+        # True means already exist.
         result = {
-            "username": True,
-            "email": True
+            "username": False,
+            "email": False
         }
         if data.get("username"):
             if User.objects.filter(username=data["username"]).exists():
-                result["username"] = False
+                result["username"] = True
         if data.get("email"):
             if User.objects.filter(email=data["email"]).exists():
-                result["email"] = False
+                result["email"] = True
         return self.success(result)
 
 
@@ -259,9 +245,6 @@ class UserChangePasswordAPI(APIView):
         User change password api
         """
         data = request.data
-        captcha = Captcha(request)
-        if not captcha.check(data["captcha"]):
-            return self.error("Invalid captcha")
         username = request.user.username
         user = auth.authenticate(username=username, password=data["old_password"])
         if user:
@@ -284,24 +267,23 @@ class ApplyResetPasswordAPI(APIView):
             user = User.objects.get(email=data["email"])
         except User.DoesNotExist:
             return self.error("User does not exist")
-        if user.reset_password_token_expire_time and 0 < (
-                    user.reset_password_token_expire_time - now()).total_seconds() < 20 * 60:
+        if user.reset_password_token_expire_time and \
+                                0 < int((user.reset_password_token_expire_time - now()).total_seconds()) < 20 * 60:
             return self.error("You can only reset password once per 20 minutes")
         user.reset_password_token = rand_str()
-
         user.reset_password_token_expire_time = now() + timedelta(minutes=20)
         user.save()
-        email_template = open("reset_password_email.html", "w",
-                              encoding="utf-8").read()
-        email_template = email_template.replace("{{ username }}", user.username). \
-            replace("{{ website_name }}", settings.WEBSITE_INFO["website_name"]). \
-            replace("{{ link }}", settings.WEBSITE_INFO["url"] + "/reset_password/t/" +
-                    user.reset_password_token)
+        render_data = {
+            "username": user.username,
+            "website_name": config.name,
+            "link": f"{config.base_url}/reset-password/{user.reset_password_token}"
+        }
+        email_html = render_to_string('reset_password_email.html', render_data)
         send_email_async.delay(config.name,
                                user.email,
                                user.username,
                                config.name + " 登录信息找回邮件",
-                               email_template)
+                               email_html)
         return self.success("Succeeded")
 
 
@@ -316,8 +298,8 @@ class ResetPasswordAPI(APIView):
             user = User.objects.get(reset_password_token=data["token"])
         except User.DoesNotExist:
             return self.error("Token dose not exist")
-        if 0 < (user.reset_password_token_expire_time - now()).total_seconds() < 30 * 60:
-            return self.error("Token expired")
+        if int((user.reset_password_token_expire_time - now()).total_seconds()) < 0:
+            return self.error("Token have expired")
         user.reset_password_token = None
         user.set_password(data["password"])
         user.save()

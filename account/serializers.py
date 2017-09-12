@@ -35,18 +35,23 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ["id", "username", "real_name", "email", "admin_type", "problem_permission",
+        fields = ["id", "username", "email", "admin_type", "problem_permission",
                   "create_time", "last_login", "two_factor_auth", "open_api", "is_disabled"]
 
 
 class UserProfileSerializer(serializers.ModelSerializer):
     user = UserSerializer()
+    acm_problems_status = serializers.JSONField()
+    oi_problems_status = serializers.JSONField()
 
     class Meta:
         model = UserProfile
 
 
 class UserInfoSerializer(serializers.ModelSerializer):
+    acm_problems_status = serializers.JSONField()
+    oi_problems_status = serializers.JSONField()
+
     class Meta:
         model = UserProfile
 
@@ -54,7 +59,6 @@ class UserInfoSerializer(serializers.ModelSerializer):
 class EditUserSerializer(serializers.Serializer):
     id = serializers.IntegerField()
     username = serializers.CharField(max_length=30)
-    real_name = serializers.CharField(max_length=30)
     password = serializers.CharField(max_length=30, min_length=6, allow_blank=True, required=False, default=None)
     email = serializers.EmailField(max_length=254)
     admin_type = serializers.ChoiceField(choices=(AdminType.REGULAR_USER, AdminType.ADMIN, AdminType.SUPER_ADMIN))
@@ -66,13 +70,13 @@ class EditUserSerializer(serializers.Serializer):
 
 
 class EditUserProfileSerializer(serializers.Serializer):
+    real_name = serializers.CharField(max_length=30)
     avatar = serializers.CharField(max_length=100, allow_null=True, required=False)
     blog = serializers.URLField(allow_null=True, required=False)
     mood = serializers.CharField(max_length=200, allow_null=True, required=False)
     phone_number = serializers.CharField(max_length=15, allow_null=True, required=False, )
     school = serializers.CharField(max_length=200, allow_null=True, required=False)
     major = serializers.CharField(max_length=200, allow_null=True, required=False)
-    student_id = serializers.CharField(max_length=15, allow_null=True, required=False)
 
 
 class ApplyResetPasswordSerializer(serializers.Serializer):

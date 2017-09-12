@@ -36,7 +36,7 @@ class JudgeDispatcher(object):
         self.redis_conn = judge_cache
         self.submission = Submission.objects.get(pk=submission_id)
         if self.submission.contest_id:
-            self.problem = ContestProblem.objects.select_related("contest")\
+            self.problem = ContestProblem.objects.select_related("contest") \
                 .get(_id=problem_id, contest_id=self.submission.contest_id)
             self.contest = self.problem.contest
         else:
@@ -114,7 +114,8 @@ class JudgeDispatcher(object):
             # todo OI statistic_info["score"]
 
             error_test_case = list(filter(lambda case: case["result"] != 0, resp["data"]))
-            # 多个测试点全部正确则AC，否则 ACM模式下取第一个错误的测试点的状态, OI模式若全部错误则取第一个错误测试点状态，否则为部分正确
+            # ACM模式下,多个测试点全部正确则AC，否则取第一个错误的测试点的状态
+            # OI模式下, 若多个测试点全部正确则AC， 若全部错误则取第一个错误测试点状态，否则为部分正确
             if not error_test_case:
                 self.submission.result = JudgeStatus.ACCEPTED
             elif self.problem.rule_type == ProblemRuleType.ACM or len(error_test_case) == len(resp["data"]):
@@ -125,11 +126,9 @@ class JudgeDispatcher(object):
         self.release_judge_res(server.id)
 
         self.update_problem_status()
-
         if self.submission.contest_id:
             self.update_contest_rank()
-        else:
-            self.update_user_profile()
+
         # 至此判题结束，尝试处理任务队列中剩余的任务
         process_pending_task()
 
@@ -140,53 +139,71 @@ class JudgeDispatcher(object):
         return self._request(urljoin(service_url, "compile_spj"), data=data)
 
     def update_problem_status(self):
-        self.problem.add_submission_number()
-        if self.submission.result == JudgeStatus.ACCEPTED:
-            self.problem.add_ac_number()
         with transaction.atomic():
+            # prepare problem and user_profile
             if self.submission.contest_id:
-                problem = ContestProblem.objects.select_for_update().get(_id=self.problem._id, contest_id=self.contest.id)
+                problem = ContestProblem.objects.select_for_update().get(contest_id=self.contest.id,
+                                                                         _id=self.problem._id)
             else:
-                problem = Problem.objects.select_related().get(_id=self.problem._id)
-            info = problem.statistic_info
-            result = str(self.submission.result)
-            info[result] = info.get(result, 0) + 1
-            problem.statistic_info = info
-            problem.save(update_fields=["statistic_info"])
-
-    def update_user_profile(self):
-        with transaction.atomic():
-            user = User.objects.select_for_update().get(id=self.submission.user_id)
+                problem = Problem.objects.select_for_update().get(_id=self.problem._id)
+            problem_info = problem.statistic_info
+            user = User.objects.select_for_update().select_for_update("userprofile").get(id=self.submission.user_id)
             user_profile = user.userprofile
-            user_profile.add_submission_number()
-            problems_status = user_profile.problems_status
+            if self.submission.contest_id:
+                key = "contest_problems"
+            else:
+                key = "problems"
+            acm_problems_status = user_profile.acm_problems_status.get(key, {})
+            oi_problems_status = user_profile.oi_problems_status.get(key, {})
+
+            # update submission and accepted number counter
+            # only when submission is not in contest, we update user profile,
+            # in other words, users' submission in a contest will not be counted in user profile
+            if not self.submission.contest_id:
+                user_profile.submission_number += 1
+                if self.submission.result == JudgeStatus.ACCEPTED:
+                    user_profile.accepted_number += 1
+            problem.submission_number += 1
+            if self.submission.result == JudgeStatus.ACCEPTED:
+                problem.accepted_number += 1
 
             problem_id = str(self.problem._id)
             if self.problem.rule_type == ProblemRuleType.ACM:
-                if problem_id not in problems_status:
-                    problems_status[problem_id] = {"status": self.submission.result}
+                # update acm problem info
+                result = str(self.submission.result)
+                problem_info[result] = problem_info.get(result, 0) + 1
+                problem.statistic_info = problem_info
+
+                # update user_profile
+                if problem_id not in acm_problems_status:
+                    acm_problems_status[problem_id] = self.submission.result
+                # skip if the problem has been accepted
+                elif acm_problems_status[problem_id] != JudgeStatus.ACCEPTED:
                     if self.submission.result == JudgeStatus.ACCEPTED:
-                        user_profile.add_accepted_problem_number()
-                # 以前提交过, ac了直接略过
-                elif problems_status[problem_id]["status"] != JudgeStatus.ACCEPTED:
-                    if self.submission.result == JudgeStatus.ACCEPTED:
-                        user_profile.add_accepted_problem_number()
-                        problems_status[problem_id]["status"] = JudgeStatus.ACCEPTED
+                        acm_problems_status[problem_id] = JudgeStatus.ACCEPTED
                     else:
-                        problems_status[problem_id]["status"] = self.submission.result
+                        acm_problems_status[problem_id] = self.submission.result
+                user_profile.acm_problems_status[key] = acm_problems_status
 
             else:
+                # update oi problem info
                 score = self.submission.statistic_info["score"]
-                if problem_id not in problems_status:
-                    user_profile.add_score(score)
-                    problems_status[problem_id] = {"score": score}
-                else:
-                    # 加上本次 减掉上次的score
-                    user_profile.add_score(score, problems_status[problem_id]["score"])
-                    problems_status[problem_id] = {"score": score}
+                problem_info[score] = problem_info.get(score, 0) + 1
+                problem.statistic_info = problem_info
 
-            user_profile.problems_status = problems_status
-            user_profile.save(update_fields=["problems_status"])
+                # update user_profile
+                if problem_id not in oi_problems_status:
+                    user_profile.add_score(score)
+                    oi_problems_status[problem_id] = score
+                else:
+                    # minus last time score, add this time score
+                    user_profile.add_score(score, oi_problems_status[problem_id])
+                    oi_problems_status[problem_id] = score
+                user_profile.oi_problems_status[key] = oi_problems_status
+
+            problem.save(update_fields=["submission_number", "accepted_number", "statistic_info"])
+            user_profile.save(
+                update_fields=["submission_number", "accepted_number", "acm_problems_status", "oi_problems_status"])
 
     def update_contest_rank(self):
         if self.contest.real_time_rank:

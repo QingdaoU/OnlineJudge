@@ -27,7 +27,7 @@ class Submission(models.Model):
     user_id = models.IntegerField(db_index=True)
     username = models.CharField(max_length=30)
     code = models.TextField()
-    result = models.IntegerField(default=JudgeStatus.PENDING)
+    result = models.IntegerField(db_index=True, default=JudgeStatus.PENDING)
     # 判题结果的详细信息
     info = JSONField(default={})
     language = models.CharField(max_length=20)

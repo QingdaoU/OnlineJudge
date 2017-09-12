@@ -82,10 +82,7 @@ class Captcha(object):
             x += font_size * random.randrange(6, 8) / 10
 
         self.django_request.session[self.session_key] = "".join(code)
-        with BytesIO() as buf:
-            image.save(buf, "gif")
-            buf_str = buf.getvalue()
-        return buf_str
+        return image
 
     def check(self, code):
         """

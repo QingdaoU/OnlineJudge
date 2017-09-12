@@ -1,5 +1,7 @@
 import logging
 import random
+from io import BytesIO
+from base64 import b64encode
 
 from django.utils.crypto import get_random_string
 from envelopes import Envelope
@@ -58,3 +60,12 @@ def build_query_string(kv_data, ignore_none=True):
             query_string = "?"
         query_string += (k + "=" + str(v))
     return query_string
+
+
+def img2base64(img):
+    with BytesIO() as buf:
+        img.save(buf, "gif")
+        buf_str = buf.getvalue()
+    img_prefix = "data:image/png;base64,"
+    b64_str = img_prefix + b64encode(buf_str).decode("utf-8")
+    return b64_str

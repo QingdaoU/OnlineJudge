@@ -1,7 +1,7 @@
 
 from account.decorators import login_required, check_contest_permission
 from judge.tasks import judge_task
-# from judge.dispatcher import JudgeDispatcher
+from judge.dispatcher import JudgeDispatcher
 from problem.models import Problem, ProblemRuleType, ContestProblem
 from contest.models import Contest, ContestStatus
 from utils.api import APIView, validate_serializer
@@ -104,11 +104,14 @@ class SubmissionListAPI(APIView):
 
     def process_submissions(self, request, submissions):
         problem_id = request.GET.get("problem_id")
+        myself = request.GET.get("myself")
+        result = request.GET.get("result")
         if problem_id:
             submissions = submissions.filter(problem_id=problem_id)
-
-        if request.GET.get("myself") and request.GET["myself"] == "1":
+        if myself and myself == "1":
             submissions = submissions.filter(user_id=request.user.id)
+        if result:
+            submissions = submissions.filter(result=result)
         data = self.paginate_data(request, submissions)
         data["results"] = SubmissionListSerializer(data["results"], many=True, user=request.user).data
         return self.success(data)

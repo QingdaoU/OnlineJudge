@@ -1,10 +1,10 @@
 from django.db.models import Q
 from utils.api import APIView
 from account.decorators import check_contest_permission
-from ..models import ProblemTag, Problem, ContestProblem
+from ..models import ProblemTag, Problem, ContestProblem, ProblemRuleType
 from ..serializers import ProblemSerializer, TagSerializer
 from ..serializers import ContestProblemSerializer
-
+from contest.models import ContestRuleType
 
 class ProblemTagAPI(APIView):
     def get(self, request):
@@ -41,8 +41,18 @@ class ProblemAPI(APIView):
         difficulty_rank = request.GET.get("difficulty")
         if difficulty_rank:
             problems = problems.filter(difficulty=difficulty_rank)
-
-        return self.success(self.paginate_data(request, problems, ProblemSerializer))
+        # 根据profile 为做过的题目添加标记
+        data = self.paginate_data(request, problems, ProblemSerializer)
+        if request.user.id:
+            profile = request.user.userprofile
+            acm_problems_status = profile.acm_problems_status.get("problems", {})
+            oi_problems_status = profile.oi_problems_status.get("problems", {})
+            for problem in data["results"]:
+                if problem["rule_type"] == ProblemRuleType.ACM:
+                    problem["my_status"] = acm_problems_status.get(problem["_id"], None)
+                else:
+                    problem["my_status"] = oi_problems_status.get(problem["_id"], None)
+        return self.success(data)
 
 
 class ContestProblemAPI(APIView):
@@ -57,4 +67,14 @@ class ContestProblemAPI(APIView):
             return self.success(ContestProblemSerializer(problem).data)
 
         contest_problems = ContestProblem.objects.select_related("created_by").filter(contest=self.contest, visible=True)
+        # 根据profile， 为做过的题目添加标记
+        data = ContestProblemSerializer(contest_problems, many=True).data
+        if request.user.id:
+            profile = request.user.userprofile
+            if self.contest.rule_type == ContestRuleType.ACM:
+                problems_status = profile.acm_problems_status.get("contest_problems", {})
+            else:
+                problems_status = profile.oi_problems_status.get("contest_problems", {})
+            for problem in data:
+                problem["my_status"] = problems_status.get(problem["_id"], None)
         return self.success(ContestProblemSerializer(contest_problems, many=True).data)
