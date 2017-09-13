@@ -1,5 +1,3 @@
-from base64 import b64encode
-
 from . import Captcha
 from ..api import APIView
 from ..shortcuts import img2base64

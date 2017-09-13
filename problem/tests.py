@@ -147,7 +147,7 @@ class ProblemAPITest(APITestCase):
 
     def test_get_problem_list(self):
         self.create_problem()
-        resp = self.client.get(self.url)
+        resp = self.client.get(f"{self.url}?limit=10")
         self.assertSuccess(resp)
 
     def get_one_problem(self):

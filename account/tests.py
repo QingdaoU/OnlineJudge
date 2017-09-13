@@ -194,7 +194,6 @@ class AdminUserTest(APITestCase):
         resp_data = response.data["data"]
         self.assertEqual(resp_data["username"], self.username)
         self.assertEqual(resp_data["email"], "test@qq.com")
-        self.assertEqual(resp_data["real_name"], "test_name")
         self.assertEqual(resp_data["open_api"], True)
         self.assertEqual(resp_data["two_factor_auth"], False)
         self.assertEqual(resp_data["is_disabled"], False)

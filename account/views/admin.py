@@ -39,7 +39,6 @@ class UserAdminAPI(APIView):
             pass
 
         user.username = data["username"]
-        user.real_name = data["real_name"]
         user.email = data["email"]
         user.admin_type = data["admin_type"]
         user.is_disabled = data["is_disabled"]

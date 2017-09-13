@@ -35,6 +35,7 @@ class User(AbstractBaseUser):
     auth_token = models.CharField(max_length=40, null=True)
     two_factor_auth = models.BooleanField(default=False)
     tfa_token = models.CharField(max_length=40, null=True)
+    session_keys = JSONField(default=[])
     # open api key
     open_api = models.BooleanField(default=False)
     open_api_appkey = models.CharField(max_length=35, null=True)

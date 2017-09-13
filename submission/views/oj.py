@@ -1,7 +1,7 @@
 
 from account.decorators import login_required, check_contest_permission
 from judge.tasks import judge_task
-from judge.dispatcher import JudgeDispatcher
+# from judge.dispatcher import JudgeDispatcher
 from problem.models import Problem, ProblemRuleType, ContestProblem
 from contest.models import Contest, ContestStatus
 from utils.api import APIView, validate_serializer

@@ -5,6 +5,7 @@ from otpauth import OtpAuth
 
 from django.conf import settings
 from django.contrib import auth
+from importlib import import_module
 from django.utils.timezone import now
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.utils.decorators import method_decorator
@@ -267,8 +268,8 @@ class ApplyResetPasswordAPI(APIView):
             user = User.objects.get(email=data["email"])
         except User.DoesNotExist:
             return self.error("User does not exist")
-        if user.reset_password_token_expire_time and \
-                                0 < int((user.reset_password_token_expire_time - now()).total_seconds()) < 20 * 60:
+        if user.reset_password_token_expire_time and 0 < int(
+                (user.reset_password_token_expire_time - now()).total_seconds()) < 20 * 60:
             return self.error("You can only reset password once per 20 minutes")
         user.reset_password_token = rand_str()
         user.reset_password_token_expire_time = now() + timedelta(minutes=20)
@@ -278,7 +279,7 @@ class ApplyResetPasswordAPI(APIView):
             "website_name": config.name,
             "link": f"{config.base_url}/reset-password/{user.reset_password_token}"
         }
-        email_html = render_to_string('reset_password_email.html', render_data)
+        email_html = render_to_string("reset_password_email.html", render_data)
         send_email_async.delay(config.name,
                                user.email,
                                user.username,

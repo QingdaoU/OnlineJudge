@@ -15,7 +15,6 @@ import os
 import time
 import random
 
-from io import BytesIO
 from PIL import Image, ImageDraw, ImageFont
 
 

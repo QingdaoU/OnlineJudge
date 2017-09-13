@@ -6,6 +6,7 @@ from ..serializers import ProblemSerializer, TagSerializer
 from ..serializers import ContestProblemSerializer
 from contest.models import ContestRuleType
 
+
 class ProblemTagAPI(APIView):
     def get(self, request):
         return self.success(TagSerializer(ProblemTag.objects.all(), many=True).data)
@@ -21,6 +22,10 @@ class ProblemAPI(APIView):
                 return self.success(ProblemSerializer(problem).data)
             except Problem.DoesNotExist:
                 return self.error("Problem does not exist")
+
+        limit = request.GET.get("limit")
+        if not limit:
+            return self.error("Limit is needed")
 
         problems = Problem.objects.select_related("created_by").filter(visible=True)
         # 按照标签筛选
@@ -61,12 +66,14 @@ class ContestProblemAPI(APIView):
         problem_id = request.GET.get("problem_id")
         if problem_id:
             try:
-                problem = ContestProblem.objects.select_related("created_by").get(_id=problem_id, contest=self.contest, visible=True)
+                problem = ContestProblem.objects.select_related("created_by").get(_id=problem_id, contest=self.contest,
+                                                                                  visible=True)
             except ContestProblem.DoesNotExist:
                 return self.error("Problem does not exist.")
             return self.success(ContestProblemSerializer(problem).data)
 
-        contest_problems = ContestProblem.objects.select_related("created_by").filter(contest=self.contest, visible=True)
+        contest_problems = ContestProblem.objects.select_related("created_by").filter(contest=self.contest,
+                                                                                      visible=True)
         # 根据profile， 为做过的题目添加标记
         data = ContestProblemSerializer(contest_problems, many=True).data
         if request.user.id:
