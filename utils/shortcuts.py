@@ -69,3 +69,12 @@ def img2base64(img):
     img_prefix = "data:image/png;base64,"
     b64_str = img_prefix + b64encode(buf_str).decode("utf-8")
     return b64_str
+
+
+def datetime2str(value, format="iso-8601"):
+    if format.lower() == "iso-8601":
+        value = value.isoformat()
+        if value.endswith("+00:00"):
+            value = value[:-6] + "Z"
+        return value
+    return value.strftime(format)

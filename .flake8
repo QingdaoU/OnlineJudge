@@ -3,6 +3,7 @@ exclude =
   xss_filter.py,
   */migrations/,
   *settings.py
+  */apps.py
 max-line-length = 180
 inline-quotes = "
 no-accept-encodings = True

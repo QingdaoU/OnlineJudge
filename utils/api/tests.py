@@ -3,12 +3,14 @@ from django.test.testcases import TestCase
 from rest_framework.test import APIClient
 
 from account.models import AdminType, ProblemPermission, User, UserProfile
+from conf.models import WebsiteConfig
 
 
 class APITestCase(TestCase):
     client_class = APIClient
 
-    def create_user(self, username, password, admin_type=AdminType.REGULAR_USER, login=True, problem_permission=ProblemPermission.NONE):
+    def create_user(self, username, password, admin_type=AdminType.REGULAR_USER, login=True,
+                    problem_permission=ProblemPermission.NONE):
         user = User.objects.create(username=username, admin_type=admin_type, problem_permission=problem_permission)
         user.set_password(password)
         UserProfile.objects.create(user=user)
@@ -18,12 +20,16 @@ class APITestCase(TestCase):
         return user
 
     def create_admin(self, username="admin", password="admin", login=True):
-        return self.create_user(username=username, password=password, admin_type=AdminType.ADMIN, problem_permission=ProblemPermission.OWN,
+        return self.create_user(username=username, password=password, admin_type=AdminType.ADMIN,
+                                problem_permission=ProblemPermission.OWN,
                                 login=login)
 
     def create_super_admin(self, username="root", password="root", login=True):
         return self.create_user(username=username, password=password, admin_type=AdminType.SUPER_ADMIN,
                                 problem_permission=ProblemPermission.ALL, login=login)
+
+    def create_website_config(self):
+        return WebsiteConfig.objects.create()
 
     def reverse(self, url_name):
         return reverse(url_name)

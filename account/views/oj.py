@@ -14,7 +14,7 @@ from django.template.loader import render_to_string
 from conf.models import WebsiteConfig
 from utils.api import APIView, validate_serializer, CSRFExemptAPIView
 from utils.captcha import Captcha
-from utils.shortcuts import rand_str, img2base64
+from utils.shortcuts import rand_str, img2base64, datetime2str
 
 from ..decorators import login_required
 from ..models import User, UserProfile
@@ -77,7 +77,6 @@ class AvatarUploadAPI(CSRFExemptAPIView):
         with open(os.path.join(settings.IMAGE_UPLOAD_DIR, name), "wb") as img:
             for chunk in avatar:
                 img.write(chunk)
-        print(os.path.join(settings.IMAGE_UPLOAD_DIR, name))
         return self.success({"path": "/static/upload/" + name})
 
 
@@ -126,7 +125,7 @@ class TwoFactorAuthAPI(APIView):
         user.save()
 
         config = WebsiteConfig.objects.first()
-        label = f"{config.name_shortcut}:{user.username}@{config.base_url}"
+        label = f"{config.name_shortcut}:{user.username}"
         image = qrcode.make(OtpAuth(token).to_uri("totp", label, config.name))
         return self.success(img2base64(image))
 
@@ -143,18 +142,38 @@ class TwoFactorAuthAPI(APIView):
             user.save()
             return self.success("Succeeded")
         else:
-            return self.error("Invalid captcha")
+            return self.error("Invalid code")
 
     @login_required
     @validate_serializer(TwoFactorAuthCodeSerializer)
     def put(self, request):
         code = request.data["code"]
         user = request.user
+        if not user.two_factor_auth:
+            return self.error("Other session have disabled TFA")
         if OtpAuth(user.tfa_token).valid_totp(code):
             user.two_factor_auth = False
             user.save()
+            return self.success("Succeeded")
         else:
-            return self.error("Invalid captcha")
+            return self.error("Invalid code")
+
+
+class CheckTFARequiredAPI(APIView):
+    @validate_serializer(UsernameOrEmailCheckSerializer)
+    def post(self, request):
+        """
+        Check TFA is required
+        """
+        data = request.data
+        result = False
+        if data.get("username"):
+            try:
+                user = User.objects.get(username=data["username"])
+                result = user.two_factor_auth
+            except User.DoesNotExist:
+                pass
+        return self.success({"result": result})
 
 
 class UserLoginAPI(APIView):
@@ -173,7 +192,7 @@ class UserLoginAPI(APIView):
 
             # `tfa_code` not in post data
             if user.two_factor_auth and "tfa_code" not in data:
-                return self.success("tfa_required")
+                return self.error("tfa_required")
 
             if OtpAuth(user.tfa_token).valid_totp(data["tfa_code"]):
                 auth.login(request, user)
@@ -302,9 +321,53 @@ class ResetPasswordAPI(APIView):
         if int((user.reset_password_token_expire_time - now()).total_seconds()) < 0:
             return self.error("Token have expired")
         user.reset_password_token = None
+        user.two_factor_auth = False
         user.set_password(data["password"])
         user.save()
         return self.success("Succeeded")
+
+
+class SessionManagementAPI(APIView):
+    @login_required
+    def get(self, request):
+        engine = import_module(settings.SESSION_ENGINE)
+        SessionStore = engine.SessionStore
+        current_session = request.COOKIES.get(settings.SESSION_COOKIE_NAME)
+        session_keys = request.user.session_keys
+        result = []
+        modified = False
+        for key in session_keys[:]:
+            session = SessionStore(key)
+            # session does not exist or is expiry
+            if not session._session:
+                session_keys.remove(key)
+                modified = True
+                continue
+
+            s = {}
+            if current_session == key:
+                s["current_session"] = True
+            s["ip"] = session["ip"]
+            s["user_agent"] = session["user_agent"]
+            s["last_login"] = datetime2str(session["last_login"])
+            s["session_key"] = key
+            result.append(s)
+        if modified:
+            request.user.save()
+        return self.success(result)
+
+    @login_required
+    def delete(self, request):
+        session_key = request.GET.get("session_key")
+        if not session_key:
+            return self.error("Parameter Error")
+        request.session.delete(session_key)
+        if session_key in request.user.session_keys:
+            request.user.session_keys.remove(session_key)
+            request.user.save()
+            return self.success("Succeeded")
+        else:
+            return self.error("Invalid session_key")
 
 
 class UserRankAPI(APIView):
