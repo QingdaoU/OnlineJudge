@@ -12,9 +12,9 @@ from django.utils.decorators import method_decorator
 from django.template.loader import render_to_string
 
 from conf.models import WebsiteConfig
-from utils.api import APIView, validate_serializer, CSRFExemptAPIView
+from utils.api import APIView, validate_serializer
 from utils.captcha import Captcha
-from utils.shortcuts import rand_str, img2base64, datetime2str
+from utils.shortcuts import rand_str, img2base64, timestamp2utcstr
 
 from ..decorators import login_required
 from ..models import User, UserProfile
@@ -59,7 +59,7 @@ class UserProfileAPI(APIView):
         return self.success(UserProfileSerializer(user_profile).data)
 
 
-class AvatarUploadAPI(CSRFExemptAPIView):
+class AvatarUploadAPI(APIView):
     request_parsers = ()
 
     def post(self, request):
@@ -67,17 +67,26 @@ class AvatarUploadAPI(CSRFExemptAPIView):
         if form.is_valid():
             avatar = form.cleaned_data["file"]
         else:
-            return self.error("Upload failed")
-        if avatar.size > 1024 * 1024:
-            return self.error("Picture too large")
-        if os.path.splitext(avatar.name)[-1].lower() not in [".gif", ".jpg", ".jpeg", ".bmp", ".png"]:
+            return self.error("Invalid file content")
+        # 2097152 = 2 * 1024 * 1024 = 2MB
+        if avatar.size > 2097152:
+            return self.error("Picture is too large")
+        suffix = os.path.splitext(avatar.name)[-1].lower()
+        if suffix not in [".gif", ".jpg", ".jpeg", ".bmp", ".png"]:
             return self.error("Unsupported file format")
 
-        name = "avatar_" + rand_str(5) + os.path.splitext(avatar.name)[-1]
-        with open(os.path.join(settings.IMAGE_UPLOAD_DIR, name), "wb") as img:
+        name = rand_str(10) + suffix
+        with open(os.path.join(settings.IMAGE_UPLOAD_DIR_ABS, name), "wb") as img:
             for chunk in avatar:
                 img.write(chunk)
-        return self.success({"path": "/static/upload/" + name})
+        user_profile = request.user.userprofile
+        _, old_avatar = os.path.split(user_profile.avatar)
+        if old_avatar != "default.png":
+            os.remove(os.path.join(settings.IMAGE_UPLOAD_DIR_ABS, old_avatar))
+
+        user_profile.avatar = f"/{settings.IMAGE_UPLOAD_DIR}/{name}"
+        user_profile.save()
+        return self.success("Succeeded")
 
 
 class SSOAPI(APIView):
@@ -333,6 +342,7 @@ class SessionManagementAPI(APIView):
         engine = import_module(settings.SESSION_ENGINE)
         SessionStore = engine.SessionStore
         current_session = request.COOKIES.get(settings.SESSION_COOKIE_NAME)
+        current_session = request.session.session_key
         session_keys = request.user.session_keys
         result = []
         modified = False
@@ -349,7 +359,7 @@ class SessionManagementAPI(APIView):
                 s["current_session"] = True
             s["ip"] = session["ip"]
             s["user_agent"] = session["user_agent"]
-            s["last_login"] = datetime2str(session["last_login"])
+            s["last_activity"] = timestamp2utcstr(session["last_activity"])
             s["session_key"] = key
             result.append(s)
         if modified:

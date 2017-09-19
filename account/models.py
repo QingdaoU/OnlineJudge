@@ -1,4 +1,5 @@
 from django.contrib.auth.models import AbstractBaseUser
+from django.conf import settings
 from django.db import models
 from jsonfield import JSONField
 
@@ -62,9 +63,8 @@ class User(AbstractBaseUser):
         db_table = "user"
 
 
-def _random_avatar():
-    import random
-    return "/static/img/avatar/avatar-" + str(random.randint(1, 20)) + ".png"
+def _default_avatar():
+    return f"/{settings.IMAGE_UPLOAD_DIR}/default.png"
 
 
 class UserProfile(models.Model):
@@ -76,7 +76,7 @@ class UserProfile(models.Model):
     oi_problems_status = JSONField(default={})
 
     real_name = models.CharField(max_length=30, blank=True, null=True)
-    avatar = models.CharField(max_length=50, default=_random_avatar)
+    avatar = models.CharField(max_length=50, default=_default_avatar)
     blog = models.URLField(blank=True, null=True)
     mood = models.CharField(max_length=200, blank=True, null=True)
     phone_number = models.CharField(max_length=15, blank=True, null=True)

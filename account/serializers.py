@@ -70,13 +70,13 @@ class EditUserSerializer(serializers.Serializer):
 
 
 class EditUserProfileSerializer(serializers.Serializer):
-    real_name = serializers.CharField(max_length=30)
-    avatar = serializers.CharField(max_length=100, allow_null=True, required=False)
-    blog = serializers.URLField(allow_null=True, required=False)
-    mood = serializers.CharField(max_length=200, allow_null=True, required=False)
-    phone_number = serializers.CharField(max_length=15, allow_null=True, required=False, )
-    school = serializers.CharField(max_length=200, allow_null=True, required=False)
-    major = serializers.CharField(max_length=200, allow_null=True, required=False)
+    real_name = serializers.CharField(max_length=30, allow_blank=True)
+    avatar = serializers.CharField(max_length=100, allow_blank=True, required=False)
+    blog = serializers.URLField(allow_blank=True, required=False)
+    mood = serializers.CharField(max_length=200, allow_blank=True, required=False)
+    phone_number = serializers.CharField(max_length=15, allow_blank=True, required=False, )
+    school = serializers.CharField(max_length=200, allow_blank=True, required=False)
+    major = serializers.CharField(max_length=200, allow_blank=True, required=False)
 
 
 class ApplyResetPasswordSerializer(serializers.Serializer):

@@ -58,6 +58,7 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.security.SecurityMiddleware',
     'account.middleware.AdminRoleRequiredMiddleware',
     'account.middleware.SessionSecurityMiddleware',
+    'account.middleware.SessionRecordMiddleware',
     # 'account.middleware.LogSqlMiddleware',
 )
 SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
@@ -213,7 +214,8 @@ BROKER_URL = 'redis://%s:%s/%s' % (REDIS_QUEUE["host"], str(REDIS_QUEUE["port"])
 CELERY_ACCEPT_CONTENT = ["json"]
 CELERY_TASK_SERIALIZER = "json"
 
-IMAGE_UPLOAD_DIR = os.path.join(BASE_DIR, 'upload/')
+IMAGE_UPLOAD_DIR = 'static/avatar'
+IMAGE_UPLOAD_DIR_ABS = os.path.join(BASE_DIR, IMAGE_UPLOAD_DIR)
 
 # 用于限制用户恶意提交大量代码
 TOKEN_BUCKET_DEFAULT_CAPACITY = 50

@@ -1,5 +1,6 @@
 import logging
 import random
+import datetime
 from io import BytesIO
 from base64 import b64encode
 
@@ -78,3 +79,7 @@ def datetime2str(value, format="iso-8601"):
             value = value[:-6] + "Z"
         return value
     return value.strftime(format)
+
+
+def timestamp2utcstr(value):
+    return datetime.datetime.utcfromtimestamp(value).isoformat()
