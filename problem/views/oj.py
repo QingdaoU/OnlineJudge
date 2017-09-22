@@ -43,9 +43,9 @@ class ProblemAPI(APIView):
             problems = problems.filter(Q(title__contains=keyword) | Q(description__contains=keyword))
 
         # 难度筛选
-        difficulty_rank = request.GET.get("difficulty")
-        if difficulty_rank:
-            problems = problems.filter(difficulty=difficulty_rank)
+        difficulty = request.GET.get("difficulty")
+        if difficulty:
+            problems = problems.filter(difficulty=difficulty)
         # 根据profile 为做过的题目添加标记
         data = self.paginate_data(request, problems, ProblemSerializer)
         if request.user.id:

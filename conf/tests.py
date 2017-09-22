@@ -76,7 +76,7 @@ class WebsiteConfigAPITest(APITestCase):
         url = self.reverse("website_info_api")
         resp = self.client.get(url)
         self.assertSuccess(resp)
-        self.assertEqual(resp.data["data"]["name_shortcut"], "oj")
+        self.assertEqual(resp.data["data"]["name_shortcut"], "test oj")
 
 
 class JudgeServerHeartbeatTest(APITestCase):

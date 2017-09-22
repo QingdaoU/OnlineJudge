@@ -74,7 +74,7 @@ class EditUserProfileSerializer(serializers.Serializer):
     avatar = serializers.CharField(max_length=100, allow_blank=True, required=False)
     blog = serializers.URLField(allow_blank=True, required=False)
     mood = serializers.CharField(max_length=200, allow_blank=True, required=False)
-    phone_number = serializers.CharField(max_length=15, allow_blank=True, required=False, )
+    github = serializers.CharField(max_length=50, allow_blank=True, required=False)
     school = serializers.CharField(max_length=200, allow_blank=True, required=False)
     major = serializers.CharField(max_length=200, allow_blank=True, required=False)
 

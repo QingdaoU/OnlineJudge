@@ -8,8 +8,11 @@ from otpauth import OtpAuth
 
 from utils.api.tests import APIClient, APITestCase
 from utils.shortcuts import rand_str
+from utils.cache import default_cache
+from utils.constants import CacheKey
 
 from .models import AdminType, ProblemPermission, User
+from conf.models import WebsiteConfig
 
 
 class PermissionDecoratorTest(APITestCase):
@@ -128,6 +131,13 @@ class UserLoginAPITest(APITestCase):
         user = auth.get_user(self.client)
         self.assertFalse(user.is_authenticated())
 
+    def test_user_disabled(self):
+        self.user.is_disabled = True
+        self.user.save()
+        resp = self.client.post(self.login_url, data={"username": self.username,
+                                                      "password": self.password})
+        self.assertDictEqual(resp.data, {"error": "error", "data": "Your account have been disabled"})
+
 
 class CaptchaTest(APITestCase):
     def _set_captcha(self, session):
@@ -147,6 +157,15 @@ class UserRegisterAPITest(CaptchaTest):
         self.data = {"username": "test_user", "password": "testuserpassword",
                      "real_name": "real_name", "email": "test@qduoj.com",
                      "captcha": self._set_captcha(self.client.session)}
+        # clea cache in redis
+        default_cache.delete(CacheKey.website_config)
+
+    def test_website_config_limit(self):
+        website = WebsiteConfig.objects.create()
+        website.allow_register = False
+        website.save()
+        resp = self.client.post(self.register_url, data=self.data)
+        self.assertDictEqual(resp.data, {"error": "error", "data": "Register have been disabled by admin"})
 
     def test_invalid_captcha(self):
         self.data["captcha"] = "****"

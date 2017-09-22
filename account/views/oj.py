@@ -1,5 +1,6 @@
 import os
 import qrcode
+import pickle
 from datetime import timedelta
 from otpauth import OtpAuth
 
@@ -15,6 +16,8 @@ from conf.models import WebsiteConfig
 from utils.api import APIView, validate_serializer
 from utils.captcha import Captcha
 from utils.shortcuts import rand_str, img2base64, timestamp2utcstr
+from utils.cache import default_cache
+from utils.constants import CacheKey
 
 from ..decorators import login_required
 from ..models import User, UserProfile
@@ -62,6 +65,7 @@ class UserProfileAPI(APIView):
 class AvatarUploadAPI(APIView):
     request_parsers = ()
 
+    @login_required
     def post(self, request):
         form = AvatarUploadForm(request.POST, request.FILES)
         if form.is_valid():
@@ -195,6 +199,8 @@ class UserLoginAPI(APIView):
         user = auth.authenticate(username=data["username"], password=data["password"])
         # None is returned if username or password is wrong
         if user:
+            if user.is_disabled:
+                return self.error("Your account have been disabled")
             if not user.two_factor_auth:
                 auth.login(request, user)
                 return self.success("Succeeded")
@@ -250,6 +256,18 @@ class UserRegisterAPI(APIView):
         """
         User register api
         """
+        config = default_cache.get(CacheKey.website_config)
+        if config:
+            config = pickle.loads(config)
+        else:
+            config = WebsiteConfig.objects.first()
+            if not config:
+                config = WebsiteConfig.objects.create()
+            default_cache.set(CacheKey.website_config, pickle.dumps(config))
+
+        if not config.allow_register:
+            return self.error("Register have been disabled by admin")
+
         data = request.data
         captcha = Captcha(request)
         if not captcha.check(data["captcha"]):
@@ -385,7 +403,9 @@ class UserRankAPI(APIView):
         rule_type = request.GET.get("rule")
         if rule_type not in ["acm", "oi"]:
             rule_type = "acm"
-        profiles = UserProfile.objects.select_related("user").filter(submission_number__gt=0)
+        profiles = UserProfile.objects.select_related("user")\
+            .filter(submission_number__gt=0)\
+            .exclude(user__is_disabled=True)
         if rule_type == "acm":
             profiles = profiles.order_by("-accepted_number", "submission_number")
         else:

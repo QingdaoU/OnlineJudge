@@ -1,4 +1,5 @@
 import hashlib
+import pickle
 
 from django.utils import timezone
 
@@ -7,6 +8,8 @@ from judge.languages import languages, spj_languages
 from judge.dispatcher import process_pending_task
 from utils.api import APIView, CSRFExemptAPIView, validate_serializer
 from utils.shortcuts import rand_str
+from utils.cache import default_cache
+from utils.constants import CacheKey
 
 from .models import JudgeServer, JudgeServerToken, SMTPConfig, WebsiteConfig
 from .serializers import (CreateEditWebsiteConfigSerializer,
@@ -57,9 +60,14 @@ class SMTPTestAPI(APIView):
 
 class WebsiteConfigAPI(APIView):
     def get(self, request):
-        config = WebsiteConfig.objects.first()
-        if not config:
-            config = WebsiteConfig.objects.create()
+        config = default_cache.get(CacheKey.website_config)
+        if config:
+            config = pickle.loads(config)
+        else:
+            config = WebsiteConfig.objects.first()
+            if not config:
+                config = WebsiteConfig.objects.create()
+            default_cache.set(CacheKey.website_config, pickle.dumps(config))
         return self.success(WebsiteConfigSerializer(config).data)
 
     @validate_serializer(CreateEditWebsiteConfigSerializer)
@@ -68,6 +76,7 @@ class WebsiteConfigAPI(APIView):
         data = request.data
         WebsiteConfig.objects.all().delete()
         config = WebsiteConfig.objects.create(**data)
+        default_cache.set(CacheKey.website_config, pickle.dumps(config))
         return self.success(WebsiteConfigSerializer(config).data)
 
 
