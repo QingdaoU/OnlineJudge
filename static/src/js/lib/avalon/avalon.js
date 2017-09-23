@@ -3870,6 +3870,7 @@ var duplexBinding = avalon.directive("duplex", {
         }
         function compositionEnd() {
             composing = false
+            setTimeout(updateVModel)
         }
         var updateVModel = function () {
             var val = elem.value //防止递归调用形成死循环
