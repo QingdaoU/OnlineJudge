@@ -18,13 +18,13 @@ class SubmissionModelSerializer(serializers.ModelSerializer):
         model = Submission
 
 
-# 不显示submission info详情的serializer
+# 不显示submission info的serializer, 用于ACM rule_type
 class SubmissionSafeSerializer(serializers.ModelSerializer):
     statistic_info = serializers.JSONField()
 
     class Meta:
         model = Submission
-        exclude = ("info", "contest_id")
+        exclude = ("info", "contest")
 
 
 class SubmissionListSerializer(serializers.ModelSerializer):
@@ -37,7 +37,7 @@ class SubmissionListSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Submission
-        exclude = ("info", "contest_id", "code")
+        exclude = ("info", "contest", "code")
 
     def get_show_link(self, obj):
         # 没传user或为匿名user

@@ -4,7 +4,6 @@ from judge.languages import language_names, spj_language_names
 from utils.api import DateTimeTZField, UsernameSerializer, serializers
 
 from .models import Problem, ProblemRuleType, ProblemTag
-from .models import ContestProblem
 
 
 class TestCaseUploadForm(forms.Form):
@@ -93,16 +92,16 @@ class ProblemAdminSerializer(BaseProblemSerializer):
 
 class ContestProblemAdminSerializer(BaseProblemSerializer):
     class Meta:
-        model = ContestProblem
+        model = Problem
 
 
 class ProblemSerializer(BaseProblemSerializer):
     class Meta:
         model = Problem
-        exclude = ("test_case_score", "test_case_id", "visible")
+        exclude = ("contest", "test_case_score", "test_case_id", "visible", "is_public")
 
 
 class ContestProblemSerializer(BaseProblemSerializer):
     class Meta:
-        model = ContestProblem
+        model = Problem
         exclude = ("test_case_score", "test_case_id", "visible", "is_public")

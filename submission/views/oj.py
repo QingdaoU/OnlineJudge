@@ -1,8 +1,7 @@
-
 from account.decorators import login_required, check_contest_permission
 from judge.tasks import judge_task
 # from judge.dispatcher import JudgeDispatcher
-from problem.models import Problem, ProblemRuleType, ContestProblem
+from problem.models import Problem, ProblemRuleType
 from contest.models import Contest, ContestStatus
 from utils.api import APIView, validate_serializer
 from utils.throttling import TokenBucket, BucketController
@@ -20,16 +19,15 @@ def _submit(response, user, problem_id, language, code, contest_id):
     bucket = TokenBucket(fill_rate=10, capacity=20,
                          last_capacity=controller.last_capacity,
                          last_timestamp=controller.last_timestamp)
-
     if bucket.consume():
         controller.last_capacity -= 1
     else:
         return response.error("Please wait %d seconds" % int(bucket.expected_time() + 1))
+
     try:
-        if contest_id:
-            problem = ContestProblem.objects.get(_id=problem_id, visible=True)
-        else:
-            problem = Problem.objects.get(_id=problem_id, visible=True)
+        problem = Problem.objects.get(_id=problem_id,
+                                      contest_id=contest_id,
+                                      visible=True)
     except Problem.DoesNotExist:
         return response.error("Problem not exist")
 
@@ -37,11 +35,11 @@ def _submit(response, user, problem_id, language, code, contest_id):
                                            username=user.username,
                                            language=language,
                                            code=code,
-                                           problem_id=problem._id,
+                                           problem_id=problem.id,
                                            contest_id=contest_id)
     # use this for debug
-    # JudgeDispatcher(submission.id, problem._id).judge()
-    judge_task.delay(submission.id, problem._id)
+    # JudgeDispatcher(submission.id, problem.id).judge()
+    judge_task.delay(submission.id, problem.id)
     return response.success({"submission_id": submission.id})
 
 
@@ -65,32 +63,21 @@ class SubmissionAPI(APIView):
         if not submission_id:
             return self.error("Parameter id doesn't exist.")
         try:
-            submission = Submission.objects.get(id=submission_id)
+            submission = Submission.objects.select_related("problem").get(id=submission_id)
         except Submission.DoesNotExist:
             return self.error("Submission doesn't exist.")
         if not submission.check_user_permission(request.user):
             return self.error("No permission for this submission.")
 
-        if submission.contest_id:
-            # check problem'rule is ACM or IO.
-            if ContestProblem.objects.filter(contest_id=submission.contest_id,
-                                             _id=submission.problem_id,
-                                             visible=True,
-                                             rule_type=ProblemRuleType.ACM
-                                             ).exists():
-                return self.success(SubmissionSafeSerializer(submission).data)
-            return self.success(SubmissionModelSerializer(submission).data)
-
-        if Problem.objects.filter(_id=submission.problem_id,
-                                  visible=True,
-                                  rule_type=ProblemRuleType.ACM
-                                  ).exists():
+        if submission.problem.rule_type == ProblemRuleType.ACM:
             return self.success(SubmissionSafeSerializer(submission).data)
         return self.success(SubmissionModelSerializer(submission).data)
 
 
 class SubmissionListAPI(APIView):
     def get(self, request):
+        if not request.GET.get("limit"):
+            return self.error("Limit is needed")
         if request.GET.get("contest_id"):
             return self._get_contest_submission_list(request)
 
@@ -107,7 +94,11 @@ class SubmissionListAPI(APIView):
         myself = request.GET.get("myself")
         result = request.GET.get("result")
         if problem_id:
-            submissions = submissions.filter(problem_id=problem_id)
+            try:
+                problem = Problem.objects.get(_id=problem_id, visible=True)
+            except Problem.DoesNotExist:
+                return self.error("Problem doesn't exist")
+            submissions = problem.submission_set.all()
         if myself and myself == "1":
             submissions = submissions.filter(user_id=request.user.id)
         if result:

@@ -24,7 +24,12 @@ class ProblemDifficulty(object):
     Low = "Low"
 
 
-class AbstractProblem(models.Model):
+class Problem(models.Model):
+    # display ID
+    _id = models.CharField(max_length=24, db_index=True)
+    contest = models.ForeignKey(Contest, null=True, blank=True)
+    # for contest problem
+    is_public = models.BooleanField(default=False)
     title = models.CharField(max_length=128)
     # HTML
     description = RichTextField()
@@ -33,6 +38,7 @@ class AbstractProblem(models.Model):
     # [{input: "test", output: "123"}, {input: "test123", output: "456"}]
     samples = JSONField()
     test_case_id = models.CharField(max_length=32)
+    # [{"input_name": "1.in", "output_name": "1.out", "score": 0}]
     test_case_score = JSONField()
     hint = RichTextField(blank=True, null=True)
     languages = JSONField()
@@ -55,6 +61,8 @@ class AbstractProblem(models.Model):
     difficulty = models.CharField(max_length=32)
     tags = models.ManyToManyField(ProblemTag)
     source = models.CharField(max_length=200, blank=True, null=True)
+    # for OI mode
+    total_score = models.IntegerField(default=0, blank=True)
     submission_number = models.BigIntegerField(default=0)
     accepted_number = models.BigIntegerField(default=0)
     # ACM rule_type: {JudgeStatus.ACCEPTED: 3, JudgeStaus.WRONG_ANSWER: 11}, the number means count
@@ -62,7 +70,7 @@ class AbstractProblem(models.Model):
 
     class Meta:
         db_table = "problem"
-        abstract = True
+        unique_together = (("_id", "contest"),)
 
     def add_submission_number(self):
         self.submission_number = models.F("submission_number") + 1
@@ -71,18 +79,3 @@ class AbstractProblem(models.Model):
     def add_ac_number(self):
         self.accepted_number = models.F("accepted_number") + 1
         self.save(update_fields=["accepted_number"])
-
-
-class Problem(AbstractProblem):
-    _id = models.CharField(max_length=24, unique=True, db_index=True)
-
-
-class ContestProblem(AbstractProblem):
-    _id = models.CharField(max_length=24, db_index=True)
-    contest = models.ForeignKey(Contest)
-    # 是否已经公开了题目，防止重复公开
-    is_public = models.BooleanField(default=False)
-
-    class Meta:
-        db_table = "contest_problem"
-        unique_together = (("_id", "contest"),)

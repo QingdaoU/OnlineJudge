@@ -1,6 +1,8 @@
 from django.db import models
 from jsonfield import JSONField
 from account.models import AdminType
+from problem.models import Problem
+from contest.models import Contest
 
 from utils.shortcuts import rand_str
 
@@ -21,8 +23,8 @@ class JudgeStatus:
 
 class Submission(models.Model):
     id = models.CharField(max_length=32, default=rand_str, primary_key=True, db_index=True)
-    contest_id = models.IntegerField(db_index=True, null=True)
-    problem_id = models.IntegerField(db_index=True)
+    contest = models.ForeignKey(Contest, null=True)
+    problem = models.ForeignKey(Problem)
     create_time = models.DateTimeField(auto_now_add=True)
     user_id = models.IntegerField(db_index=True)
     username = models.CharField(max_length=30)

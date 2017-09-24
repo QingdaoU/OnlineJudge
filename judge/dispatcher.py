@@ -12,7 +12,7 @@ from account.models import User
 from conf.models import JudgeServer, JudgeServerToken
 from contest.models import ContestRuleType, ACMContestRank, OIContestRank
 from judge.languages import languages
-from problem.models import Problem, ProblemRuleType, ContestProblem
+from problem.models import Problem, ProblemRuleType
 from submission.models import JudgeStatus, Submission
 from utils.cache import judge_cache
 from utils.constants import CacheKey
@@ -35,12 +35,13 @@ class JudgeDispatcher(object):
         self.token = hashlib.sha256(token.encode("utf-8")).hexdigest()
         self.redis_conn = judge_cache
         self.submission = Submission.objects.get(pk=submission_id)
-        if self.submission.contest_id:
-            self.problem = ContestProblem.objects.select_related("contest") \
-                .get(_id=problem_id, contest_id=self.submission.contest_id)
+        self.contest_id = self.submission.contest_id
+        if self.contest_id:
+            self.problem = Problem.objects.select_related("contest") \
+                .get(id=problem_id, contest_id=self.contest_id)
             self.contest = self.problem.contest
         else:
-            self.problem = Problem.objects.get(_id=problem_id)
+            self.problem = Problem.objects.get(id=problem_id)
 
     def _request(self, url, data=None):
         kwargs = {"headers": {"X-Judge-Server-Token": self.token,
@@ -72,10 +73,28 @@ class JudgeDispatcher(object):
             server.used_instance_number = F("task_number") - 1
             server.save()
 
+    def _compute_statistic_info(self, resp_data):
+        # 用时和内存占用保存为多个测试点中最长的那个
+        self.submission.statistic_info["time_cost"] = max([x["cpu_time"] for x in resp_data])
+        self.submission.statistic_info["memory_cost"] = max([x["memory"] for x in resp_data])
+
+        # sum up the score in OI mode
+        if self.problem.rule_type == ProblemRuleType.OI:
+            score = 0
+            try:
+                for i in range(len(resp_data)):
+                    if resp_data[i]["result"] == JudgeStatus.ACCEPTED:
+                        score += self.problem.test_case_score[i]["score"]
+            except IndexError:
+                logger.error(f"Index Error raised when summing up the score in problem {self.problem.id}")
+                self.submission.statistic_info["score"] = 0
+                return
+            self.submission.statistic_info["score"] = score
+
     def judge(self, output=False):
         server = self.choose_judge_server()
         if not server:
-            data = {"submission_id": self.submission.id, "problem_id": self.problem._id}
+            data = {"submission_id": self.submission.id, "problem_id": self.problem.id}
             self.redis_conn.lpush(CacheKey.waiting_queue, json.dumps(data))
             return
 
@@ -108,11 +127,7 @@ class JudgeDispatcher(object):
             self.submission.result = JudgeStatus.COMPILE_ERROR
             self.submission.statistic_info["err_info"] = resp["data"]
         else:
-            # 用时和内存占用保存为多个测试点中最长的那个
-            self.submission.statistic_info["time_cost"] = max([x["cpu_time"] for x in resp["data"]])
-            self.submission.statistic_info["memory_cost"] = max([x["memory"] for x in resp["data"]])
-            # todo OI statistic_info["score"]
-
+            self._compute_statistic_info(resp["data"])
             error_test_case = list(filter(lambda case: case["result"] != 0, resp["data"]))
             # ACM模式下,多个测试点全部正确则AC，否则取第一个错误的测试点的状态
             # OI模式下, 若多个测试点全部正确则AC， 若全部错误则取第一个错误测试点状态，否则为部分正确
@@ -126,7 +141,7 @@ class JudgeDispatcher(object):
         self.release_judge_res(server.id)
 
         self.update_problem_status()
-        if self.submission.contest_id:
+        if self.contest_id:
             self.update_contest_rank()
 
         # 至此判题结束，尝试处理任务队列中剩余的任务
@@ -141,15 +156,11 @@ class JudgeDispatcher(object):
     def update_problem_status(self):
         with transaction.atomic():
             # prepare problem and user_profile
-            if self.submission.contest_id:
-                problem = ContestProblem.objects.select_for_update().get(contest_id=self.contest.id,
-                                                                         _id=self.problem._id)
-            else:
-                problem = Problem.objects.select_for_update().get(_id=self.problem._id)
+            problem = Problem.objects.select_for_update().get(contest_id=self.contest_id, id=self.problem.id)
             problem_info = problem.statistic_info
             user = User.objects.select_for_update().select_for_update("userprofile").get(id=self.submission.user_id)
             user_profile = user.userprofile
-            if self.submission.contest_id:
+            if self.contest_id:
                 key = "contest_problems"
             else:
                 key = "problems"
@@ -159,7 +170,7 @@ class JudgeDispatcher(object):
             # update submission and accepted number counter
             # only when submission is not in contest, we update user profile,
             # in other words, users' submission in a contest will not be counted in user profile
-            if not self.submission.contest_id:
+            if not self.contest_id:
                 user_profile.submission_number += 1
                 if self.submission.result == JudgeStatus.ACCEPTED:
                     user_profile.accepted_number += 1
@@ -167,7 +178,7 @@ class JudgeDispatcher(object):
             if self.submission.result == JudgeStatus.ACCEPTED:
                 problem.accepted_number += 1
 
-            problem_id = str(self.problem._id)
+            problem_id = str(self.problem.id)
             if self.problem.rule_type == ProblemRuleType.ACM:
                 # update acm problem info
                 result = str(self.submission.result)
@@ -197,13 +208,13 @@ class JudgeDispatcher(object):
                     oi_problems_status[problem_id] = score
                 else:
                     # minus last time score, add this time score
-                    user_profile.add_score(score, oi_problems_status[problem_id])
+                    user_profile.add_score(this_time_score=score, last_time_score=oi_problems_status[problem_id])
                     oi_problems_status[problem_id] = score
                 user_profile.oi_problems_status[key] = oi_problems_status
 
             problem.save(update_fields=["submission_number", "accepted_number", "statistic_info"])
-            user_profile.save(
-                update_fields=["submission_number", "accepted_number", "acm_problems_status", "oi_problems_status"])
+            user_profile.save(update_fields=[
+                "submission_number", "accepted_number", "acm_problems_status", "oi_problems_status"])
 
     def update_contest_rank(self):
         if self.contest.real_time_rank:
@@ -221,7 +232,7 @@ class JudgeDispatcher(object):
     def _update_acm_contest_rank(self, rank):
         info = rank.submission_info.get(str(self.submission.problem_id))
         # 因前面更改过，这里需要重新获取
-        problem = ContestProblem.objects.get(contest_id=self.contest.id, _id=self.problem._id)
+        problem = Problem.objects.get(contest_id=self.contest_id, _id=self.problem.id)
         # 此题提交过
         if info:
             if info["is_ac"]:
@@ -258,4 +269,10 @@ class JudgeDispatcher(object):
         rank.save()
 
     def _update_oi_contest_rank(self, rank):
-        pass
+        problem_id = str(self.submission.problem_id)
+        current_score = self.submission.statistic_info["score"]
+        last_score = rank.submission_info.get(problem_id)
+        if last_score:
+            rank.total_score = rank.total_score - last_score + current_score
+        rank.submission_info[problem_id] = current_score
+        rank.save()

@@ -1,7 +1,7 @@
 from django.db.models import Q
 from utils.api import APIView
 from account.decorators import check_contest_permission
-from ..models import ProblemTag, Problem, ContestProblem, ProblemRuleType
+from ..models import ProblemTag, Problem, ProblemRuleType
 from ..serializers import ProblemSerializer, TagSerializer
 from ..serializers import ContestProblemSerializer
 from contest.models import ContestRuleType
@@ -66,14 +66,14 @@ class ContestProblemAPI(APIView):
         problem_id = request.GET.get("problem_id")
         if problem_id:
             try:
-                problem = ContestProblem.objects.select_related("created_by").get(_id=problem_id, contest=self.contest,
-                                                                                  visible=True)
-            except ContestProblem.DoesNotExist:
+                problem = Problem.objects.select_related("created_by").get(_id=problem_id,
+                                                                           contest=self.contest,
+                                                                           visible=True)
+            except Problem.DoesNotExist:
                 return self.error("Problem does not exist.")
             return self.success(ContestProblemSerializer(problem).data)
 
-        contest_problems = ContestProblem.objects.select_related("created_by").filter(contest=self.contest,
-                                                                                      visible=True)
+        contest_problems = Problem.objects.select_related("created_by").filter(contest=self.contest, visible=True)
         # 根据profile， 为做过的题目添加标记
         data = ContestProblemSerializer(contest_problems, many=True).data
         if request.user.id:

@@ -10,11 +10,10 @@ from contest.models import Contest
 from utils.api import APIView, CSRFExemptAPIView, validate_serializer
 from utils.shortcuts import rand_str
 
-from ..models import ContestProblem, Problem, ProblemRuleType, ProblemTag
-from ..serializers import (CreateContestProblemSerializer,
+from ..models import Problem, ProblemRuleType, ProblemTag
+from ..serializers import (CreateContestProblemSerializer, ContestProblemAdminSerializer,
                            CreateProblemSerializer, EditProblemSerializer,
-                           ProblemAdminSerializer, TestCaseUploadForm,
-                           ContestProblemAdminSerializer)
+                           ProblemAdminSerializer, TestCaseUploadForm)
 
 
 class TestCaseUploadAPI(CSRFExemptAPIView):
@@ -134,9 +133,13 @@ class ProblemAPI(APIView):
             data["spj_language"] = None
             data["spj_code"] = None
         if data["rule_type"] == ProblemRuleType.OI:
+            total_score = 0
             for item in data["test_case_score"]:
                 if item["score"] <= 0:
                     return self.error("Invalid score")
+                else:
+                    total_score += item["score"]
+            data["total_score"] = total_score
         # todo check filename and score info
         data["created_by"] = request.user
         tags = data.pop("tags")
@@ -211,9 +214,13 @@ class ProblemAPI(APIView):
             data["spj_code"] = None
 
         if data["rule_type"] == ProblemRuleType.OI:
+            total_score = 0
             for item in data["test_case_score"]:
                 if item["score"] <= 0:
                     return self.error("Invalid score")
+                else:
+                    total_score += item["score"]
+            data["total_score"] = total_score
         # todo check filename and score info
         tags = data.pop("tags")
 
@@ -250,11 +257,9 @@ class ContestProblemAPI(APIView):
         _id = data["_id"]
         if not _id:
             return self.error("Display id is required for contest problem")
-        try:
-            ContestProblem.objects.get(_id=_id, contest=contest)
+
+        if Problem.objects.filter(_id=_id, contest=contest).exists():
             return self.error("Duplicate Display id")
-        except ContestProblem.DoesNotExist:
-            pass
 
         if data["spj"]:
             if not data["spj_language"] or not data["spj_code"]:
@@ -275,7 +280,7 @@ class ContestProblemAPI(APIView):
         tags = data.pop("tags")
         data["languages"] = list(data["languages"])
 
-        problem = ContestProblem.objects.create(**data)
+        problem = Problem.objects.create(**data)
 
         for item in tags:
             try:
@@ -291,17 +296,17 @@ class ContestProblemAPI(APIView):
         user = request.user
         if problem_id:
             try:
-                problem = ContestProblem.objects.get(id=problem_id)
+                problem = Problem.objects.get(id=problem_id)
                 if user.is_admin() and problem.contest.created_by != user:
                     return self.error("Problem does not exist")
-            except ContestProblem.DoesNotExist:
+            except Problem.DoesNotExist:
                 return self.error("Problem does not exist")
             return self.success(ProblemAdminSerializer(problem).data)
 
         if not contest_id:
             return self.error("Contest id is required")
 
-        problems = ContestProblem.objects.filter(contest_id=contest_id).order_by("-create_time")
+        problems = Problem.objects.filter(contest_id=contest_id).order_by("-create_time")
         if user.is_admin():
             problems = problems.filter(contest__created_by=user)
         keyword = request.GET.get("keyword")
