@@ -226,7 +226,7 @@ class UserProfileAPITest(APITestCase):
 
     def test_get_profile_without_login(self):
         resp = self.client.get(self.url)
-        self.assertDictEqual(resp.data, {"error": None, "data": 0})
+        self.assertDictEqual(resp.data, {"error": None, "data": {}})
 
     def test_get_profile(self):
         self.create_user("test", "test123")

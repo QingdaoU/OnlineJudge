@@ -39,7 +39,7 @@ class UserProfileAPI(APIView):
         """
         user = request.user
         if not user.is_authenticated():
-            return self.success(0)
+            return self.success({})
         username = request.GET.get("username")
         try:
             if username:

@@ -20,6 +20,7 @@ class SubmissionModelSerializer(serializers.ModelSerializer):
 
 # 不显示submission info的serializer, 用于ACM rule_type
 class SubmissionSafeSerializer(serializers.ModelSerializer):
+    problem = serializers.SlugRelatedField(read_only=True, slug_field="_id")
     statistic_info = serializers.JSONField()
 
     class Meta:
@@ -28,6 +29,7 @@ class SubmissionSafeSerializer(serializers.ModelSerializer):
 
 
 class SubmissionListSerializer(serializers.ModelSerializer):
+    problem = serializers.SlugRelatedField(read_only=True, slug_field="_id")
     statistic_info = serializers.JSONField()
     show_link = serializers.SerializerMethodField()
 

@@ -16,7 +16,7 @@ DEFAULT_PROBLEM_DATA = {"_id": "110", "title": "test", "description": "<p>test</
                         "rule_type": "ACM", "hint": "<p>test</p>", "source": "test"}
 
 DEFAULT_SUBMISSION_DATA = {
-    "problem_id": "110",
+    "problem_id": "1",
     "user_id": 1,
     "username": "test",
     "code": "xxxxxxxxxxxxxx",

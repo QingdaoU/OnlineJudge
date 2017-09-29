@@ -1,3 +1,4 @@
+from account.models import AdminType
 from account.decorators import login_required, check_contest_permission
 from judge.tasks import judge_task
 # from judge.dispatcher import JudgeDispatcher
@@ -25,7 +26,7 @@ def _submit(response, user, problem_id, language, code, contest_id):
         return response.error("Please wait %d seconds" % int(bucket.expected_time() + 1))
 
     try:
-        problem = Problem.objects.get(_id=problem_id,
+        problem = Problem.objects.get(id=problem_id,
                                       contest_id=contest_id,
                                       visible=True)
     except Problem.DoesNotExist:
@@ -53,15 +54,17 @@ class SubmissionAPI(APIView):
                 contest = Contest.objects.get(id=data["contest_id"])
             except Contest.DoesNotExist:
                 return self.error("Contest doesn't exist.")
-            if contest.status != ContestStatus.CONTEST_UNDERWAY and request.user != contest.created_by:
-                return self.error("Contest have not started or have ended, you can't submit code.")
+            if contest.status == ContestStatus.CONTEST_ENDED:
+                return self.error("The contest have ended")
+            if contest.status == ContestStatus.CONTEST_NOT_START and request.user != contest.created_by:
+                return self.error("Contest have not started")
         return _submit(self, request.user, data["problem_id"], data["language"], data["code"], data.get("contest_id"))
 
     @login_required
     def get(self, request):
         submission_id = request.GET.get("id")
         if not submission_id:
-            return self.error("Parameter id doesn't exist.")
+            return self.error("Parameter id do esn't exist.")
         try:
             submission = Submission.objects.select_related("problem").get(id=submission_id)
         except Submission.DoesNotExist:
@@ -86,8 +89,21 @@ class SubmissionListAPI(APIView):
 
     @check_contest_permission
     def _get_contest_submission_list(self, request):
-        subs = Submission.objects.filter(contest_id=self.contest.id)
-        return self.process_submissions(request, subs)
+        contest = self.contest
+        # todo OI mode
+        submissions = Submission.objects.filter(contest_id=contest.id)
+        # filter the test submissions submitted before contest start
+        if contest.status != ContestStatus.CONTEST_NOT_START:
+            print(contest.start_time)
+            submissions = submissions.filter(create_time__gte=contest.start_time)
+
+        # 封榜的时候只能看到自己的提交
+        if not contest.real_time_rank:
+            if request.user and not (
+                    request.user.admin_type == AdminType.SUPER_ADMIN or request.user == contest.created_by):
+                submissions = submissions.filter(user_id=request.user.id)
+
+        return self.process_submissions(request, submissions)
 
     def process_submissions(self, request, submissions):
         problem_id = request.GET.get("problem_id")
@@ -98,7 +114,7 @@ class SubmissionListAPI(APIView):
                 problem = Problem.objects.get(_id=problem_id, visible=True)
             except Problem.DoesNotExist:
                 return self.error("Problem doesn't exist")
-            submissions = problem.submission_set.all()
+            submissions = submissions.filter(problem=problem)
         if myself and myself == "1":
             submissions = submissions.filter(user_id=request.user.id)
         if result:

@@ -3,6 +3,8 @@ import hashlib
 from django.utils import timezone
 
 from utils.api.tests import APITestCase
+from utils.cache import default_cache
+from utils.constants import CacheKey
 
 from .models import JudgeServer, JudgeServerToken, SMTPConfig
 
@@ -76,7 +78,10 @@ class WebsiteConfigAPITest(APITestCase):
         url = self.reverse("website_info_api")
         resp = self.client.get(url)
         self.assertSuccess(resp)
-        self.assertEqual(resp.data["data"]["name_shortcut"], "test oj")
+        self.assertEqual(resp.data["data"]["name_shortcut"], "oj")
+
+    def tearDown(self):
+        default_cache.delete(CacheKey.website_config)
 
 
 class JudgeServerHeartbeatTest(APITestCase):

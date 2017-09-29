@@ -4,17 +4,16 @@ import logging
 from urllib.parse import urljoin
 
 import requests
-from django.core.cache import cache
 from django.db import transaction
 from django.db.models import F
 
 from account.models import User
 from conf.models import JudgeServer, JudgeServerToken
-from contest.models import ContestRuleType, ACMContestRank, OIContestRank
+from contest.models import ContestRuleType, ACMContestRank, OIContestRank, ContestStatus
 from judge.languages import languages
 from problem.models import Problem, ProblemRuleType
 from submission.models import JudgeStatus, Submission
-from utils.cache import judge_cache
+from utils.cache import judge_cache, default_cache
 from utils.constants import CacheKey
 
 logger = logging.getLogger(__name__)
@@ -126,6 +125,7 @@ class JudgeDispatcher(object):
         if resp["err"]:
             self.submission.result = JudgeStatus.COMPILE_ERROR
             self.submission.statistic_info["err_info"] = resp["data"]
+            self.submission.statistic_info["score"] = 0
         else:
             self._compute_statistic_info(resp["data"])
             error_test_case = list(filter(lambda case: case["result"] != 0, resp["data"]))
@@ -154,6 +154,9 @@ class JudgeDispatcher(object):
         return self._request(urljoin(service_url, "compile_spj"), data=data)
 
     def update_problem_status(self):
+        if self.contest_id and self.contest.status != ContestStatus.CONTEST_UNDERWAY:
+            logger.info("Contest debug mode, id: " + str(self.contest_id) + ", submission id: " + self.submission.id)
+            return
         with transaction.atomic():
             # prepare problem and user_profile
             problem = Problem.objects.select_for_update().get(contest_id=self.contest_id, id=self.problem.id)
@@ -168,15 +171,15 @@ class JudgeDispatcher(object):
             oi_problems_status = user_profile.oi_problems_status.get(key, {})
 
             # update submission and accepted number counter
+            problem.submission_number += 1
+            if self.submission.result == JudgeStatus.ACCEPTED:
+                problem.accepted_number += 1
             # only when submission is not in contest, we update user profile,
             # in other words, users' submission in a contest will not be counted in user profile
             if not self.contest_id:
                 user_profile.submission_number += 1
                 if self.submission.result == JudgeStatus.ACCEPTED:
                     user_profile.accepted_number += 1
-            problem.submission_number += 1
-            if self.submission.result == JudgeStatus.ACCEPTED:
-                problem.accepted_number += 1
 
             problem_id = str(self.problem.id)
             if self.problem.rule_type == ProblemRuleType.ACM:
@@ -217,8 +220,10 @@ class JudgeDispatcher(object):
                 "submission_number", "accepted_number", "acm_problems_status", "oi_problems_status"])
 
     def update_contest_rank(self):
+        if self.contest_id and self.contest.status != ContestStatus.CONTEST_UNDERWAY:
+            return
         if self.contest.real_time_rank:
-            cache.delete(str(self.contest.id) + "_rank_cache")
+            default_cache.delete(CacheKey.contest_rank_cache + str(self.contest_id))
         with transaction.atomic():
             if self.contest.rule_type == ContestRuleType.ACM:
                 acm_rank, _ = ACMContestRank.objects.select_for_update(). \
@@ -232,7 +237,7 @@ class JudgeDispatcher(object):
     def _update_acm_contest_rank(self, rank):
         info = rank.submission_info.get(str(self.submission.problem_id))
         # 因前面更改过，这里需要重新获取
-        problem = Problem.objects.get(contest_id=self.contest_id, _id=self.problem.id)
+        problem = Problem.objects.get(contest_id=self.contest_id, id=self.problem.id)
         # 此题提交过
         if info:
             if info["is_ac"]:
