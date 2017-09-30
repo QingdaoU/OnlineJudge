@@ -1,6 +1,7 @@
 import copy
 import os
 import shutil
+from datetime import timedelta
 from zipfile import ZipFile
 
 from django.conf import settings
@@ -9,6 +10,7 @@ from utils.api.tests import APITestCase
 
 from .models import ProblemTag
 from .views.admin import TestCaseUploadAPI
+from contest.models import Contest
 from contest.tests import DEFAULT_CONTEST_DATA
 
 DEFAULT_PROBLEM_DATA = {"_id": "A-110", "title": "test", "description": "<p>test</p>", "input_description": "test",
@@ -193,32 +195,37 @@ class ContestProblemTest(APITestCase):
         self.create_admin()
 
         url = self.reverse("contest_admin_api")
-        self.contest = self.client.post(url, data=DEFAULT_CONTEST_DATA)
-        self.data = DEFAULT_PROBLEM_DATA
-        self.data["contest"] = self.contest.data["data"]["id"]
+        contest_data = copy.deepcopy(DEFAULT_CONTEST_DATA)
+        contest_data["password"] = ""
+        contest_data["start_time"] = contest_data["start_time"] + timedelta(hours=1)
+        self.contest = self.client.post(url, data=contest_data).data["data"]
+
+        problem_data = copy.deepcopy(DEFAULT_PROBLEM_DATA)
+        problem_data["contest"] = self.contest["id"]
         url = self.reverse("contest_problem_admin_api")
-        self.problem = self.client.post(url, self.data)
+        self.problem = self.client.post(url, problem_data).data["data"]
 
     def test_get_contest_problem_list(self):
-        contest_id = self.contest.data["data"]["id"]
+        contest_id = self.contest["id"]
         resp = self.client.get(self.url + "?contest_id=" + str(contest_id))
         self.assertSuccess(resp)
         self.assertEqual(len(resp.data["data"]), 1)
 
     def test_get_one_contest_problem(self):
-        contest_id = self.contest.data["data"]["id"]
-        problem_id = self.problem.data["data"]["_id"]
+        contest_id = self.contest["id"]
+        problem_id = self.problem["_id"]
         resp = self.client.get("{}?contest_id={}&problem_id={}".format(self.url, contest_id, problem_id))
         self.assertSuccess(resp)
 
-    def test_regular_user_get_contest_problem(self):
+    def test_regular_user_get_not_started_contest_problem(self):
         self.create_user("test", "test123")
-        contest_id = self.contest.data["data"]["id"]
-        problem_id = self.problem.data["data"]["_id"]
-        resp = self.client.get("{}?contest_id={}&problem_id={}".format(self.url, contest_id, problem_id))
-        self.assertFailed(resp)
+        resp = self.client.get(self.url + "?contest_id=" + str(self.contest["id"]))
+        self.assertDictEqual(resp.data, {"error": "error", "data": "Contest has not started yet."})
 
-        url = self.reverse("contest_password_api")
-        self.client.post(url, {"contest_id": contest_id, "password": DEFAULT_CONTEST_DATA["password"]})
-        resp = self.client.get("{}?contest_id={}&problem_id={}".format(self.url, contest_id, problem_id))
+    def test_reguar_user_get_started_contest_problem(self):
+        self.create_user("test", "test123")
+        contest = Contest.objects.first()
+        contest.start_time = contest.start_time - timedelta(hours=1)
+        contest.save()
+        resp = self.client.get(self.url + "?contest_id=" + str(self.contest["id"]))
         self.assertSuccess(resp)

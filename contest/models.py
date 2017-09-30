@@ -2,7 +2,7 @@ from django.db import models
 from django.utils.timezone import now
 from jsonfield import JSONField
 
-from account.models import User
+from account.models import User, AdminType
 from utils.models import RichTextField
 
 
@@ -55,6 +55,9 @@ class Contest(models.Model):
         if self.password:
             return ContestType.PASSWORD_PROTECTED_CONTEST
         return ContestType.PUBLIC_CONTEST
+
+    def is_contest_admin(self, user):
+        return user.is_authenticated() and (self.created_by == user or user.admin_type == AdminType.SUPER_ADMIN)
 
     class Meta:
         db_table = "contest"

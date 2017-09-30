@@ -77,7 +77,7 @@ class ContestProblemAPI(APIView):
         contest_problems = Problem.objects.select_related("created_by").filter(contest=self.contest, visible=True)
         # 根据profile， 为做过的题目添加标记
         data = ContestProblemSerializer(contest_problems, many=True).data
-        if request.user.id:
+        if request.user.is_authenticated() and self.contest.rule_type != ContestRuleType.OI:
             profile = request.user.userprofile
             if self.contest.rule_type == ContestRuleType.ACM:
                 problems_status = profile.acm_problems_status.get("contest_problems", {})

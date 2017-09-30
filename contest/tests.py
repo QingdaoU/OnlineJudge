@@ -74,17 +74,17 @@ class ContestAPITest(APITestCase):
         response = self.client.get("{}?id={}".format(self.url, contest_id))
         self.assertSuccess(response)
 
-    def test_contest_password(self):
+    def test_regular_user_validate_contest_password(self):
         contest_id = self.create_contest().data["data"]["id"]
         self.create_user("test", "test123")
         url = self.reverse("contest_password_api")
         resp = self.client.post(url, {"contest_id": contest_id, "password": "error_password"})
-        self.assertFailed(resp)
+        self.assertDictEqual(resp.data, {"error": "error", "data": "Password doesn't match."})
 
         resp = self.client.post(url, {"contest_id": contest_id, "password": DEFAULT_CONTEST_DATA["password"]})
         self.assertSuccess(resp)
 
-    def test_contest_access(self):
+    def test_regular_user_access_contest(self):
         contest_id = self.create_contest().data["data"]["id"]
         self.create_user("test", "test123")
         url = self.reverse("contest_access_api")
@@ -96,18 +96,6 @@ class ContestAPITest(APITestCase):
         self.assertSuccess(resp)
         resp = self.client.get(url + "?contest_id=" + str(contest_id))
         self.assertSuccess(resp)
-
-    # def test_get_not_started_contest(self):
-    #     contest_id = self.create_contest().data["data"]["id"]
-    #     resp = self.client.get(self.url + "?id=" + str(contest_id))
-    #     self.assertSuccess(resp)
-    #
-    #     self.create_user("test", "1234")
-    #     url = self.reverse("contest_password_api")
-    #     resp = self.client.post(url, {"contest_id": contest_id, "password": DEFAULT_CONTEST_DATA["password"]})
-    #     self.assertSuccess(resp)
-    #     resp = self.client.get(self.url + "?id=" + str(contest_id))
-    #     self.assertFailed(resp)
 
 
 class ContestAnnouncementAPITest(APITestCase):

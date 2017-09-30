@@ -5,7 +5,7 @@ from .models import Submission
 from problem.models import Problem, ProblemTag
 from utils.api.tests import APITestCase
 
-DEFAULT_PROBLEM_DATA = {"_id": "110", "title": "test", "description": "<p>test</p>", "input_description": "test",
+DEFAULT_PROBLEM_DATA = {"_id": "A-110", "title": "test", "description": "<p>test</p>", "input_description": "test",
                         "output_description": "test", "time_limit": 1000, "memory_limit": 256, "difficulty": "Low",
                         "visible": True, "tags": ["test"], "languages": ["C", "C++", "Java", "Python2"], "template": {},
                         "samples": [{"input": "test", "output": "test"}], "spj": False, "spj_language": "C",
@@ -25,13 +25,28 @@ DEFAULT_SUBMISSION_DATA = {
     "language": "C",
     "statistic_info": {}
 }
+# todo contest submission
 
 
-class SubmissionListTest(APITestCase):
+class SubmissionPrepare(APITestCase):
+    def _create_problem_and_submission(self):
+        user = self.create_admin("test", "test123", login=False)
+        problem_data = deepcopy(DEFAULT_PROBLEM_DATA)
+        problem_data.pop("tags")
+        problem_data["created_by"] = user
+        self.problem = Problem.objects.create(**problem_data)
+        for tag in DEFAULT_PROBLEM_DATA["tags"]:
+            tag = ProblemTag.objects.create(name=tag)
+            self.problem.tags.add(tag)
+        self.problem.save()
+        self.submission = Submission.objects.create(**DEFAULT_SUBMISSION_DATA)
+
+
+class SubmissionListTest(SubmissionPrepare):
     def setUp(self):
+        self._create_problem_and_submission()
         self.create_user("123", "345")
         self.url = self.reverse("submission_list_api")
-        Submission.objects.create(**DEFAULT_SUBMISSION_DATA)
 
     def test_get_submission_list(self):
         resp = self.client.get(self.url, data={"limit": "10"})
@@ -39,16 +54,10 @@ class SubmissionListTest(APITestCase):
 
 
 @mock.patch("submission.views.oj.judge_task.delay")
-class SubmissionAPITest(APITestCase):
+class SubmissionAPITest(SubmissionPrepare):
     def setUp(self):
-        self.user = self.create_user("test", "test123")
-        tag = ProblemTag.objects.create(name="test")
-        problem_data = deepcopy(DEFAULT_PROBLEM_DATA)
-        problem_data.pop("tags")
-        problem_data["created_by"] = self.user
-        self.problem = Problem.objects.create(**problem_data)
-        self.problem.tags.add(tag)
-        self.problem.save()
+        self._create_problem_and_submission()
+        self.user = self.create_user("123", "test123")
         self.url = self.reverse("submission_api")
 
     def test_create_submission(self, judge_task):

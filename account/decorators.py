@@ -80,16 +80,17 @@ def check_contest_permission(func):
         except Contest.DoesNotExist:
             return self.error("Contest %s doesn't exist" % contest_id)
 
-        if self.contest.status == ContestStatus.CONTEST_NOT_START and user != self.contest.created_by:
+        # creator or owner
+        if self.contest.is_contest_admin(user):
+            return func(*args, **kwargs)
+
+        if self.contest.status == ContestStatus.CONTEST_NOT_START:
             return self.error("Contest has not started yet.")
 
         if self.contest.contest_type == ContestType.PASSWORD_PROTECTED_CONTEST:
             # Anonymous
             if not user.is_authenticated():
                 return self.error("Please login in first.")
-            # creator
-            if user == self.contest.created_by:
-                return func(*args, **kwargs)
             # password error
             if ("contests" not in request.session) or (self.contest.id not in request.session["contests"]):
                 return self.error("Password is required.")

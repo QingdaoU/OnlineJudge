@@ -1,9 +1,8 @@
-from account.models import AdminType
 from account.decorators import login_required, check_contest_permission
 from judge.tasks import judge_task
 # from judge.dispatcher import JudgeDispatcher
 from problem.models import Problem, ProblemRuleType
-from contest.models import Contest, ContestStatus
+from contest.models import Contest, ContestStatus, ContestRuleType
 from utils.api import APIView, validate_serializer
 from utils.throttling import TokenBucket, BucketController
 from ..models import Submission
@@ -64,7 +63,7 @@ class SubmissionAPI(APIView):
     def get(self, request):
         submission_id = request.GET.get("id")
         if not submission_id:
-            return self.error("Parameter id do esn't exist.")
+            return self.error("Parameter id doesn't exist.")
         try:
             submission = Submission.objects.select_related("problem").get(id=submission_id)
         except Submission.DoesNotExist:
@@ -82,36 +81,15 @@ class SubmissionListAPI(APIView):
         if not request.GET.get("limit"):
             return self.error("Limit is needed")
         if request.GET.get("contest_id"):
-            return self._get_contest_submission_list(request)
+            return self.error("Parameter error")
 
         submissions = Submission.objects.filter(contest_id__isnull=True)
-        return self.process_submissions(request, submissions)
-
-    @check_contest_permission
-    def _get_contest_submission_list(self, request):
-        contest = self.contest
-        # todo OI mode
-        submissions = Submission.objects.filter(contest_id=contest.id)
-        # filter the test submissions submitted before contest start
-        if contest.status != ContestStatus.CONTEST_NOT_START:
-            print(contest.start_time)
-            submissions = submissions.filter(create_time__gte=contest.start_time)
-
-        # 封榜的时候只能看到自己的提交
-        if not contest.real_time_rank:
-            if request.user and not (
-                    request.user.admin_type == AdminType.SUPER_ADMIN or request.user == contest.created_by):
-                submissions = submissions.filter(user_id=request.user.id)
-
-        return self.process_submissions(request, submissions)
-
-    def process_submissions(self, request, submissions):
         problem_id = request.GET.get("problem_id")
         myself = request.GET.get("myself")
         result = request.GET.get("result")
         if problem_id:
             try:
-                problem = Problem.objects.get(_id=problem_id, visible=True)
+                problem = Problem.objects.get(_id=problem_id, contest_id__isnull=True, visible=True)
             except Problem.DoesNotExist:
                 return self.error("Problem doesn't exist")
             submissions = submissions.filter(problem=problem)
@@ -119,6 +97,45 @@ class SubmissionListAPI(APIView):
             submissions = submissions.filter(user_id=request.user.id)
         if result:
             submissions = submissions.filter(result=result)
+        data = self.paginate_data(request, submissions)
+        data["results"] = SubmissionListSerializer(data["results"], many=True, user=request.user).data
+        return self.success(data)
+
+
+class ContestSubmissionListAPI(APIView):
+    @check_contest_permission
+    def get(self, request):
+        if not request.GET.get("limit"):
+            return self.error("Limit is needed")
+
+        contest = self.contest
+        if contest.rule_type == ContestRuleType.OI and not contest.is_contest_admin(request.user):
+            return self.error("No permission for OI contest submissions")
+
+        submissions = Submission.objects.filter(contest_id=contest.id)
+        problem_id = request.GET.get("problem_id")
+        myself = request.GET.get("myself")
+        result = request.GET.get("result")
+        if problem_id:
+            try:
+                problem = Problem.objects.get(_id=problem_id, contest_id=contest.id, visible=True)
+            except Problem.DoesNotExist:
+                return self.error("Problem doesn't exist")
+            submissions = submissions.filter(problem=problem)
+
+        if myself and myself == "1":
+            submissions = submissions.filter(user_id=request.user.id)
+        if result:
+            submissions = submissions.filter(result=result)
+
+        # filter the test submissions submitted before contest start
+        if contest.status != ContestStatus.CONTEST_NOT_START:
+            submissions = submissions.filter(create_time__gte=contest.start_time)
+
+        # 封榜的时候只能看到自己的提交
+        if not contest.real_time_rank and not contest.is_contest_admin(request.user):
+            submissions = submissions.filter(user_id=request.user.id)
+
         data = self.paginate_data(request, submissions)
         data["results"] = SubmissionListSerializer(data["results"], many=True, user=request.user).data
         return self.success(data)

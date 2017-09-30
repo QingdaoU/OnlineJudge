@@ -18,7 +18,7 @@ class ContestAPI(APIView):
         data["created_by"] = request.user
         if data["end_time"] <= data["start_time"]:
             return self.error("Start time must occur earlier than end time")
-        if not data["password"]:
+        if data.get("password") and data["password"] == "":
             data["password"] = None
         contest = Contest.objects.create(**data)
         return self.success(ContestAdminSerializer(contest).data)
