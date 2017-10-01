@@ -64,7 +64,7 @@ class Contest(models.Model):
         ordering = ("-create_time",)
 
 
-class ContestRank(models.Model):
+class AbstractContestRank(models.Model):
     user = models.ForeignKey(User)
     contest = models.ForeignKey(Contest)
     submission_number = models.IntegerField(default=0)
@@ -73,7 +73,7 @@ class ContestRank(models.Model):
         abstract = True
 
 
-class ACMContestRank(ContestRank):
+class ACMContestRank(AbstractContestRank):
     accepted_number = models.IntegerField(default=0)
     # total_time is only for ACM contest total_time =  ac time + none-ac times * 20 * 60
     total_time = models.IntegerField(default=0)
@@ -85,7 +85,7 @@ class ACMContestRank(ContestRank):
         db_table = "acm_contest_rank"
 
 
-class OIContestRank(ContestRank):
+class OIContestRank(AbstractContestRank):
     total_score = models.IntegerField(default=0)
     # {23: 333}}
     # key is problem id, value is current score
@@ -93,9 +93,6 @@ class OIContestRank(ContestRank):
 
     class Meta:
         db_table = "oi_contest_rank"
-
-    def update_rank(self, submission):
-        self.submission_number += 1
 
 
 class ContestAnnouncement(models.Model):

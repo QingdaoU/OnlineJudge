@@ -58,7 +58,6 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'account.middleware.AdminRoleRequiredMiddleware',
-    'account.middleware.SessionSecurityMiddleware',
     'account.middleware.SessionRecordMiddleware',
     # 'account.middleware.LogSqlMiddleware',
 )

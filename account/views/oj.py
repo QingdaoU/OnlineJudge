@@ -357,7 +357,6 @@ class SessionManagementAPI(APIView):
     def get(self, request):
         engine = import_module(settings.SESSION_ENGINE)
         SessionStore = engine.SessionStore
-        current_session = request.COOKIES.get(settings.SESSION_COOKIE_NAME)
         current_session = request.session.session_key
         session_keys = request.user.session_keys
         result = []
