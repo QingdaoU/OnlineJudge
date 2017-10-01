@@ -46,6 +46,7 @@ INSTALLED_APPS = (
     'contest',
     'utils',
     'submission',
+    'options',
 )
 
 MIDDLEWARE_CLASSES = (

@@ -8,9 +8,10 @@ from django.db import transaction
 from django.db.models import F
 
 from account.models import User
-from conf.models import JudgeServer, JudgeServerToken
+from conf.models import JudgeServer
 from contest.models import ContestRuleType, ACMContestRank, OIContestRank, ContestStatus
 from judge.languages import languages
+from options.options import SysOptions
 from problem.models import Problem, ProblemRuleType
 from submission.models import JudgeStatus, Submission
 from utils.cache import judge_cache, default_cache
@@ -30,8 +31,7 @@ def process_pending_task():
 
 class JudgeDispatcher(object):
     def __init__(self, submission_id, problem_id):
-        token = JudgeServerToken.objects.first().token
-        self.token = hashlib.sha256(token.encode("utf-8")).hexdigest()
+        self.token = hashlib.sha256(SysOptions.judge_server_token.encode("utf-8")).hexdigest()
         self.redis_conn = judge_cache
         self.submission = Submission.objects.get(pk=submission_id)
         self.contest_id = self.submission.contest_id
@@ -50,7 +50,7 @@ class JudgeDispatcher(object):
         try:
             return requests.post(url, **kwargs).json()
         except Exception as e:
-            logger.error(e.with_traceback())
+            logger.exception(e)
 
     @staticmethod
     def choose_judge_server():

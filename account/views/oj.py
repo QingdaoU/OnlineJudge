@@ -1,24 +1,23 @@
 import os
-import qrcode
 import pickle
 from datetime import timedelta
-from otpauth import OtpAuth
+from importlib import import_module
 
+import qrcode
 from django.conf import settings
 from django.contrib import auth
-from importlib import import_module
+from django.template.loader import render_to_string
+from django.utils.decorators import method_decorator
 from django.utils.timezone import now
 from django.views.decorators.csrf import ensure_csrf_cookie
-from django.utils.decorators import method_decorator
-from django.template.loader import render_to_string
+from otpauth import OtpAuth
 
-from conf.models import WebsiteConfig
+from options.options import SysOptions
 from utils.api import APIView, validate_serializer
-from utils.captcha import Captcha
-from utils.shortcuts import rand_str, img2base64, timestamp2utcstr
 from utils.cache import default_cache
+from utils.captcha import Captcha
 from utils.constants import CacheKey
-
+from utils.shortcuts import rand_str, img2base64, timestamp2utcstr
 from ..decorators import login_required
 from ..models import User, UserProfile
 from ..serializers import (ApplyResetPasswordSerializer, ResetPasswordSerializer,
@@ -137,9 +136,8 @@ class TwoFactorAuthAPI(APIView):
         user.tfa_token = token
         user.save()
 
-        config = WebsiteConfig.objects.first()
-        label = f"{config.name_shortcut}:{user.username}"
-        image = qrcode.make(OtpAuth(token).to_uri("totp", label, config.name))
+        label = f"{SysOptions.website_name_shortcut}:{user.username}"
+        image = qrcode.make(OtpAuth(token).to_uri("totp", label, SysOptions.website_name))
         return self.success(img2base64(image))
 
     @login_required

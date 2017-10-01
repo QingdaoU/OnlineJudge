@@ -3,7 +3,6 @@ from django.test.testcases import TestCase
 from rest_framework.test import APIClient
 
 from account.models import AdminType, ProblemPermission, User, UserProfile
-from conf.models import WebsiteConfig
 
 
 class APITestCase(TestCase):
@@ -27,9 +26,6 @@ class APITestCase(TestCase):
     def create_super_admin(self, username="root", password="root", login=True):
         return self.create_user(username=username, password=password, admin_type=AdminType.SUPER_ADMIN,
                                 problem_permission=ProblemPermission.ALL, login=login)
-
-    def create_website_config(self):
-        return WebsiteConfig.objects.create()
 
     def reverse(self, url_name):
         return reverse(url_name)
