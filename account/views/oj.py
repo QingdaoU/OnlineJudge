@@ -12,11 +12,10 @@ from django.utils.timezone import now
 from django.views.decorators.csrf import ensure_csrf_cookie
 from otpauth import OtpAuth
 
+from utils.constants import ContestRuleType
 from options.options import SysOptions
 from utils.api import APIView, validate_serializer
-from utils.cache import default_cache
 from utils.captcha import Captcha
-from utils.constants import CacheKey
 from utils.shortcuts import rand_str, img2base64, timestamp2utcstr
 from ..decorators import login_required
 from ..models import User, UserProfile
@@ -38,7 +37,7 @@ class UserProfileAPI(APIView):
         """
         user = request.user
         if not user.is_authenticated():
-            return self.success({})
+            return self.success()
         username = request.GET.get("username")
         try:
             if username:
@@ -47,8 +46,7 @@ class UserProfileAPI(APIView):
                 user = request.user
         except User.DoesNotExist:
             return self.error("User does not exist")
-        profile = UserProfile.objects.select_related("user").get(user=user)
-        return self.success(UserProfileSerializer(profile).data)
+        return self.success(UserProfileSerializer(user.userprofile).data)
 
     @validate_serializer(EditUserProfileSerializer)
     @login_required
@@ -71,8 +69,7 @@ class AvatarUploadAPI(APIView):
             avatar = form.cleaned_data["file"]
         else:
             return self.error("Invalid file content")
-        # 2097152 = 2 * 1024 * 1024 = 2MB
-        if avatar.size > 2097152:
+        if avatar.size > 2 * 1024 * 1024:
             return self.error("Picture is too large")
         suffix = os.path.splitext(avatar.name)[-1].lower()
         if suffix not in [".gif", ".jpg", ".jpeg", ".bmp", ".png"]:
@@ -83,44 +80,10 @@ class AvatarUploadAPI(APIView):
             for chunk in avatar:
                 img.write(chunk)
         user_profile = request.user.userprofile
-        _, old_avatar = os.path.split(user_profile.avatar)
-        if old_avatar != "default.png":
-            os.remove(os.path.join(settings.IMAGE_UPLOAD_DIR_ABS, old_avatar))
 
-        user_profile.avatar = f"/{settings.IMAGE_UPLOAD_DIR}/{name}"
+        user_profile.avatar = f"{settings.IMAGE_UPLOAD_DIR}/{name}"
         user_profile.save()
         return self.success("Succeeded")
-
-
-class SSOAPI(APIView):
-    @login_required
-    def get(self, request):
-        callback = request.GET.get("callback", None)
-        if not callback:
-            return self.error("Parameter Error")
-        token = rand_str()
-        request.user.auth_token = token
-        request.user.save()
-        return self.success({"redirect_url": callback + "?token=" + token,
-                             "callback": callback})
-
-    @validate_serializer(SSOSerializer)
-    def post(self, request):
-        data = request.data
-        try:
-            User.objects.get(open_api_appkey=data["appkey"])
-        except User.DoesNotExist:
-            return self.error("Invalid appkey")
-        try:
-            user = User.objects.get(auth_token=data["token"])
-            user.auth_token = None
-            user.save()
-            return self.success({"username": user.username,
-                                 "id": user.id,
-                                 "admin_type": user.admin_type,
-                                 "avatar": user.userprofile.avatar})
-        except User.DoesNotExist:
-            return self.error("User does not exist")
 
 
 class TwoFactorAuthAPI(APIView):
@@ -131,7 +94,7 @@ class TwoFactorAuthAPI(APIView):
         """
         user = request.user
         if user.two_factor_auth:
-            return self.error("Already open 2FA")
+            return self.error("2FA is already turned on")
         token = rand_str()
         user.tfa_token = token
         user.save()
@@ -161,7 +124,7 @@ class TwoFactorAuthAPI(APIView):
         code = request.data["code"]
         user = request.user
         if not user.two_factor_auth:
-            return self.error("Other session have disabled TFA")
+            return self.error("2FA is already turned off")
         if OtpAuth(user.tfa_token).valid_totp(code):
             user.two_factor_auth = False
             user.save()
@@ -198,7 +161,7 @@ class UserLoginAPI(APIView):
         # None is returned if username or password is wrong
         if user:
             if user.is_disabled:
-                return self.error("Your account have been disabled")
+                return self.error("Your account has been disabled")
             if not user.two_factor_auth:
                 auth.login(request, user)
                 return self.success("Succeeded")
@@ -218,13 +181,13 @@ class UserLoginAPI(APIView):
     # todo remove this, only for debug use
     def get(self, request):
         auth.login(request, auth.authenticate(username=request.GET["username"], password=request.GET["password"]))
-        return self.success({})
+        return self.success()
 
 
 class UserLogoutAPI(APIView):
     def get(self, request):
         auth.logout(request)
-        return self.success({})
+        return self.success()
 
 
 class UsernameOrEmailCheck(APIView):
@@ -240,11 +203,9 @@ class UsernameOrEmailCheck(APIView):
             "email": False
         }
         if data.get("username"):
-            if User.objects.filter(username=data["username"]).exists():
-                result["username"] = True
+            result["username"] = User.objects.filter(username=data["username"]).exists()
         if data.get("email"):
-            if User.objects.filter(email=data["email"]).exists():
-                result["email"] = True
+            result["email"] = User.objects.filter(email=data["email"]).exists()
         return self.success(result)
 
 
@@ -254,17 +215,9 @@ class UserRegisterAPI(APIView):
         """
         User register api
         """
-        config = default_cache.get(CacheKey.website_config)
-        if config:
-            config = pickle.loads(config)
-        else:
-            config = WebsiteConfig.objects.first()
-            if not config:
-                config = WebsiteConfig.objects.create()
-            default_cache.set(CacheKey.website_config, pickle.dumps(config))
 
-        if not config.allow_register:
-            return self.error("Register have been disabled by admin")
+        if not SysOptions.allow_register:
+            return self.error("Register function has been disabled by admin")
 
         data = request.data
         captcha = Captcha(request)
@@ -293,6 +246,7 @@ class UserChangePasswordAPI(APIView):
         username = request.user.username
         user = auth.authenticate(username=username, password=data["old_password"])
         if user:
+            # TODO: check tfa?
             user.set_password(data["new_password"])
             user.save()
             return self.success("Succeeded")
@@ -305,7 +259,6 @@ class ApplyResetPasswordAPI(APIView):
     def post(self, request):
         data = request.data
         captcha = Captcha(request)
-        config = WebsiteConfig.objects.first()
         if not captcha.check(data["captcha"]):
             return self.error("Invalid captcha")
         try:
@@ -320,14 +273,14 @@ class ApplyResetPasswordAPI(APIView):
         user.save()
         render_data = {
             "username": user.username,
-            "website_name": config.name,
-            "link": f"{config.base_url}/reset-password/{user.reset_password_token}"
+            "website_name": SysOptions.website_name,
+            "link": f"{SysOptions.website_base_url}/reset-password/{user.reset_password_token}"
         }
         email_html = render_to_string("reset_password_email.html", render_data)
-        send_email_async.delay(config.name,
+        send_email_async.delay(SysOptions.website_name,
                                user.email,
                                user.username,
-                               config.name + " 登录信息找回邮件",
+                               f"{SysOptions.website_name} 登录信息找回邮件",
                                email_html)
         return self.success("Succeeded")
 
@@ -342,9 +295,9 @@ class ResetPasswordAPI(APIView):
         try:
             user = User.objects.get(reset_password_token=data["token"])
         except User.DoesNotExist:
-            return self.error("Token dose not exist")
-        if int((user.reset_password_token_expire_time - now()).total_seconds()) < 0:
-            return self.error("Token have expired")
+            return self.error("Token does not exist")
+        if user.reset_password_token_expire_time < now():
+            return self.error("Token has expired")
         user.reset_password_token = None
         user.two_factor_auth = False
         user.set_password(data["password"])
@@ -356,13 +309,13 @@ class SessionManagementAPI(APIView):
     @login_required
     def get(self, request):
         engine = import_module(settings.SESSION_ENGINE)
-        SessionStore = engine.SessionStore
+        session_store = engine.SessionStore
         current_session = request.session.session_key
         session_keys = request.user.session_keys
         result = []
         modified = False
         for key in session_keys[:]:
-            session = SessionStore(key)
+            session = session_store(key)
             # session does not exist or is expiry
             if not session._session:
                 session_keys.remove(key)
@@ -398,12 +351,12 @@ class SessionManagementAPI(APIView):
 class UserRankAPI(APIView):
     def get(self, request):
         rule_type = request.GET.get("rule")
-        if rule_type not in ["acm", "oi"]:
-            rule_type = "acm"
+        if rule_type not in ContestRuleType.choices():
+            rule_type = ContestRuleType.ACM
         profiles = UserProfile.objects.select_related("user")\
             .filter(submission_number__gt=0)\
             .exclude(user__is_disabled=True)
-        if rule_type == "acm":
+        if rule_type == ContestRuleType.ACM:
             profiles = profiles.order_by("-accepted_number", "submission_number")
         else:
             profiles = profiles.order_by("-total_score")

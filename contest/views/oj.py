@@ -1,13 +1,11 @@
-import pickle
 from django.utils.timezone import now
 from django.core.cache import cache
 from utils.api import APIView, validate_serializer
-from utils.cache import default_cache
 from utils.constants import CacheKey
 from account.decorators import login_required, check_contest_permission
 
-from ..models import ContestAnnouncement, Contest, ContestStatus, ContestRuleType
-from ..models import OIContestRank, ACMContestRank
+from utils.constants import ContestRuleType, ContestType, ContestStatus
+from ..models import ContestAnnouncement, Contest, OIContestRank, ACMContestRank
 from ..serializers import ContestAnnouncementSerializer
 from ..serializers import ContestSerializer, ContestPasswordVerifySerializer
 from ..serializers import OIContestRankSerializer, ACMContestRankSerializer

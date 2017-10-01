@@ -26,11 +26,8 @@ Cannot defense xss in browser which is belowed IE7
 浏览器版本：IE7+ 或其他浏览器，无法防御IE6及以下版本浏览器中的XSS
 """
 import re
-
-try:
-    from html.parser import HTMLParser
-except:
-    from HTMLParser import HTMLParser
+import copy
+from html.parser import HTMLParser
 
 
 class XssHtml(HTMLParser):
@@ -163,7 +160,7 @@ class XssHtml(HTMLParser):
         else:
             other = []
         if attrs:
-            for (key, value) in attrs.items():
+            for key, value in copy.deepcopy(attrs).items():
                 if key not in self.common_attrs + other:
                     del attrs[key]
         return attrs

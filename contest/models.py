@@ -2,24 +2,9 @@ from django.db import models
 from django.utils.timezone import now
 from jsonfield import JSONField
 
+from utils.constants import ContestStatus, ContestRuleType, ContestType
 from account.models import User, AdminType
 from utils.models import RichTextField
-
-
-class ContestType(object):
-    PUBLIC_CONTEST = "Public"
-    PASSWORD_PROTECTED_CONTEST = "Password Protected"
-
-
-class ContestStatus(object):
-    CONTEST_NOT_START = "1"
-    CONTEST_ENDED = "-1"
-    CONTEST_UNDERWAY = "0"
-
-
-class ContestRuleType(object):
-    ACM = "ACM"
-    OI = "OI"
 
 
 class Contest(models.Model):

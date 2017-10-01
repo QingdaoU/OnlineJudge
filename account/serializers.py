@@ -6,27 +6,27 @@ from .models import AdminType, ProblemPermission, User, UserProfile
 
 
 class UserLoginSerializer(serializers.Serializer):
-    username = serializers.CharField(max_length=30)
-    password = serializers.CharField(max_length=30)
-    tfa_code = serializers.CharField(min_length=6, max_length=6, required=False, allow_null=True)
+    username = serializers.CharField()
+    password = serializers.CharField()
+    tfa_code = serializers.CharField(required=False, allow_null=True)
 
 
 class UsernameOrEmailCheckSerializer(serializers.Serializer):
-    username = serializers.CharField(max_length=30, required=False)
-    email = serializers.EmailField(max_length=30, required=False)
+    username = serializers.CharField(required=False)
+    email = serializers.EmailField(required=False)
 
 
 class UserRegisterSerializer(serializers.Serializer):
-    username = serializers.CharField(max_length=30)
-    password = serializers.CharField(max_length=30, min_length=6)
-    email = serializers.EmailField(max_length=30)
-    captcha = serializers.CharField(max_length=4, min_length=1)
+    username = serializers.CharField(max_length=32)
+    password = serializers.CharField(min_length=6)
+    email = serializers.EmailField(max_length=64)
+    captcha = serializers.CharField()
 
 
 class UserChangePasswordSerializer(serializers.Serializer):
     old_password = serializers.CharField()
-    new_password = serializers.CharField(max_length=30, min_length=6)
-    captcha = serializers.CharField(max_length=4, min_length=4)
+    new_password = serializers.CharField(min_length=6)
+    captcha = serializers.CharField()
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -58,9 +58,9 @@ class UserInfoSerializer(serializers.ModelSerializer):
 
 class EditUserSerializer(serializers.Serializer):
     id = serializers.IntegerField()
-    username = serializers.CharField(max_length=30)
-    password = serializers.CharField(max_length=30, min_length=6, allow_blank=True, required=False, default=None)
-    email = serializers.EmailField(max_length=254)
+    username = serializers.CharField(max_length=32)
+    password = serializers.CharField(min_length=6, allow_blank=True, required=False, default=None)
+    email = serializers.EmailField(max_length=64)
     admin_type = serializers.ChoiceField(choices=(AdminType.REGULAR_USER, AdminType.ADMIN, AdminType.SUPER_ADMIN))
     problem_permission = serializers.ChoiceField(choices=(ProblemPermission.NONE, ProblemPermission.OWN,
                                                           ProblemPermission.ALL))
@@ -70,29 +70,29 @@ class EditUserSerializer(serializers.Serializer):
 
 
 class EditUserProfileSerializer(serializers.Serializer):
-    real_name = serializers.CharField(max_length=30, allow_blank=True)
-    avatar = serializers.CharField(max_length=100, allow_blank=True, required=False)
-    blog = serializers.URLField(allow_blank=True, required=False)
-    mood = serializers.CharField(max_length=200, allow_blank=True, required=False)
-    github = serializers.CharField(max_length=50, allow_blank=True, required=False)
-    school = serializers.CharField(max_length=200, allow_blank=True, required=False)
-    major = serializers.CharField(max_length=200, allow_blank=True, required=False)
+    real_name = serializers.CharField(max_length=32, allow_blank=True)
+    avatar = serializers.CharField(max_length=256, allow_blank=True, required=False)
+    blog = serializers.URLField(max_length=256, allow_blank=True, required=False)
+    mood = serializers.CharField(max_length=256, allow_blank=True, required=False)
+    github = serializers.CharField(max_length=64, allow_blank=True, required=False)
+    school = serializers.CharField(max_length=64, allow_blank=True, required=False)
+    major = serializers.CharField(max_length=64, allow_blank=True, required=False)
 
 
 class ApplyResetPasswordSerializer(serializers.Serializer):
     email = serializers.EmailField()
-    captcha = serializers.CharField(max_length=4, min_length=4)
+    captcha = serializers.CharField()
 
 
 class ResetPasswordSerializer(serializers.Serializer):
-    token = serializers.CharField(min_length=1, max_length=40)
-    password = serializers.CharField(min_length=6, max_length=30)
-    captcha = serializers.CharField(max_length=4, min_length=4)
+    token = serializers.CharField()
+    password = serializers.CharField(min_length=6)
+    captcha = serializers.CharField()
 
 
 class SSOSerializer(serializers.Serializer):
-    appkey = serializers.CharField(max_length=35)
-    token = serializers.CharField(max_length=40)
+    appkey = serializers.CharField()
+    token = serializers.CharField()
 
 
 class TwoFactorAuthCodeSerializer(serializers.Serializer):
