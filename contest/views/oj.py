@@ -4,7 +4,7 @@ from utils.api import APIView, validate_serializer
 from utils.constants import CacheKey
 from account.decorators import login_required, check_contest_permission
 
-from utils.constants import ContestRuleType, ContestType, ContestStatus
+from utils.constants import ContestRuleType, ContestStatus
 from ..models import ContestAnnouncement, Contest, OIContestRank, ACMContestRank
 from ..serializers import ContestAnnouncementSerializer
 from ..serializers import ContestSerializer, ContestPasswordVerifySerializer

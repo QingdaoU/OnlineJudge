@@ -71,6 +71,7 @@ class CreateContestProblemSerializer(CreateOrEditProblemSerializer):
 class TagSerializer(serializers.ModelSerializer):
     class Meta:
         model = ProblemTag
+        fields = "__all__"
 
 
 class BaseProblemSerializer(serializers.ModelSerializer):
@@ -88,6 +89,7 @@ class BaseProblemSerializer(serializers.ModelSerializer):
 class ProblemAdminSerializer(BaseProblemSerializer):
     class Meta:
         model = Problem
+        fields = "__all__"
 
 
 class ContestProblemAdminSerializer(BaseProblemSerializer):

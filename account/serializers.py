@@ -26,7 +26,6 @@ class UserRegisterSerializer(serializers.Serializer):
 class UserChangePasswordSerializer(serializers.Serializer):
     old_password = serializers.CharField()
     new_password = serializers.CharField(min_length=6)
-    captcha = serializers.CharField()
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -46,6 +45,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = UserProfile
+        fields = "__all__"
 
 
 class UserInfoSerializer(serializers.ModelSerializer):

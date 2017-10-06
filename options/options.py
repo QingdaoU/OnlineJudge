@@ -113,15 +113,15 @@ class _SysOptionsMeta(type):
     @property
     def website_base_url(cls):
         return cls._get_option(OptionKeys.website_base_url)
-    
+
     @website_base_url.setter
     def website_base_url(cls, value):
         cls._set_option(OptionKeys.website_base_url, value)
-    
+
     @property
     def website_name(cls):
         return cls._get_option(OptionKeys.website_name)
-    
+
     @website_name.setter
     def website_name(cls, value):
         cls._set_option(OptionKeys.website_name, value)
@@ -173,7 +173,7 @@ class _SysOptionsMeta(type):
     @judge_server_token.setter
     def judge_server_token(cls, value):
         cls._set_option(OptionKeys.judge_server_token, value)
-    
+
 
 class SysOptions(metaclass=_SysOptionsMeta):
     pass

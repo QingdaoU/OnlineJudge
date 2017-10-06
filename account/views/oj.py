@@ -1,5 +1,4 @@
 import os
-import pickle
 from datetime import timedelta
 from importlib import import_module
 
@@ -16,15 +15,14 @@ from utils.constants import ContestRuleType
 from options.options import SysOptions
 from utils.api import APIView, validate_serializer
 from utils.captcha import Captcha
-from utils.shortcuts import rand_str, img2base64, timestamp2utcstr
+from utils.shortcuts import rand_str, img2base64, datetime2str
 from ..decorators import login_required
 from ..models import User, UserProfile
 from ..serializers import (ApplyResetPasswordSerializer, ResetPasswordSerializer,
                            UserChangePasswordSerializer, UserLoginSerializer,
                            UserRegisterSerializer, UsernameOrEmailCheckSerializer,
                            RankInfoSerializer)
-from ..serializers import (SSOSerializer, TwoFactorAuthCodeSerializer,
-                           UserProfileSerializer,
+from ..serializers import (TwoFactorAuthCodeSerializer, UserProfileSerializer,
                            EditUserProfileSerializer, AvatarUploadForm)
 from ..tasks import send_email_async
 
@@ -81,7 +79,7 @@ class AvatarUploadAPI(APIView):
                 img.write(chunk)
         user_profile = request.user.userprofile
 
-        user_profile.avatar = f"{settings.IMAGE_UPLOAD_DIR}/{name}"
+        user_profile.avatar = f"/{settings.IMAGE_UPLOAD_DIR}/{name}"
         user_profile.save()
         return self.success("Succeeded")
 
@@ -327,7 +325,7 @@ class SessionManagementAPI(APIView):
                 s["current_session"] = True
             s["ip"] = session["ip"]
             s["user_agent"] = session["user_agent"]
-            s["last_activity"] = timestamp2utcstr(session["last_activity"])
+            s["last_activity"] = datetime2str(session["last_activity"])
             s["session_key"] = key
             result.append(s)
         if modified:

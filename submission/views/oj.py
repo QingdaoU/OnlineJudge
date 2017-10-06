@@ -5,16 +5,16 @@ from problem.models import Problem, ProblemRuleType
 from contest.models import Contest, ContestStatus, ContestRuleType
 from utils.api import APIView, validate_serializer
 from utils.throttling import TokenBucket, BucketController
+from utils.cache import cache
 from ..models import Submission
 from ..serializers import CreateSubmissionSerializer, SubmissionModelSerializer
 from ..serializers import SubmissionSafeSerializer, SubmissionListSerializer
-from utils.cache import throttling_cache
 
 
 def _submit(response, user, problem_id, language, code, contest_id):
     # TODO: 预设默认值，需修改
     controller = BucketController(user_id=user.id,
-                                  redis_conn=throttling_cache,
+                                  redis_conn=cache,
                                   default_capacity=30)
     bucket = TokenBucket(fill_rate=10, capacity=20,
                          last_capacity=controller.last_capacity,

@@ -1,10 +1,5 @@
-import time
-import pytz
-
-from django.contrib import auth
-from django.utils import timezone
-from django.utils.translation import ugettext as _
 from django.db import connection
+from django.utils.timezone import now
 from django.utils.deprecation import MiddlewareMixin
 
 from utils.api import JSONResponse
@@ -14,14 +9,11 @@ class SessionRecordMiddleware(MiddlewareMixin):
     def process_request(self, request):
         if request.user.is_authenticated():
             session = request.session
-            ip = request.META.get("HTTP_X_REAL_IP", "UNKNOWN IP")
-            user_agent = request.META.get("HTTP_USER_AGENT", "")
-            _ip = session.setdefault("ip", ip)
-            _user_agent = session.setdefault("user_agent", user_agent)
-            if ip != _ip or user_agent != _user_agent:
-                session.modified = True
+            session["user_agent"] = request.META.get("HTTP_USER_AGENT", "")
+            session["ip"] = request.META.get("HTTP_X_REAL_IP", "UNKNOWN IP")
+            session["last_activity"] = now()
             user_sessions = request.user.session_keys
-            if request.session.session_key not in user_sessions:
+            if session.session_key not in user_sessions:
                 user_sessions.append(session.session_key)
                 request.user.save()
 

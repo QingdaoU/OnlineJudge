@@ -72,7 +72,7 @@ class UserProfile(models.Model):
     oi_problems_status = JSONField(default={})
 
     real_name = models.CharField(max_length=32, blank=True, null=True)
-    avatar = models.CharField(max_length=256, default=f"{settings.IMAGE_UPLOAD_DIR}/default.png")
+    avatar = models.CharField(max_length=256, default=f"/{settings.IMAGE_UPLOAD_DIR}/default.png")
     blog = models.URLField(blank=True, null=True)
     mood = models.CharField(max_length=256, blank=True, null=True)
     github = models.CharField(max_length=64, blank=True, null=True)

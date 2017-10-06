@@ -8,11 +8,9 @@ from otpauth import OtpAuth
 
 from utils.api.tests import APIClient, APITestCase
 from utils.shortcuts import rand_str
-from utils.cache import default_cache
-from utils.constants import CacheKey
+from options.options import SysOptions
 
 from .models import AdminType, ProblemPermission, User
-from conf.models import WebsiteConfig
 
 
 class PermissionDecoratorTest(APITestCase):
@@ -157,13 +155,9 @@ class UserRegisterAPITest(CaptchaTest):
         self.data = {"username": "test_user", "password": "testuserpassword",
                      "real_name": "real_name", "email": "test@qduoj.com",
                      "captcha": self._set_captcha(self.client.session)}
-        # clea cache in redis
-        default_cache.delete(CacheKey.website_config)
 
     def test_website_config_limit(self):
-        website = WebsiteConfig.objects.create()
-        website.allow_register = False
-        website.save()
+        SysOptions.allow_register = False
         resp = self.client.post(self.register_url, data=self.data)
         self.assertDictEqual(resp.data, {"error": "error", "data": "Register have been disabled by admin"})
 
@@ -247,7 +241,6 @@ class TwoFactorAuthAPITest(APITestCase):
     def setUp(self):
         self.url = self.reverse("two_factor_auth_api")
         self.create_user("test", "test123")
-        self.create_website_config()
 
     def _get_tfa_code(self):
         user = User.objects.first()
@@ -295,7 +288,6 @@ class ApplyResetPasswordAPITest(CaptchaTest):
         user.email = "test@oj.com"
         user.save()
         self.url = self.reverse("apply_reset_password_api")
-        self.create_website_config()
         self.data = {"email": "test@oj.com", "captcha": self._set_captcha(self.client.session)}
 
     def _refresh_captcha(self):
