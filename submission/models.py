@@ -1,5 +1,5 @@
 from django.db import models
-from jsonfield import JSONField
+from utils.models import JSONField
 from account.models import AdminType
 from problem.models import Problem
 from contest.models import Contest
@@ -31,12 +31,12 @@ class Submission(models.Model):
     code = models.TextField()
     result = models.IntegerField(db_index=True, default=JudgeStatus.PENDING)
     # 判题结果的详细信息
-    info = JSONField(default={})
+    info = JSONField(default=dict)
     language = models.CharField(max_length=20)
     shared = models.BooleanField(default=False)
     # 存储该提交所用时间和内存值，方便提交列表显示
     # {time_cost: "", memory_cost: "", err_info: "", score: 0}
-    statistic_info = JSONField(default={})
+    statistic_info = JSONField(default=dict)
 
     def check_user_permission(self, user):
         return self.user_id == user.id or \

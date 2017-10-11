@@ -1,7 +1,7 @@
 from django.contrib.auth.models import AbstractBaseUser
 from django.conf import settings
 from django.db import models
-from jsonfield import JSONField
+from utils.models import JSONField
 
 
 class AdminType(object):
@@ -36,7 +36,7 @@ class User(AbstractBaseUser):
     auth_token = models.CharField(max_length=32, null=True)
     two_factor_auth = models.BooleanField(default=False)
     tfa_token = models.CharField(max_length=32, null=True)
-    session_keys = JSONField(default=[])
+    session_keys = JSONField(default=list)
     # open api key
     open_api = models.BooleanField(default=False)
     open_api_appkey = models.CharField(max_length=32, null=True)
@@ -65,11 +65,20 @@ class User(AbstractBaseUser):
 
 class UserProfile(models.Model):
     user = models.OneToOneField(User)
-    # Store user problem solution status with json string format
-    # {problems: {1: JudgeStatus.ACCEPTED}, contest_problems: {1: JudgeStatus.ACCEPTED}}, record problem_id and status
-    acm_problems_status = JSONField(default={})
-    # {problems: {1: 33}, contest_problems: {1: 44}, record problem_id and score
-    oi_problems_status = JSONField(default={})
+    # acm_problems_status examples:
+    # {
+    #     "problems": {
+    #         "1": {
+    #             "status": JudgeStatus.ACCEPTED,
+    #             "_id": "1000"
+    #         }
+    #     },
+    #     "contest_problems": {
+    #     }
+    # }
+    acm_problems_status = JSONField(default=dict)
+    # like acm_problems_status, merely add "score" field
+    oi_problems_status = JSONField(default=dict)
 
     real_name = models.CharField(max_length=32, blank=True, null=True)
     avatar = models.CharField(max_length=256, default=f"/{settings.IMAGE_UPLOAD_DIR}/default.png")

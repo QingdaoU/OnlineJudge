@@ -186,13 +186,10 @@ class JudgeDispatcher(object):
 
                 # update user_profile
                 if problem_id not in acm_problems_status:
-                    acm_problems_status[problem_id] = self.submission.result
+                    acm_problems_status[problem_id] = {"status": self.submission.result, "_id": self.problem._id}
                 # skip if the problem has been accepted
-                elif acm_problems_status[problem_id] != JudgeStatus.ACCEPTED:
-                    if self.submission.result == JudgeStatus.ACCEPTED:
-                        acm_problems_status[problem_id] = JudgeStatus.ACCEPTED
-                    else:
-                        acm_problems_status[problem_id] = self.submission.result
+                elif acm_problems_status[problem_id]["status"] != JudgeStatus.ACCEPTED:
+                    acm_problems_status[problem_id]["status"] = self.submission.result
                 user_profile.acm_problems_status[key] = acm_problems_status
 
             else:
@@ -204,11 +201,14 @@ class JudgeDispatcher(object):
                 # update user_profile
                 if problem_id not in oi_problems_status:
                     user_profile.add_score(score)
-                    oi_problems_status[problem_id] = score
+                    oi_problems_status[problem_id] = {"status": self.submission.result,
+                                                     "_id": self.problem._id,
+                                                     "score": score}
                 else:
                     # minus last time score, add this time score
-                    user_profile.add_score(this_time_score=score, last_time_score=oi_problems_status[problem_id])
-                    oi_problems_status[problem_id] = score
+                    user_profile.add_score(this_time_score=score, last_time_score=oi_problems_status[problem_id]["score"])
+                    oi_problems_status[problem_id]["score"] = score
+                    oi_problems_status[problem_id]["status"] = self.submission.result
                 user_profile.oi_problems_status[key] = oi_problems_status
 
             problem.save(update_fields=["submission_number", "accepted_number", "statistic_info"])

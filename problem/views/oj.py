@@ -55,9 +55,9 @@ class ProblemAPI(APIView):
             oi_problems_status = profile.oi_problems_status.get("problems", {})
             for problem in data["results"]:
                 if problem["rule_type"] == ProblemRuleType.ACM:
-                    problem["my_status"] = acm_problems_status.get(str(problem["id"]), None)
+                    problem["my_status"] = acm_problems_status.get(str(problem["id"]), {}).get("status")
                 else:
-                    problem["my_status"] = oi_problems_status.get(str(problem["id"]), None)
+                    problem["my_status"] = oi_problems_status.get(str(problem["id"]), {}).get("status")
         return self.success(data)
 
 

@@ -1,5 +1,5 @@
 from django.db import models
-from jsonfield import JSONField
+from utils.models import JSONField
 
 from account.models import User
 from contest.models import Contest
@@ -66,7 +66,7 @@ class Problem(models.Model):
     submission_number = models.BigIntegerField(default=0)
     accepted_number = models.BigIntegerField(default=0)
     # ACM rule_type: {JudgeStatus.ACCEPTED: 3, JudgeStaus.WRONG_ANSWER: 11}, the number means count
-    statistic_info = JSONField(default={})
+    statistic_info = JSONField(default=dict)
 
     class Meta:
         db_table = "problem"

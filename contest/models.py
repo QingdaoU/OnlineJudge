@@ -1,7 +1,7 @@
 from utils.constants import ContestRuleType  # noqa
 from django.db import models
 from django.utils.timezone import now
-from jsonfield import JSONField
+from utils.models import JSONField
 
 from utils.constants import ContestStatus, ContestType
 from account.models import User, AdminType
@@ -65,7 +65,7 @@ class ACMContestRank(AbstractContestRank):
     total_time = models.IntegerField(default=0)
     # {23: {"is_ac": True, "ac_time": 8999, "error_number": 2, "is_first_ac": True}}
     # key is problem id
-    submission_info = JSONField(default={})
+    submission_info = JSONField(default=dict)
 
     class Meta:
         db_table = "acm_contest_rank"
@@ -75,7 +75,7 @@ class OIContestRank(AbstractContestRank):
     total_score = models.IntegerField(default=0)
     # {23: 333}}
     # key is problem id, value is current score
-    submission_info = JSONField(default={})
+    submission_info = JSONField(default=dict)
 
     class Meta:
         db_table = "oi_contest_rank"
