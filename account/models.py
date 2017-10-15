@@ -74,6 +74,10 @@ class UserProfile(models.Model):
     #         }
     #     },
     #     "contest_problems": {
+    #         "1": {
+    #             "status": JudgeStatus.ACCEPTED,
+    #             "_id": "1000"
+    #         }
     #     }
     # }
     acm_problems_status = JSONField(default=dict)

@@ -65,7 +65,7 @@ class Problem(models.Model):
     total_score = models.IntegerField(default=0, blank=True)
     submission_number = models.BigIntegerField(default=0)
     accepted_number = models.BigIntegerField(default=0)
-    # ACM rule_type: {JudgeStatus.ACCEPTED: 3, JudgeStaus.WRONG_ANSWER: 11}, the number means count
+    # {JudgeStatus.ACCEPTED: 3, JudgeStaus.WRONG_ANSWER: 11}, the number means count
     statistic_info = JSONField(default=dict)
 
     class Meta:
