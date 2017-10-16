@@ -45,6 +45,14 @@ class Contest(models.Model):
     def is_contest_admin(self, user):
         return user.is_authenticated() and (self.created_by == user or user.admin_type == AdminType.SUPER_ADMIN)
 
+    def check_oi_permission(self, user):
+        if self.status != ContestStatus.CONTEST_ENDED and self.real_time_rank == False:
+            if self.is_contest_admin(user):
+                return True
+            else:
+                return False
+        return True
+
     class Meta:
         db_table = "contest"
         ordering = ("-create_time",)

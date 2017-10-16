@@ -156,7 +156,6 @@ class JudgeDispatcher(object):
         with transaction.atomic():
             # prepare problem and user_profile
             problem = Problem.objects.select_for_update().get(contest_id=self.contest_id, id=self.problem.id)
-            problem_info = problem.statistic_info
             user = User.objects.select_for_update().select_for_update("userprofile").get(id=self.submission.user_id)
             user_profile = user.userprofile
             if self.contest_id:
@@ -165,25 +164,25 @@ class JudgeDispatcher(object):
                 key = "problems"
             acm_problems_status = user_profile.acm_problems_status.get(key, {})
             oi_problems_status = user_profile.oi_problems_status.get(key, {})
+            problem_id = str(self.problem.id)
+            problem_info = problem.statistic_info
+
+            # update problem info
+            result = str(self.submission.result)
+            problem_info[result] = problem_info.get(result, 0) + 1
+            problem.statistic_info = problem_info
 
             # update submission and accepted number counter
             problem.submission_number += 1
             if self.submission.result == JudgeStatus.ACCEPTED:
                 problem.accepted_number += 1
-            # only when submission is not in contest, we update user profile,
-            # in other words, users' submission in a contest will not be counted in user profile
+            # submission in a contest will not be counted in user profile
             if not self.contest_id:
                 user_profile.submission_number += 1
                 if self.submission.result == JudgeStatus.ACCEPTED:
                     user_profile.accepted_number += 1
 
-            problem_id = str(self.problem.id)
             if self.problem.rule_type == ProblemRuleType.ACM:
-                # update acm problem info
-                result = str(self.submission.result)
-                problem_info[result] = problem_info.get(result, 0) + 1
-                problem.statistic_info = problem_info
-
                 # update user_profile
                 if problem_id not in acm_problems_status:
                     acm_problems_status[problem_id] = {"status": self.submission.result, "_id": self.problem._id}
@@ -193,12 +192,8 @@ class JudgeDispatcher(object):
                 user_profile.acm_problems_status[key] = acm_problems_status
 
             else:
-                # update oi problem info
-                score = self.submission.statistic_info["score"]
-                problem_info[score] = problem_info.get(score, 0) + 1
-                problem.statistic_info = problem_info
-
                 # update user_profile
+                score = self.submission.statistic_info["score"]
                 if problem_id not in oi_problems_status:
                     user_profile.add_score(score)
                     oi_problems_status[problem_id] = {"status": self.submission.result,
@@ -218,8 +213,8 @@ class JudgeDispatcher(object):
     def update_contest_rank(self):
         if self.contest_id and self.contest.status != ContestStatus.CONTEST_UNDERWAY:
             return
-        if self.contest.real_time_rank:
-            cache.delete(CacheKey.contest_rank_cache + str(self.contest_id))
+        if self.contest.rule_type == ContestRuleType.OI or self.contest.real_time_rank:
+            cache.delete(f"{CacheKey.contest_rank_cache}:{self.contest.id}")
         with transaction.atomic():
             if self.contest.rule_type == ContestRuleType.ACM:
                 acm_rank, _ = ACMContestRank.objects.select_for_update(). \

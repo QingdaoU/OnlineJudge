@@ -92,7 +92,8 @@ def check_contest_permission(func):
             if not user.is_authenticated():
                 return self.error("Please login in first.")
             # password error
-            if ("contests" not in request.session) or (self.contest.id not in request.session["contests"]):
+            if ("accessible_contests" not in request.session) or \
+                    (self.contest.id not in request.session["accessible_contests"]):
                 return self.error("Password is required.")
 
         return func(*args, **kwargs)

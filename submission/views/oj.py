@@ -84,14 +84,13 @@ class SubmissionAPI(APIView):
     @login_required
     def put(self, request):
         try:
-            submission = Submission.objects.select_related("problem")\
-                .get(id=request.data["id"], contest__isnull=True)
+            submission = Submission.objects.select_related("problem").get(id=request.data["id"])
         except Submission.DoesNotExist:
             return self.error("Submission doesn't exist")
         if not submission.check_user_permission(request.user, check_share=False):
             return self.error("No permission to share the submission")
         if submission.contest and submission.contest.status == ContestStatus.CONTEST_UNDERWAY:
-            return self.error("Can not share submission during a contest going")
+            return self.error("Can not share submission now")
         submission.shared = request.data["shared"]
         submission.save(update_fields=["shared"])
         return self.success()
@@ -130,7 +129,7 @@ class ContestSubmissionListAPI(APIView):
             return self.error("Limit is needed")
 
         contest = self.contest
-        if contest.rule_type == ContestRuleType.OI and not contest.is_contest_admin(request.user):
+        if not contest.check_oi_permission(request.user):
             return self.error("No permission for OI contest submissions")
 
         submissions = Submission.objects.filter(contest_id=contest.id).select_related("problem__created_by")
@@ -154,9 +153,11 @@ class ContestSubmissionListAPI(APIView):
             submissions = submissions.filter(create_time__gte=contest.start_time)
 
         # 封榜的时候只能看到自己的提交
-        if not contest.real_time_rank and not contest.is_contest_admin(request.user):
-            submissions = submissions.filter(user_id=request.user.id)
+        if contest.rule_type == ContestRuleType.ACM:
+            if not contest.real_time_rank and not contest.is_contest_admin(request.user):
+                submissions = submissions.filter(user_id=request.user.id)
 
         data = self.paginate_data(request, submissions)
         data["results"] = SubmissionListSerializer(data["results"], many=True, user=request.user).data
         return self.success(data)
+

@@ -67,7 +67,7 @@ class ContestPasswordVerifyAPI(APIView):
         # password verify OK.
         if "accessible_contests" not in request.session:
             request.session["accessible_contests"] = []
-        request.session["contests"].append(contest.id)
+        request.session["accessible_contests"].append(contest.id)
         # https://docs.djangoproject.com/en/dev/topics/http/sessions/#when-sessions-are-saved
         request.session.modified = True
         return self.success(True)
@@ -93,10 +93,12 @@ class ContestRankAPI(APIView):
 
     @check_contest_permission
     def get(self, request):
-        if self.contest.rule_type == ContestRuleType.ACM:
-            serializer = ACMContestRankSerializer
-        else:
+        if self.contest.rule_type == ContestRuleType.OI:
+            if not self.contest.check_oi_permission(request.user):
+                return self.error("You have no permission for ranks now")
             serializer = OIContestRankSerializer
+        else:
+            serializer = ACMContestRankSerializer
 
         cache_key = f"{CacheKey.contest_rank_cache}:{self.contest.id}"
         qs = cache.get(cache_key)
