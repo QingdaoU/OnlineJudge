@@ -46,7 +46,7 @@ class Contest(models.Model):
         return user.is_authenticated() and (self.created_by == user or user.admin_type == AdminType.SUPER_ADMIN)
 
     def check_oi_permission(self, user):
-        if self.status != ContestStatus.CONTEST_ENDED and self.real_time_rank == False:
+        if self.status != ContestStatus.CONTEST_ENDED and not self.real_time_rank:
             if self.is_contest_admin(user):
                 return True
             else:

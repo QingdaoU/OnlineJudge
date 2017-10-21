@@ -1,3 +1,4 @@
+import random
 from django.db.models import Q
 from utils.api import APIView
 from account.decorators import check_contest_permission
@@ -12,6 +13,15 @@ class ProblemTagAPI(APIView):
         return self.success(TagSerializer(ProblemTag.objects.all(), many=True).data)
 
 
+class PickOneAPI(APIView):
+    def get(self, request):
+        problems = Problem.objects.filter(contest_id__isnull=True, visible=True)
+        count = problems.count()
+        if count == 0:
+            return self.error("No problem to pick")
+        return self.success(problems[random.randint(0, count - 1)]._id)
+
+
 class ProblemAPI(APIView):
     @staticmethod
     def _add_problem_status(request, queryset_values):
@@ -24,7 +34,7 @@ class ProblemAPI(APIView):
             if results is not None:
                 problems = results
             else:
-                problems = [queryset_values,]
+                problems = [queryset_values, ]
             for problem in problems:
                 if problem["rule_type"] == ProblemRuleType.ACM:
                     problem["my_status"] = acm_problems_status.get(str(problem["id"]), {}).get("status")
@@ -36,7 +46,7 @@ class ProblemAPI(APIView):
         problem_id = request.GET.get("problem_id")
         if problem_id:
             try:
-                problem = Problem.objects.select_related("created_by")\
+                problem = Problem.objects.select_related("created_by") \
                     .get(_id=problem_id, contest_id__isnull=True, visible=True)
                 problem_data = ProblemSerializer(problem).data
                 self._add_problem_status(request, problem_data)
@@ -93,9 +103,8 @@ class ContestProblemAPI(APIView):
             except Problem.DoesNotExist:
                 return self.error("Problem does not exist.")
             problem_data = ContestProblemSerializer(problem).data
-            self._add_problem_status(request, [problem_data,])
+            self._add_problem_status(request, [problem_data, ])
             return self.success(problem_data)
-
         contest_problems = Problem.objects.select_related("created_by").filter(contest=self.contest, visible=True)
         # 根据profile， 为做过的题目添加标记
         data = ContestProblemSerializer(contest_problems, many=True).data

@@ -1,4 +1,4 @@
-FROM python:3.5
+FROM python:3.6
 ADD requirements.txt /tmp
 RUN pip install -r /tmp/requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
 WORKDIR /app

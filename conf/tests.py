@@ -4,7 +4,6 @@ from django.utils import timezone
 
 from options.options import SysOptions
 from utils.api.tests import APITestCase
-from utils.constants import CacheKey
 from .models import JudgeServer
 
 

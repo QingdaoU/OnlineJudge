@@ -38,4 +38,8 @@ class Migration(migrations.Migration):
             name='test_case_score',
             field=django.contrib.postgres.fields.jsonb.JSONField(),
         ),
+        migrations.AlterModelOptions(
+            name='problem',
+            options={'ordering': ('create_time',)},
+        ),
     ]

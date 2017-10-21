@@ -25,6 +25,7 @@ DEFAULT_PROBLEM_DATA = {"_id": "A-110", "title": "test", "description": "<p>test
                                              "input_size": 0, "score": 0}],
                         "rule_type": "ACM", "hint": "<p>test</p>", "source": "test"}
 
+
 class ProblemCreateTestBase(APITestCase):
     @staticmethod
     def add_problem(problem_data, created_by):
@@ -32,7 +33,8 @@ class ProblemCreateTestBase(APITestCase):
         if data["spj"]:
             if not data["spj_language"] or not data["spj_code"]:
                 raise ValueError("Invalid spj")
-            data["spj_version"] = hashlib.md5((data["spj_language"] + ":" + data["spj_code"]).encode("utf-8")).hexdigest()
+            data["spj_version"] = hashlib.md5(
+                (data["spj_language"] + ":" + data["spj_code"]).encode("utf-8")).hexdigest()
         else:
             data["spj_language"] = None
             data["spj_code"] = None
@@ -215,7 +217,7 @@ class ContestProblemAdminTest(APITestCase):
         self.assertEqual(len(resp.data["data"]), 1)
 
     def test_get_one_contest_problem(self):
-        contest, contest_problem  = self.test_create_contest_problem()
+        contest, contest_problem = self.test_create_contest_problem()
         contest_id = contest.data["data"]["id"]
         problem_id = contest_problem.data["data"]["id"]
         resp = self.client.get(f"{self.url}?contest_id={contest_id}&id={problem_id}")
@@ -233,7 +235,7 @@ class ContestProblemTest(ProblemCreateTestBase):
         self.problem = self.add_problem(DEFAULT_PROBLEM_DATA, admin)
         self.problem.contest_id = self.contest["id"]
         self.problem.save()
-        self.url =  self.reverse("contest_problem_api")
+        self.url = self.reverse("contest_problem_api")
 
     def test_admin_get_contest_problem_list(self):
         contest_id = self.contest["id"]
