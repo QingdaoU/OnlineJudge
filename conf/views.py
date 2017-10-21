@@ -1,54 +1,45 @@
 import hashlib
-import pickle
 
 from django.utils import timezone
 
 from account.decorators import super_admin_required
-from judge.languages import languages, spj_languages
 from judge.dispatcher import process_pending_task
+from judge.languages import languages, spj_languages
+from options.options import SysOptions
 from utils.api import APIView, CSRFExemptAPIView, validate_serializer
-from utils.shortcuts import rand_str
-from utils.cache import default_cache
-from utils.constants import CacheKey
-
-from .models import JudgeServer, JudgeServerToken, SMTPConfig, WebsiteConfig
+from .models import JudgeServer
 from .serializers import (CreateEditWebsiteConfigSerializer,
                           CreateSMTPConfigSerializer, EditSMTPConfigSerializer,
                           JudgeServerHeartbeatSerializer,
-                          JudgeServerSerializer, SMTPConfigSerializer,
-                          TestSMTPConfigSerializer, WebsiteConfigSerializer)
+                          JudgeServerSerializer, TestSMTPConfigSerializer)
 
 
 class SMTPAPI(APIView):
     @super_admin_required
     def get(self, request):
-        smtp = SMTPConfig.objects.first()
+        smtp = SysOptions.smtp_config
         if not smtp:
             return self.success(None)
-        return self.success(SMTPConfigSerializer(smtp).data)
+        smtp.pop("password")
+        return self.success(smtp)
 
     @validate_serializer(CreateSMTPConfigSerializer)
     @super_admin_required
     def post(self, request):
-        SMTPConfig.objects.all().delete()
-        smtp = SMTPConfig.objects.create(**request.data)
-        return self.success(SMTPConfigSerializer(smtp).data)
+        SysOptions.smtp_config = request.data
+        return self.success()
 
     @validate_serializer(EditSMTPConfigSerializer)
     @super_admin_required
     def put(self, request):
+        smtp = SysOptions.smtp_config
         data = request.data
-        smtp = SMTPConfig.objects.first()
-        if not smtp:
-            return self.error("SMTP config is missing")
-        smtp.server = data["server"]
-        smtp.port = data["port"]
-        smtp.email = data["email"]
-        smtp.tls = data["tls"]
-        if data.get("password"):
-            smtp.password = data["password"]
-        smtp.save()
-        return self.success(SMTPConfigSerializer(smtp).data)
+        for item in ["server", "port", "email", "tls"]:
+            smtp[item] = data[item]
+        if "password" in data:
+            smtp["password"] = data["password"]
+        SysOptions.smtp_config = smtp
+        return self.success()
 
 
 class SMTPTestAPI(APIView):
@@ -60,37 +51,24 @@ class SMTPTestAPI(APIView):
 
 class WebsiteConfigAPI(APIView):
     def get(self, request):
-        config = default_cache.get(CacheKey.website_config)
-        if config:
-            config = pickle.loads(config)
-        else:
-            config = WebsiteConfig.objects.first()
-            if not config:
-                config = WebsiteConfig.objects.create()
-            default_cache.set(CacheKey.website_config, pickle.dumps(config))
-        return self.success(WebsiteConfigSerializer(config).data)
+        ret = {key: getattr(SysOptions, key) for key in
+               ["website_base_url", "website_name", "website_name_shortcut",
+                "website_footer", "allow_register", "submission_list_show_all"]}
+        return self.success(ret)
 
     @validate_serializer(CreateEditWebsiteConfigSerializer)
     @super_admin_required
     def post(self, request):
-        data = request.data
-        WebsiteConfig.objects.all().delete()
-        config = WebsiteConfig.objects.create(**data)
-        default_cache.set(CacheKey.website_config, pickle.dumps(config))
-        return self.success(WebsiteConfigSerializer(config).data)
+        for k, v in request.data.items():
+            setattr(SysOptions, k, v)
+        return self.success()
 
 
 class JudgeServerAPI(APIView):
     @super_admin_required
     def get(self, request):
-        judge_server_token = JudgeServerToken.objects.first()
-        if not judge_server_token:
-            token = rand_str(12)
-            JudgeServerToken.objects.create(token=token)
-        else:
-            token = judge_server_token.token
         servers = JudgeServer.objects.all().order_by("-last_heartbeat")
-        return self.success({"token": token,
+        return self.success({"token": SysOptions.judge_server_token,
                              "servers": JudgeServerSerializer(servers, many=True).data})
 
     @super_admin_required
@@ -104,15 +82,9 @@ class JudgeServerAPI(APIView):
 class JudgeServerHeartbeatAPI(CSRFExemptAPIView):
     @validate_serializer(JudgeServerHeartbeatSerializer)
     def post(self, request):
-        judge_server_token = JudgeServerToken.objects.first()
-        if not judge_server_token:
-            token = rand_str(12)
-            JudgeServerToken.objects.create(token=token)
-        else:
-            token = judge_server_token.token
         data = request.data
         client_token = request.META.get("HTTP_X_JUDGE_SERVER_TOKEN")
-        if hashlib.sha256(token.encode("utf-8")).hexdigest() != client_token:
+        if hashlib.sha256(SysOptions.judge_server_token.encode("utf-8")).hexdigest() != client_token:
             return self.error("Invalid token")
         service_url = data.get("service_url")
 

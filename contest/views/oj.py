@@ -1,13 +1,11 @@
-import pickle
 from django.utils.timezone import now
-from django.db.models import Q
+from django.core.cache import cache
 from utils.api import APIView, validate_serializer
-from utils.cache import default_cache
 from utils.constants import CacheKey
 from account.decorators import login_required, check_contest_permission
 
-from ..models import ContestAnnouncement, Contest, ContestStatus, ContestRuleType
-from ..models import OIContestRank, ACMContestRank
+from utils.constants import ContestRuleType, ContestStatus
+from ..models import ContestAnnouncement, Contest, OIContestRank, ACMContestRank
 from ..serializers import ContestAnnouncementSerializer
 from ..serializers import ContestSerializer, ContestPasswordVerifySerializer
 from ..serializers import OIContestRankSerializer, ACMContestRankSerializer
@@ -32,7 +30,7 @@ class ContestAPI(APIView):
             try:
                 contest = Contest.objects.select_related("created_by").get(id=contest_id, visible=True)
             except Contest.DoesNotExist:
-                return self.error("Contest doesn't exist.")
+                return self.error("Contest does not exist")
             return self.success(ContestSerializer(contest).data)
 
         contests = Contest.objects.select_related("created_by").filter(visible=True)
@@ -50,7 +48,7 @@ class ContestAPI(APIView):
             elif status == ContestStatus.CONTEST_ENDED:
                 contests = contests.filter(end_time__lt=cur)
             else:
-                contests = contests.filter(Q(start_time__lte=cur) & Q(end_time__gte=cur))
+                contests = contests.filter(start_time__lte=cur, end_time__gte=cur)
         return self.success(self.paginate_data(request, contests, ContestSerializer))
 
 
@@ -62,14 +60,14 @@ class ContestPasswordVerifyAPI(APIView):
         try:
             contest = Contest.objects.get(id=data["contest_id"], visible=True, password__isnull=False)
         except Contest.DoesNotExist:
-            return self.error("Contest %s doesn't exist." % data["contest_id"])
+            return self.error("Contest does not exist")
         if contest.password != data["password"]:
-            return self.error("Password doesn't match.")
+            return self.error("Wrong password")
 
         # password verify OK.
-        if "contests" not in request.session:
-            request.session["contests"] = []
-        request.session["contests"].append(int(data["contest_id"]))
+        if "accessible_contests" not in request.session:
+            request.session["accessible_contests"] = []
+        request.session["accessible_contests"].append(contest.id)
         # https://docs.djangoproject.com/en/dev/topics/http/sessions/#when-sessions-are-saved
         request.session.modified = True
         return self.success(True)
@@ -80,13 +78,8 @@ class ContestAccessAPI(APIView):
     def get(self, request):
         contest_id = request.GET.get("contest_id")
         if not contest_id:
-            return self.error("Parameter contest_id not exist.")
-        if "contests" not in request.session:
-            request.session["contests"] = []
-        if int(contest_id) in request.session["contests"]:
-            return self.success({"Access": True})
-        else:
-            return self.success({"Access": False})
+            return self.error()
+        return self.success({"access": int(contest_id) in request.session.get("accessible_contests", [])})
 
 
 class ContestRankAPI(APIView):
@@ -100,17 +93,17 @@ class ContestRankAPI(APIView):
 
     @check_contest_permission
     def get(self, request):
-        if self.contest.rule_type == ContestRuleType.ACM:
-            serializer = ACMContestRankSerializer
-        else:
+        if self.contest.rule_type == ContestRuleType.OI:
+            if not self.contest.check_oi_permission(request.user):
+                return self.error("You have no permission for ranks now")
             serializer = OIContestRankSerializer
-
-        cache_key = CacheKey.contest_rank_cache + str(self.contest.id)
-        qs = default_cache.get(cache_key)
-        if not qs:
-            ranks = self.get_rank()
-            default_cache.set(cache_key, pickle.dumps(ranks))
         else:
-            ranks = pickle.loads(qs)
+            serializer = ACMContestRankSerializer
 
-        return self.success(self.paginate_data(request, ranks, serializer))
+        cache_key = f"{CacheKey.contest_rank_cache}:{self.contest.id}"
+        qs = cache.get(cache_key)
+        if not qs:
+            qs = self.get_rank()
+            cache.set(cache_key, qs)
+
+        return self.success(self.paginate_data(request, qs, serializer))

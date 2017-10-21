@@ -1,7 +1,7 @@
 from django.contrib.auth.models import AbstractBaseUser
 from django.conf import settings
 from django.db import models
-from jsonfield import JSONField
+from utils.models import JSONField
 
 
 class AdminType(object):
@@ -24,22 +24,22 @@ class UserManager(models.Manager):
 
 
 class User(AbstractBaseUser):
-    username = models.CharField(max_length=30, unique=True)
-    email = models.EmailField(max_length=254, null=True)
+    username = models.CharField(max_length=32, unique=True)
+    email = models.EmailField(max_length=64, null=True)
     create_time = models.DateTimeField(auto_now_add=True, null=True)
     # One of UserType
-    admin_type = models.CharField(max_length=24, default=AdminType.REGULAR_USER)
-    problem_permission = models.CharField(max_length=24, default=ProblemPermission.NONE)
-    reset_password_token = models.CharField(max_length=40, null=True)
+    admin_type = models.CharField(max_length=32, default=AdminType.REGULAR_USER)
+    problem_permission = models.CharField(max_length=32, default=ProblemPermission.NONE)
+    reset_password_token = models.CharField(max_length=32, null=True)
     reset_password_token_expire_time = models.DateTimeField(null=True)
     # SSO auth token
-    auth_token = models.CharField(max_length=40, null=True)
+    auth_token = models.CharField(max_length=32, null=True)
     two_factor_auth = models.BooleanField(default=False)
-    tfa_token = models.CharField(max_length=40, null=True)
-    session_keys = JSONField(default=[])
+    tfa_token = models.CharField(max_length=32, null=True)
+    session_keys = JSONField(default=list)
     # open api key
     open_api = models.BooleanField(default=False)
-    open_api_appkey = models.CharField(max_length=35, null=True)
+    open_api_appkey = models.CharField(max_length=32, null=True)
     is_disabled = models.BooleanField(default=False)
 
     USERNAME_FIELD = "username"
@@ -63,26 +63,34 @@ class User(AbstractBaseUser):
         db_table = "user"
 
 
-def _default_avatar():
-    return f"/{settings.IMAGE_UPLOAD_DIR}/default.png"
-
-
 class UserProfile(models.Model):
     user = models.OneToOneField(User)
-    # Store user problem solution status with json string format
-    # {problems: {1: JudgeStatus.ACCEPTED}, contest_problems: {1: JudgeStatus.ACCEPTED}}, record problem_id and status
-    acm_problems_status = JSONField(default={})
-    # {problems: {1: 33}, contest_problems: {1: 44}, record problem_id and score
-    oi_problems_status = JSONField(default={})
+    # acm_problems_status examples:
+    # {
+    #     "problems": {
+    #         "1": {
+    #             "status": JudgeStatus.ACCEPTED,
+    #             "_id": "1000"
+    #         }
+    #     },
+    #     "contest_problems": {
+    #         "1": {
+    #             "status": JudgeStatus.ACCEPTED,
+    #             "_id": "1000"
+    #         }
+    #     }
+    # }
+    acm_problems_status = JSONField(default=dict)
+    # like acm_problems_status, merely add "score" field
+    oi_problems_status = JSONField(default=dict)
 
-    real_name = models.CharField(max_length=30, blank=True, null=True)
-    avatar = models.CharField(max_length=50, default=_default_avatar())
+    real_name = models.CharField(max_length=32, blank=True, null=True)
+    avatar = models.CharField(max_length=256, default=f"/{settings.IMAGE_UPLOAD_DIR}/default.png")
     blog = models.URLField(blank=True, null=True)
-    mood = models.CharField(max_length=200, blank=True, null=True)
-    github = models.CharField(max_length=50, blank=True, null=True)
-    school = models.CharField(max_length=200, blank=True, null=True)
-    major = models.CharField(max_length=200, blank=True, null=True)
-    language = models.CharField(max_length=32, blank=True, null=True)
+    mood = models.CharField(max_length=256, blank=True, null=True)
+    github = models.CharField(max_length=64, blank=True, null=True)
+    school = models.CharField(max_length=64, blank=True, null=True)
+    major = models.CharField(max_length=64, blank=True, null=True)
     # for ACM
     accepted_number = models.IntegerField(default=0)
     # for OI

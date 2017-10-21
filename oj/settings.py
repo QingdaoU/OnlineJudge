@@ -46,6 +46,7 @@ INSTALLED_APPS = (
     'contest',
     'utils',
     'submission',
+    'options',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -57,11 +58,9 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'account.middleware.AdminRoleRequiredMiddleware',
-    'account.middleware.SessionSecurityMiddleware',
     'account.middleware.SessionRecordMiddleware',
     # 'account.middleware.LogSqlMiddleware',
 )
-SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
 ROOT_URLCONF = 'oj.urls'
 
 TEMPLATES = [
@@ -164,8 +163,6 @@ LOGGING = {
         }
     },
 }
-
-
 REST_FRAMEWORK = {
     'TEST_REQUEST_DEFAULT_FORMAT': 'json',
     'DEFAULT_RENDERER_CLASSES': (
@@ -173,33 +170,33 @@ REST_FRAMEWORK = {
     )
 }
 
-CACHE_JUDGE_QUEUE = "judge_queue"
-CACHE_THROTTLING = "throttling"
 
+REDIS_URL = "redis://127.0.0.1:6379"
+
+
+def redis_config(db):
+    def make_key(key, key_prefix, version):
+        return key
+
+    return {
+        "BACKEND": "utils.cache.MyRedisCache",
+        "LOCATION": f"{REDIS_URL}/{db}",
+        "TIMEOUT": None,
+        "KEY_PREFIX": "",
+        "KEY_FUNCTION": make_key
+    }
 
 CACHES = {
-    "default": {
-        "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": "redis://127.0.0.1:6379/1",
-        "OPTIONS": {
-            "CLIENT_CLASS": "django_redis.client.DefaultClient",
-        }
-    },
-    CACHE_JUDGE_QUEUE: {
-        "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": "redis://127.0.0.1:6379/2",
-        "OPTIONS": {
-            "CLIENT_CLASS": "django_redis.client.DefaultClient",
-        }
-    },
-    CACHE_THROTTLING: {
-        "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": "redis://127.0.0.1:6379/3",
-        "OPTIONS": {
-            "CLIENT_CLASS": "django_redis.client.DefaultClient",
-        }
-    }
+    "default": redis_config(db=1)
 }
+
+
+CELERY_RESULT_BACKEND = CELERY_BROKER_URL = f"{REDIS_URL}/2"
+CELERY_TASK_SOFT_TIME_LIMIT = CELERY_TASK_TIME_LIMIT = 180
+
+SESSION_ENGINE = "django.contrib.sessions.backends.cache"
+SESSION_CACHE_ALIAS = "default"
+
 
 # For celery
 REDIS_QUEUE = {

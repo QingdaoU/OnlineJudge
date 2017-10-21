@@ -1,6 +1,6 @@
 from utils.api import DateTimeTZField, serializers
 
-from .models import JudgeServer, SMTPConfig, WebsiteConfig
+from .models import JudgeServer
 
 
 class EditSMTPConfigSerializer(serializers.Serializer):
@@ -15,29 +15,17 @@ class CreateSMTPConfigSerializer(EditSMTPConfigSerializer):
     password = serializers.CharField(max_length=128)
 
 
-class SMTPConfigSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = SMTPConfig
-        exclude = ["id", "password"]
-
-
 class TestSMTPConfigSerializer(serializers.Serializer):
     email = serializers.EmailField()
 
 
 class CreateEditWebsiteConfigSerializer(serializers.Serializer):
-    base_url = serializers.CharField(max_length=128)
-    name = serializers.CharField(max_length=32)
-    name_shortcut = serializers.CharField(max_length=32)
-    footer = serializers.CharField(max_length=1024)
+    website_base_url = serializers.CharField(max_length=128)
+    website_name = serializers.CharField(max_length=64)
+    website_name_shortcut = serializers.CharField(max_length=64)
+    website_footer = serializers.CharField(max_length=1024 * 1024)
     allow_register = serializers.BooleanField()
     submission_list_show_all = serializers.BooleanField()
-
-
-class WebsiteConfigSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = WebsiteConfig
-        exclude = ["id"]
 
 
 class JudgeServerSerializer(serializers.ModelSerializer):
@@ -47,13 +35,14 @@ class JudgeServerSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = JudgeServer
+        fields = "__all__"
 
 
 class JudgeServerHeartbeatSerializer(serializers.Serializer):
-    hostname = serializers.CharField(max_length=64)
-    judger_version = serializers.CharField(max_length=24)
+    hostname = serializers.CharField(max_length=128)
+    judger_version = serializers.CharField(max_length=32)
     cpu_core = serializers.IntegerField(min_value=1)
     memory = serializers.FloatField(min_value=0, max_value=100)
     cpu = serializers.FloatField(min_value=0, max_value=100)
     action = serializers.ChoiceField(choices=("heartbeat", ))
-    service_url = serializers.CharField(max_length=128, required=False)
+    service_url = serializers.CharField(max_length=256, required=False)

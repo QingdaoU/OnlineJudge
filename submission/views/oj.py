@@ -5,16 +5,17 @@ from problem.models import Problem, ProblemRuleType
 from contest.models import Contest, ContestStatus, ContestRuleType
 from utils.api import APIView, validate_serializer
 from utils.throttling import TokenBucket, BucketController
+from utils.cache import cache
 from ..models import Submission
-from ..serializers import CreateSubmissionSerializer, SubmissionModelSerializer
-from ..serializers import SubmissionSafeSerializer, SubmissionListSerializer
-from utils.cache import throttling_cache
+from ..serializers import (CreateSubmissionSerializer, SubmissionModelSerializer,
+                           ShareSubmissionSerializer)
+from ..serializers import SubmissionSafeModelSerializer, SubmissionListSerializer
 
 
 def _submit(response, user, problem_id, language, code, contest_id):
     # TODO: 预设默认值，需修改
     controller = BucketController(user_id=user.id,
-                                  redis_conn=throttling_cache,
+                                  redis_conn=cache,
                                   default_capacity=30)
     bucket = TokenBucket(fill_rate=10, capacity=20,
                          last_capacity=controller.last_capacity,
@@ -63,17 +64,36 @@ class SubmissionAPI(APIView):
     def get(self, request):
         submission_id = request.GET.get("id")
         if not submission_id:
-            return self.error("Parameter id doesn't exist.")
+            return self.error("Parameter id doesn't exist")
         try:
             submission = Submission.objects.select_related("problem").get(id=submission_id)
         except Submission.DoesNotExist:
-            return self.error("Submission doesn't exist.")
+            return self.error("Submission doesn't exist")
         if not submission.check_user_permission(request.user):
-            return self.error("No permission for this submission.")
+            return self.error("No permission for this submission")
 
         if submission.problem.rule_type == ProblemRuleType.ACM:
-            return self.success(SubmissionSafeSerializer(submission).data)
-        return self.success(SubmissionModelSerializer(submission).data)
+            submission_data = SubmissionSafeModelSerializer(submission).data
+        else:
+            submission_data = SubmissionModelSerializer(submission).data
+        # 是否有权限取消共享
+        submission_data["can_unshare"] = submission.check_user_permission(request.user, check_share=False)
+        return self.success(submission_data)
+
+    @validate_serializer(ShareSubmissionSerializer)
+    @login_required
+    def put(self, request):
+        try:
+            submission = Submission.objects.select_related("problem").get(id=request.data["id"])
+        except Submission.DoesNotExist:
+            return self.error("Submission doesn't exist")
+        if not submission.check_user_permission(request.user, check_share=False):
+            return self.error("No permission to share the submission")
+        if submission.contest and submission.contest.status == ContestStatus.CONTEST_UNDERWAY:
+            return self.error("Can not share submission now")
+        submission.shared = request.data["shared"]
+        submission.save(update_fields=["shared"])
+        return self.success()
 
 
 class SubmissionListAPI(APIView):
@@ -83,7 +103,7 @@ class SubmissionListAPI(APIView):
         if request.GET.get("contest_id"):
             return self.error("Parameter error")
 
-        submissions = Submission.objects.filter(contest_id__isnull=True)
+        submissions = Submission.objects.filter(contest_id__isnull=True).select_related("problem__created_by")
         problem_id = request.GET.get("problem_id")
         myself = request.GET.get("myself")
         result = request.GET.get("result")
@@ -109,10 +129,10 @@ class ContestSubmissionListAPI(APIView):
             return self.error("Limit is needed")
 
         contest = self.contest
-        if contest.rule_type == ContestRuleType.OI and not contest.is_contest_admin(request.user):
+        if not contest.check_oi_permission(request.user):
             return self.error("No permission for OI contest submissions")
 
-        submissions = Submission.objects.filter(contest_id=contest.id)
+        submissions = Submission.objects.filter(contest_id=contest.id).select_related("problem__created_by")
         problem_id = request.GET.get("problem_id")
         myself = request.GET.get("myself")
         result = request.GET.get("result")
@@ -133,9 +153,11 @@ class ContestSubmissionListAPI(APIView):
             submissions = submissions.filter(create_time__gte=contest.start_time)
 
         # 封榜的时候只能看到自己的提交
-        if not contest.real_time_rank and not contest.is_contest_admin(request.user):
-            submissions = submissions.filter(user_id=request.user.id)
+        if contest.rule_type == ContestRuleType.ACM:
+            if not contest.real_time_rank and not contest.is_contest_admin(request.user):
+                submissions = submissions.filter(user_id=request.user.id)
 
         data = self.paginate_data(request, submissions)
         data["results"] = SubmissionListSerializer(data["results"], many=True, user=request.user).data
         return self.success(data)
+

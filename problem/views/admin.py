@@ -223,6 +223,7 @@ class ProblemAPI(APIView):
             data["total_score"] = total_score
         # todo check filename and score info
         tags = data.pop("tags")
+        data["languages"] = list(data["languages"])
 
         for k, v in data.items():
             setattr(problem, k, v)

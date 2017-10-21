@@ -8,11 +8,10 @@ from otpauth import OtpAuth
 
 from utils.api.tests import APIClient, APITestCase
 from utils.shortcuts import rand_str
-from utils.cache import default_cache
-from utils.constants import CacheKey
+from options.options import SysOptions
 
 from .models import AdminType, ProblemPermission, User
-from conf.models import WebsiteConfig
+from utils.constants import ContestRuleType
 
 
 class PermissionDecoratorTest(APITestCase):
@@ -136,7 +135,7 @@ class UserLoginAPITest(APITestCase):
         self.user.save()
         resp = self.client.post(self.login_url, data={"username": self.username,
                                                       "password": self.password})
-        self.assertDictEqual(resp.data, {"error": "error", "data": "Your account have been disabled"})
+        self.assertDictEqual(resp.data, {"error": "error", "data": "Your account has been disabled"})
 
 
 class CaptchaTest(APITestCase):
@@ -157,15 +156,11 @@ class UserRegisterAPITest(CaptchaTest):
         self.data = {"username": "test_user", "password": "testuserpassword",
                      "real_name": "real_name", "email": "test@qduoj.com",
                      "captcha": self._set_captcha(self.client.session)}
-        # clea cache in redis
-        default_cache.delete(CacheKey.website_config)
 
     def test_website_config_limit(self):
-        website = WebsiteConfig.objects.create()
-        website.allow_register = False
-        website.save()
+        SysOptions.allow_register = False
         resp = self.client.post(self.register_url, data=self.data)
-        self.assertDictEqual(resp.data, {"error": "error", "data": "Register have been disabled by admin"})
+        self.assertDictEqual(resp.data, {"error": "error", "data": "Register function has been disabled by admin"})
 
     def test_invalid_captcha(self):
         self.data["captcha"] = "****"
@@ -226,7 +221,7 @@ class UserProfileAPITest(APITestCase):
 
     def test_get_profile_without_login(self):
         resp = self.client.get(self.url)
-        self.assertDictEqual(resp.data, {"error": None, "data": {}})
+        self.assertDictEqual(resp.data, {"error": None, "data": None})
 
     def test_get_profile(self):
         self.create_user("test", "test123")
@@ -247,7 +242,6 @@ class TwoFactorAuthAPITest(APITestCase):
     def setUp(self):
         self.url = self.reverse("two_factor_auth_api")
         self.create_user("test", "test123")
-        self.create_website_config()
 
     def _get_tfa_code(self):
         user = User.objects.first()
@@ -295,7 +289,6 @@ class ApplyResetPasswordAPITest(CaptchaTest):
         user.email = "test@oj.com"
         user.save()
         self.url = self.reverse("apply_reset_password_api")
-        self.create_website_config()
         self.data = {"email": "test@oj.com", "captcha": self._set_captcha(self.client.session)}
 
     def _refresh_captcha(self):
@@ -343,14 +336,14 @@ class ResetPasswordAPITest(CaptchaTest):
     def test_reset_password_with_invalid_token(self):
         self.data["token"] = "aaaaaaaaaaa"
         resp = self.client.post(self.url, data=self.data)
-        self.assertDictEqual(resp.data, {"error": "error", "data": "Token dose not exist"})
+        self.assertDictEqual(resp.data, {"error": "error", "data": "Token does not exist"})
 
     def test_reset_password_with_expired_token(self):
         user = User.objects.first()
         user.reset_password_token_expire_time = now() - timedelta(seconds=30)
         user.save()
         resp = self.client.post(self.url, data=self.data)
-        self.assertDictEqual(resp.data, {"error": "error", "data": "Token have expired"})
+        self.assertDictEqual(resp.data, {"error": "error", "data": "Token has expired"})
 
 
 class UserChangePasswordAPITest(CaptchaTest):
@@ -481,14 +474,14 @@ class UserRankAPITest(APITestCase):
         profile2.save()
 
     def test_get_acm_rank(self):
-        resp = self.client.get(self.url, data={"rule": "acm"})
+        resp = self.client.get(self.url, data={"rule": ContestRuleType.ACM})
         self.assertSuccess(resp)
         data = resp.data["data"]
         self.assertEqual(data[0]["user"]["username"], "test1")
         self.assertEqual(data[1]["user"]["username"], "test2")
 
     def test_get_oi_rank(self):
-        resp = self.client.get(self.url, data={"rule": "oi"})
+        resp = self.client.get(self.url, data={"rule": ContestRuleType.OI})
         self.assertSuccess(resp)
         data = resp.data["data"]
         self.assertEqual(data[0]["user"]["username"], "test2")

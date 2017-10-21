@@ -10,6 +10,11 @@ class CreateSubmissionSerializer(serializers.Serializer):
     contest_id = serializers.IntegerField(required=False)
 
 
+class ShareSubmissionSerializer(serializers.Serializer):
+    id = serializers.CharField()
+    shared = serializers.BooleanField()
+
+
 class SubmissionModelSerializer(serializers.ModelSerializer):
     info = serializers.JSONField()
     statistic_info = serializers.JSONField()
@@ -19,7 +24,7 @@ class SubmissionModelSerializer(serializers.ModelSerializer):
 
 
 # 不显示submission info的serializer, 用于ACM rule_type
-class SubmissionSafeSerializer(serializers.ModelSerializer):
+class SubmissionSafeModelSerializer(serializers.ModelSerializer):
     problem = serializers.SlugRelatedField(read_only=True, slug_field="_id")
     statistic_info = serializers.JSONField()
 
@@ -43,6 +48,6 @@ class SubmissionListSerializer(serializers.ModelSerializer):
 
     def get_show_link(self, obj):
         # 没传user或为匿名user
-        if self.user is None or self.user.id is None:
+        if self.user is None or not self.user.is_authenticated():
             return False
         return obj.check_user_permission(self.user)

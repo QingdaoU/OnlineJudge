@@ -1,25 +1,11 @@
+from utils.constants import ContestRuleType  # noqa
 from django.db import models
 from django.utils.timezone import now
-from jsonfield import JSONField
+from utils.models import JSONField
 
+from utils.constants import ContestStatus, ContestType
 from account.models import User, AdminType
 from utils.models import RichTextField
-
-
-class ContestType(object):
-    PUBLIC_CONTEST = "Public"
-    PASSWORD_PROTECTED_CONTEST = "Password Protected"
-
-
-class ContestStatus(object):
-    CONTEST_NOT_START = "1"
-    CONTEST_ENDED = "-1"
-    CONTEST_UNDERWAY = "0"
-
-
-class ContestRuleType(object):
-    ACM = "ACM"
-    OI = "OI"
 
 
 class Contest(models.Model):
@@ -59,12 +45,20 @@ class Contest(models.Model):
     def is_contest_admin(self, user):
         return user.is_authenticated() and (self.created_by == user or user.admin_type == AdminType.SUPER_ADMIN)
 
+    def check_oi_permission(self, user):
+        if self.status != ContestStatus.CONTEST_ENDED and self.real_time_rank == False:
+            if self.is_contest_admin(user):
+                return True
+            else:
+                return False
+        return True
+
     class Meta:
         db_table = "contest"
         ordering = ("-create_time",)
 
 
-class ContestRank(models.Model):
+class AbstractContestRank(models.Model):
     user = models.ForeignKey(User)
     contest = models.ForeignKey(Contest)
     submission_number = models.IntegerField(default=0)
@@ -73,29 +67,26 @@ class ContestRank(models.Model):
         abstract = True
 
 
-class ACMContestRank(ContestRank):
+class ACMContestRank(AbstractContestRank):
     accepted_number = models.IntegerField(default=0)
     # total_time is only for ACM contest total_time =  ac time + none-ac times * 20 * 60
     total_time = models.IntegerField(default=0)
     # {23: {"is_ac": True, "ac_time": 8999, "error_number": 2, "is_first_ac": True}}
     # key is problem id
-    submission_info = JSONField(default={})
+    submission_info = JSONField(default=dict)
 
     class Meta:
         db_table = "acm_contest_rank"
 
 
-class OIContestRank(ContestRank):
+class OIContestRank(AbstractContestRank):
     total_score = models.IntegerField(default=0)
     # {23: 333}}
     # key is problem id, value is current score
-    submission_info = JSONField(default={})
+    submission_info = JSONField(default=dict)
 
     class Meta:
         db_table = "oi_contest_rank"
-
-    def update_rank(self, submission):
-        self.submission_number += 1
 
 
 class ContestAnnouncement(models.Model):

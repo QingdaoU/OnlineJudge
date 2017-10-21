@@ -50,7 +50,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('problems_status', jsonfield.fields.JSONField(default={})),
-                ('avatar', models.CharField(default=account.models._default_avatar, max_length=50)),
+                ('avatar', models.CharField(default="default.png", max_length=50)),
                 ('blog', models.URLField(blank=True, null=True)),
                 ('mood', models.CharField(blank=True, max_length=200, null=True)),
                 ('accepted_problem_number', models.IntegerField(default=0)),

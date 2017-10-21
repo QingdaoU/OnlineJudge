@@ -79,7 +79,7 @@ class ContestAPITest(APITestCase):
         self.create_user("test", "test123")
         url = self.reverse("contest_password_api")
         resp = self.client.post(url, {"contest_id": contest_id, "password": "error_password"})
-        self.assertDictEqual(resp.data, {"error": "error", "data": "Password doesn't match."})
+        self.assertDictEqual(resp.data, {"error": "error", "data": "Wrong password"})
 
         resp = self.client.post(url, {"contest_id": contest_id, "password": DEFAULT_CONTEST_DATA["password"]})
         self.assertSuccess(resp)
@@ -89,7 +89,7 @@ class ContestAPITest(APITestCase):
         self.create_user("test", "test123")
         url = self.reverse("contest_access_api")
         resp = self.client.get(url + "?contest_id=" + str(contest_id))
-        self.assertFalse(resp.data["data"]["Access"])
+        self.assertFalse(resp.data["data"]["access"])
 
         password_url = self.reverse("contest_password_api")
         resp = self.client.post(password_url, {"contest_id": contest_id, "password": DEFAULT_CONTEST_DATA["password"]})

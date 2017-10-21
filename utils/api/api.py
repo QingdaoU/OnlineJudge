@@ -79,7 +79,7 @@ class APIView(View):
     def success(self, data=None):
         return self.response({"error": None, "data": data})
 
-    def error(self, msg, err="error"):
+    def error(self, msg="error", err="error"):
         return self.response({"error": err, "data": msg})
 
     def _serializer_error_to_str(self, errors):
