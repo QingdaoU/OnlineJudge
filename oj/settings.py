@@ -163,6 +163,12 @@ LOGGING = {
         }
     },
 }
+REST_FRAMEWORK = {
+    'TEST_REQUEST_DEFAULT_FORMAT': 'json',
+    'DEFAULT_RENDERER_CLASSES': (
+        'rest_framework.renderers.JSONRenderer',
+    )
+}
 
 
 REDIS_URL = "redis://127.0.0.1:6379"

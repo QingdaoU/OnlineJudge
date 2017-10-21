@@ -4,7 +4,6 @@ from django.utils import timezone
 
 from options.options import SysOptions
 from utils.api.tests import APITestCase
-from utils.cache import default_cache
 from utils.constants import CacheKey
 from .models import JudgeServer
 
@@ -69,9 +68,6 @@ class WebsiteConfigAPITest(APITestCase):
         url = self.reverse("website_info_api")
         resp = self.client.get(url)
         self.assertSuccess(resp)
-
-    def tearDown(self):
-        default_cache.delete(CacheKey.website_config)
 
 
 class JudgeServerHeartbeatTest(APITestCase):

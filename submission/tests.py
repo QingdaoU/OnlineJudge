@@ -32,14 +32,16 @@ class SubmissionPrepare(APITestCase):
     def _create_problem_and_submission(self):
         user = self.create_admin("test", "test123", login=False)
         problem_data = deepcopy(DEFAULT_PROBLEM_DATA)
-        problem_data.pop("tags")
+        tags = problem_data.pop("tags")
         problem_data["created_by"] = user
         self.problem = Problem.objects.create(**problem_data)
-        for tag in DEFAULT_PROBLEM_DATA["tags"]:
+        for tag in tags:
             tag = ProblemTag.objects.create(name=tag)
             self.problem.tags.add(tag)
         self.problem.save()
-        self.submission = Submission.objects.create(**DEFAULT_SUBMISSION_DATA)
+        self.submission_data = deepcopy(DEFAULT_SUBMISSION_DATA)
+        self.submission_data["problem_id"] = self.problem.id
+        self.submission = Submission.objects.create(**self.submission_data)
 
 
 class SubmissionListTest(SubmissionPrepare):
@@ -61,6 +63,6 @@ class SubmissionAPITest(SubmissionPrepare):
         self.url = self.reverse("submission_api")
 
     def test_create_submission(self, judge_task):
-        resp = self.client.post(self.url, DEFAULT_SUBMISSION_DATA)
+        resp = self.client.post(self.url, self.submission_data)
         self.assertSuccess(resp)
         judge_task.assert_called()

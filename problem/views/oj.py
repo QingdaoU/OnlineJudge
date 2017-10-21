@@ -71,10 +71,8 @@ class ProblemAPI(APIView):
 
 class ContestProblemAPI(APIView):
     def _add_problem_status(self, request, queryset_values):
-        print("checking")
         if self.contest.rule_type == ContestRuleType.OI and not self.contest.check_oi_permission(request.user):
             return
-        print('here')
         if request.user.is_authenticated():
             profile = request.user.userprofile
             if self.contest.rule_type == ContestRuleType.ACM:
