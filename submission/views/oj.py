@@ -1,6 +1,6 @@
 from account.decorators import login_required, check_contest_permission
-# from judge.tasks import judge_task
-from judge.dispatcher import JudgeDispatcher
+from judge.tasks import judge_task
+# from judge.dispatcher import JudgeDispatcher
 from problem.models import Problem, ProblemRuleType
 from contest.models import Contest, ContestStatus, ContestRuleType
 from utils.api import APIView, validate_serializer
@@ -39,8 +39,8 @@ def _submit(response, user, problem_id, language, code, contest_id):
                                            problem_id=problem.id,
                                            contest_id=contest_id)
     # use this for debug
-    JudgeDispatcher(submission.id, problem.id).judge()
-    # judge_task.delay(submission.id, problem.id)
+    # JudgeDispatcher(submission.id, problem.id).judge()
+    judge_task.delay(submission.id, problem.id)
     return response.success({"submission_id": submission.id})
 
 

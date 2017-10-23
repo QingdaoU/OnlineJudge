@@ -12,3 +12,4 @@ qrcode
 flake8-coding
 requests
 django-redis
+psycopg2

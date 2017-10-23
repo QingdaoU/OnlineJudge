@@ -14,13 +14,11 @@ DATABASES = {
     }
 }
 
-
-# For celery
-REDIS_QUEUE = {
+REDIS_CONF = {
     "host": "127.0.0.1",
-    "port": 6379,
-    "db": 4
+    "port": "6379"
 }
+
 
 DEBUG = True
 
@@ -31,5 +29,3 @@ TEST_CASE_DIR = "/tmp"
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, "static"),
 ]
-
-LOG_PATH = "log/"
