@@ -12,11 +12,29 @@ fi
 
 cd $BASE
 find . -name "*.pyc" -delete
+chown -R nobody:nogroup $BASE/log
 
+# wait for postgresql start
+sleep 5
+
+n=0
+while [ $n -lt 3 ]
+do
 python manage.py migrate
 if [ $? -ne 0 ]; then
-    echo "Can't start server"
-    exit 1
+    echo "Can't start server, try again in 3 seconds.."
+    sleep 3
+    let "n+=1"
+    continue
 fi
 python manage.py initadmin
-python manage.py runserver 0.0.0.0:8080
+break
+
+done
+
+if [ $n -eq 3 ]; then
+    echo "Can't start server, please check log file for details."
+    exit 1
+fi
+
+exec supervisord -c /app/deploy/supervisor.conf

@@ -13,7 +13,7 @@ import os
 
 from .custom_settings import *
 
-if os.environ.get("NODE_ENV") == "production":
+if os.environ.get("OJ_ENV") == "production":
     from .production_settings import *
 else:
     from .dev_settings import *
@@ -108,7 +108,6 @@ USE_TZ = True
 STATIC_URL = '/static/'
 
 AUTH_USER_MODEL = 'account.User'
-LOG_PATH = "log/"
 
 LOGGING = {
     'version': 1,

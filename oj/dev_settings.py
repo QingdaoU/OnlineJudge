@@ -26,6 +26,8 @@ ALLOWED_HOSTS = ["*"]
 
 TEST_CASE_DIR = "/tmp"
 
+LOG_PATH = "/tmp/"
+
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, "static"),
 ]
