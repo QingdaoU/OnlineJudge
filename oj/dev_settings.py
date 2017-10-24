@@ -28,6 +28,9 @@ TEST_CASE_DIR = "/tmp"
 
 LOG_PATH = "/tmp/"
 
+AVATAR_URI_PREFIX = "/static/avatar"
+AVATAR_UPLOAD_DIR = f"{BASE_DIR}{AVATAR_URI_PREFIX}"
+
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, "static"),
 ]

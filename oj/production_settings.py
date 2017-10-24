@@ -25,5 +25,8 @@ DEBUG = False
 
 ALLOWED_HOSTS = ['*']
 
-TEST_CASE_DIR = "/app/test_case"
-LOG_PATH = "log/"
+AVATAR_URI_PREFIX = "/static/avatar"
+AVATAR_UPLOAD_DIR = "/data/avatar"
+
+TEST_CASE_DIR = "/data/test_case"
+LOG_PATH = "/data/log"

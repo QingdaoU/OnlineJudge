@@ -74,12 +74,12 @@ class AvatarUploadAPI(APIView):
             return self.error("Unsupported file format")
 
         name = rand_str(10) + suffix
-        with open(os.path.join(settings.IMAGE_UPLOAD_DIR_ABS, name), "wb") as img:
+        with open(os.path.join(settings.AVATAR_UPLOAD_DIR, name), "wb") as img:
             for chunk in avatar:
                 img.write(chunk)
         user_profile = request.user.userprofile
 
-        user_profile.avatar = f"/{settings.IMAGE_UPLOAD_DIR}/{name}"
+        user_profile.avatar = f"{settings.AVATAR_URI_PREFIX}/{name}"
         user_profile.save()
         return self.success("Succeeded")
 

@@ -12,7 +12,6 @@ fi
 
 cd $BASE
 find . -name "*.pyc" -delete
-chown -R nobody:nogroup $BASE/log
 
 # wait for postgresql start
 sleep 5
@@ -29,7 +28,6 @@ if [ $? -ne 0 ]; then
 fi
 python manage.py initadmin
 break
-
 done
 
 if [ $n -eq 3 ]; then
@@ -37,4 +35,5 @@ if [ $n -eq 3 ]; then
     exit 1
 fi
 
+chown -R nobody:nogroup /data/log /data/test_case /data/avatar
 exec supervisord -c /app/deploy/supervisor.conf
