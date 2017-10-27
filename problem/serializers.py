@@ -107,4 +107,11 @@ class ProblemSerializer(BaseProblemSerializer):
 class ContestProblemSerializer(BaseProblemSerializer):
     class Meta:
         model = Problem
-        exclude = ("test_case_score", "test_case_id", "visible", "is_public")
+        exclude = ("test_case_score", "test_case_id", "visible", "is_public", "difficulty")
+
+
+class ContestProblemSafeSerializer(BaseProblemSerializer):
+    class Meta:
+        model = Problem
+        exclude = ("test_case_score", "test_case_id", "visible", "is_public", "difficulty"
+                   "submission_number", "accepted_number", "statistic_info")

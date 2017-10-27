@@ -1,3 +1,4 @@
+from django.conf import settings
 from account.decorators import login_required, check_contest_permission
 from judge.tasks import judge_task
 # from judge.dispatcher import JudgeDispatcher
@@ -5,6 +6,7 @@ from problem.models import Problem, ProblemRuleType
 from contest.models import Contest, ContestStatus, ContestRuleType
 from utils.api import APIView, validate_serializer
 from utils.throttling import TokenBucket, BucketController
+from utils.captcha import Captcha
 from utils.cache import cache
 from ..models import Submission
 from ..serializers import (CreateSubmissionSerializer, SubmissionModelSerializer,
@@ -12,43 +14,38 @@ from ..serializers import (CreateSubmissionSerializer, SubmissionModelSerializer
 from ..serializers import SubmissionSafeModelSerializer, SubmissionListSerializer
 
 
-def _submit(response, user, problem_id, language, code, contest_id):
-    # TODO: 预设默认值，需修改
-    controller = BucketController(user_id=user.id,
-                                  redis_conn=cache,
-                                  default_capacity=30)
-    bucket = TokenBucket(fill_rate=10, capacity=20,
-                         last_capacity=controller.last_capacity,
-                         last_timestamp=controller.last_timestamp)
-    if bucket.consume():
-        controller.last_capacity -= 1
-    else:
-        return response.error("Please wait %d seconds" % int(bucket.expected_time() + 1))
-
-    try:
-        problem = Problem.objects.get(id=problem_id,
-                                      contest_id=contest_id,
-                                      visible=True)
-    except Problem.DoesNotExist:
-        return response.error("Problem not exist")
-
-    submission = Submission.objects.create(user_id=user.id,
-                                           username=user.username,
-                                           language=language,
-                                           code=code,
-                                           problem_id=problem.id,
-                                           contest_id=contest_id)
-    # use this for debug
-    # JudgeDispatcher(submission.id, problem.id).judge()
-    judge_task.delay(submission.id, problem.id)
-    return response.success({"submission_id": submission.id})
-
-
 class SubmissionAPI(APIView):
+    def throttling(self, request):
+        user_controller = BucketController(factor=request.user.id,
+                                           redis_conn=cache,
+                                           default_capacity=settings.TOKEN_BUCKET_DEFAULT_CAPACITY)
+        user_bucket = TokenBucket(fill_rate=settings.TOKEN_BUCKET_FILL_RATE,
+                                  capacity=settings.TOKEN_BUCKET_DEFAULT_CAPACITY,
+                                  last_capacity=user_controller.last_capacity,
+                                  last_timestamp=user_controller.last_timestamp)
+        if user_bucket.consume():
+            user_controller.last_capacity -= 1
+        else:
+            return "Please wait %d seconds" % int(user_bucket.expected_time() + 1)
+
+        ip_controller = BucketController(factor=request.session["ip"],
+                                         redis_conn=cache,
+                                         default_capacity=settings.TOKEN_BUCKET_DEFAULT_CAPACITY * 3)
+
+        ip_bucket = TokenBucket(fill_rate=settings.TOKEN_BUCKET_FILL_RATE * 3,
+                                capacity=settings.TOKEN_BUCKET_DEFAULT_CAPACITY * 3,
+                                last_capacity=ip_controller.last_capacity,
+                                last_timestamp=ip_controller.last_timestamp)
+        if ip_bucket.consume():
+            ip_controller.last_capacity -= 1
+        else:
+            return "Captcha is required"
+
     @validate_serializer(CreateSubmissionSerializer)
     @login_required
     def post(self, request):
         data = request.data
+        hide_id = False
         if data.get("contest_id"):
             try:
                 contest = Contest.objects.get(id=data["contest_id"])
@@ -56,9 +53,39 @@ class SubmissionAPI(APIView):
                 return self.error("Contest doesn't exist.")
             if contest.status == ContestStatus.CONTEST_ENDED:
                 return self.error("The contest have ended")
-            if contest.status == ContestStatus.CONTEST_NOT_START and request.user != contest.created_by:
+            if contest.status == ContestStatus.CONTEST_NOT_START and not contest.is_contest_admin(request.user):
                 return self.error("Contest have not started")
-        return _submit(self, request.user, data["problem_id"], data["language"], data["code"], data.get("contest_id"))
+            if not contest.problem_details_permission():
+                hide_id = True
+
+        if data.get("captcha"):
+            if not Captcha(request).check(data["captcha"]):
+                return self.error("Invalid captcha")
+
+        error = self.throttling(request)
+        if error:
+            return self.error(error)
+
+        try:
+            problem = Problem.objects.get(id=data["problem_id"],
+                                          contest_id=data.get("contest_id"),
+                                          visible=True)
+        except Problem.DoesNotExist:
+            return self.error("Problem not exist")
+
+        submission = Submission.objects.create(user_id=request.user.id,
+                                               username=request.user.username,
+                                               language=data["language"],
+                                               code=data["code"],
+                                               problem_id=problem.id,
+                                               contest_id=data.get("contest_id"))
+        # use this for debug
+        # JudgeDispatcher(submission.id, problem.id).judge()
+        judge_task.delay(submission.id, problem.id)
+        if hide_id:
+            return self.success()
+        else:
+            return self.success({"submission_id": submission.id})
 
     @login_required
     def get(self, request):
@@ -123,15 +150,12 @@ class SubmissionListAPI(APIView):
 
 
 class ContestSubmissionListAPI(APIView):
-    @check_contest_permission
+    @check_contest_permission(check_type="submissions")
     def get(self, request):
         if not request.GET.get("limit"):
             return self.error("Limit is needed")
 
         contest = self.contest
-        if not contest.check_oi_permission(request.user):
-            return self.error("No permission for OI contest submissions")
-
         submissions = Submission.objects.filter(contest_id=contest.id).select_related("problem__created_by")
         problem_id = request.GET.get("problem_id")
         myself = request.GET.get("myself")

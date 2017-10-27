@@ -1,7 +1,7 @@
 from django.conf.urls import url
 
 from ..views.oj import (ApplyResetPasswordAPI, ResetPasswordAPI,
-                        UserChangePasswordAPI, UserRegisterAPI,
+                        UserChangePasswordAPI, UserRegisterAPI, UserChangeEmailAPI,
                         UserLoginAPI, UserLogoutAPI, UsernameOrEmailCheck,
                         AvatarUploadAPI, TwoFactorAuthAPI, UserProfileAPI,
                         UserRankAPI, CheckTFARequiredAPI, SessionManagementAPI)
@@ -13,6 +13,7 @@ urlpatterns = [
     url(r"^logout/?$", UserLogoutAPI.as_view(), name="user_logout_api"),
     url(r"^register/?$", UserRegisterAPI.as_view(), name="user_register_api"),
     url(r"^change_password/?$", UserChangePasswordAPI.as_view(), name="user_change_password_api"),
+    url(r"^change_email/?$", UserChangeEmailAPI.as_view(), name="user_change_email"),
     url(r"^apply_reset_password/?$", ApplyResetPasswordAPI.as_view(), name="apply_reset_password_api"),
     url(r"^reset_password/?$", ResetPasswordAPI.as_view(), name="reset_password_api"),
     url(r"^captcha/?$", CaptchaAPIView.as_view(), name="show_captcha"),

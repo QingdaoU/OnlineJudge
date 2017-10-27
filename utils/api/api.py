@@ -107,18 +107,12 @@ class APIView(View):
         :param object_serializer: 用来序列化query set, 如果为None, 则直接对query set切片
         :return:
         """
-        need_paginate = request.GET.get("limit", None)
-        if need_paginate is None:
-            if object_serializer:
-                return object_serializer(query_set, many=True).data
-            else:
-                return {"results": query_set, "total": query_set.count()}
         try:
-            limit = int(request.GET.get("limit", "100"))
+            limit = int(request.GET.get("limit", "10"))
         except ValueError:
-            limit = 100
-        if limit < 0:
-            limit = 100
+            limit = 10
+        if limit < 0 or limit > 100:
+            limit = 10
         try:
             offset = int(request.GET.get("offset", "0"))
         except ValueError:

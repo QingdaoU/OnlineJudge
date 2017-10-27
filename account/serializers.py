@@ -8,7 +8,7 @@ from .models import AdminType, ProblemPermission, User, UserProfile
 class UserLoginSerializer(serializers.Serializer):
     username = serializers.CharField()
     password = serializers.CharField()
-    tfa_code = serializers.CharField(required=False, allow_null=True)
+    tfa_code = serializers.CharField(required=False, allow_blank=True)
 
 
 class UsernameOrEmailCheckSerializer(serializers.Serializer):
@@ -26,6 +26,13 @@ class UserRegisterSerializer(serializers.Serializer):
 class UserChangePasswordSerializer(serializers.Serializer):
     old_password = serializers.CharField()
     new_password = serializers.CharField(min_length=6)
+    tfa_code = serializers.CharField(required=False, allow_blank=True)
+
+
+class UserChangeEmailSerializer(serializers.Serializer):
+    password = serializers.CharField()
+    new_email = serializers.EmailField(max_length=64)
+    tfa_code = serializers.CharField(required=False, allow_blank=True)
 
 
 class UserSerializer(serializers.ModelSerializer):

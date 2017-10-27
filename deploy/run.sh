@@ -14,7 +14,7 @@ cd $BASE
 find . -name "*.pyc" -delete
 
 # wait for postgresql start
-sleep 5
+sleep 6
 
 n=0
 while [ $n -lt 3 ]

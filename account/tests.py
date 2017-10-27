@@ -362,7 +362,7 @@ class UserChangePasswordAPITest(CaptchaTest):
 
     def test_login_required(self):
         response = self.client.post(self.url, data=self.data)
-        self.assertEqual(response.data, {"error": "permission-denied", "data": "Please login in first"})
+        self.assertEqual(response.data, {"error": "permission-denied", "data": "Please login first"})
 
     def test_valid_ola_password(self):
         self.assertTrue(self.client.login(username=self.username, password=self.old_password))
@@ -476,13 +476,13 @@ class UserRankAPITest(APITestCase):
     def test_get_acm_rank(self):
         resp = self.client.get(self.url, data={"rule": ContestRuleType.ACM})
         self.assertSuccess(resp)
-        data = resp.data["data"]
+        data = resp.data["data"]["results"]
         self.assertEqual(data[0]["user"]["username"], "test1")
         self.assertEqual(data[1]["user"]["username"], "test2")
 
     def test_get_oi_rank(self):
         resp = self.client.get(self.url, data={"rule": ContestRuleType.OI})
         self.assertSuccess(resp)
-        data = resp.data["data"]
+        data = resp.data["data"]["results"]
         self.assertEqual(data[0]["user"]["username"], "test2")
         self.assertEqual(data[1]["user"]["username"], "test1")

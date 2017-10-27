@@ -58,43 +58,40 @@ class ContestAdminAPITest(APITestCase):
 class ContestAPITest(APITestCase):
     def setUp(self):
         self.create_admin()
-        self.url = self.reverse("contest_api")
-
-    def create_contest(self):
         url = self.reverse("contest_admin_api")
-        return self.client.post(url, data=DEFAULT_CONTEST_DATA)
+        self.contest = self.client.post(url, data=DEFAULT_CONTEST_DATA).data["data"]
+        self.url = self.reverse("contest_api") + "?contest_id=" + str(self.contest["id"])
 
     def test_get_contest_list(self):
-        self.create_contest()
-        response = self.client.get(self.url)
+        url = self.reverse("contest_list_api")
+        response = self.client.get(url + "?limit=10")
         self.assertSuccess(response)
+        self.assertEqual(len(response.data["data"]["results"]), 1)
 
     def test_get_one_contest(self):
-        contest_id = self.create_contest().data["data"]["id"]
-        response = self.client.get("{}?id={}".format(self.url, contest_id))
-        self.assertSuccess(response)
+        resp = self.client.get(self.url)
+        self.assertSuccess(resp)
 
     def test_regular_user_validate_contest_password(self):
-        contest_id = self.create_contest().data["data"]["id"]
         self.create_user("test", "test123")
         url = self.reverse("contest_password_api")
-        resp = self.client.post(url, {"contest_id": contest_id, "password": "error_password"})
+        resp = self.client.post(url, {"contest_id": self.contest["id"], "password": "error_password"})
         self.assertDictEqual(resp.data, {"error": "error", "data": "Wrong password"})
 
-        resp = self.client.post(url, {"contest_id": contest_id, "password": DEFAULT_CONTEST_DATA["password"]})
+        resp = self.client.post(url, {"contest_id": self.contest["id"], "password": DEFAULT_CONTEST_DATA["password"]})
         self.assertSuccess(resp)
 
     def test_regular_user_access_contest(self):
-        contest_id = self.create_contest().data["data"]["id"]
         self.create_user("test", "test123")
         url = self.reverse("contest_access_api")
-        resp = self.client.get(url + "?contest_id=" + str(contest_id))
+        resp = self.client.get(url + "?contest_id=" + str(self.contest["id"]))
         self.assertFalse(resp.data["data"]["access"])
 
         password_url = self.reverse("contest_password_api")
-        resp = self.client.post(password_url, {"contest_id": contest_id, "password": DEFAULT_CONTEST_DATA["password"]})
+        resp = self.client.post(password_url,
+                                {"contest_id": self.contest["id"], "password": DEFAULT_CONTEST_DATA["password"]})
         self.assertSuccess(resp)
-        resp = self.client.get(url + "?contest_id=" + str(contest_id))
+        resp = self.client.get(self.url)
         self.assertSuccess(resp)
 
 

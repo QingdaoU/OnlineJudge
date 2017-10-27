@@ -45,13 +45,12 @@ class Contest(models.Model):
     def is_contest_admin(self, user):
         return user.is_authenticated() and (self.created_by == user or user.admin_type == AdminType.SUPER_ADMIN)
 
-    def check_oi_permission(self, user):
-        if self.status != ContestStatus.CONTEST_ENDED and not self.real_time_rank:
-            if self.is_contest_admin(user):
-                return True
-            else:
-                return False
-        return True
+    # 是否有权查看problem 的一些统计信息 诸如submission_number, accepted_number 等
+    def problem_details_permission(self, user):
+        return self.rule_type == ContestRuleType.ACM or \
+               self.status == ContestStatus.CONTEST_ENDED or \
+               self.is_contest_admin(user) or \
+               self.real_time_rank
 
     class Meta:
         db_table = "contest"

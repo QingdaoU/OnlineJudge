@@ -196,30 +196,26 @@ class ContestProblemAdminTest(APITestCase):
     def setUp(self):
         self.url = self.reverse("contest_problem_admin_api")
         self.create_admin()
-
-    def create_contest(self):
-        url = self.reverse("contest_admin_api")
-        return self.client.post(url, data=DEFAULT_CONTEST_DATA)
+        self.contest = self.client.post(self.reverse("contest_admin_api"), data=DEFAULT_CONTEST_DATA).data["data"]
 
     def test_create_contest_problem(self):
-        contest = self.create_contest()
         data = copy.deepcopy(DEFAULT_PROBLEM_DATA)
-        data["contest_id"] = contest.data["data"]["id"]
+        data["contest_id"] = self.contest["id"]
         resp = self.client.post(self.url, data=data)
         self.assertSuccess(resp)
-        return contest, resp
+        return resp.data["data"]
 
     def test_get_contest_problem(self):
-        contest, contest_problem = self.test_create_contest_problem()
-        contest_id = contest.data["data"]["id"]
+        self.test_create_contest_problem()
+        contest_id = self.contest["id"]
         resp = self.client.get(self.url + "?contest_id=" + str(contest_id))
         self.assertSuccess(resp)
-        self.assertEqual(len(resp.data["data"]), 1)
+        self.assertEqual(len(resp.data["data"]["results"]), 1)
 
     def test_get_one_contest_problem(self):
-        contest, contest_problem = self.test_create_contest_problem()
-        contest_id = contest.data["data"]["id"]
-        problem_id = contest_problem.data["data"]["id"]
+        contest_problem = self.test_create_contest_problem()
+        contest_id = self.contest["id"]
+        problem_id = contest_problem["id"]
         resp = self.client.get(f"{self.url}?contest_id={contest_id}&id={problem_id}")
         self.assertSuccess(resp)
 

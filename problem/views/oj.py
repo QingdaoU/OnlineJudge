@@ -4,7 +4,7 @@ from utils.api import APIView
 from account.decorators import check_contest_permission
 from ..models import ProblemTag, Problem, ProblemRuleType
 from ..serializers import ProblemSerializer, TagSerializer
-from ..serializers import ContestProblemSerializer
+from ..serializers import ContestProblemSerializer, ContestProblemSafeSerializer
 from contest.models import ContestRuleType
 
 
@@ -81,8 +81,6 @@ class ProblemAPI(APIView):
 
 class ContestProblemAPI(APIView):
     def _add_problem_status(self, request, queryset_values):
-        if self.contest.rule_type == ContestRuleType.OI and not self.contest.check_oi_permission(request.user):
-            return
         if request.user.is_authenticated():
             profile = request.user.userprofile
             if self.contest.rule_type == ContestRuleType.ACM:
@@ -92,7 +90,7 @@ class ContestProblemAPI(APIView):
             for problem in queryset_values:
                 problem["my_status"] = problems_status.get(str(problem["id"]), {}).get("status")
 
-    @check_contest_permission
+    @check_contest_permission(check_type="problems")
     def get(self, request):
         problem_id = request.GET.get("problem_id")
         if problem_id:
@@ -102,11 +100,17 @@ class ContestProblemAPI(APIView):
                                                                            visible=True)
             except Problem.DoesNotExist:
                 return self.error("Problem does not exist.")
-            problem_data = ContestProblemSerializer(problem).data
-            self._add_problem_status(request, [problem_data, ])
+            if self.contest.problem_details_permission(request.user):
+                problem_data = ContestProblemSerializer(problem).data
+                self._add_problem_status(request, [problem_data, ])
+            else:
+                problem_data = ContestProblemSafeSerializer(problem).data
             return self.success(problem_data)
+
         contest_problems = Problem.objects.select_related("created_by").filter(contest=self.contest, visible=True)
-        # 根据profile， 为做过的题目添加标记
-        data = ContestProblemSerializer(contest_problems, many=True).data
-        self._add_problem_status(request, data)
+        if self.contest.problem_details_permission(request.user):
+            data = ContestProblemSerializer(contest_problems, many=True).data
+            self._add_problem_status(request, data)
+        else:
+            data = ContestProblemSafeSerializer(contest_problems, many=True).data
         return self.success(data)

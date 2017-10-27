@@ -12,6 +12,7 @@ from ..serializers import OIContestRankSerializer, ACMContestRankSerializer
 
 
 class ContestAnnouncementListAPI(APIView):
+    @check_contest_permission(check_type="announcements")
     def get(self, request):
         contest_id = request.GET.get("contest_id")
         if not contest_id:
@@ -24,15 +25,13 @@ class ContestAnnouncementListAPI(APIView):
 
 
 class ContestAPI(APIView):
+    @check_contest_permission(check_type="details")
     def get(self, request):
-        contest_id = request.GET.get("id")
-        if contest_id:
-            try:
-                contest = Contest.objects.select_related("created_by").get(id=contest_id, visible=True)
-            except Contest.DoesNotExist:
-                return self.error("Contest does not exist")
-            return self.success(ContestSerializer(contest).data)
+        return self.success(ContestSerializer(self.contest).data)
 
+
+class ContestListAPI(APIView):
+    def get(self, request):
         contests = Contest.objects.select_related("created_by").filter(visible=True)
         keyword = request.GET.get("keyword")
         rule_type = request.GET.get("rule_type")
@@ -49,7 +48,8 @@ class ContestAPI(APIView):
                 contests = contests.filter(end_time__lt=cur)
             else:
                 contests = contests.filter(start_time__lte=cur, end_time__gte=cur)
-        return self.success(self.paginate_data(request, contests, ContestSerializer))
+        data = self.paginate_data(request, contests, ContestSerializer)
+        return self.success(data)
 
 
 class ContestPasswordVerifyAPI(APIView):
@@ -91,11 +91,9 @@ class ContestRankAPI(APIView):
             return OIContestRank.objects.filter(contest=self.contest). \
                 select_related("user").order_by("-total_score")
 
-    @check_contest_permission
+    @check_contest_permission(check_type="ranks")
     def get(self, request):
         if self.contest.rule_type == ContestRuleType.OI:
-            if not self.contest.check_oi_permission(request.user):
-                return self.error("You have no permission for ranks now")
             serializer = OIContestRankSerializer
         else:
             serializer = ACMContestRankSerializer
@@ -105,5 +103,4 @@ class ContestRankAPI(APIView):
         if not qs:
             qs = self.get_rank()
             cache.set(cache_key, qs)
-
         return self.success(self.paginate_data(request, qs, serializer))

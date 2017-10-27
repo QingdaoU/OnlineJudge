@@ -27,8 +27,8 @@ class APITestCase(TestCase):
         return self.create_user(username=username, password=password, admin_type=AdminType.SUPER_ADMIN,
                                 problem_permission=ProblemPermission.ALL, login=login)
 
-    def reverse(self, url_name):
-        return reverse(url_name)
+    def reverse(self, url_name, *args, **kwargs):
+        return reverse(url_name, *args, **kwargs)
 
     def assertSuccess(self, response):
         if not response.data["error"] is None:

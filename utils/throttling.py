@@ -31,11 +31,10 @@ class TokenBucket:
 
 
 class BucketController:
-    def __init__(self, user_id, redis_conn, default_capacity):
-        self.user_id = user_id
+    def __init__(self, factor, redis_conn, default_capacity):
         self.default_capacity = default_capacity
         self.redis = redis_conn
-        self.key = "bucket_" + str(self.user_id)
+        self.key = "bucket_" + str(factor)
 
     @property
     def last_capacity(self):
