@@ -110,10 +110,13 @@ class ContestAnnouncementAPI(APIView):
             except ContestAnnouncement.DoesNotExist:
                 return self.error("Contest announcement does not exist")
 
-        contest_announcements = ContestAnnouncement.objects.all().order_by("-create_time")
+        contest_id = request.GET.get("contest_id")
+        if not contest_id:
+            return self.error("Paramater error")
+        contest_announcements = ContestAnnouncement.objects.filter(contest_id=contest_id)
         if request.user.is_admin():
             contest_announcements = contest_announcements.filter(created_by=request.user)
         keyword = request.GET.get("keyword")
         if keyword:
             contest_announcements = contest_announcements.filter(title__contains=keyword)
-        return self.success(self.paginate_data(request, contest_announcements, ContestAnnouncementSerializer))
+        return self.success(ContestAnnouncementSerializer(contest_announcements, many=True).data)

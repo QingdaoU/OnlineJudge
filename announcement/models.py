@@ -15,3 +15,4 @@ class Announcement(models.Model):
 
     class Meta:
         db_table = "announcement"
+        ordering = ('-create_time',)
