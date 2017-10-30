@@ -22,7 +22,7 @@
 
 OpenAPI文档: https://github.com/QingdaoU/OnlineJudgeOpenAPI
 
-Demo: https://qduoj.virusdefender.net （https://qduoj.com 因为备案原因暂时无法访问）
+Demo: https://qduoj.com
 
 License: The Star And Thank Author License
 
