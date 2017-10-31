@@ -1,8 +1,13 @@
 language: python
 python:
     - "3.6"
+services:
+    - redis-server
+    - docker
+before_install:
+    - docker pull postgres:10
+    - docker run -it -d -e POSTGRES_DB=onlinejudge -e POSTGRES_USER=onlinejudge -e POSTGRES_PASSWORD=onlinejudge -p 127.0.0.1:5433:5432 postgres:10
 install:
-    - sudo apt-get install -qq redis-server && redis-server &
     - pip install -r deploy/requirements.txt
     - mkdir log test_case upload
     - cp oj/custom_settings.example.py oj/custom_settings.py
@@ -10,6 +15,7 @@ install:
     - python manage.py migrate
     - python manage.py initadmin
 script:
+    - docker ps -a
     - flake8 .
     - coverage run --include="$PWD/*" manage.py test
     - coverage report
