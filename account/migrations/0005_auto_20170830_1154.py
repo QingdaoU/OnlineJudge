@@ -9,7 +9,7 @@ import jsonfield.fields
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('account', '0004_remove_userprofile_time_zone'),
+        ('account', '0003_userprofile_total_score'),
     ]
 
     operations = [

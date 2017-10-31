@@ -17,4 +17,8 @@ class Migration(migrations.Migration):
             name='title',
             field=models.CharField(max_length=64),
         ),
+        migrations.AlterModelOptions(
+            name='announcement',
+            options={'ordering': ('-create_time',)},
+        ),
     ]

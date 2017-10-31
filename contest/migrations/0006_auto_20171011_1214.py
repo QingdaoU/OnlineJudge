@@ -23,4 +23,8 @@ class Migration(migrations.Migration):
             name='submission_info',
             field=django.contrib.postgres.fields.jsonb.JSONField(default=dict),
         ),
+        migrations.AlterModelOptions(
+            name='contest',
+            options={'ordering': ('-start_time',)},
+        ),
     ]

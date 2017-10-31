@@ -17,4 +17,22 @@ class Migration(migrations.Migration):
             name='code',
             field=models.TextField(),
         ),
+        migrations.RenameField(
+            model_name='submission',
+            old_name='accepted_info',
+            new_name='statistic_info',
+        ),
+        migrations.RemoveField(
+            model_name='submission',
+            name='accepted_time',
+        ),
+        migrations.RenameField(
+            model_name='submission',
+            old_name='created_time',
+            new_name='create_time',
+        ),
+        migrations.AlterModelOptions(
+            name='submission',
+            options={'ordering': ('-create_time',)},
+        )
     ]

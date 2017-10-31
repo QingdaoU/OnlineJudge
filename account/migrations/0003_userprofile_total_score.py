@@ -22,4 +22,8 @@ class Migration(migrations.Migration):
             old_name='accepted_problem_number',
             new_name='accepted_number',
         ),
+        migrations.RemoveField(
+            model_name='userprofile',
+            name='time_zone',
+        )
     ]

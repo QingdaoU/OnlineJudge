@@ -12,12 +12,12 @@ https://docs.djangoproject.com/en/1.8/ref/settings/
 import os
 from copy import deepcopy
 
-from .custom_settings import *
-
 if os.environ.get("OJ_ENV") == "production":
     from .production_settings import *
 else:
     from .dev_settings import *
+
+from .custom_settings import *
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
