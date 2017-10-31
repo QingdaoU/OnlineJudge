@@ -54,7 +54,7 @@ class Contest(models.Model):
 
     class Meta:
         db_table = "contest"
-        ordering = ("-create_time",)
+        ordering = ("-start_time",)
 
 
 class AbstractContestRank(models.Model):

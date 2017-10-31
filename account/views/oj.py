@@ -372,10 +372,9 @@ class UserRankAPI(APIView):
         if rule_type not in ContestRuleType.choices():
             rule_type = ContestRuleType.ACM
         profiles = UserProfile.objects.select_related("user")\
-            .filter(submission_number__gt=0)\
             .exclude(user__is_disabled=True)
         if rule_type == ContestRuleType.ACM:
-            profiles = profiles.order_by("-accepted_number", "submission_number")
+            profiles = profiles.filter(submission_number__gt=0).order_by("-accepted_number", "submission_number")
         else:
-            profiles = profiles.order_by("-total_score")
+            profiles = profiles.filter(total_score__gt=0).order_by("-total_score")
         return self.success(self.paginate_data(request, profiles, RankInfoSerializer))

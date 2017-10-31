@@ -95,7 +95,7 @@ class ContestAPITest(APITestCase):
         self.assertSuccess(resp)
 
 
-class ContestAnnouncementAPITest(APITestCase):
+class ContestAnnouncementAdminAPITest(APITestCase):
     def setUp(self):
         self.create_super_admin()
         self.url = self.reverse("contest_announcement_admin_api")
@@ -120,7 +120,7 @@ class ContestAnnouncementAPITest(APITestCase):
 
     def test_get_contest_announcements(self):
         self.test_create_contest_announcement()
-        response = self.client.get(self.url)
+        response = self.client.get(self.url + "?contest_id=" + str(self.data["contest_id"]))
         self.assertSuccess(response)
 
     def test_get_one_contest_announcement(self):

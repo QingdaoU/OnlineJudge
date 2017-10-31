@@ -6,6 +6,7 @@ from urllib.parse import urljoin
 import requests
 from django.db import transaction
 from django.db.models import F
+from django.conf import settings
 
 from account.models import User
 from conf.models import JudgeServer
@@ -79,7 +80,10 @@ class JudgeDispatcher(object):
             try:
                 for i in range(len(resp_data)):
                     if resp_data[i]["result"] == JudgeStatus.ACCEPTED:
-                        score += self.problem.test_case_score[i]["score"]
+                        resp_data[i]["score"] = self.problem.test_case_score[i]["score"]
+                        score += resp_data[i]["score"]
+                    else:
+                        resp_data[i]["score"] = 0
             except IndexError:
                 logger.error(f"Index Error raised when summing up the score in problem {self.problem.id}")
                 self.submission.statistic_info["score"] = 0
@@ -115,8 +119,11 @@ class JudgeDispatcher(object):
 
         Submission.objects.filter(id=self.submission.id).update(result=JudgeStatus.JUDGING)
 
-        # TODO: try catch
-        resp = self._request(urljoin(server.service_url, "/judge"), data=data)
+        service_url = server.service_url
+        # not set service_url, it should be a linked container
+        if not service_url:
+            service_url = settings.DEFAULT_JUDGE_SERVER_SERVICE_URL
+        resp = self._request(urljoin(service_url, "/judge"), data=data)
         self.submission.info = resp
         if resp["err"]:
             self.submission.result = JudgeStatus.COMPILE_ERROR
@@ -201,7 +208,7 @@ class JudgeDispatcher(object):
             logger.info("Contest debug mode, id: " + str(self.contest_id) + ", submission id: " + self.submission.id)
             return
         with transaction.atomic():
-            user = User.objects.select_for_update().select_related("userprofile").get(id=self.submission.user_id)
+            user = User.objects.select_for_update().get(id=self.submission.user_id)
             user_profile = user.userprofile
             problem_id = str(self.problem.id)
             if self.contest.rule_type == ContestRuleType.ACM:
@@ -298,5 +305,7 @@ class JudgeDispatcher(object):
         last_score = rank.submission_info.get(problem_id)
         if last_score:
             rank.total_score = rank.total_score - last_score + current_score
+        else:
+            rank.total_score = rank.total_score + current_score
         rank.submission_info[problem_id] = current_score
         rank.save()

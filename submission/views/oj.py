@@ -55,7 +55,7 @@ class SubmissionAPI(APIView):
                 return self.error("The contest have ended")
             if contest.status == ContestStatus.CONTEST_NOT_START and not contest.is_contest_admin(request.user):
                 return self.error("Contest have not started")
-            if not contest.problem_details_permission():
+            if not contest.problem_details_permission(request.user):
                 hide_id = True
 
         if data.get("captcha"):
@@ -110,6 +110,9 @@ class SubmissionAPI(APIView):
     @validate_serializer(ShareSubmissionSerializer)
     @login_required
     def put(self, request):
+        """
+        share submission
+        """
         try:
             submission = Submission.objects.select_related("problem").get(id=request.data["id"])
         except Submission.DoesNotExist:

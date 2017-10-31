@@ -76,7 +76,7 @@ class TestCaseUploadAPI(CSRFExemptAPIView):
                 content = zip_file.read(item).replace(b"\r\n", b"\n")
                 size_cache[item] = len(content)
                 if item.endswith(".out"):
-                    md5_cache[item] = hashlib.md5(content).hexdigest()
+                    md5_cache[item] = hashlib.md5(content.rstrip()).hexdigest()
                 f.write(content)
         test_case_info = {"spj": spj, "test_cases": {}}
 

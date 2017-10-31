@@ -1,9 +1,15 @@
+import os
 from django.core.cache import cache
 from django.db import transaction, IntegrityError
 
 from utils.constants import CacheKey
 from utils.shortcuts import rand_str
 from .models import SysOptions as SysOptionsModel
+
+
+def default_token():
+    token = os.environ.get("JUDGE_SERVER_TOKEN")
+    return token if token else rand_str()
 
 
 class OptionKeys:
@@ -25,7 +31,7 @@ class OptionDefaultValue:
     allow_register = True
     submission_list_show_all = True
     smtp_config = {}
-    judge_server_token = rand_str
+    judge_server_token = default_token
 
 
 class _SysOptionsMeta(type):

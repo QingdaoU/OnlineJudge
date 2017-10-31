@@ -30,3 +30,4 @@ AVATAR_UPLOAD_DIR = "/data/avatar"
 
 TEST_CASE_DIR = "/data/test_case"
 LOG_PATH = "/data/log"
+DEFAULT_JUDGE_SERVER_SERVICE_URL = "http://judge-server:8080/"
