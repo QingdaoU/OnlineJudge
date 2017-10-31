@@ -40,7 +40,8 @@ class JudgeDispatcher(object):
 
     def choose_judge_server(self):
         with transaction.atomic():
-            servers = JudgeServer.objects.select_for_update().filter(used_instance_number__lt=F("max_instance_number"), status=True).order_by("max_instance_number")
+            servers = JudgeServer.objects.select_for_update().filter(used_instance_number__lt=F("max_instance_number"),
+                                                                     status=True).order_by("max_instance_number")
             if servers.exists():
                 server = servers.first()
                 server.used_instance_number = F("used_instance_number") + 1
@@ -94,7 +95,8 @@ class JudgeDispatcher(object):
             self.release_judge_instance(judge_server.id)
 
             self.submission.judge_end_time = int(time.time() * 1000)
-            self.submission.save(update_fields=["judge_start_time", "result", "info", "accepted_answer_time", "judge_end_time"])
+            self.submission.save(
+                update_fields=["judge_start_time", "result", "info", "accepted_answer_time", "judge_end_time"])
 
         if self.submission.contest_id:
             self.update_contest_problem_status()
@@ -130,17 +132,17 @@ class JudgeDispatcher(object):
             problems_status = user.problems_status
             if "problems" not in problems_status:
                 problems_status["problems"] = {}
-
             # 增加用户提交计数器
             user.userprofile.add_submission_number()
+            # 如果已经AC过这道题了， 那么就直接返回，不再对状态进行改变
+            # 这样一道题如果AC过那么就永久AC了，状态不会再改变
+            if problems_status["problems"].get(str(problem.id), -1) == 1:
+                return
 
-            # 之前状态不是ac, 现在是ac了 需要更新用户ac题目数量计数器,这里需要判重
-            if problems_status["problems"].get(str(problem.id), -1) != 1 and self.submission.result == result["accepted"]:
+            # 之前状态不是ac, 现在是ac了 需要更新用户ac题目数量计数器
+            if problems_status["problems"].get(str(problem.id), -1) != 1 and self.submission.result == result[
+                "accepted"]:
                 user.userprofile.add_accepted_problem_number()
-
-            # 之前状态是ac, 现在不是ac了 需要用户ac题目数量计数器-1, 否则上一个逻辑胡重复增加ac计数器
-            if problems_status["problems"].get(str(problem.id), -1) == 1 and self.submission.result != result["accepted"]:
-                user.userprofile.minus_accepted_problem_number()
 
             if self.submission.result == result["accepted"]:
                 problem.add_ac_number()
@@ -149,7 +151,7 @@ class JudgeDispatcher(object):
                 problems_status["problems"][str(problem.id)] = 2
             user.problems_status = problems_status
             user.save(update_fields=["problems_status"])
-        # 普通题目的话，到这里就结束了
+            # 普通题目的话，到这里就结束了
 
     def update_contest_problem_status(self):
         # 能运行到这里的都是比赛题目
@@ -159,7 +161,8 @@ class JudgeDispatcher(object):
             return
 
         with transaction.atomic():
-            contest_problem = ContestProblem.objects.select_for_update().get(contest=contest, id=self.submission.problem_id)
+            contest_problem = ContestProblem.objects.select_for_update().get(contest=contest,
+                                                                             id=self.submission.problem_id)
             contest_problem.add_submission_number()
 
             user = User.objects.select_for_update().get(id=self.submission.user_id)
@@ -170,7 +173,9 @@ class JudgeDispatcher(object):
 
             # 增加用户提交计数器
             user.userprofile.add_submission_number()
-
+            
+            if problems_status["contest_problems"].get(str(contest_problem.id), -1) == 1:
+                return
             # 之前状态不是ac, 现在是ac了 需要更新用户ac题目数量计数器,这里需要判重
             if problems_status["contest_problems"].get(str(contest_problem.id), -1) != 1 and \
                             self.submission.result == result["accepted"]:
@@ -193,7 +198,10 @@ class JudgeDispatcher(object):
 
         with transaction.atomic():
             try:
-                contest_rank = ContestRank.objects.select_for_update().get(contest=contest, user_id=self.submission.user_id)
+                contest_rank = ContestRank.objects.select_for_update().get(contest=contest,
+                                                                           user_id=self.submission.user_id)
                 contest_rank.update_rank(self.submission)
             except ContestRank.DoesNotExist:
-                ContestRank.objects.create(contest=contest, user_id=self.submission.user_id).update_rank(self.submission)
+                ContestRank.objects.create(contest=contest, user_id=self.submission.user_id).update_rank(
+                    self.submission)
+
