@@ -173,7 +173,7 @@ class ProblemAPI(APIView):
             except Problem.DoesNotExist:
                 return self.error("Problem does not exist")
 
-        problems = Problem.objects.all().order_by("-create_time")
+        problems = Problem.objects.filter(contest_id__isnull=True).order_by("-create_time")
         if not user.can_mgmt_all_problem():
             problems = problems.filter(created_by=user)
         keyword = request.GET.get("keyword")
