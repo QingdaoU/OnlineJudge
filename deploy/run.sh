@@ -35,5 +35,5 @@ if [ $n -eq 3 ]; then
     exit 1
 fi
 
-chown -R nobody:nogroup /data/log /data/test_case /data/avatar
+chown -R nobody:nogroup /data/log /data/test_case /data/avatar /data/upload
 exec supervisord -c /app/deploy/supervisor.conf

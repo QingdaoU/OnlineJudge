@@ -31,6 +31,9 @@ LOG_PATH = f"{BASE_DIR}/log/"
 AVATAR_URI_PREFIX = "/static/avatar"
 AVATAR_UPLOAD_DIR = f"{BASE_DIR}{AVATAR_URI_PREFIX}"
 
+UPLOAD_PREFIX = "/static/upload"
+UPLOAD_DIR = f"{BASE_DIR}{UPLOAD_PREFIX}"
+
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, "static"),
 ]

@@ -23,7 +23,7 @@ from ..serializers import (ApplyResetPasswordSerializer, ResetPasswordSerializer
                            UserRegisterSerializer, UsernameOrEmailCheckSerializer,
                            RankInfoSerializer, UserChangeEmailSerializer)
 from ..serializers import (TwoFactorAuthCodeSerializer, UserProfileSerializer,
-                           EditUserProfileSerializer, AvatarUploadForm)
+                           EditUserProfileSerializer, ImageUploadForm)
 from ..tasks import send_email_async
 
 
@@ -62,9 +62,9 @@ class AvatarUploadAPI(APIView):
 
     @login_required
     def post(self, request):
-        form = AvatarUploadForm(request.POST, request.FILES)
+        form = ImageUploadForm(request.POST, request.FILES)
         if form.is_valid():
-            avatar = form.cleaned_data["file"]
+            avatar = form.cleaned_data["image"]
         else:
             return self.error("Invalid file content")
         if avatar.size > 2 * 1024 * 1024:

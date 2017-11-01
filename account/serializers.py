@@ -106,8 +106,8 @@ class TwoFactorAuthCodeSerializer(serializers.Serializer):
     code = serializers.IntegerField()
 
 
-class AvatarUploadForm(forms.Form):
-    file = forms.FileField()
+class ImageUploadForm(forms.Form):
+    image = forms.FileField()
 
 
 class RankInfoSerializer(serializers.ModelSerializer):

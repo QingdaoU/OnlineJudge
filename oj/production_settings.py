@@ -28,6 +28,9 @@ ALLOWED_HOSTS = ['*']
 AVATAR_URI_PREFIX = "/static/avatar"
 AVATAR_UPLOAD_DIR = "/data/avatar"
 
+UPLOAD_PREFIX = "/static/upload"
+UPLOAD_DIR = "/data/upload"
+
 TEST_CASE_DIR = "/data/test_case"
 LOG_PATH = "/data/log"
 DEFAULT_JUDGE_SERVER_SERVICE_URL = "http://judge-server:8080/"

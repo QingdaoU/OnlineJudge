@@ -176,13 +176,15 @@ class JudgeDispatcher(object):
             user_profile = user.userprofile
             if problem.rule_type == ProblemRuleType.ACM:
                 user_profile.submission_number += 1
-                if self.submission.result == JudgeStatus.ACCEPTED:
-                    user_profile.accepted_number += 1
                 acm_problems_status = user_profile.acm_problems_status.get("problems", {})
                 if problem_id not in acm_problems_status:
                     acm_problems_status[problem_id] = {"status": self.submission.result, "_id": self.problem._id}
+                    if self.submission.result == JudgeStatus.ACCEPTED:
+                        user_profile.accepted_number += 1
                 elif acm_problems_status[problem_id]["status"] != JudgeStatus.ACCEPTED:
                     acm_problems_status[problem_id]["status"] = self.submission.result
+                    if self.submission.result == JudgeStatus.ACCEPTED:
+                        user_profile.accepted_number += 1
                 user_profile.acm_problems_status["problems"] = acm_problems_status
                 user_profile.save(update_fields=["submission_number", "accepted_number", "acm_problems_status"])
 

@@ -31,7 +31,7 @@ VENDOR_APPS = (
     'rest_framework',
 )
 LOCAL_APPS = (
-     'account',
+    'account',
     'announcement',
     'conf',
     'problem',
