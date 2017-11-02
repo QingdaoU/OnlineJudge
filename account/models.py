@@ -20,7 +20,7 @@ class UserManager(models.Manager):
     use_in_migrations = True
 
     def get_by_natural_key(self, username):
-        return self.get(**{self.model.USERNAME_FIELD: username})
+        return self.get(**{f"{self.model.USERNAME_FIELD}__iexact": username})
 
 
 class User(AbstractBaseUser):

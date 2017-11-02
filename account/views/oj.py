@@ -198,7 +198,7 @@ class UsernameOrEmailCheck(APIView):
         if data.get("username"):
             result["username"] = User.objects.filter(username=data["username"]).exists()
         if data.get("email"):
-            result["email"] = User.objects.filter(email=data["email"]).exists()
+            result["email"] = User.objects.filter(email=data["email"].lower()).exists()
         return self.success(result)
 
 
@@ -218,9 +218,9 @@ class UserRegisterAPI(APIView):
             return self.error("Invalid captcha")
         if User.objects.filter(username=data["username"]).exists():
             return self.error("Username already exists")
+        data["email"] = data["email"].lower()
         if User.objects.filter(email=data["email"]).exists():
             return self.error("Email already exists")
-
         user = User.objects.create(username=data["username"], email=data["email"])
         user.set_password(data["password"])
         user.save()
@@ -240,6 +240,7 @@ class UserChangeEmailAPI(APIView):
                     return self.error("tfa_required")
                 if not OtpAuth(user.tfa_token).valid_totp(data["tfa_code"]):
                     return self.error("Invalid two factor verification code")
+            data["new_email"] = data["new_email"].lower()
             if User.objects.filter(email=data["new_email"]).exists():
                 return self.error("The email is owned by other account")
             user.email = data["new_email"]
@@ -280,7 +281,7 @@ class ApplyResetPasswordAPI(APIView):
         if not captcha.check(data["captcha"]):
             return self.error("Invalid captcha")
         try:
-            user = User.objects.get(email=data["email"])
+            user = User.objects.get(email__iexact=data["email"])
         except User.DoesNotExist:
             return self.error("User does not exist")
         if user.reset_password_token_expire_time and 0 < int(

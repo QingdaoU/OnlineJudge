@@ -118,7 +118,9 @@ LOGGING = {
     'disable_existing_loggers': False,
     'formatters': {
         'standard': {
-            'format': '%(asctime)s [%(threadName)s:%(thread)d] [%(name)s:%(lineno)d] [%(module)s:%(funcName)s] [%(levelname)s]- %(message)s'}
+            'format': '%(asctime)s [%(threadName)s:%(thread)d] [%(name)s:%(lineno)d] [%(module)s:%(funcName)s] [%(levelname)s]- %(message)s',
+            'datefmt': '%Y-%m-%d %H:%M:%S'
+        }
     },
     'handlers': {
         'django_error': {
@@ -143,11 +145,6 @@ LOGGING = {
         'django.request': {
             'handlers': ['django_error', 'console'],
             'level': 'WARNING',
-            'propagate': True,
-        },
-        'django.server': {
-            'handlers': ['django_error', 'console'],
-            'level': 'ERROR',
             'propagate': True,
         },
         'django.db.backends': {
