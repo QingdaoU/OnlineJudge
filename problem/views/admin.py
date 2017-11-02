@@ -305,7 +305,7 @@ class ContestProblemAPI(ProblemBase):
         user = request.user
 
         try:
-            problem = Problem.objects.get(id=problem_id, contest=contest)
+            problem = Problem.objects.get(id=problem_id)
             if not user.can_mgmt_all_problem() and problem.created_by != user:
                 return self.error("Problem does not exist")
         except Problem.DoesNotExist:
@@ -336,3 +336,29 @@ class ContestProblemAPI(ProblemBase):
                 tag = ProblemTag.objects.create(name=tag)
             problem.tags.add(tag)
         return self.success()
+
+
+class MakeContestProblemPublicAPIView(APIView):
+    @problem_permission_required
+    def post(self, request):
+        problem_id = request.data.get("problem_id")
+        if not problem_id:
+            return self.error("problem_id is required")
+        try:
+            problem = Problem.objects.get(id=problem_id)
+        except Problem.DoesNotExist:
+            return self.error("Problem does not exist")
+        if not problem.contest or problem.is_public:
+            return self.error("Alreay be a public problem")
+        problem.is_public = True
+        problem.save()
+        # https://docs.djangoproject.com/en/1.11/topics/db/queries/#copying-model-instances
+        tags = problem.tags.all()
+        problem.pk = None
+        problem.contest = None
+        problem.submission_number = problem.accepted_number = 0
+        problem.statistic_info = {}
+        problem.save()
+        problem.tags.set(tags)
+        return self.success()
+

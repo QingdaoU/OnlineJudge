@@ -23,7 +23,7 @@ int main() {
         "exe_name": "main",
         "max_cpu_time": 3000,
         "max_real_time": 5000,
-        "max_memory": 128 * 1024 * 1024,
+        "max_memory": 256 * 1024 * 1024,
         "compile_command": "/usr/bin/gcc -DONLINE_JUDGE -O2 -w -fmax-errors=3 -std=c99 {src_path} -lm -o {exe_path}",
     },
     "run": {
@@ -59,7 +59,7 @@ _cpp_lang_config = {
         "exe_name": "main",
         "max_cpu_time": 3000,
         "max_real_time": 5000,
-        "max_memory": 128 * 1024 * 1024,
+        "max_memory": 256 * 1024 * 1024,
         "compile_command": "/usr/bin/g++ -DONLINE_JUDGE -O2 -w -fmax-errors=3 -std=c++11 {src_path} -lm -o {exe_path}",
     },
     "run": {
@@ -100,7 +100,7 @@ _java_lang_config = {
     },
     "run": {
         "command": "/usr/bin/java -cp {exe_dir} -Xss1M -Xms16M -Xmx{max_memory}k "
-                   "-Djava.security.manager -Djava.security.policy==/etc/java_policy -Djava.awt.headless=true Main",
+                   "-Djava.security.manager -Djava.security.policy=/etc/java_policy -Djava.awt.headless=true Main",
         "seccomp_rule": None,
         "env": ["MALLOC_ARENA_MAX=1"]
     }
