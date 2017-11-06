@@ -21,22 +21,10 @@ class UserAdminAPI(APIView):
             user = User.objects.get(id=data["id"])
         except User.DoesNotExist:
             return self.error("User does not exist")
-        try:
-            user = User.objects.get(username=data["username"])
-            if user.id != data["id"]:
-                return self.error("Username already exists")
-        except User.DoesNotExist:
-            pass
-
-        try:
-            user = User.objects.get(email=data["email"])
-            if user.id != data["id"]:
-                return self.error("Email already exists")
-        # Some old data has duplicate email
-        except MultipleObjectsReturned:
+        if User.objects.filter(username=data["username"]).exclude(id=user.id).exists():
+            return self.error("Username already exists")
+        if User.objects.filter(email=data["email"].lower()).exclude(id=user.id).exists():
             return self.error("Email already exists")
-        except User.DoesNotExist:
-            pass
 
         user.username = data["username"]
         user.email = data["email"]

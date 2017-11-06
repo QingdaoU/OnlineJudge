@@ -8,7 +8,7 @@ from django.conf import settings
 from account.decorators import problem_permission_required
 from contest.models import Contest
 from utils.api import APIView, CSRFExemptAPIView, validate_serializer
-from utils.shortcuts import rand_str
+from utils.shortcuts import rand_str, natural_sort_key
 
 from ..models import Problem, ProblemRuleType, ProblemTag
 from ..serializers import (CreateContestProblemSerializer, ContestProblemAdminSerializer,
@@ -30,7 +30,7 @@ class TestCaseUploadAPI(CSRFExemptAPIView):
                     prefix += 1
                     continue
                 else:
-                    return sorted(ret)
+                    return sorted(ret, key=natural_sort_key)
         else:
             while True:
                 in_name = str(prefix) + ".in"
@@ -41,7 +41,7 @@ class TestCaseUploadAPI(CSRFExemptAPIView):
                     prefix += 1
                     continue
                 else:
-                    return sorted(ret)
+                    return sorted(ret, key=natural_sort_key)
 
     @problem_permission_required
     def post(self, request):
