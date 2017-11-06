@@ -137,6 +137,7 @@ class SubmissionListAPI(APIView):
         problem_id = request.GET.get("problem_id")
         myself = request.GET.get("myself")
         result = request.GET.get("result")
+        username = request.GET.get("username")
         if problem_id:
             try:
                 problem = Problem.objects.get(_id=problem_id, contest_id__isnull=True, visible=True)
@@ -145,6 +146,8 @@ class SubmissionListAPI(APIView):
             submissions = submissions.filter(problem=problem)
         if myself and myself == "1":
             submissions = submissions.filter(user_id=request.user.id)
+        elif username:
+            submissions = submissions.filter(username=username)
         if result:
             submissions = submissions.filter(result=result)
         data = self.paginate_data(request, submissions)
@@ -163,6 +166,7 @@ class ContestSubmissionListAPI(APIView):
         problem_id = request.GET.get("problem_id")
         myself = request.GET.get("myself")
         result = request.GET.get("result")
+        username = request.GET.get("username")
         if problem_id:
             try:
                 problem = Problem.objects.get(_id=problem_id, contest_id=contest.id, visible=True)
@@ -172,6 +176,8 @@ class ContestSubmissionListAPI(APIView):
 
         if myself and myself == "1":
             submissions = submissions.filter(user_id=request.user.id)
+        elif username:
+            submissions = submissions.filter(username=username)
         if result:
             submissions = submissions.filter(result=result)
 

@@ -60,7 +60,7 @@ class ContestAPITest(APITestCase):
         self.create_admin()
         url = self.reverse("contest_admin_api")
         self.contest = self.client.post(url, data=DEFAULT_CONTEST_DATA).data["data"]
-        self.url = self.reverse("contest_api") + "?contest_id=" + str(self.contest["id"])
+        self.url = self.reverse("contest_api") + "?id=" + str(self.contest["id"])
 
     def test_get_contest_list(self):
         url = self.reverse("contest_list_api")
@@ -100,7 +100,7 @@ class ContestAnnouncementAdminAPITest(APITestCase):
         self.create_super_admin()
         self.url = self.reverse("contest_announcement_admin_api")
         contest_id = self.create_contest().data["data"]["id"]
-        self.data = {"title": "test title", "content": "test content", "contest_id": contest_id}
+        self.data = {"title": "test title", "content": "test content", "contest_id": contest_id, "visible": True}
 
     def create_contest(self):
         url = self.reverse("contest_admin_api")

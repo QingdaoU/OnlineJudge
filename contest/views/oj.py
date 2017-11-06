@@ -17,7 +17,7 @@ class ContestAnnouncementListAPI(APIView):
         contest_id = request.GET.get("contest_id")
         if not contest_id:
             return self.error("Invalid parameter")
-        data = ContestAnnouncement.objects.select_related("created_by").filter(contest_id=contest_id)
+        data = ContestAnnouncement.objects.select_related("created_by").filter(contest_id=contest_id, visible=True)
         max_id = request.GET.get("max_id")
         if max_id:
             data = data.filter(id__gt=max_id)
@@ -25,9 +25,15 @@ class ContestAnnouncementListAPI(APIView):
 
 
 class ContestAPI(APIView):
-    @check_contest_permission(check_type="details")
     def get(self, request):
-        return self.success(ContestSerializer(self.contest).data)
+        id = request.GET.get("id")
+        if not id:
+            return self.error("Invalid parameter")
+        try:
+            contest = Contest.objects.get(id=id)
+            return self.success(ContestSerializer(contest).data)
+        except Contest.DoesNotExist:
+            return self.error("Contest does not exist")
 
 
 class ContestListAPI(APIView):

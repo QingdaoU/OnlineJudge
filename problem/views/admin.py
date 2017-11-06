@@ -361,4 +361,3 @@ class MakeContestProblemPublicAPIView(APIView):
         problem.save()
         problem.tags.set(tags)
         return self.success()
-

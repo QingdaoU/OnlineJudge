@@ -73,7 +73,7 @@ def check_contest_permission(check_type="details"):
             else:
                 contest_id = request.GET.get("contest_id")
             if not contest_id:
-                return self.error("Parameter contest_id not exist.")
+                return self.error("Parameter contest_id doesn't exist.")
 
             try:
                 # use self.contest to avoid query contest again in view.

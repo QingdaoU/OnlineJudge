@@ -93,6 +93,7 @@ class ContestAnnouncement(models.Model):
     title = models.CharField(max_length=128)
     content = RichTextField()
     created_by = models.ForeignKey(User)
+    visible = models.BooleanField(default=True)
     create_time = models.DateTimeField(auto_now_add=True)
 
     class Meta:

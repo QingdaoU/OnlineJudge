@@ -77,13 +77,13 @@ class EditUserSerializer(serializers.Serializer):
 
 
 class EditUserProfileSerializer(serializers.Serializer):
-    real_name = serializers.CharField(max_length=32, allow_blank=True)
-    avatar = serializers.CharField(max_length=256, allow_blank=True, required=False)
-    blog = serializers.URLField(max_length=256, allow_blank=True, required=False)
-    mood = serializers.CharField(max_length=256, allow_blank=True, required=False)
-    github = serializers.CharField(max_length=64, allow_blank=True, required=False)
-    school = serializers.CharField(max_length=64, allow_blank=True, required=False)
-    major = serializers.CharField(max_length=64, allow_blank=True, required=False)
+    real_name = serializers.CharField(max_length=32, allow_null=True, required=False)
+    avatar = serializers.CharField(max_length=256, allow_null=True, allow_blank=True, required=False)
+    blog = serializers.URLField(max_length=256, allow_null=True, allow_blank=True, required=False)
+    mood = serializers.CharField(max_length=256, allow_null=True, allow_blank=True, required=False)
+    github = serializers.CharField(max_length=64, allow_null=True, allow_blank=True, required=False)
+    school = serializers.CharField(max_length=64, allow_null=True, allow_blank=True, required=False)
+    major = serializers.CharField(max_length=64, allow_null=True, allow_blank=True, required=False)
 
 
 class ApplyResetPasswordSerializer(serializers.Serializer):

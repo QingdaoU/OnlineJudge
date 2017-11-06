@@ -59,7 +59,7 @@ _cpp_lang_config = {
         "exe_name": "main",
         "max_cpu_time": 3000,
         "max_real_time": 5000,
-        "max_memory": 256 * 1024 * 1024,
+        "max_memory": 512 * 1024 * 1024,
         "compile_command": "/usr/bin/g++ -DONLINE_JUDGE -O2 -w -fmax-errors=3 -std=c++11 {src_path} -lm -o {exe_path}",
     },
     "run": {

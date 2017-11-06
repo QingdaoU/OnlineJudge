@@ -6,7 +6,8 @@ from ..models import Contest, ContestAnnouncement
 from ..serializers import (ContestAnnouncementSerializer, ContestAdminSerializer,
                            CreateConetestSeriaizer,
                            CreateContestAnnouncementSerializer,
-                           EditConetestSeriaizer)
+                           EditConetestSeriaizer,
+                           EditContestAnnouncementSerializer)
 
 
 class ContestAPI(APIView):
@@ -82,6 +83,23 @@ class ContestAnnouncementAPI(APIView):
             return self.error("Contest does not exist")
         announcement = ContestAnnouncement.objects.create(**data)
         return self.success(ContestAnnouncementSerializer(announcement).data)
+
+    @validate_serializer(EditContestAnnouncementSerializer)
+    def put(self, request):
+        """
+        update contest_announcement
+        """
+        data = request.data
+        try:
+            contest_announcement = ContestAnnouncement.objects.get(id=data.pop("id"))
+            if request.user.is_admin() and contest_announcement.created_by != request.user:
+                return self.error("Contest announcement does not exist")
+        except ContestAnnouncement.DoesNotExist:
+            return self.error("Contest announcement does not exist")
+        for k, v in data.items():
+            setattr(contest_announcement, k, v)
+        contest_announcement.save()
+        return self.success()
 
     def delete(self, request):
         """
