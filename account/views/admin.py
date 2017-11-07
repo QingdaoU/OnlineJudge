@@ -1,4 +1,3 @@
-from django.core.exceptions import MultipleObjectsReturned
 from django.db.models import Q
 
 from utils.api import APIView, validate_serializer

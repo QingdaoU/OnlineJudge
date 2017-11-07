@@ -13,7 +13,7 @@ from utils.shortcuts import rand_str, natural_sort_key
 from ..models import Problem, ProblemRuleType, ProblemTag
 from ..serializers import (CreateContestProblemSerializer, ContestProblemAdminSerializer,
                            CreateProblemSerializer, EditProblemSerializer, EditContestProblemSerializer,
-                           ProblemAdminSerializer, TestCaseUploadForm)
+                           ProblemAdminSerializer, TestCaseUploadForm, ContestProblemMakePublicSerializer)
 
 
 class TestCaseUploadAPI(CSRFExemptAPIView):
@@ -339,15 +339,19 @@ class ContestProblemAPI(ProblemBase):
 
 
 class MakeContestProblemPublicAPIView(APIView):
+    @validate_serializer(ContestProblemMakePublicSerializer)
     @problem_permission_required
     def post(self, request):
-        problem_id = request.data.get("problem_id")
-        if not problem_id:
-            return self.error("problem_id is required")
+        data = request.data
+        display_id = data.get("display_id")
+        if Problem.objects.filter(_id=display_id, contest_id__isnull=True).exists():
+            return self.error("Duplicate display ID")
+
         try:
-            problem = Problem.objects.get(id=problem_id)
+            problem = Problem.objects.get(id=data["id"])
         except Problem.DoesNotExist:
             return self.error("Problem does not exist")
+
         if not problem.contest or problem.is_public:
             return self.error("Alreay be a public problem")
         problem.is_public = True
@@ -356,6 +360,7 @@ class MakeContestProblemPublicAPIView(APIView):
         tags = problem.tags.all()
         problem.pk = None
         problem.contest = None
+        problem._id = display_id
         problem.submission_number = problem.accepted_number = 0
         problem.statistic_info = {}
         problem.save()

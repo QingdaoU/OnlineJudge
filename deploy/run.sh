@@ -26,7 +26,7 @@ if [ $? -ne 0 ]; then
     let "n+=1"
     continue
 fi
-python manage.py initadmin
+python manage.py initinstall
 break
 done
 

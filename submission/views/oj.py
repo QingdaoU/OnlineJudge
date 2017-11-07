@@ -4,6 +4,7 @@ from judge.tasks import judge_task
 # from judge.dispatcher import JudgeDispatcher
 from problem.models import Problem, ProblemRuleType
 from contest.models import Contest, ContestStatus, ContestRuleType
+from options.options import SysOptions
 from utils.api import APIView, validate_serializer
 from utils.throttling import TokenBucket, BucketController
 from utils.captcha import Captcha
@@ -144,7 +145,7 @@ class SubmissionListAPI(APIView):
             except Problem.DoesNotExist:
                 return self.error("Problem doesn't exist")
             submissions = submissions.filter(problem=problem)
-        if myself and myself == "1":
+        if (myself and myself == "1") and not SysOptions.submission_list_show_all:
             submissions = submissions.filter(user_id=request.user.id)
         elif username:
             submissions = submissions.filter(username=username)
