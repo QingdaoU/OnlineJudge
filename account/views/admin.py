@@ -1,5 +1,6 @@
 from django.db.models import Q
 
+from submission.models import Submission
 from utils.api import APIView, validate_serializer
 from utils.shortcuts import rand_str
 
@@ -25,6 +26,7 @@ class UserAdminAPI(APIView):
         if User.objects.filter(email=data["email"].lower()).exclude(id=user.id).exists():
             return self.error("Email already exists")
 
+        pre_username = user.username
         user.username = data["username"]
         user.email = data["email"]
         user.admin_type = data["admin_type"]
@@ -58,6 +60,8 @@ class UserAdminAPI(APIView):
         user.two_factor_auth = data["two_factor_auth"]
 
         user.save()
+        if pre_username != user.username:
+            Submission.objects.filter(username=pre_username).update(username=user.username)
         return self.success(UserSerializer(user).data)
 
     @super_admin_required

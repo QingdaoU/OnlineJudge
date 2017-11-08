@@ -11,6 +11,7 @@ from django.utils.timezone import now
 from django.views.decorators.csrf import ensure_csrf_cookie
 from otpauth import OtpAuth
 
+from problem.models import Problem
 from utils.constants import ContestRuleType
 from options.options import SysOptions
 from utils.api import APIView, validate_serializer
@@ -379,3 +380,21 @@ class UserRankAPI(APIView):
         else:
             profiles = profiles.filter(total_score__gt=0).order_by("-total_score")
         return self.success(self.paginate_data(request, profiles, RankInfoSerializer))
+
+
+class ProfileProblemDisplayIDRefreshAPI(APIView):
+    @login_required
+    def get(self, request):
+        profile = request.user.userprofile
+        acm_problems = profile.acm_problems_status["problems"]
+        oi_problems = profile.oi_problems_status["problems"]
+        ids = list(acm_problems.keys()) + list(oi_problems.keys())
+        display_ids = Problem.objects.filter(id__in=ids).values_list("_id", flat=True)
+        id_map = dict(zip(ids, display_ids))
+        print(id_map)
+        for k, v in acm_problems.items():
+            v["_id"] = id_map[k]
+        for k, v in oi_problems.items():
+            v["_id"] = id_map[k]
+        profile.save(update_fields=["acm_problems_status", "oi_problems_status"])
+        return self.success()
