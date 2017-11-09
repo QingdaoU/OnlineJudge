@@ -385,13 +385,19 @@ class UserRankAPI(APIView):
 class ProfileProblemDisplayIDRefreshAPI(APIView):
     @login_required
     def get(self, request):
+        user_id = request.GET.get("user_id")
+        if not user_id:
+            return self.error("Invalid parameter, user_id is required")
+        if request.user.id != user_id:
+            return self.error("Only user self can require a refresh")
         profile = request.user.userprofile
-        acm_problems = profile.acm_problems_status["problems"]
-        oi_problems = profile.oi_problems_status["problems"]
+        acm_problems = profile.acm_problems_status.get("problems", {})
+        oi_problems = profile.oi_problems_status.get("problems", {})
         ids = list(acm_problems.keys()) + list(oi_problems.keys())
+        if not ids:
+            return self.success()
         display_ids = Problem.objects.filter(id__in=ids).values_list("_id", flat=True)
         id_map = dict(zip(ids, display_ids))
-        print(id_map)
         for k, v in acm_problems.items():
             v["_id"] = id_map[k]
         for k, v in oi_problems.items():
