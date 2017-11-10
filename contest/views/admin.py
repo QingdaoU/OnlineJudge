@@ -1,3 +1,4 @@
+from ipaddress import ip_network
 import dateutil.parser
 
 from utils.api import APIView, validate_serializer
@@ -21,6 +22,11 @@ class ContestAPI(APIView):
             return self.error("Start time must occur earlier than end time")
         if data.get("password") and data["password"] == "":
             data["password"] = None
+        for ip_range in data["allowed_ip_ranges"]:
+            try:
+                ip_network(ip_range, strict=False)
+            except ValueError:
+                return self.error(f"{ip_range} is not a valid cidr network")
         contest = Contest.objects.create(**data)
         return self.success(ContestAdminSerializer(contest).data)
 
@@ -39,6 +45,12 @@ class ContestAPI(APIView):
             return self.error("Start time must occur earlier than end time")
         if not data["password"]:
             data["password"] = None
+        for ip_range in data["allowed_ip_ranges"]:
+            try:
+                ip_network(ip_range, strict=False)
+            except ValueError as e:
+                return self.error(f"{ip_range} is not a valid cidr network")
+
         for k, v in data.items():
             setattr(contest, k, v)
         contest.save()

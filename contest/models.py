@@ -4,7 +4,7 @@ from django.utils.timezone import now
 from utils.models import JSONField
 
 from utils.constants import ContestStatus, ContestType
-from account.models import User, AdminType
+from account.models import User
 from utils.models import RichTextField
 
 
@@ -23,6 +23,7 @@ class Contest(models.Model):
     created_by = models.ForeignKey(User)
     # 是否可见 false的话相当于删除
     visible = models.BooleanField(default=True)
+    allowed_ip_ranges = JSONField(default=list)
 
     @property
     def status(self):
@@ -42,14 +43,11 @@ class Contest(models.Model):
             return ContestType.PASSWORD_PROTECTED_CONTEST
         return ContestType.PUBLIC_CONTEST
 
-    def is_contest_admin(self, user):
-        return user.is_authenticated() and (self.created_by == user or user.admin_type == AdminType.SUPER_ADMIN)
-
     # 是否有权查看problem 的一些统计信息 诸如submission_number, accepted_number 等
     def problem_details_permission(self, user):
         return self.rule_type == ContestRuleType.ACM or \
                self.status == ContestStatus.CONTEST_ENDED or \
-               self.is_contest_admin(user) or \
+               user.is_authenticated() and user.is_contest_admin(self) or \
                self.real_time_rank
 
     class Meta:

@@ -13,6 +13,7 @@ DEFAULT_CONTEST_DATA = {"title": "test title", "description": "test description"
                         "end_time": timezone.localtime(timezone.now()) + timedelta(days=1),
                         "rule_type": ContestRuleType.ACM,
                         "password": "123",
+                        "allowed_ip_ranges": [],
                         "visible": True, "real_time_rank": True}
 
 

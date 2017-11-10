@@ -277,6 +277,8 @@ class UserChangePasswordAPI(APIView):
 class ApplyResetPasswordAPI(APIView):
     @validate_serializer(ApplyResetPasswordSerializer)
     def post(self, request):
+        if request.user.is_authenticated():
+            return self.error("You have already logged in, are you kidding me? ")
         data = request.data
         captcha = Captcha(request)
         if not captcha.check(data["captcha"]):

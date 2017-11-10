@@ -174,8 +174,8 @@ class JudgeDispatcher(object):
             # update_userprofile
             user = User.objects.select_for_update().get(id=self.submission.user_id)
             user_profile = user.userprofile
+            user_profile.submission_number += 1
             if problem.rule_type == ProblemRuleType.ACM:
-                user_profile.submission_number += 1
                 acm_problems_status = user_profile.acm_problems_status.get("problems", {})
                 if problem_id not in acm_problems_status:
                     acm_problems_status[problem_id] = {"status": self.submission.result, "_id": self.problem._id}
@@ -196,14 +196,23 @@ class JudgeDispatcher(object):
                     oi_problems_status[problem_id] = {"status": self.submission.result,
                                                       "_id": self.problem._id,
                                                       "score": score}
+                    if self.submission.result == JudgeStatus.ACCEPTED:
+                        user_profile.accepted_number += 1
                 else:
+                    if oi_problems_status[problem_id]["status"] == JudgeStatus.ACCEPTED and \
+                            self.submission.result != JudgeStatus.ACCEPTED:
+                        user_profile.accepted_number -= 1
+                    elif oi_problems_status[problem_id]["status"] != JudgeStatus.ACCEPTED and \
+                            self.submission.result == JudgeStatus:
+                        user_profile.accepted_number += 1
+
                     # minus last time score, add this time score
                     user_profile.add_score(this_time_score=score,
                                            last_time_score=oi_problems_status[problem_id]["score"])
                     oi_problems_status[problem_id]["score"] = score
                     oi_problems_status[problem_id]["status"] = self.submission.result
                 user_profile.oi_problems_status["problems"] = oi_problems_status
-                user_profile.save(update_fields=["oi_problems_status"])
+                user_profile.save(update_fields=["submission_number", "accepted_number", "oi_problems_status"])
 
     def update_contest_problem_status(self):
         if self.contest_id and self.contest.status != ContestStatus.CONTEST_UNDERWAY:

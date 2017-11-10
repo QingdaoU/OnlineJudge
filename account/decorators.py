@@ -82,7 +82,7 @@ def check_contest_permission(check_type="details"):
                 return self.error("Contest %s doesn't exist" % contest_id)
 
             # creator or owner
-            if self.contest.is_contest_admin(user):
+            if user.is_authenticated() and user.is_contest_admin(self.contest):
                 return func(*args, **kwargs)
 
             if self.contest.contest_type == ContestType.PASSWORD_PROTECTED_CONTEST:

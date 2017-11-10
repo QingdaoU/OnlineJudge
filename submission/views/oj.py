@@ -1,3 +1,5 @@
+import ipaddress
+
 from django.conf import settings
 from account.decorators import login_required, check_contest_permission
 from judge.tasks import judge_task
@@ -54,23 +56,26 @@ class SubmissionAPI(APIView):
                 return self.error("Contest doesn't exist.")
             if contest.status == ContestStatus.CONTEST_ENDED:
                 return self.error("The contest have ended")
-            if contest.status == ContestStatus.CONTEST_NOT_START and not contest.is_contest_admin(request.user):
-                return self.error("Contest have not started")
+            if not request.user.is_contest_admin(contest):
+                if contest.status == ContestStatus.CONTEST_NOT_START:
+                    return self.error("Contest have not started")
+                user_ip = ipaddress.ip_address(request.session.get("ip"))
+                if contest.allowed_ip_ranges:
+                    if not any(user_ip in ipaddress.ip_network(cidr) for cidr in contest.allowed_ip_ranges):
+                        return self.error("Your IP is not allowed in this contest")
+
             if not contest.problem_details_permission(request.user):
                 hide_id = True
 
         if data.get("captcha"):
             if not Captcha(request).check(data["captcha"]):
                 return self.error("Invalid captcha")
-
         error = self.throttling(request)
         if error:
             return self.error(error)
 
         try:
-            problem = Problem.objects.get(id=data["problem_id"],
-                                          contest_id=data.get("contest_id"),
-                                          visible=True)
+            problem = Problem.objects.get(id=data["problem_id"], contest_id=data.get("contest_id"), visible=True)
         except Problem.DoesNotExist:
             return self.error("Problem not exist")
 
@@ -79,6 +84,7 @@ class SubmissionAPI(APIView):
                                                language=data["language"],
                                                code=data["code"],
                                                problem_id=problem.id,
+                                               ip=request.session["ip"],
                                                contest_id=data.get("contest_id"))
         # use this for debug
         # JudgeDispatcher(submission.id, problem.id).judge()
@@ -100,10 +106,10 @@ class SubmissionAPI(APIView):
         if not submission.check_user_permission(request.user):
             return self.error("No permission for this submission")
 
-        if submission.problem.rule_type == ProblemRuleType.ACM:
-            submission_data = SubmissionSafeModelSerializer(submission).data
-        else:
+        if submission.problem.rule_type == ProblemRuleType.OI or request.user.is_admin_role():
             submission_data = SubmissionModelSerializer(submission).data
+        else:
+            submission_data = SubmissionSafeModelSerializer(submission).data
         # 是否有权限取消共享
         submission_data["can_unshare"] = submission.check_user_permission(request.user, check_share=False)
         return self.success(submission_data)
@@ -145,7 +151,7 @@ class SubmissionListAPI(APIView):
             except Problem.DoesNotExist:
                 return self.error("Problem doesn't exist")
             submissions = submissions.filter(problem=problem)
-        if (myself and myself == "1") and not SysOptions.submission_list_show_all:
+        if (myself and myself == "1") or not SysOptions.submission_list_show_all:
             submissions = submissions.filter(user_id=request.user.id)
         elif username:
             submissions = submissions.filter(username=username)

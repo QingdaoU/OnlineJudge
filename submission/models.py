@@ -36,6 +36,7 @@ class Submission(models.Model):
     # 存储该提交所用时间和内存值，方便提交列表显示
     # {time_cost: "", memory_cost: "", err_info: "", score: 0}
     statistic_info = JSONField(default=dict)
+    ip = models.CharField(max_length=32, null=True, blank=True)
 
     def check_user_permission(self, user, check_share=True):
         return self.user_id == user.id or \
