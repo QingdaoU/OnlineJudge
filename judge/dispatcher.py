@@ -124,12 +124,13 @@ class JudgeDispatcher(object):
         if not service_url:
             service_url = settings.DEFAULT_JUDGE_SERVER_SERVICE_URL
         resp = self._request(urljoin(service_url, "/judge"), data=data)
-        self.submission.info = resp
         if resp["err"]:
             self.submission.result = JudgeStatus.COMPILE_ERROR
             self.submission.statistic_info["err_info"] = resp["data"]
             self.submission.statistic_info["score"] = 0
         else:
+            resp["data"].sort(key=lambda x: int(x["test_case"]))
+            self.submission.info = resp
             self._compute_statistic_info(resp["data"])
             error_test_case = list(filter(lambda case: case["result"] != 0, resp["data"]))
             # ACM模式下,多个测试点全部正确则AC，否则取第一个错误的测试点的状态

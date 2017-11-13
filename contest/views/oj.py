@@ -2,6 +2,7 @@ from django.utils.timezone import now
 from django.core.cache import cache
 from utils.api import APIView, validate_serializer
 from utils.constants import CacheKey
+from utils.shortcuts import datetime2str
 from account.decorators import login_required, check_contest_permission
 
 from utils.constants import ContestRuleType, ContestStatus
@@ -31,9 +32,11 @@ class ContestAPI(APIView):
             return self.error("Invalid parameter, id is required")
         try:
             contest = Contest.objects.get(id=id)
-            return self.success(ContestSerializer(contest).data)
         except Contest.DoesNotExist:
             return self.error("Contest does not exist")
+        data = ContestSerializer(contest).data
+        data["now"] = datetime2str(now())
+        return self.success(data)
 
 
 class ContestListAPI(APIView):
