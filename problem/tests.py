@@ -11,7 +11,7 @@ from utils.api.tests import APITestCase
 
 from .models import ProblemTag
 from .models import Problem, ProblemRuleType
-from .views.admin import TestCaseUploadAPI
+from .views.admin import TestCaseAPI
 from contest.models import Contest
 from contest.tests import DEFAULT_CONTEST_DATA
 
@@ -75,8 +75,8 @@ class ProblemTagListAPITest(APITestCase):
 
 class TestCaseUploadAPITest(APITestCase):
     def setUp(self):
-        self.api = TestCaseUploadAPI()
-        self.url = self.reverse("test_case_upload_api")
+        self.api = TestCaseAPI()
+        self.url = self.reverse("test_case_api")
         self.create_super_admin()
 
     def test_filter_file_name(self):

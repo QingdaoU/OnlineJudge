@@ -2,8 +2,10 @@ import hashlib
 import json
 import os
 import zipfile
+from wsgiref.util import FileWrapper
 
 from django.conf import settings
+from django.http import StreamingHttpResponse
 
 from account.decorators import problem_permission_required
 from contest.models import Contest
@@ -16,7 +18,7 @@ from ..serializers import (CreateContestProblemSerializer, ContestProblemAdminSe
                            ProblemAdminSerializer, TestCaseUploadForm, ContestProblemMakePublicSerializer)
 
 
-class TestCaseUploadAPI(CSRFExemptAPIView):
+class TestCaseAPI(CSRFExemptAPIView):
     request_parsers = ()
 
     def filter_name_list(self, name_list, spj):
@@ -42,6 +44,29 @@ class TestCaseUploadAPI(CSRFExemptAPIView):
                     continue
                 else:
                     return sorted(ret, key=natural_sort_key)
+
+    @problem_permission_required
+    def get(self, request):
+        problem_id = request.GET.get("problem_id")
+        if not problem_id:
+            return self.error("Parameter error, problem_id is required")
+        try:
+            problem = Problem.objects.get(id=problem_id)
+        except Problem.DoesNotExist:
+            return self.error("Problem does not exists")
+
+        test_case_dir = os.path.join(settings.TEST_CASE_DIR, problem.test_case_id)
+        if not os.path.isdir(test_case_dir):
+            return self.error("Test case does not exists")
+        name_list = self.filter_name_list(os.listdir(test_case_dir), problem.spj)
+        name_list.append("info")
+        file_name = os.path.join(test_case_dir, problem.test_case_id)
+        with zipfile.ZipFile(file_name, "w") as file:
+            for test_case in name_list:
+                file.write(f"{test_case_dir}/{test_case}", test_case)
+        response = StreamingHttpResponse(FileWrapper(open(file_name, "rb")), content_type="application/zip")
+        response["Content-Disposition"] = f"attachment; filename=problem_{problem.id}_test_cases.zip"
+        return response
 
     @problem_permission_required
     def post(self, request):
