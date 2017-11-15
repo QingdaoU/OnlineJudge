@@ -67,7 +67,7 @@ class ProblemAPI(APIView):
         # 搜索的情况
         keyword = request.GET.get("keyword", "").strip()
         if keyword:
-            problems = problems.filter(Q(title__contains=keyword) | Q(description__contains=keyword))
+            problems = problems.filter(Q(title__icontains=keyword) | Q(_id__icontains=keyword))
 
         # 难度筛选
         difficulty = request.GET.get("difficulty")
