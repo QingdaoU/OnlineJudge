@@ -56,6 +56,7 @@ class Problem(models.Model):
     spj_language = models.CharField(max_length=32, blank=True, null=True)
     spj_code = models.TextField(blank=True, null=True)
     spj_version = models.CharField(max_length=32, blank=True, null=True)
+    spj_compile_ok = models.BooleanField(default=False)
     rule_type = models.CharField(max_length=32)
     visible = models.BooleanField(default=True)
     difficulty = models.CharField(max_length=32)

@@ -11,7 +11,7 @@ from django.conf import settings
 from account.models import User
 from conf.models import JudgeServer
 from contest.models import ContestRuleType, ACMContestRank, OIContestRank, ContestStatus
-from judge.languages import languages
+from judge.languages import languages, spj_languages
 from options.options import SysOptions
 from problem.models import Problem, ProblemRuleType
 from submission.models import JudgeStatus, Submission
@@ -30,16 +30,9 @@ def process_pending_task():
         judge_task.delay(**data)
 
 
-class JudgeDispatcher(object):
-    def __init__(self, submission_id, problem_id):
+class DispatcherBase(object):
+    def __init__(self):
         self.token = hashlib.sha256(SysOptions.judge_server_token.encode("utf-8")).hexdigest()
-        self.submission = Submission.objects.get(id=submission_id)
-        self.contest_id = self.submission.contest_id
-        if self.contest_id:
-            self.problem = Problem.objects.select_related("contest").get(id=problem_id, contest_id=self.contest_id)
-            self.contest = self.problem.contest
-        else:
-            self.problem = Problem.objects.get(id=problem_id)
 
     def _request(self, url, data=None):
         kwargs = {"headers": {"X-Judge-Server-Token": self.token}}
@@ -69,6 +62,39 @@ class JudgeDispatcher(object):
             server.used_instance_number = F("task_number") - 1
             server.save()
 
+
+class SPJCompiler(DispatcherBase):
+    def __init__(self, spj_code, spj_version, spj_language):
+        super().__init__()
+        spj_compile_config = list(filter(lambda config: spj_language == config["name"], spj_languages))[0]["spj"][
+            "compile"]
+        self.data = {
+            "src": spj_code,
+            "spj_version": spj_version,
+            "spj_compile_config": spj_compile_config
+        }
+
+    def compile_spj(self):
+        server = self.choose_judge_server()
+        if not server:
+            return "No available judge_server"
+        result = self._request(urljoin(server.service_url, "compile_spj"), data=self.data)
+        self.release_judge_server(server.id)
+        if result["err"]:
+            return result["data"]
+
+
+class JudgeDispatcher(DispatcherBase):
+    def __init__(self, submission_id, problem_id):
+        super().__init__()
+        self.submission = Submission.objects.get(id=submission_id)
+        self.contest_id = self.submission.contest_id
+        if self.contest_id:
+            self.problem = Problem.objects.select_related("contest").get(id=problem_id, contest_id=self.contest_id)
+            self.contest = self.problem.contest
+        else:
+            self.problem = Problem.objects.get(id=problem_id)
+
     def _compute_statistic_info(self, resp_data):
         # 用时和内存占用保存为多个测试点中最长的那个
         self.submission.statistic_info["time_cost"] = max([x["cpu_time"] for x in resp_data])
@@ -90,7 +116,7 @@ class JudgeDispatcher(object):
                 return
             self.submission.statistic_info["score"] = score
 
-    def judge(self, output=False):
+    def judge(self, output=True):
         server = self.choose_judge_server()
         if not server:
             data = {"submission_id": self.submission.id, "problem_id": self.problem.id}
@@ -100,7 +126,7 @@ class JudgeDispatcher(object):
         sub_config = list(filter(lambda item: self.submission.language == item["name"], languages))[0]
         spj_config = {}
         if self.problem.spj_code:
-            for lang in languages:
+            for lang in spj_languages:
                 if lang["name"] == self.problem.spj_language:
                     spj_config = lang["spj"]
                     break
@@ -153,12 +179,6 @@ class JudgeDispatcher(object):
         # 至此判题结束，尝试处理任务队列中剩余的任务
         process_pending_task()
 
-    def compile_spj(self, service_url, src, spj_version, spj_compile_config, test_case_id):
-        data = {"src": src, "spj_version": spj_version,
-                "spj_compile_config": spj_compile_config,
-                "test_case_id": test_case_id}
-        return self._request(urljoin(service_url, "compile_spj"), data=data)
-
     def update_problem_status(self):
         result = str(self.submission.result)
         problem_id = str(self.problem.id)
@@ -201,10 +221,10 @@ class JudgeDispatcher(object):
                         user_profile.accepted_number += 1
                 else:
                     if oi_problems_status[problem_id]["status"] == JudgeStatus.ACCEPTED and \
-                            self.submission.result != JudgeStatus.ACCEPTED:
+                                    self.submission.result != JudgeStatus.ACCEPTED:
                         user_profile.accepted_number -= 1
                     elif oi_problems_status[problem_id]["status"] != JudgeStatus.ACCEPTED and \
-                            self.submission.result == JudgeStatus:
+                                    self.submission.result == JudgeStatus:
                         user_profile.accepted_number += 1
 
                     # minus last time score, add this time score

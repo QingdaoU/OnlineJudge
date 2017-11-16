@@ -81,7 +81,7 @@ class UserAdminAPI(APIView):
 
         keyword = request.GET.get("keyword", None)
         if keyword:
-            user = user.filter(Q(username__contains=keyword) |
-                               Q(real_name__contains=keyword) |
-                               Q(email__contains=keyword))
+            user = user.filter(Q(username__icontains=keyword) |
+                               Q(userprofile__real_name__icontains=keyword) |
+                               Q(email__icontains=keyword))
         return self.success(self.paginate_data(request, user, UserSerializer))

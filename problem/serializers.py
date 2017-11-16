@@ -79,6 +79,12 @@ class TagSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
+class CompileSPJSerializer(serializers.Serializer):
+    id = serializers.IntegerField()
+    spj_language = serializers.ChoiceField(choices=spj_language_names)
+    spj_code = serializers.CharField()
+
+
 class BaseProblemSerializer(serializers.ModelSerializer):
     samples = serializers.JSONField()
     test_case_score = serializers.JSONField()
@@ -125,3 +131,5 @@ class ContestProblemSafeSerializer(BaseProblemSerializer):
 class ContestProblemMakePublicSerializer(serializers.Serializer):
     id = serializers.IntegerField()
     display_id = serializers.CharField(max_length=32)
+
+

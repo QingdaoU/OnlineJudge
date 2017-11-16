@@ -8,12 +8,13 @@ from django.conf import settings
 from django.http import StreamingHttpResponse
 
 from account.decorators import problem_permission_required
+from judge.dispatcher import SPJCompiler
 from contest.models import Contest
 from utils.api import APIView, CSRFExemptAPIView, validate_serializer
 from utils.shortcuts import rand_str, natural_sort_key
 
 from ..models import Problem, ProblemRuleType, ProblemTag
-from ..serializers import (CreateContestProblemSerializer, ContestProblemAdminSerializer,
+from ..serializers import (CreateContestProblemSerializer, ContestProblemAdminSerializer, CompileSPJSerializer,
                            CreateProblemSerializer, EditProblemSerializer, EditContestProblemSerializer,
                            ProblemAdminSerializer, TestCaseUploadForm, ContestProblemMakePublicSerializer)
 
@@ -60,7 +61,7 @@ class TestCaseAPI(CSRFExemptAPIView):
             return self.error("Test case does not exists")
         name_list = self.filter_name_list(os.listdir(test_case_dir), problem.spj)
         name_list.append("info")
-        file_name = os.path.join(test_case_dir, problem.test_case_id)
+        file_name = os.path.join(test_case_dir, problem.test_case_id + ".zip")
         with zipfile.ZipFile(file_name, "w") as file:
             for test_case in name_list:
                 file.write(f"{test_case_dir}/{test_case}", test_case)
@@ -132,6 +133,31 @@ class TestCaseAPI(CSRFExemptAPIView):
         with open(os.path.join(test_case_dir, "info"), "w", encoding="utf-8") as f:
             f.write(json.dumps(test_case_info, indent=4))
         return self.success({"id": test_case_id, "info": ret, "hint": hint, "spj": spj})
+
+
+class CompileSPJAPI(APIView):
+    @validate_serializer(CompileSPJSerializer)
+    @problem_permission_required
+    def post(self, request):
+        data = request.data
+        try:
+            problem = Problem.objects.get(pk=data["id"])
+        except Problem.DoesNotExist:
+            return self.error("Problem does not exist")
+        spj_version = rand_str(8)
+        problem.spj = True
+        problem.spj_version = spj_version
+        problem.spj_language = data["spj_language"]
+        problem.spj_code = data["spj_code"]
+        error = SPJCompiler(data["spj_code"], spj_version, data["spj_language"]).compile_spj()
+        if error:
+            problem.spj_compile_ok = False
+            problem.save()
+            return self.error(error)
+        else:
+            problem.spj_compile_ok = True
+            problem.save()
+            return self.success()
 
 
 class ProblemBase(APIView):
