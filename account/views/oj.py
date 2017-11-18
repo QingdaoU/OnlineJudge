@@ -387,11 +387,6 @@ class UserRankAPI(APIView):
 class ProfileProblemDisplayIDRefreshAPI(APIView):
     @login_required
     def get(self, request):
-        user_id = request.GET.get("user_id")
-        if not user_id:
-            return self.error("Invalid parameter, user_id is required")
-        if request.user.id != user_id:
-            return self.error("Only user self can require a refresh")
         profile = request.user.userprofile
         acm_problems = profile.acm_problems_status.get("problems", {})
         oi_problems = profile.oi_problems_status.get("problems", {})
