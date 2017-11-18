@@ -221,10 +221,10 @@ class JudgeDispatcher(DispatcherBase):
                         user_profile.accepted_number += 1
                 else:
                     if oi_problems_status[problem_id]["status"] == JudgeStatus.ACCEPTED and \
-                                    self.submission.result != JudgeStatus.ACCEPTED:
+                            self.submission.result != JudgeStatus.ACCEPTED:
                         user_profile.accepted_number -= 1
                     elif oi_problems_status[problem_id]["status"] != JudgeStatus.ACCEPTED and \
-                                    self.submission.result == JudgeStatus:
+                            self.submission.result == JudgeStatus:
                         user_profile.accepted_number += 1
 
                     # minus last time score, add this time score

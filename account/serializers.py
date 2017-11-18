@@ -35,6 +35,15 @@ class UserChangeEmailSerializer(serializers.Serializer):
     tfa_code = serializers.CharField(required=False, allow_blank=True)
 
 
+class GenerateUserSerializer(serializers.Serializer):
+    prefix = serializers.CharField(max_length=16, allow_blank=True)
+    suffix = serializers.CharField(max_length=16, allow_blank=True)
+    number_from = serializers.IntegerField()
+    number_to = serializers.IntegerField()
+    default_email = serializers.CharField(max_length=64)
+    password_length = serializers.IntegerField(required=False, max_value=16)
+
+
 class UserSerializer(serializers.ModelSerializer):
     create_time = DateTimeTZField()
     last_login = DateTimeTZField()

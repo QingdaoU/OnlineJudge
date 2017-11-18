@@ -1,6 +1,7 @@
 import hashlib
 import json
 import os
+import shutil
 import zipfile
 from wsgiref.util import FileWrapper
 
@@ -10,6 +11,7 @@ from django.http import StreamingHttpResponse
 from account.decorators import problem_permission_required
 from judge.dispatcher import SPJCompiler
 from contest.models import Contest
+from submission.models import Submission
 from utils.api import APIView, CSRFExemptAPIView, validate_serializer
 from utils.shortcuts import rand_str, natural_sort_key
 
@@ -140,23 +142,11 @@ class CompileSPJAPI(APIView):
     @problem_permission_required
     def post(self, request):
         data = request.data
-        try:
-            problem = Problem.objects.get(pk=data["id"])
-        except Problem.DoesNotExist:
-            return self.error("Problem does not exist")
         spj_version = rand_str(8)
-        problem.spj = True
-        problem.spj_version = spj_version
-        problem.spj_language = data["spj_language"]
-        problem.spj_code = data["spj_code"]
         error = SPJCompiler(data["spj_code"], spj_version, data["spj_language"]).compile_spj()
         if error:
-            problem.spj_compile_ok = False
-            problem.save()
             return self.error(error)
         else:
-            problem.spj_compile_ok = True
-            problem.save()
             return self.success()
 
 
@@ -166,6 +156,8 @@ class ProblemBase(APIView):
         if data["spj"]:
             if not data["spj_language"] or not data["spj_code"]:
                 return "Invalid spj"
+            if not data["spj_compile_ok"]:
+                return "SPJ code must be compiled successfully"
             data["spj_version"] = hashlib.md5(
                 (data["spj_language"] + ":" + data["spj_code"]).encode("utf-8")).hexdigest()
         else:
@@ -181,6 +173,23 @@ class ProblemBase(APIView):
             data["total_score"] = total_score
         data["created_by"] = request.user
         data["languages"] = list(data["languages"])
+
+    @problem_permission_required
+    def delete(self, request):
+        id = request.GET.get("id")
+        if not id:
+            return self.error("Invalid parameter, id is requred")
+        try:
+            problem = Problem.objects.get(id=id)
+        except Problem.DoesNotExist:
+            return self.error("Problem does not exists")
+        if Submission.objects.filter(problem=problem).exists():
+            return self.error("Can't delete the problem as it has submissions")
+        d = os.path.join(settings.TEST_CASE_DIR, problem.test_case_id)
+        if os.path.isdir(d):
+            shutil.rmtree(d, ignore_errors=True)
+        problem.delete()
+        return self.success()
 
 
 class ProblemAPI(ProblemBase):

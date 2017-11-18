@@ -49,6 +49,7 @@ class CreateOrEditProblemSerializer(serializers.Serializer):
     spj = serializers.BooleanField()
     spj_language = serializers.ChoiceField(choices=spj_language_names, allow_blank=True, allow_null=True)
     spj_code = serializers.CharField(allow_blank=True, allow_null=True)
+    spj_compile_ok = serializers.BooleanField(default=False)
     visible = serializers.BooleanField()
     difficulty = serializers.ChoiceField(choices=[Difficulty.LOW, Difficulty.MID, Difficulty.HIGH])
     tags = serializers.ListField(child=serializers.CharField(max_length=32), allow_empty=False)
@@ -80,7 +81,6 @@ class TagSerializer(serializers.ModelSerializer):
 
 
 class CompileSPJSerializer(serializers.Serializer):
-    id = serializers.IntegerField()
     spj_language = serializers.ChoiceField(choices=spj_language_names)
     spj_code = serializers.CharField()
 
@@ -131,5 +131,3 @@ class ContestProblemSafeSerializer(BaseProblemSerializer):
 class ContestProblemMakePublicSerializer(serializers.Serializer):
     id = serializers.IntegerField()
     display_id = serializers.CharField(max_length=32)
-
-
