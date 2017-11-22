@@ -11,9 +11,34 @@ from utils.shortcuts import rand_str
 from ..decorators import super_admin_required
 from ..models import AdminType, ProblemPermission, User, UserProfile
 from ..serializers import EditUserSerializer, UserSerializer, GenerateUserSerializer
+from ..serializers import ImportUserSeralizer
 
 
 class UserAdminAPI(APIView):
+    @validate_serializer(ImportUserSeralizer)
+    @super_admin_required
+    def post(self, request):
+        data = request.data["users"]
+        omitted_count = created_count = get_count = 0
+        for user_data in data:
+            if len(user_data) != 3:
+                omitted_count += 1
+                continue
+            user, created = User.objects.get_or_create(username=user_data[0])
+            user.set_password(user_data[1])
+            user.email = user_data[2]
+            user.save()
+            if created:
+                UserProfile.objects.create(user=user)
+                created_count += 1
+            else:
+                get_count += 1
+        return self.success({
+            "omitted_count": omitted_count,
+            "created_count": created_count,
+            "get_count": get_count
+        })
+
     @validate_serializer(EditUserSerializer)
     @super_admin_required
     def put(self, request):
@@ -156,15 +181,26 @@ class GenerateUserAPI(APIView):
         worksheet.write("A1", "Username")
         worksheet.write("B1", "Password")
         i = 1
+        created_count = 0
+        get_count = 0
         for number in range(data["number_from"], data["number_to"] + 1):
             username = f"{data['prefix']}{number}{data['suffix']}"
             password = rand_str(password_length)
-            user = User.objects.create(username=username, email=default_email)
+            user, created = User.objects.get_or_create(username=username)
+            user.email = default_email
             user.set_password(password)
             user.save()
-            UserProfile.objects.create(user=user)
+            if created:
+                UserProfile.objects.create(user=user)
+                created_count += 1
+            else:
+                get_count += 1
             worksheet.write_string(i, 0, username)
             worksheet.write_string(i, 1, password)
             i += 1
         workbook.close()
-        return self.success(file_id)
+        return self.success({
+            "file_id": file_id,
+            "created_count": created_count,
+            "get_count": get_count
+        })

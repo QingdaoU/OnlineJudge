@@ -44,6 +44,11 @@ class GenerateUserSerializer(serializers.Serializer):
     password_length = serializers.IntegerField(required=False, max_value=16)
 
 
+class ImportUserSeralizer(serializers.Serializer):
+    users = serializers.ListField(
+        child=serializers.ListField(child=serializers.CharField(max_length=64)))
+
+
 class UserSerializer(serializers.ModelSerializer):
     create_time = DateTimeTZField()
     last_login = DateTimeTZField()
