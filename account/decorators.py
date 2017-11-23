@@ -94,11 +94,11 @@ def check_contest_permission(check_type="details"):
                         (self.contest.id not in request.session["accessible_contests"]):
                     return self.error("Password is required.")
 
-            # regular use get contest problems, ranks etc. before contest started
+            # regular user get contest problems, ranks etc. before contest started
             if self.contest.status == ContestStatus.CONTEST_NOT_START and check_type != "details":
                 return self.error("Contest has not started yet.")
 
-            # check is user have permission to get ranks, submissions OI Contest
+            # check does user have permission to get ranks, submissions OI Contest
             if self.contest.status == ContestStatus.CONTEST_UNDERWAY and self.contest.rule_type == ContestRuleType.OI:
                 if not self.contest.real_time_rank and (check_type == "ranks" or check_type == "submissions"):
                     return self.error(f"No permission to get {check_type}")

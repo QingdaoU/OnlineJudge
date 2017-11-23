@@ -21,7 +21,7 @@ class UserAdminAPI(APIView):
         data = request.data["users"]
         omitted_count = created_count = get_count = 0
         for user_data in data:
-            if len(user_data) != 3:
+            if len(user_data) != 3 or len(user_data[0]) > 32:
                 omitted_count += 1
                 continue
             user, created = User.objects.get_or_create(username=user_data[0])
@@ -167,7 +167,7 @@ class GenerateUserAPI(APIView):
         number_max_length = max(len(str(data["number_from"])), len(str(data["number_to"])))
         if number_max_length + len(data["prefix"]) + len(data["suffix"]) > 32:
             return self.error("Username should not more than 32 characters")
-        if data["number_from"] >= data["number_to"]:
+        if data["number_from"] > data["number_to"]:
             return self.error("Start number must be lower than end number")
 
         password_length = data.get("password_length", 8)
