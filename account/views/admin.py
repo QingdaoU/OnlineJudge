@@ -120,8 +120,7 @@ class UserAdminAPI(APIView):
             user = User.objects.get(id=user_id)
         except User.DoesNotExist:
             return f"User {user_id} does not exist"
-        profile = user.userprofile
-        if profile.submission_number:
+        if Submission.objects.filter(user_id=user_id).exists():
             return f"Can't delete the user {user_id} as he/she has submissions"
         user.delete()
 
