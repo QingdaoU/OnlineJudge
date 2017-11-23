@@ -197,7 +197,7 @@ class UsernameOrEmailCheck(APIView):
             "email": False
         }
         if data.get("username"):
-            result["username"] = User.objects.filter(username=data["username"]).exists()
+            result["username"] = User.objects.filter(username=data["username"].lower()).exists()
         if data.get("email"):
             result["email"] = User.objects.filter(email=data["email"].lower()).exists()
         return self.success(result)

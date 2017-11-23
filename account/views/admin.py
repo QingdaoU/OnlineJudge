@@ -129,7 +129,7 @@ class UserAdminAPI(APIView):
     def delete(self, request):
         id = request.GET.get("id")
         if not id:
-            return self.error("Invalid Parameter, user_id is required")
+            return self.error("Invalid Parameter, id is required")
         for user_id in id.split(","):
             if user_id:
                 error = self.delete_one(user_id)
