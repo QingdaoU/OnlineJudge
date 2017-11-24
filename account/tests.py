@@ -1,4 +1,5 @@
 import time
+
 from unittest import mock
 from datetime import timedelta
 from copy import deepcopy
@@ -610,6 +611,3 @@ class GenerateUserAPITest(APITestCase):
         resp = self.client.post(self.url, data=self.data)
         self.assertSuccess(resp)
         mock_workbook.assert_called()
-        data = resp.data["data"]
-        self.assertEqual(data["created_count"], 6)
-        self.assertEqual(data["get_count"], 0)

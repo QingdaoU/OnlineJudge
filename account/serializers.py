@@ -40,8 +40,7 @@ class GenerateUserSerializer(serializers.Serializer):
     suffix = serializers.CharField(max_length=16, allow_blank=True)
     number_from = serializers.IntegerField()
     number_to = serializers.IntegerField()
-    default_email = serializers.CharField(max_length=64)
-    password_length = serializers.IntegerField(required=False, max_value=16)
+    password_length = serializers.IntegerField(max_value=16, default=8)
 
 
 class ImportUserSeralizer(serializers.Serializer):
