@@ -557,20 +557,25 @@ class AdminUserTest(APITestCase):
 
     def test_import_users(self):
         data = {"users": [["user1", "pass1", "eami1@e.com"],
-                          ["user1", "pass1", "eami1@e.com"],
-                          ["user2", "pass2"], ["user3", "pass3", "eamil3@e.com"]]
+                          ["user2", "pass3", "eamil3@e.com"]]
                 }
         resp = self.client.post(self.url, data)
         self.assertSuccess(resp)
-        self.assertDictEqual(resp.data["data"], {"omitted_count": 1,
-                                                 "created_count": 2,
-                                                 "get_count": 1})
         # successfully created 2 users
         self.assertEqual(User.objects.all().count(), 4)
 
+    def test_import_duplicate_user(self):
+        data = {"users": [["user1", "pass1", "eami1@e.com"],
+                          ["user1", "pass1", "eami1@e.com"]]
+                }
+        resp = self.client.post(self.url, data)
+        self.assertFailed(resp, "DETAIL:  Key (username)=(user1) already exists.")
+        # no user is created
+        self.assertEqual(User.objects.all().count(), 2)
+
     def test_delete_users(self):
         self.test_import_users()
-        user_ids = User.objects.filter(username__in=["user1", "user3"]).values_list("id", flat=True)
+        user_ids = User.objects.filter(username__in=["user1", "user2"]).values_list("id", flat=True)
         user_ids = ",".join([str(id) for id in user_ids])
         resp = self.client.delete(self.url + "?id=" + user_ids)
         self.assertSuccess(resp)
