@@ -150,7 +150,7 @@ class GenerateUserAPI(APIView):
         file_id = request.GET.get("file_id")
         if not file_id:
             return self.error("Invalid Parameter, file_id is required")
-        if not re.match(r"[a-zA-Z0-9]+", file_id):
+        if not re.match(r"^[a-zA-Z0-9]+$", file_id):
             return self.error("Illegal file_id")
         file_path = f"/tmp/{file_id}.xlsx"
         if not os.path.isfile(file_path):
