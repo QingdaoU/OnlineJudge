@@ -1,39 +1,28 @@
 #!/bin/bash
 
 BASE=/app
+DATA=$BASE/data
 
-if [ ! -f "$BASE/custom_settings.py" ]; then
-    echo SECRET_KEY=\"$(cat /dev/urandom | head -1 | md5sum | head -c 32)\" >> /app/oj/custom_settings.py
+if [ ! -f "$BASE/oj/custom_settings.py" ]; then
+    echo SECRET_KEY=\"$(cat /dev/urandom | head -1 | md5sum | head -c 32)\" >> $BASE/oj/custom_settings.py
 fi
 
-if [ ! -d "$BASE/log" ]; then
-    mkdir -p $BASE/log
-fi
+mkdir -p $DATA/log $DATA/testcase $DATA/public/upload
 
 cd $BASE
-find . -name "*.pyc" -delete
-
-# wait for postgresql start
-sleep 6
 
 n=0
-while [ $n -lt 3 ]
+while [ $n -lt 5 ]
 do
-python manage.py migrate
-if [ $? -ne 0 ]; then
-    echo "Can't start server, try again in 3 seconds.."
-    sleep 3
-    let "n+=1"
-    continue
-fi
-python manage.py initinstall
-break
+    python manage.py migrate --no-input &&
+    python manage.py initinstall &&
+    break
+    n=$(($n+1))
+    echo "Failed to migrate, going to retry..."
+    sleep 8
 done
 
-if [ $n -eq 3 ]; then
-    echo "Can't start server, please check log file for details."
-    exit 1
-fi
+cp $BASE/deploy/oj.conf /etc/nginx/conf.d/default.conf
 
-chown -R nobody:nogroup /data/log /data/test_case /data/avatar /data/upload
+chown -R nobody:nogroup $DATA $BASE/dist
 exec supervisord -c /app/deploy/supervisor.conf

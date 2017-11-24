@@ -7,7 +7,7 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'HOST': '127.0.0.1',
-        'PORT': 5432,
+        'PORT': 5433,
         'NAME': "onlinejudge",
         'USER': "onlinejudge",
         'PASSWORD': 'onlinejudge'
@@ -24,16 +24,4 @@ DEBUG = True
 
 ALLOWED_HOSTS = ["*"]
 
-TEST_CASE_DIR = "/tmp"
-
-LOG_PATH = f"{BASE_DIR}/log/"
-
-AVATAR_URI_PREFIX = "/static/avatar"
-AVATAR_UPLOAD_DIR = f"{BASE_DIR}{AVATAR_URI_PREFIX}"
-
-UPLOAD_PREFIX = "/static/upload"
-UPLOAD_DIR = f"{BASE_DIR}{UPLOAD_PREFIX}"
-
-STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, "static"),
-]
+DATA_DIR = f"{BASE_DIR}/data"

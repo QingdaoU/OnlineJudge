@@ -109,9 +109,21 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.8/howto/static-files/
 
-STATIC_URL = '/static/'
+STATIC_URL = '/storage/'
 
 AUTH_USER_MODEL = 'account.User'
+
+TEST_CASE_DIR = os.path.join(DATA_DIR, "testcase")
+LOG_PATH = os.path.join(DATA_DIR, "log")
+
+AVATAR_URI_PREFIX = "/public/avatar"
+AVATAR_UPLOAD_DIR = f"{DATA_DIR}{AVATAR_URI_PREFIX}"
+
+UPLOAD_PREFIX = "/public/upload"
+UPLOAD_DIR = f"{DATA_DIR}{UPLOAD_PREFIX}"
+
+STATICFILES_DIRS = [os.path.join(DATA_DIR, "public")]
+
 
 LOGGING = {
     'version': 1,
