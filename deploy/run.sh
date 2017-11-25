@@ -21,7 +21,7 @@ n=0
 while [ $n -lt 5 ]
 do
     python manage.py migrate --no-input &&
-    python manage.py initinstall &&
+    python manage.py inituser --username=root --password=rootroot --action=create_super_admin &&
     break
     n=$(($n+1))
     echo "Failed to migrate, going to retry..."
