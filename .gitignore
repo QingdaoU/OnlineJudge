@@ -65,7 +65,7 @@ data/test_case/*
 !data/test_case/.gitkeep
 data/ssl/*
 !data/ssl/.gitkeep
-data/static/upload/*
-!data/static/upload/.gitkeep
-data/static/avatar/*
-!data/static/avatar/default.png
+data/public/upload/*
+!data/public/upload/.gitkeep
+data/public/avatar/*
+!data/public/avatar/default.png
