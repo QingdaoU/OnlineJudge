@@ -611,3 +611,19 @@ class GenerateUserAPITest(APITestCase):
         resp = self.client.post(self.url, data=self.data)
         self.assertSuccess(resp)
         mock_workbook.assert_called()
+
+
+class OpenAPIAppkeyAPITest(APITestCase):
+    def setUp(self):
+        self.user = self.create_super_admin()
+        self.url = self.reverse("open_api_appkey_api")
+
+    def test_reset_appkey(self):
+        resp = self.client.post(self.url, data={})
+        self.assertFailed(resp)
+
+        self.user.open_api = True
+        self.user.save()
+        resp = self.client.post(self.url, data={})
+        self.assertSuccess(resp)
+        self.assertEqual(resp.data["data"]["appkey"], User.objects.get(username=self.user.username).open_api_appkey)

@@ -401,3 +401,15 @@ class ProfileProblemDisplayIDRefreshAPI(APIView):
             v["_id"] = id_map[k]
         profile.save(update_fields=["acm_problems_status", "oi_problems_status"])
         return self.success()
+
+
+class OpenAPIAppkeyAPI(APIView):
+    @login_required
+    def post(self, request):
+        user = request.user
+        if not user.open_api:
+            return self.error("Permission denied")
+        api_appkey = rand_str()
+        user.open_api_appkey = api_appkey
+        user.save()
+        return self.success({"appkey": api_appkey})
