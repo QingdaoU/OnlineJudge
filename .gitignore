@@ -61,8 +61,8 @@ custom_settings.py
 
 data/log/*
 !data/log/.gitkeep
-data/testcase/*
-!data/testcase/.gitkeep
+data/test_case/*
+!data/test_case/.gitkeep
 data/ssl/*
 !data/ssl/.gitkeep
 data/static/upload/*

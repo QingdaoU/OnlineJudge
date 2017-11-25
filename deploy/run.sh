@@ -1,15 +1,21 @@
 #!/bin/bash
 
-BASE=/app
-DATA=$BASE/data
+APP=/app
+DATA=/data
 
-if [ ! -f "$BASE/oj/custom_settings.py" ]; then
-    echo SECRET_KEY=\"$(cat /dev/urandom | head -1 | md5sum | head -c 32)\" >> $BASE/oj/custom_settings.py
+if [ ! -f "$APP/oj/custom_settings.py" ]; then
+    echo SECRET_KEY=\"$(cat /dev/urandom | head -1 | md5sum | head -c 32)\" >> $APP/oj/custom_settings.py
 fi
 
-mkdir -p $DATA/log $DATA/testcase $DATA/public/upload
+mkdir -p $DATA/log $DATA/ssl $DATA/test_case $DATA/public/upload
 
-cd $BASE
+SSL="$DATA/ssl"
+if [ ! -f "$SSL/server.key" ]; then
+    openssl req -x509 -newkey rsa:2048 -keyout "$SSL/server.key" -out "$SSL/server.crt" -days 1000 \
+        -subj "/C=CN/ST=Beijing/L=Beijing/O=Beijing OnlineJudge Technology Co., Ltd./OU=Service Infrastructure Department/CN=`hostname`" -nodes
+fi
+
+cd $APP
 
 n=0
 while [ $n -lt 5 ]
@@ -22,7 +28,5 @@ do
     sleep 8
 done
 
-cp $BASE/deploy/oj.conf /etc/nginx/conf.d/default.conf
-
-chown -R nobody:nogroup $DATA $BASE/dist
+chown -R nobody:nogroup $DATA $APP/dist
 exec supervisord -c /app/deploy/supervisor.conf
