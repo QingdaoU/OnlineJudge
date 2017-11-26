@@ -14,6 +14,7 @@ from contest.models import ContestRuleType, ACMContestRank, OIContestRank, Conte
 from judge.languages import languages, spj_languages
 from options.options import SysOptions
 from problem.models import Problem, ProblemRuleType
+from problem.utils import parse_problem_template
 from submission.models import JudgeStatus, Submission
 from utils.cache import cache
 from utils.constants import CacheKey
@@ -123,16 +124,24 @@ class JudgeDispatcher(DispatcherBase):
             cache.lpush(CacheKey.waiting_queue, json.dumps(data))
             return
 
-        sub_config = list(filter(lambda item: self.submission.language == item["name"], languages))[0]
+        language = self.submission.language
+        sub_config = list(filter(lambda item: language == item["name"], languages))[0]
         spj_config = {}
         if self.problem.spj_code:
             for lang in spj_languages:
                 if lang["name"] == self.problem.spj_language:
                     spj_config = lang["spj"]
                     break
+
+        if language in self.problem.template:
+            template = parse_problem_template(self.problem.template[language])
+            code = f"{template['prepend']}\n{self.submission.code}\n{template['append']}"
+        else:
+            code = self.submission.code
+
         data = {
             "language_config": sub_config["config"],
-            "src": self.submission.code,
+            "src": code,
             "max_cpu_time": self.problem.time_limit,
             "max_memory": 1024 * 1024 * self.problem.memory_limit,
             "test_case_id": self.problem.test_case_id,
