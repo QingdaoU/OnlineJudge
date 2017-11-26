@@ -29,4 +29,4 @@ do
 done
 
 chown -R nobody:nogroup $DATA $APP/dist
-exec supervisord -c /app/deploy/supervisor.conf
+exec supervisord -c /app/deploy/supervisord.conf
