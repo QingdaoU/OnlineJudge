@@ -7,7 +7,7 @@ if [ ! -f "$APP/oj/custom_settings.py" ]; then
     echo SECRET_KEY=\"$(cat /dev/urandom | head -1 | md5sum | head -c 32)\" >> $APP/oj/custom_settings.py
 fi
 
-mkdir -p $DATA/log $DATA/ssl $DATA/test_case $DATA/public/upload
+mkdir -p $DATA/log $DATA/ssl $DATA/test_case $DATA/public/upload $DATA/public/avatar
 
 SSL="$DATA/ssl"
 if [ ! -f "$SSL/server.key" ]; then
@@ -28,5 +28,6 @@ do
     sleep 8
 done
 
+cp data/public/avatar/default.png /data/public/avatar
 chown -R nobody:nogroup $DATA $APP/dist
 exec supervisord -c /app/deploy/supervisord.conf
