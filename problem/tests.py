@@ -11,9 +11,12 @@ from utils.api.tests import APITestCase
 
 from .models import ProblemTag
 from .models import Problem, ProblemRuleType
-from .views.admin import TestCaseAPI
 from contest.models import Contest
 from contest.tests import DEFAULT_CONTEST_DATA
+
+from .views.admin import TestCaseAPI
+from .utils import parse_problem_template
+
 
 DEFAULT_PROBLEM_DATA = {"_id": "A-110", "title": "test", "description": "<p>test</p>", "input_description": "test",
                         "output_description": "test", "time_limit": 1000, "memory_limit": 256, "difficulty": "Low",
@@ -257,3 +260,44 @@ class ContestProblemTest(ProblemCreateTestBase):
         contest.save()
         resp = self.client.get(self.url + "?contest_id=" + str(self.contest["id"]))
         self.assertSuccess(resp)
+
+
+class ParseProblemTemplateTest(APITestCase):
+    def test_parse(self):
+        template_str = """
+//PREPEND BEGIN
+aaa
+//PREPEND END
+
+//TEMPLATE BEGIN
+bbb
+//TEMPLATE END
+
+//APPEND BEGIN
+ccc
+//APPEND END
+"""
+
+        ret = parse_problem_template(template_str)
+        self.assertEqual(ret["prepend"], "aaa\n")
+        self.assertEqual(ret["template"], "bbb\n")
+        self.assertEqual(ret["append"], "ccc\n")
+
+    def test_parse1(self):
+        template_str = """
+//PREPEND BEGIN
+aaa
+//PREPEND END
+
+//APPEND BEGIN
+ccc
+//APPEND END
+//APPEND BEGIN
+ddd
+//APPEND END
+"""
+
+        ret = parse_problem_template(template_str)
+        self.assertEqual(ret["prepend"], "aaa\n")
+        self.assertEqual(ret["template"], "")
+        self.assertEqual(ret["append"], "ccc\n")

@@ -1,8 +1,11 @@
 import os
 import re
 import xlsxwriter
+
+from django.db import transaction, IntegrityError
 from django.db.models import Q
 from django.http import HttpResponse
+from django.contrib.auth.hashers import make_password
 
 from submission.models import Submission
 from utils.api import APIView, validate_serializer
@@ -18,26 +21,27 @@ class UserAdminAPI(APIView):
     @validate_serializer(ImportUserSeralizer)
     @super_admin_required
     def post(self, request):
+        """
+        Generate user
+        """
         data = request.data["users"]
-        omitted_count = created_count = get_count = 0
+
+        user_list = []
         for user_data in data:
             if len(user_data) != 3 or len(user_data[0]) > 32:
-                omitted_count += 1
-                continue
-            user, created = User.objects.get_or_create(username=user_data[0])
-            user.set_password(user_data[1])
-            user.email = user_data[2]
-            user.save()
-            if created:
-                UserProfile.objects.create(user=user)
-                created_count += 1
-            else:
-                get_count += 1
-        return self.success({
-            "omitted_count": omitted_count,
-            "created_count": created_count,
-            "get_count": get_count
-        })
+                return self.error(f"Error occurred while processing data '{user_data}'")
+            user_list.append(User(username=user_data[0], password=make_password(user_data[1]), email=user_data[2]))
+
+        try:
+            with transaction.atomic():
+                ret = User.objects.bulk_create(user_list)
+                UserProfile.objects.bulk_create([UserProfile(user=user) for user in ret])
+            return self.success()
+        except IntegrityError as e:
+            # Extract detail from exception message
+            #    duplicate key value violates unique constraint "user_username_key"
+            #    DETAIL:  Key (username)=(root11) already exists.
+            return self.error(str(e).split("\n")[1])
 
     @validate_serializer(EditUserSerializer)
     @super_admin_required
@@ -146,7 +150,7 @@ class GenerateUserAPI(APIView):
         file_id = request.GET.get("file_id")
         if not file_id:
             return self.error("Invalid Parameter, file_id is required")
-        if not re.match(r"[a-zA-Z0-9]+", file_id):
+        if not re.match(r"^[a-zA-Z0-9]+$", file_id):
             return self.error("Illegal file_id")
         file_path = f"/tmp/{file_id}.xlsx"
         if not os.path.isfile(file_path):
@@ -169,9 +173,6 @@ class GenerateUserAPI(APIView):
         if data["number_from"] > data["number_to"]:
             return self.error("Start number must be lower than end number")
 
-        password_length = data.get("password_length", 8)
-        default_email = data.get("default_email")
-
         file_id = rand_str(8)
         filename = f"/tmp/{file_id}.xlsx"
         workbook = xlsxwriter.Workbook(filename)
@@ -180,26 +181,27 @@ class GenerateUserAPI(APIView):
         worksheet.write("A1", "Username")
         worksheet.write("B1", "Password")
         i = 1
-        created_count = 0
-        get_count = 0
+
+        user_list = []
         for number in range(data["number_from"], data["number_to"] + 1):
-            username = f"{data['prefix']}{number}{data['suffix']}"
-            password = rand_str(password_length)
-            user, created = User.objects.get_or_create(username=username)
-            user.email = default_email
-            user.set_password(password)
-            user.save()
-            if created:
-                UserProfile.objects.create(user=user)
-                created_count += 1
-            else:
-                get_count += 1
-            worksheet.write_string(i, 0, username)
-            worksheet.write_string(i, 1, password)
-            i += 1
-        workbook.close()
-        return self.success({
-            "file_id": file_id,
-            "created_count": created_count,
-            "get_count": get_count
-        })
+            raw_password = rand_str(data["password_length"])
+            user = User(username=f"{data['prefix']}{number}{data['suffix']}", password=make_password(raw_password))
+            user.raw_password = raw_password
+            user_list.append(user)
+
+        try:
+            with transaction.atomic():
+
+                ret = User.objects.bulk_create(user_list)
+                UserProfile.objects.bulk_create([UserProfile(user=user) for user in ret])
+                for item in user_list:
+                    worksheet.write_string(i, 0, item.username)
+                    worksheet.write_string(i, 1, item.raw_password)
+                    i += 1
+                workbook.close()
+                return self.success({"file_id": file_id})
+        except IntegrityError as e:
+            # Extract detail from exception message
+            #    duplicate key value violates unique constraint "user_username_key"
+            #    DETAIL:  Key (username)=(root11) already exists.
+            return self.error(str(e).split("\n")[1])

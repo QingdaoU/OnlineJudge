@@ -3,6 +3,18 @@ from django.utils.timezone import now
 from django.utils.deprecation import MiddlewareMixin
 
 from utils.api import JSONResponse
+from account.models import User
+
+
+class APITokenAuthMiddleware(MiddlewareMixin):
+    def process_request(self, request):
+        appkey = request.META.get("HTTP_APPKEY")
+        if appkey:
+            try:
+                request.user = User.objects.get(open_api_appkey=appkey, open_api=True, is_disabled=False)
+                request.csrf_processing_done = True
+            except User.DoesNotExist:
+                pass
 
 
 class SessionRecordMiddleware(MiddlewareMixin):

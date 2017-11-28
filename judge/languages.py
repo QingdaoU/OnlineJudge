@@ -1,7 +1,7 @@
 
 
 _c_lang_config = {
-    "template": """//PREPEND START
+    "template": """//PREPEND BEGIN
 #include <stdio.h>
 //PREPEND END
 
@@ -12,7 +12,7 @@ int add(int a, int b) {
 }
 //TEMPLATE END
 
-//APPEND START
+//APPEND BEGIN
 int main() {
   printf("%d", add(1, 2));
   return 0;
@@ -48,12 +48,23 @@ _c_lang_spj_config = {
 }
 
 _cpp_lang_config = {
-    "template": """/*--PREPEND START--*/
-/*--PREPEND END--*/
-/*--TEMPLATE BEGIN--*/
-/*--TEMPLATE END--*/
-/*--APPEND START--*/
-/*--APPEND END--*/""",
+    "template": """//PREPEND BEGIN
+#include <iostream>
+//PREPEND END
+
+//TEMPLATE BEGIN
+int add(int a, int b) {
+  // Please fill this blank
+  return ___________;
+}
+//TEMPLATE END
+
+//APPEND BEGIN
+int main() {
+  std::cout << add(1, 2);
+  return 0;
+}
+//APPEND END""",
     "compile": {
         "src_name": "main.cpp",
         "exe_name": "main",

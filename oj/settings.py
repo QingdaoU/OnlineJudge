@@ -49,6 +49,7 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'account.middleware.APITokenAuthMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.security.SecurityMiddleware',
@@ -109,57 +110,55 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.8/howto/static-files/
 
-STATIC_URL = '/static/'
+STATIC_URL = '/public/'
 
 AUTH_USER_MODEL = 'account.User'
 
+TEST_CASE_DIR = os.path.join(DATA_DIR, "test_case")
+LOG_PATH = os.path.join(DATA_DIR, "log")
+
+AVATAR_URI_PREFIX = "/public/avatar"
+AVATAR_UPLOAD_DIR = f"{DATA_DIR}{AVATAR_URI_PREFIX}"
+
+UPLOAD_PREFIX = "/public/upload"
+UPLOAD_DIR = f"{DATA_DIR}{UPLOAD_PREFIX}"
+
+STATICFILES_DIRS = [os.path.join(DATA_DIR, "public")]
+
 LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'formatters': {
-        'standard': {
-            'format': '%(asctime)s [%(threadName)s:%(thread)d] [%(name)s:%(lineno)d] [%(module)s:%(funcName)s] [%(levelname)s]- %(message)s',
-            'datefmt': '%Y-%m-%d %H:%M:%S'
-        }
-    },
-    'handlers': {
-        'django_error': {
-            'level': 'WARNING',
-            'class': 'logging.handlers.RotatingFileHandler',
-            'filename': os.path.join(LOG_PATH, 'django.log'),
-            'formatter': 'standard'
-        },
-        'app_info': {
-            'level': 'INFO',
-            'class': 'logging.handlers.RotatingFileHandler',
-            'filename': os.path.join(LOG_PATH, 'app_info.log'),
-            'formatter': 'standard'
-        },
-        'console': {
-            'level': 'DEBUG',
-            'class': 'logging.StreamHandler',
-            'formatter': 'standard'
-        }
-    },
-    'loggers': {
-        'django.request': {
-            'handlers': ['django_error', 'console'],
-            'level': 'WARNING',
-            'propagate': True,
-        },
-        'django.db.backends': {
-            'handlers': ['django_error', 'console'],
-            'level': 'WARNING',
-            'propagate': True,
-        },
-    },
+   'version': 1,
+   'disable_existing_loggers': False,
+   'formatters': {
+       'standard': {
+           'format': '[%(asctime)s] - [%(levelname)s] - [%(name)s:%(lineno)d]  - %(message)s',
+           'datefmt': '%Y-%m-%d %H:%M:%S'
+       }
+   },
+   'handlers': {
+       'console': {
+           'level': 'DEBUG',
+           'class': 'logging.StreamHandler',
+           'formatter': 'standard'
+       }
+   },
+   'loggers': {
+       'django.request': {
+           'handlers': ['console'],
+           'level': 'ERROR',
+           'propagate': True,
+       },
+       'django.db.backends': {
+           'handlers': ['console'],
+           'level': 'ERROR',
+           'propagate': True,
+       },
+       '': {
+           'handlers': ['console'],
+           'level': 'WARNING',
+           'propagate': True,
+       }
+   },
 }
-app_logger = {
-    'handlers': ['app_info', 'console'],
-    'level': 'DEBUG',
-    'propagate': False
-}
-LOGGING["loggers"].update({app: deepcopy(app_logger) for app in LOCAL_APPS})
 
 REST_FRAMEWORK = {
     'TEST_REQUEST_DEFAULT_FORMAT': 'json',
