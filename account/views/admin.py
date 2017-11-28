@@ -22,7 +22,7 @@ class UserAdminAPI(APIView):
     @super_admin_required
     def post(self, request):
         """
-        Generate user
+        Import User
         """
         data = request.data["users"]
 
@@ -166,6 +166,9 @@ class GenerateUserAPI(APIView):
     @validate_serializer(GenerateUserSerializer)
     @super_admin_required
     def post(self, request):
+        """
+        Generate User
+        """
         data = request.data
         number_max_length = max(len(str(data["number_from"])), len(str(data["number_to"])))
         if number_max_length + len(data["prefix"]) + len(data["suffix"]) > 32:

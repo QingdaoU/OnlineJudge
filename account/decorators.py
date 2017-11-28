@@ -98,7 +98,7 @@ def check_contest_permission(check_type="details"):
             if self.contest.status == ContestStatus.CONTEST_NOT_START and check_type != "details":
                 return self.error("Contest has not started yet.")
 
-            # check does user have permission to get ranks, submissions OI Contest
+            # check does user have permission to get ranks, submissions in OI Contest
             if self.contest.status == ContestStatus.CONTEST_UNDERWAY and self.contest.rule_type == ContestRuleType.OI:
                 if not self.contest.real_time_rank and (check_type == "ranks" or check_type == "submissions"):
                     return self.error(f"No permission to get {check_type}")
