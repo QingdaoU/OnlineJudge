@@ -65,6 +65,7 @@ class APIView(View):
             for parser in self.request_parsers:
                 if content_type.startswith(parser.content_type):
                     break
+            # else means the for loop is not interrupted by break
             else:
                 raise ValueError("unknown content_type '%s'" % content_type)
             if body:
@@ -78,7 +79,7 @@ class APIView(View):
     def success(self, data=None):
         return self.response({"error": None, "data": data})
 
-    def error(self, msg, err="error"):
+    def error(self, msg="error", err="error"):
         return self.response({"error": err, "data": msg})
 
     def _serializer_error_to_str(self, errors):
@@ -106,18 +107,12 @@ class APIView(View):
         :param object_serializer: 用来序列化query set, 如果为None, 则直接对query set切片
         :return:
         """
-        need_paginate = request.GET.get("limit", None)
-        if need_paginate is None:
-            if object_serializer:
-                return object_serializer(query_set, many=True).data
-            else:
-                return query_set
         try:
-            limit = int(request.GET.get("limit", "100"))
+            limit = int(request.GET.get("limit", "10"))
         except ValueError:
-            limit = 100
-        if limit < 0:
-            limit = 100
+            limit = 10
+        if limit < 0 or limit > 250:
+            limit = 10
         try:
             offset = int(request.GET.get("offset", "0"))
         except ValueError:
@@ -129,7 +124,7 @@ class APIView(View):
             count = query_set.count()
             results = object_serializer(results, many=True).data
         else:
-            count = len(query_set)
+            count = query_set.count()
         data = {"results": results,
                 "total": count}
         return data

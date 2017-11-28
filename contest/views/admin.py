@@ -1,12 +1,14 @@
+from ipaddress import ip_network
 import dateutil.parser
 
 from utils.api import APIView, validate_serializer
 
 from ..models import Contest, ContestAnnouncement
-from ..serializers import (ContestAnnouncementSerializer, ContestSerializer,
+from ..serializers import (ContestAnnouncementSerializer, ContestAdminSerializer,
                            CreateConetestSeriaizer,
                            CreateContestAnnouncementSerializer,
-                           EditConetestSeriaizer)
+                           EditConetestSeriaizer,
+                           EditContestAnnouncementSerializer)
 
 
 class ContestAPI(APIView):
@@ -18,10 +20,15 @@ class ContestAPI(APIView):
         data["created_by"] = request.user
         if data["end_time"] <= data["start_time"]:
             return self.error("Start time must occur earlier than end time")
-        if not data["password"]:
+        if data.get("password") and data["password"] == "":
             data["password"] = None
+        for ip_range in data["allowed_ip_ranges"]:
+            try:
+                ip_network(ip_range, strict=False)
+            except ValueError:
+                return self.error(f"{ip_range} is not a valid cidr network")
         contest = Contest.objects.create(**data)
-        return self.success(ContestSerializer(contest).data)
+        return self.success(ContestAdminSerializer(contest).data)
 
     @validate_serializer(EditConetestSeriaizer)
     def put(self, request):
@@ -38,10 +45,16 @@ class ContestAPI(APIView):
             return self.error("Start time must occur earlier than end time")
         if not data["password"]:
             data["password"] = None
+        for ip_range in data["allowed_ip_ranges"]:
+            try:
+                ip_network(ip_range, strict=False)
+            except ValueError as e:
+                return self.error(f"{ip_range} is not a valid cidr network")
+
         for k, v in data.items():
             setattr(contest, k, v)
         contest.save()
-        return self.success(ContestSerializer(contest).data)
+        return self.success(ContestAdminSerializer(contest).data)
 
     def get(self, request):
         contest_id = request.GET.get("id")
@@ -50,7 +63,7 @@ class ContestAPI(APIView):
                 contest = Contest.objects.get(id=contest_id)
                 if request.user.is_admin() and contest.created_by != request.user:
                     return self.error("Contest does not exist")
-                return self.success(ContestSerializer(contest).data)
+                return self.success(ContestAdminSerializer(contest).data)
             except Contest.DoesNotExist:
                 return self.error("Contest does not exist")
 
@@ -62,7 +75,7 @@ class ContestAPI(APIView):
 
         if request.user.is_admin():
             contests = contests.filter(created_by=request.user)
-        return self.success(self.paginate_data(request, contests, ContestSerializer))
+        return self.success(self.paginate_data(request, contests, ContestAdminSerializer))
 
 
 class ContestAnnouncementAPI(APIView):
@@ -82,6 +95,23 @@ class ContestAnnouncementAPI(APIView):
             return self.error("Contest does not exist")
         announcement = ContestAnnouncement.objects.create(**data)
         return self.success(ContestAnnouncementSerializer(announcement).data)
+
+    @validate_serializer(EditContestAnnouncementSerializer)
+    def put(self, request):
+        """
+        update contest_announcement
+        """
+        data = request.data
+        try:
+            contest_announcement = ContestAnnouncement.objects.get(id=data.pop("id"))
+            if request.user.is_admin() and contest_announcement.created_by != request.user:
+                return self.error("Contest announcement does not exist")
+        except ContestAnnouncement.DoesNotExist:
+            return self.error("Contest announcement does not exist")
+        for k, v in data.items():
+            setattr(contest_announcement, k, v)
+        contest_announcement.save()
+        return self.success()
 
     def delete(self, request):
         """
@@ -110,10 +140,13 @@ class ContestAnnouncementAPI(APIView):
             except ContestAnnouncement.DoesNotExist:
                 return self.error("Contest announcement does not exist")
 
-        contest_announcements = ContestAnnouncement.objects.all().order_by("-create_time")
+        contest_id = request.GET.get("contest_id")
+        if not contest_id:
+            return self.error("Paramater error")
+        contest_announcements = ContestAnnouncement.objects.filter(contest_id=contest_id)
         if request.user.is_admin():
             contest_announcements = contest_announcements.filter(created_by=request.user)
         keyword = request.GET.get("keyword")
         if keyword:
             contest_announcements = contest_announcements.filter(title__contains=keyword)
-        return self.success(self.paginate_data(request, contest_announcements, ContestAnnouncementSerializer))
+        return self.success(ContestAnnouncementSerializer(contest_announcements, many=True).data)

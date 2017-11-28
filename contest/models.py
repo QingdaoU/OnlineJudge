@@ -1,25 +1,11 @@
+from utils.constants import ContestRuleType  # noqa
 from django.db import models
 from django.utils.timezone import now
-from jsonfield import JSONField
+from utils.models import JSONField
 
+from utils.constants import ContestStatus, ContestType
 from account.models import User
 from utils.models import RichTextField
-
-
-class ContestType(object):
-    PUBLIC_CONTEST = "Public"
-    PASSWORD_PROTECTED_CONTEST = "Password Protected"
-
-
-class ContestStatus(object):
-    CONTEST_NOT_START = "Not Started"
-    CONTEST_ENDED = "Ended"
-    CONTEST_UNDERWAY = "Underway"
-
-
-class ContestRuleType(object):
-    ACM = "ACM"
-    OI = "OI"
 
 
 class Contest(models.Model):
@@ -37,6 +23,7 @@ class Contest(models.Model):
     created_by = models.ForeignKey(User)
     # 是否可见 false的话相当于删除
     visible = models.BooleanField(default=True)
+    allowed_ip_ranges = JSONField(default=list)
 
     @property
     def status(self):
@@ -56,36 +43,44 @@ class Contest(models.Model):
             return ContestType.PASSWORD_PROTECTED_CONTEST
         return ContestType.PUBLIC_CONTEST
 
+    # 是否有权查看problem 的一些统计信息 诸如submission_number, accepted_number 等
+    def problem_details_permission(self, user):
+        return self.rule_type == ContestRuleType.ACM or \
+               self.status == ContestStatus.CONTEST_ENDED or \
+               user.is_authenticated() and user.is_contest_admin(self) or \
+               self.real_time_rank
+
     class Meta:
         db_table = "contest"
+        ordering = ("-start_time",)
 
 
-class ContestRank(models.Model):
+class AbstractContestRank(models.Model):
     user = models.ForeignKey(User)
     contest = models.ForeignKey(Contest)
-    total_submission_number = models.IntegerField(default=0)
+    submission_number = models.IntegerField(default=0)
 
     class Meta:
         abstract = True
 
 
-class ACMContestRank(ContestRank):
-    total_ac_number = models.IntegerField(default=0)
+class ACMContestRank(AbstractContestRank):
+    accepted_number = models.IntegerField(default=0)
     # total_time is only for ACM contest total_time =  ac time + none-ac times * 20 * 60
     total_time = models.IntegerField(default=0)
     # {23: {"is_ac": True, "ac_time": 8999, "error_number": 2, "is_first_ac": True}}
     # key is problem id
-    submission_info = JSONField(default={})
+    submission_info = JSONField(default=dict)
 
     class Meta:
         db_table = "acm_contest_rank"
 
 
-class OIContestRank(ContestRank):
+class OIContestRank(AbstractContestRank):
     total_score = models.IntegerField(default=0)
-    # {23: {"score": 80, "total_score": 100}}
-    # key is problem id
-    submission_info = JSONField(default={})
+    # {23: 333}}
+    # key is problem id, value is current score
+    submission_info = JSONField(default=dict)
 
     class Meta:
         db_table = "oi_contest_rank"
@@ -96,7 +91,9 @@ class ContestAnnouncement(models.Model):
     title = models.CharField(max_length=128)
     content = RichTextField()
     created_by = models.ForeignKey(User)
+    visible = models.BooleanField(default=True)
     create_time = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         db_table = "contest_announcement"
+        ordering = ("-create_time",)

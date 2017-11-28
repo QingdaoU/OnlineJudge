@@ -1,32 +1,10 @@
-import logging
+import re
+import datetime
 import random
+from base64 import b64encode
+from io import BytesIO
 
 from django.utils.crypto import get_random_string
-from envelopes import Envelope
-
-from conf.models import SMTPConfig
-
-logger = logging.getLogger(__name__)
-
-
-def send_email(from_name, to_email, to_name, subject, content):
-    smtp = SMTPConfig.objects.first()
-    if not smtp:
-        return
-    envlope = Envelope(from_addr=(smtp.email, from_name),
-                       to_addr=(to_email, to_name),
-                       subject=subject,
-                       html_body=content)
-    try:
-        envlope.send(smtp.server,
-                     login=smtp.email,
-                     password=smtp.password,
-                     port=smtp.port,
-                     tls=smtp.tls)
-        return True
-    except Exception as e:
-        logger.exception(e)
-        return False
 
 
 def rand_str(length=32, type="lower_hex"):
@@ -44,3 +22,44 @@ def rand_str(length=32, type="lower_hex"):
         return random.choice("123456789abcdef") + get_random_string(length - 1, allowed_chars="0123456789abcdef")
     else:
         return random.choice("123456789") + get_random_string(length - 1, allowed_chars="0123456789")
+
+
+def build_query_string(kv_data, ignore_none=True):
+    # {"a": 1, "b": "test"} -> "?a=1&b=test"
+    query_string = ""
+    for k, v in kv_data.items():
+        if ignore_none is True and kv_data[k] is None:
+            continue
+        if query_string != "":
+            query_string += "&"
+        else:
+            query_string = "?"
+        query_string += (k + "=" + str(v))
+    return query_string
+
+
+def img2base64(img):
+    with BytesIO() as buf:
+        img.save(buf, "gif")
+        buf_str = buf.getvalue()
+    img_prefix = "data:image/png;base64,"
+    b64_str = img_prefix + b64encode(buf_str).decode("utf-8")
+    return b64_str
+
+
+def datetime2str(value, format="iso-8601"):
+    if format.lower() == "iso-8601":
+        value = value.isoformat()
+        if value.endswith("+00:00"):
+            value = value[:-6] + "Z"
+        return value
+    return value.strftime(format)
+
+
+def timestamp2utcstr(value):
+    return datetime.datetime.utcfromtimestamp(value).isoformat()
+
+
+def natural_sort_key(s, _nsre=re.compile(r"(\d+)")):
+    return [int(text) if text.isdigit() else text.lower()
+            for text in re.split(_nsre, s)]

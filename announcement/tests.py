@@ -35,3 +35,14 @@ class AnnouncementAdminTest(APITestCase):
         resp = self.client.delete(self.url + "?id=" + str(id))
         self.assertSuccess(resp)
         self.assertFalse(Announcement.objects.filter(id=id).exists())
+
+
+class AnnouncementAPITest(APITestCase):
+    def setUp(self):
+        self.user = self.create_super_admin()
+        Announcement.objects.create(title="title", content="content", visible=True, created_by=self.user)
+        self.url = self.reverse("announcement_api")
+
+    def test_get_announcement_list(self):
+        resp = self.client.get(self.url)
+        self.assertSuccess(resp)

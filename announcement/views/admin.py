@@ -1,9 +1,9 @@
 from account.decorators import super_admin_required
 from utils.api import APIView, validate_serializer
 
-from .models import Announcement
-from .serializers import (AnnouncementSerializer, CreateAnnouncementSerializer,
-                          EditAnnouncementSerializer)
+from announcement.models import Announcement
+from announcement.serializers import (AnnouncementSerializer, CreateAnnouncementSerializer,
+                                      EditAnnouncementSerializer)
 
 
 class AnnouncementAdminAPI(APIView):
@@ -28,13 +28,12 @@ class AnnouncementAdminAPI(APIView):
         """
         data = request.data
         try:
-            announcement = Announcement.objects.get(id=data["id"])
+            announcement = Announcement.objects.get(id=data.pop("id"))
         except Announcement.DoesNotExist:
             return self.error("Announcement does not exist")
 
-        announcement.title = data["title"]
-        announcement.content = data["content"]
-        announcement.visible = data["visible"]
+        for k, v in data.items():
+            setattr(announcement, k, v)
         announcement.save()
 
         return self.success(AnnouncementSerializer(announcement).data)

@@ -5,7 +5,7 @@ from utils.models import RichTextField
 
 
 class Announcement(models.Model):
-    title = models.CharField(max_length=50)
+    title = models.CharField(max_length=64)
     # HTML
     content = RichTextField()
     create_time = models.DateTimeField(auto_now_add=True)
@@ -15,3 +15,4 @@ class Announcement(models.Model):
 
     class Meta:
         db_table = "announcement"
+        ordering = ("-create_time",)

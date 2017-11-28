@@ -1,6 +1,7 @@
 from utils.api import DateTimeTZField, UsernameSerializer, serializers
 
 from .models import Contest, ContestAnnouncement, ContestRuleType
+from .models import ACMContestRank, OIContestRank
 
 
 class CreateConetestSeriaizer(serializers.Serializer):
@@ -12,9 +13,22 @@ class CreateConetestSeriaizer(serializers.Serializer):
     password = serializers.CharField(allow_blank=True, max_length=32)
     visible = serializers.BooleanField()
     real_time_rank = serializers.BooleanField()
+    allowed_ip_ranges = serializers.ListField(child=serializers.CharField(max_length=32), allow_empty=True)
 
 
-class ContestSerializer(serializers.ModelSerializer):
+class EditConetestSeriaizer(serializers.Serializer):
+    id = serializers.IntegerField()
+    title = serializers.CharField(max_length=128)
+    description = serializers.CharField()
+    start_time = serializers.DateTimeField()
+    end_time = serializers.DateTimeField()
+    password = serializers.CharField(allow_blank=True, allow_null=True, max_length=32)
+    visible = serializers.BooleanField()
+    real_time_rank = serializers.BooleanField()
+    allowed_ip_ranges = serializers.ListField(child=serializers.CharField(max_length=32))
+
+
+class ContestAdminSerializer(serializers.ModelSerializer):
     start_time = DateTimeTZField()
     end_time = DateTimeTZField()
     create_time = DateTimeTZField()
@@ -27,15 +41,10 @@ class ContestSerializer(serializers.ModelSerializer):
         model = Contest
 
 
-class EditConetestSeriaizer(serializers.Serializer):
-    id = serializers.IntegerField()
-    title = serializers.CharField(max_length=128)
-    description = serializers.CharField()
-    start_time = serializers.DateTimeField()
-    end_time = serializers.DateTimeField()
-    password = serializers.CharField(allow_blank=True, allow_null=True, max_length=32)
-    visible = serializers.BooleanField()
-    real_time_rank = serializers.BooleanField()
+class ContestSerializer(ContestAdminSerializer):
+    class Meta:
+        model = Contest
+        exclude = ("password", "visible", "allowed_ip_ranges")
 
 
 class ContestAnnouncementSerializer(serializers.ModelSerializer):
@@ -47,6 +56,35 @@ class ContestAnnouncementSerializer(serializers.ModelSerializer):
 
 
 class CreateContestAnnouncementSerializer(serializers.Serializer):
+    contest_id = serializers.IntegerField()
     title = serializers.CharField(max_length=128)
     content = serializers.CharField()
+    visible = serializers.BooleanField()
+
+
+class EditContestAnnouncementSerializer(serializers.Serializer):
+    id = serializers.IntegerField()
+    title = serializers.CharField(max_length=128, required=False)
+    content = serializers.CharField(required=False, allow_blank=True)
+    visible = serializers.BooleanField(required=False)
+
+
+class ContestPasswordVerifySerializer(serializers.Serializer):
     contest_id = serializers.IntegerField()
+    password = serializers.CharField(max_length=30, required=True)
+
+
+class ACMContestRankSerializer(serializers.ModelSerializer):
+    user = UsernameSerializer()
+    submission_info = serializers.JSONField()
+
+    class Meta:
+        model = ACMContestRank
+
+
+class OIContestRankSerializer(serializers.ModelSerializer):
+    user = UsernameSerializer()
+    submission_info = serializers.JSONField()
+
+    class Meta:
+        model = OIContestRank

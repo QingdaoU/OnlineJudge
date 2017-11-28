@@ -1,12 +1,9 @@
 """
 Copyright 2013 TY<tianyu0915@gmail.com>
-
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
-
   http://www.apache.org/licenses/LICENSE-2.0
-
 Unless required by applicable law or agreed to in writing, software
 distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -18,13 +15,10 @@ import os
 import time
 import random
 
-from io import BytesIO
-from django.http import HttpResponse
 from PIL import Image, ImageDraw, ImageFont
 
 
 class Captcha(object):
-
     def __init__(self, request):
         """
         初始化,设置各种属性
@@ -60,9 +54,9 @@ class Captcha(object):
         self._set_answer("".join(string))
         return string
 
-    def display(self):
+    def get(self):
         """
-        生成验证码图片
+        生成验证码图片,返回值为图片的bytes
         """
         background = (random.randrange(200, 255), random.randrange(200, 255), random.randrange(200, 255))
         code_color = (random.randrange(0, 50), random.randrange(0, 50), random.randrange(0, 50), 255)
@@ -86,11 +80,8 @@ class Captcha(object):
             # 随机化字符之间的距离 字符粘连可以降低识别率
             x += font_size * random.randrange(6, 8) / 10
 
-        buf = BytesIO()
-        image.save(buf, "gif")
-
         self.django_request.session[self.session_key] = "".join(code)
-        return HttpResponse(buf.getvalue(), "image/gif")
+        return image
 
     def check(self, code):
         """

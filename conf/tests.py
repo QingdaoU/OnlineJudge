@@ -2,9 +2,9 @@ import hashlib
 
 from django.utils import timezone
 
+from options.options import SysOptions
 from utils.api.tests import APITestCase
-
-from .models import JudgeServer, JudgeServerToken, SMTPConfig
+from .models import JudgeServer
 
 
 class SMTPConfigTest(APITestCase):
@@ -27,10 +27,6 @@ class SMTPConfigTest(APITestCase):
                 "tls": True}
         resp = self.client.put(self.url, data=data)
         self.assertSuccess(resp)
-        smtp = SMTPConfig.objects.first()
-        self.assertEqual(smtp.password, self.password)
-        self.assertEqual(smtp.server, "smtp1.test.com")
-        self.assertEqual(smtp.email, "test2@test.com")
 
     def test_edit_without_password1(self):
         self.test_create_smtp_config()
@@ -38,7 +34,6 @@ class SMTPConfigTest(APITestCase):
                 "tls": True, "password": ""}
         resp = self.client.put(self.url, data=data)
         self.assertSuccess(resp)
-        self.assertEqual(SMTPConfig.objects.first().password, self.password)
 
     def test_edit_with_password(self):
         self.test_create_smtp_config()
@@ -46,18 +41,14 @@ class SMTPConfigTest(APITestCase):
                 "tls": True, "password": "newpassword"}
         resp = self.client.put(self.url, data=data)
         self.assertSuccess(resp)
-        smtp = SMTPConfig.objects.first()
-        self.assertEqual(smtp.password, "newpassword")
-        self.assertEqual(smtp.server, "smtp1.test.com")
-        self.assertEqual(smtp.email, "test2@test.com")
 
 
 class WebsiteConfigAPITest(APITestCase):
     def test_create_website_config(self):
         self.create_super_admin()
         url = self.reverse("website_config_api")
-        data = {"base_url": "http://test.com", "name": "test name",
-                "name_shortcut": "test oj", "footer": "<a>test</a>",
+        data = {"website_base_url": "http://test.com", "website_name": "test name",
+                "website_name_shortcut": "test oj", "website_footer": "<a>test</a>",
                 "allow_register": True, "submission_list_show_all": False}
         resp = self.client.post(url, data=data)
         self.assertSuccess(resp)
@@ -65,8 +56,8 @@ class WebsiteConfigAPITest(APITestCase):
     def test_edit_website_config(self):
         self.create_super_admin()
         url = self.reverse("website_config_api")
-        data = {"base_url": "http://test.com", "name": "test name",
-                "name_shortcut": "test oj", "footer": "<a>test</a>",
+        data = {"website_base_url": "http://test.com", "website_name": "test name",
+                "website_name_shortcut": "test oj", "website_footer": "<a>test</a>",
                 "allow_register": True, "submission_list_show_all": False}
         resp = self.client.post(url, data=data)
         self.assertSuccess(resp)
@@ -76,7 +67,6 @@ class WebsiteConfigAPITest(APITestCase):
         url = self.reverse("website_info_api")
         resp = self.client.get(url)
         self.assertSuccess(resp)
-        self.assertEqual(resp.data["data"]["name_shortcut"], "oj")
 
 
 class JudgeServerHeartbeatTest(APITestCase):
@@ -86,7 +76,7 @@ class JudgeServerHeartbeatTest(APITestCase):
                      "cpu": 90.5, "memory": 80.3, "action": "heartbeat"}
         self.token = "test"
         self.hashed_token = hashlib.sha256(self.token.encode("utf-8")).hexdigest()
-        JudgeServerToken.objects.create(token=self.token)
+        SysOptions.judge_server_token = self.token
 
     def test_new_heartbeat(self):
         resp = self.client.post(self.url, data=self.data, **{"HTTP_X_JUDGE_SERVER_TOKEN": self.hashed_token})
@@ -122,11 +112,9 @@ class JudgeServerAPITest(APITestCase):
         self.create_super_admin()
 
     def test_get_judge_server(self):
-        self.assertFalse(JudgeServerToken.objects.exists())
         resp = self.client.get(self.url)
         self.assertSuccess(resp)
         self.assertEqual(len(resp.data["data"]["servers"]), 1)
-        self.assertEqual(JudgeServerToken.objects.first().token, resp.data["data"]["token"])
 
     def test_delete_judge_server(self):
         resp = self.client.delete(self.url + "?hostname=testhostname")
