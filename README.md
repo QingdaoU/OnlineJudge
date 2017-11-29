@@ -1,39 +1,72 @@
-# OnlineJudge [![Build Status](https://travis-ci.org/QingdaoU/OnlineJudge.svg?branch=master)](https://travis-ci.org/QingdaoU/OnlineJudge)
+# OnlineJudge 2.0
+
+[![vue](https://img.shields.io/badge/python-3.6.2-blue.svg?style=flat-square)](https://www.python.org/downloads/release/python-362/)
+[![vuex](https://img.shields.io/badge/django-1.11.4-blue.svg?style=flat-square)](https://www.djangoproject.com/)
+[![echarts](https://img.shields.io/badge/django_rest_framework-3.4.0-blue.svg?style=flat-square)](http://www.django-rest-framework.org/)
+[![Build Status](https://travis-ci.org/QingdaoU/OnlineJudge.svg?branch=2.0)](https://travis-ci.org/QingdaoU/OnlineJudge)
+
+> ### 基于Python和Vue的在线评测系统。[Demo](http://v2.qduoj.com)
+
+## 概览
+
++ 基于docker，真正一键部署
++ 前后端分离，模块化编程，微服务
++ ACM/OI 两种比赛模式、实时/非实时评判 任意选择
++ 丰富的可视化图表，一图胜千言
++ 支持Template Problem，可以添加函数题甚至填空题
++ 更细致的权限划分，超级管理员和普通管理员各司其职
++ 多语言支持：`C`, `C++`, `Java`, `Python`，题目可以选择使用的语言
++ Markdown & MathJax支持
++ 比赛用户IP限制(CIDR ranges)
 
 
-基于 Python 和 Django 的在线评测平台。
+主要模块均已开源:
 
-主要特点:
- 
- - 基于 Docker，急速部署
- - 超级管理员管理全局，普通管理员任意创建小组和小组内比赛，方便布置作业和考试使用
- - 提供 Virtual Judge 和单点登录使用 API，不再繁琐的进行模拟登陆
- - 后台管理判题服务器，轻松分离 web 和判题服务器
++ 后端(Django): [https://github.com/QingdaoU/OnlineJudge](https://github.com/QingdaoU/OnlineJudge)
++ 前端(Vue): [https://github.com/QingdaoU/OnlineJudgeFE](https://github.com/QingdaoU/OnlineJudgeFE)
++ 判题服务器(Judger): [https://github.com/QingdaoU/JudgeServer](https://github.com/QingdaoU/JudgeServer)
++ VirtualJuge(Golang): 正在开发中..
 
-安装文档: https://github.com/QingdaoU/OnlineJudge/wiki
+## 安装
 
-OpenAPI文档: https://github.com/QingdaoU/OnlineJudgeOpenAPI
+文档:  [https://github.com/QingdaoU/OnlineJudgeDeploy/tree/2.0](https://github.com/QingdaoU/OnlineJudgeDeploy/tree/2.0)
 
-Demo: https://qduoj.com
+## 截图
 
-License: The Star And Thank Author License
+### OJ前台
 
-交流QQ群: https://github.com/QingdaoU/OnlineJudge/wiki/QQ群
+![problem-list](https://user-images.githubusercontent.com/20637881/33365524-78b74d3c-d523-11e7-939e-84123cd94ffa.png)
 
-TODO：
+![problem-detail](https://user-images.githubusercontent.com/20637881/33365526-78f0c742-d523-11e7-8b0e-93120639d05c.png)
+![chart-detail](https://user-images.githubusercontent.com/20637881/33365527-792de76c-d523-11e7-89ac-0e8b3ae59a73.png)
 
- - 完善测试
+![status](https://user-images.githubusercontent.com/20637881/33365519-7809982c-d523-11e7-9bc2-3e8b8a016ffd.png)
 
-![](http://7xk96g.com1.z0.glb.clouddn.com/oj-preview/FireShot%20Capture%2028%20-%20%E9%A2%98%E7%9B%AE%E5%88%97%E8%A1%A8%20-%20https___qduoj.com_problems_.png)
+![status-details](https://user-images.githubusercontent.com/20637881/33365523-787bd0ea-d523-11e7-953f-dacbf7a506df.png)
 
-![](http://7xk96g.com1.z0.glb.clouddn.com/oj-preview/FireShot%20Capture%2029%20-%20A%20%20%20B%20Problem%20-%20https___qduoj.com_problem_1_.png)
+![user-home](https://user-images.githubusercontent.com/20637881/33365521-7842d808-d523-11e7-84c1-2e2aa0079f32.png)
 
-![](http://7xk96g.com1.z0.glb.clouddn.com/oj-preview/FireShot%20Capture%2030%20-%20%E6%88%91%E7%9A%84%E6%8F%90%E4%BA%A4%E8%AF%A6%E6%83%85%20-%20https___qduoj.com_submission_5b229926a4218d43d9e75158be0d1bf4_.png)
+![contest-list](https://user-images.githubusercontent.com/20637881/33365528-7966a16a-d523-11e7-8834-4be5e0f9471d.png)
 
-![](http://7xk96g.com1.z0.glb.clouddn.com/oj-preview/FireShot%20Capture%2031%20-%20C%E8%AF%AD%E8%A8%80%E5%AE%9E%E9%AA%8C%E7%BB%83%E4%B9%A0%EF%BC%88%E4%B8%80%EF%BC%89%20-%20https___qduoj.com_contest_23_.png)
+Rankings 中可以控制图表和菜单的显隐
+![oi rank](https://user-images.githubusercontent.com/20637881/33366292-c657f904-d525-11e7-947e-c5a4b7606439.png)
+![acm-rank](https://user-images.githubusercontent.com/20637881/33366293-c6c62a5a-d525-11e7-9e37-2a354cda5310.png)
 
-![](http://7xk96g.com1.z0.glb.clouddn.com/oj-preview/FireShot%20Capture%2035%20-%20%E6%AF%94%E8%B5%9B%E6%8E%92%E5%90%8D%20-%20https___qduoj.com_contest_17_rank_.png)
 
-![](http://7xk96g.com1.z0.glb.clouddn.com/oj-preview/FireShot%20Capture%2033%20-%20%E5%9C%A8%E7%BA%BF%E8%AF%84%E6%B5%8B%E7%B3%BB%E7%BB%9F%20-%20%E5%90%8E%E5%8F%B0%E7%AE%A1%E7%90%86%20-%20https___qduoj.com_admin_%23problem_problem_list.png)
+### 后台管理
 
-![](http://7xk96g.com1.z0.glb.clouddn.com/oj-preview/FireShot%20Capture%2034%20-%20%E5%9C%A8%E7%BA%BF%E8%AF%84%E6%B5%8B%E7%B3%BB%E7%BB%9F%20-%20%E5%90%8E%E5%8F%B0%E7%AE%A1%E7%90%86%20-%20https___qduoj.com_admin_%23contest_contest_list.png)
+![admin-user](https://user-images.githubusercontent.com/20637881/33365529-79b4513a-d523-11e7-97e4-5dc0144c3101.png)
+
+![judge_server](https://user-images.githubusercontent.com/20637881/33365530-79ef72d8-d523-11e7-8094-3eb50ec74ad8.png)
+
+![create-problem](https://user-images.githubusercontent.com/20637881/33365531-7a2a46ba-d523-11e7-9348-ce6f7a36b37d.png)
+
+![create-contest](https://user-images.githubusercontent.com/20637881/33365532-7a64026a-d523-11e7-965a-4ead1082b124.png)
+
+## 特别感谢
+
++ [heb1c]()同学为我们提供了很多意见和建议
+
+## 许可
+
+[SATA](https://github.com/zTrix/sata-license)

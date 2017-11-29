@@ -421,6 +421,7 @@ class MakeContestProblemPublicAPIView(APIView):
         problem.pk = None
         problem.contest = None
         problem._id = display_id
+        problem.visible = False
         problem.submission_number = problem.accepted_number = 0
         problem.statistic_info = {}
         problem.save()
