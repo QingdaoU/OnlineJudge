@@ -57,8 +57,7 @@ class ContestListAPI(APIView):
                 contests = contests.filter(end_time__lt=cur)
             else:
                 contests = contests.filter(start_time__lte=cur, end_time__gte=cur)
-        data = self.paginate_data(request, contests, ContestSerializer)
-        return self.success(data)
+        return self.success(self.paginate_data(request, contests, ContestSerializer))
 
 
 class ContestPasswordVerifyAPI(APIView):
@@ -102,6 +101,7 @@ class ContestRankAPI(APIView):
 
     @check_contest_permission(check_type="ranks")
     def get(self, request):
+        user = request.user
         if self.contest.rule_type == ContestRuleType.OI:
             serializer = OIContestRankSerializer
         else:
@@ -112,4 +112,7 @@ class ContestRankAPI(APIView):
         if not qs:
             qs = self.get_rank()
             cache.set(cache_key, qs)
-        return self.success(self.paginate_data(request, qs, serializer))
+        page_qs = self.paginate_data(request, qs)
+        page_qs["results"] = serializer(page_qs["results"], many=True,
+                                        is_admin_role=user.is_authenticated() and user.is_admin_role()).data
+        return self.success(page_qs)

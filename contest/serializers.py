@@ -75,16 +75,30 @@ class ContestPasswordVerifySerializer(serializers.Serializer):
 
 
 class ACMContestRankSerializer(serializers.ModelSerializer):
-    user = UsernameSerializer()
+    user = serializers.SerializerMethodField()
     submission_info = serializers.JSONField()
 
     class Meta:
         model = ACMContestRank
 
+    def __init__(self, *args, **kwargs):
+        self.is_admin_role = kwargs.pop("is_admin_role", False)
+        super().__init__(*args, **kwargs)
+
+    def get_user(self, obj):
+        return UsernameSerializer(obj.user, is_admin_role=self.is_admin_role).data
+
 
 class OIContestRankSerializer(serializers.ModelSerializer):
-    user = UsernameSerializer()
+    user = serializers.SerializerMethodField()
     submission_info = serializers.JSONField()
 
     class Meta:
         model = OIContestRank
+
+    def __init__(self, *args, **kwargs):
+        self.is_admin_role = kwargs.pop("is_admin_role", False)
+        super().__init__(*args, **kwargs)
+
+    def get_user(self, obj):
+        return UsernameSerializer(obj.user, is_admin_role=self.is_admin_role).data

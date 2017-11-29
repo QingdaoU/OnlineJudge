@@ -71,9 +71,6 @@ class ProblemTagListAPITest(APITestCase):
         ProblemTag.objects.create(name="name2")
         resp = self.client.get(self.reverse("problem_tag_list_api"))
         self.assertSuccess(resp)
-        resp_data = resp.data["data"]
-        self.assertEqual(resp_data[0]["name"], "name1")
-        self.assertEqual(resp_data[1]["name"], "name2")
 
 
 class TestCaseUploadAPITest(APITestCase):

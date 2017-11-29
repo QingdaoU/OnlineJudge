@@ -1,5 +1,5 @@
 import random
-from django.db.models import Q
+from django.db.models import Q, Count
 from utils.api import APIView
 from account.decorators import check_contest_permission
 from ..models import ProblemTag, Problem, ProblemRuleType
@@ -10,7 +10,8 @@ from contest.models import ContestRuleType
 
 class ProblemTagAPI(APIView):
     def get(self, request):
-        return self.success(TagSerializer(ProblemTag.objects.all(), many=True).data)
+        tags = ProblemTag.objects.annotate(problem_count=Count("problem")).filter(problem_count__gt=0)
+        return self.success(TagSerializer(tags, many=True).data)
 
 
 class PickOneAPI(APIView):
