@@ -1,26 +1,25 @@
 # OnlineJudge 2.0
 
-[![vue](https://img.shields.io/badge/python-3.6.2-blue.svg?style=flat-square)](https://www.python.org/downloads/release/python-362/)
-[![vuex](https://img.shields.io/badge/django-1.11.4-blue.svg?style=flat-square)](https://www.djangoproject.com/)
-[![echarts](https://img.shields.io/badge/django_rest_framework-3.4.0-blue.svg?style=flat-square)](http://www.django-rest-framework.org/)
+[![Python](https://img.shields.io/badge/python-3.6.2-blue.svg?style=flat-square)](https://www.python.org/downloads/release/python-362/)
+[![Django](https://img.shields.io/badge/django-1.11.4-blue.svg?style=flat-square)](https://www.djangoproject.com/)
+[![Django Rest Framework](https://img.shields.io/badge/django_rest_framework-3.4.0-blue.svg?style=flat-square)](http://www.django-rest-framework.org/)
 [![Build Status](https://travis-ci.org/QingdaoU/OnlineJudge.svg?branch=2.0)](https://travis-ci.org/QingdaoU/OnlineJudge)
 
-> #### 基于Python和Vue的在线评测系统。[Demo](http://v2.qduoj.com)
+> #### 基于 Python 和 Vue 的在线评测系统。 [Demo](http://v2.qduoj.com)
 
 [English Document](https://github.com/QingdaoU/OnlineJudge/blob/2.0/README.md)
 
 ## 概览
 
-+ 基于docker，真正一键部署
++ 基于 Docker，真正一键部署
 + 前后端分离，模块化编程，微服务
 + ACM/OI 两种比赛模式、实时/非实时评判 任意选择
 + 丰富的可视化图表，一图胜千言
-+ 支持Template Problem，可以添加函数题甚至填空题
++ 支持 Template Problem，可以添加函数题甚至填空题
 + 更细致的权限划分，超级管理员和普通管理员各司其职
-+ 多语言支持：`C`, `C++`, `Java`, `Python`，题目可以选择使用的语言
-+ Markdown & MathJax支持
-+ 比赛用户IP限制(CIDR ranges)
-
++ 多语言支持：`C`, `C++`, `Java`, `Python2`, `Python3`，题目可以选择使用的语言
++ Markdown & MathJax 支持
++ 比赛用户IP限制 (CIDR ranges)
 
 主要模块均已开源:
 
@@ -55,8 +54,8 @@ Rankings 中可以控制图表和菜单的显隐
 
 ![user-home](https://user-images.githubusercontent.com/20637881/33365521-7842d808-d523-11e7-84c1-2e2aa0079f32.png)
 
-
 ### 后台管理
+
 ![admin-users](https://user-images.githubusercontent.com/20637881/33372516-42c34fda-d539-11e7-9f4e-5109477f83be.png)
 
 ![judge-server](https://user-images.githubusercontent.com/20637881/33372517-42faef9e-d539-11e7-9f17-df9be3583900.png)
@@ -68,12 +67,10 @@ Rankings 中可以控制图表和菜单的显隐
 ## 特别感谢
 
 + 所有为本项目做出贡献的人
-+ [heb1c](#) 同学为我们提供了很多意见和建议
++ [heb1c](https://github.com/hebicheng) 同学为我们提供了很多意见和建议
 
-如果您觉得这个项目还不错，就给个star吧 ：)
+如果您觉得这个项目还不错，就star一下吧 ：)
 
 ## 许可
 
 The [MIT](http://opensource.org/licenses/MIT) License
-
-Copyright 2015-present, Online Judge

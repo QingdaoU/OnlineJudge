@@ -1,34 +1,34 @@
 # OnlineJudge 2.0
 
-[![vue](https://img.shields.io/badge/python-3.6.2-blue.svg?style=flat-square)](https://www.python.org/downloads/release/python-362/)
-[![vuex](https://img.shields.io/badge/django-1.11.4-blue.svg?style=flat-square)](https://www.djangoproject.com/)
-[![echarts](https://img.shields.io/badge/django_rest_framework-3.4.0-blue.svg?style=flat-square)](http://www.django-rest-framework.org/)
+[![Python](https://img.shields.io/badge/python-3.6.2-blue.svg?style=flat-square)](https://www.python.org/downloads/release/python-362/)
+[![Django](https://img.shields.io/badge/django-1.11.4-blue.svg?style=flat-square)](https://www.djangoproject.com/)
+[![Django Rest Framework](https://img.shields.io/badge/django_rest_framework-3.4.0-blue.svg?style=flat-square)](http://www.django-rest-framework.org/)
 [![Build Status](https://travis-ci.org/QingdaoU/OnlineJudge.svg?branch=2.0)](https://travis-ci.org/QingdaoU/OnlineJudge)
 
-> #### A onlinejudge system based on Python and Vue, [Demo](http://v2.qduoj.com)
+> #### A onlinejudge system based on Python and Vue. [Demo](http://v2.qduoj.com)
 
 [中文文档](https://github.com/QingdaoU/OnlineJudge/blob/2.0/README-CN.md)
 
 ## Overview
 
-+ Based on docker, one-click deployment
-+ Separated backend and frontend, modularization programming
-+ ACM/OI rule_type, real-time rank or not, choose as you like
++ Based on Docker, one-click deployment
++ Separated backend and frontend, modular programming
++ ACM/OI rule type, real-time rank or not, choose what you like
 + Amazing charting and visualization
 + Template-Problem support
 + More reasonable permission control
 + Multi-language support: `C`, `C++`, `Java`, `Python2`, `Python3`
-+ Easy use markdown editor && Nice codemirror editor
-+ Contest Participants IP limit(CIDR)
++ Markdown & MathJax support
++ Contest participants IP limit(CIDR)
 
 The main modules are open source:
 
 + Backend(Django): [https://github.com/QingdaoU/OnlineJudge](https://github.com/QingdaoU/OnlineJudge)
 + Frontend(Vue): [https://github.com/QingdaoU/OnlineJudgeFE](https://github.com/QingdaoU/OnlineJudgeFE)
-+ Judger Sandbox(seccomp): [https://github.com/QingdaoU/Judger](https://github.com/QingdaoU/Judger)
++ Judger Sandbox(Seccomp): [https://github.com/QingdaoU/Judger](https://github.com/QingdaoU/Judger)
 + JudgeServer(A wrapper for Judger): [https://github.com/QingdaoU/JudgeServer](https://github.com/QingdaoU/JudgeServer)
 
-## Install
+## Installation
 
 Follow me:  [https://github.com/QingdaoU/OnlineJudgeDeploy/tree/2.0](https://github.com/QingdaoU/OnlineJudgeDeploy/tree/2.0)
 
@@ -54,7 +54,7 @@ You can control the menu and chart status in rankings
 
 ![user-home](https://user-images.githubusercontent.com/20637881/33365521-7842d808-d523-11e7-84c1-2e2aa0079f32.png)
 
-### Backend: 
+### Admin: 
 
 ![admin-users](https://user-images.githubusercontent.com/20637881/33372516-42c34fda-d539-11e7-9f4e-5109477f83be.png)
 
@@ -66,12 +66,10 @@ You can control the menu and chart status in rankings
 
 ## Special Thanks
 
-+ I'd appreciate a github star if you find this great
++ I'd appreciate a github star if you find this helpful
 + Thanks to all the people that have contributed to the project
-+ A special thanks to [heb1c]() who gave us a lot of suggestions
++ A special thanks to [heb1c](https://github.com/hebicheng) who gave us a lot of suggestions
 
 ## License
 
 The [MIT](http://opensource.org/licenses/MIT) License
-
-Copyright 2015-present, Online Judge
