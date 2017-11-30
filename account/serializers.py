@@ -48,6 +48,20 @@ class ImportUserSeralizer(serializers.Serializer):
         child=serializers.ListField(child=serializers.CharField(max_length=64)))
 
 
+class UserAdminSerializer(serializers.ModelSerializer):
+    real_name = serializers.SerializerMethodField()
+    create_time = DateTimeTZField()
+    last_login = DateTimeTZField()
+
+    class Meta:
+        model = User
+        fields = ["id", "username", "email", "admin_type", "problem_permission", "real_name",
+                  "create_time", "last_login", "two_factor_auth", "open_api", "is_disabled"]
+
+    def get_real_name(self, obj):
+        return obj.userprofile.real_name
+
+
 class UserSerializer(serializers.ModelSerializer):
     create_time = DateTimeTZField()
     last_login = DateTimeTZField()

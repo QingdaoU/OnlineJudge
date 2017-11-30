@@ -13,7 +13,7 @@ from utils.shortcuts import rand_str
 
 from ..decorators import super_admin_required
 from ..models import AdminType, ProblemPermission, User, UserProfile
-from ..serializers import EditUserSerializer, UserSerializer, GenerateUserSerializer
+from ..serializers import EditUserSerializer, UserAdminSerializer, GenerateUserSerializer
 from ..serializers import ImportUserSeralizer
 
 
@@ -95,7 +95,7 @@ class UserAdminAPI(APIView):
         user.save()
         if pre_username != user.username:
             Submission.objects.filter(username=pre_username).update(username=user.username)
-        return self.success(UserSerializer(user).data)
+        return self.success(UserAdminSerializer(user).data)
 
     @super_admin_required
     def get(self, request):
@@ -108,7 +108,7 @@ class UserAdminAPI(APIView):
                 user = User.objects.get(id=user_id)
             except User.DoesNotExist:
                 return self.error("User does not exist")
-            return self.success(UserSerializer(user).data)
+            return self.success(UserAdminSerializer(user).data)
 
         user = User.objects.all().order_by("-create_time")
 
@@ -117,7 +117,7 @@ class UserAdminAPI(APIView):
             user = user.filter(Q(username__icontains=keyword) |
                                Q(userprofile__real_name__icontains=keyword) |
                                Q(email__icontains=keyword))
-        return self.success(self.paginate_data(request, user, UserSerializer))
+        return self.success(self.paginate_data(request, user, UserAdminSerializer))
 
     def delete_one(self, user_id):
         try:

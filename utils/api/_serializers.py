@@ -7,10 +7,6 @@ class DateTimeTZField(serializers.DateTimeField):
         return super(DateTimeTZField, self).to_representation(value)
 
 
-class IDOnlySerializer(serializers.Serializer):
-    id = serializers.IntegerField()
-
-
 class UsernameSerializer(serializers.Serializer):
     id = serializers.IntegerField()
     username = serializers.CharField()
