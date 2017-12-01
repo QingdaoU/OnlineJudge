@@ -32,6 +32,10 @@ The main modules are open source:
 
 Follow me:  [https://github.com/QingdaoU/OnlineJudgeDeploy/tree/2.0](https://github.com/QingdaoU/OnlineJudgeDeploy/tree/2.0)
 
+## Documents
+
+[http://docs.onlinejudge.me/](http://docs.onlinejudge.me/)
+
 ## Screenshots
 
 ### Frontend:
@@ -63,6 +67,10 @@ You can control the menu and chart status in rankings.
 ![create-problem](https://user-images.githubusercontent.com/20637881/33372513-42472162-d539-11e7-8659-5497bf52dbea.png)
 
 ![create-contest](https://user-images.githubusercontent.com/20637881/33372514-428ab922-d539-11e7-8f68-da55dedf3ad3.png)
+
+## Browser Support
+
+Modern browsers(chrome, firefox) 和 Internet Explorer 10+.
 
 ## Special Thanks
 
