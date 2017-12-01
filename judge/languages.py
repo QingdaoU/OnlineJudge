@@ -95,12 +95,14 @@ _cpp_lang_spj_config = {
 }
 
 _java_lang_config = {
-    "template": """/*--PREPEND START--*/
-/*--PREPEND END--*/
-/*--TEMPLATE BEGIN--*/
-/*--TEMPLATE END--*/
-/*--APPEND START--*/
-/*--APPEND END--*/""",
+    "template": """//PREPEND BEGIN
+//PREPEND END
+
+//TEMPLATE BEGIN
+//TEMPLATE END
+
+//APPEND BEGIN
+//APPEND END""",
     "compile": {
         "src_name": "Main.java",
         "exe_name": "Main",
@@ -119,12 +121,14 @@ _java_lang_config = {
 
 
 _py2_lang_config = {
-    "template": """/*--PREPEND START--*/
-/*--PREPEND END--*/
-/*--TEMPLATE BEGIN--*/
-/*--TEMPLATE END--*/
-/*--APPEND START--*/
-/*--APPEND END--*/""",
+    "template": """//PREPEND BEGIN
+//PREPEND END
+
+//TEMPLATE BEGIN
+//TEMPLATE END
+
+//APPEND BEGIN
+//APPEND END""",
     "compile": {
         "src_name": "solution.py",
         "exe_name": "solution.pyc",
@@ -139,6 +143,14 @@ _py2_lang_config = {
     }
 }
 _py3_lang_config = {
+    "template": """//PREPEND BEGIN
+//PREPEND END
+
+//TEMPLATE BEGIN
+//TEMPLATE END
+
+//APPEND BEGIN
+//APPEND END""",
     "compile": {
         "src_name": "solution.py",
         "exe_name": "__pycache__/solution.cpython-35.pyc",

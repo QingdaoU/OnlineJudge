@@ -6,7 +6,7 @@ import zipfile
 from wsgiref.util import FileWrapper
 
 from django.conf import settings
-from django.http import StreamingHttpResponse
+from django.http import StreamingHttpResponse, HttpResponse
 
 from account.decorators import problem_permission_required
 from judge.dispatcher import SPJCompiler
@@ -67,8 +67,14 @@ class TestCaseAPI(CSRFExemptAPIView):
         with zipfile.ZipFile(file_name, "w") as file:
             for test_case in name_list:
                 file.write(f"{test_case_dir}/{test_case}", test_case)
-        response = StreamingHttpResponse(FileWrapper(open(file_name, "rb")), content_type="application/zip")
+        if os.environ.get("OJ_ENV") == "production":
+            response = HttpResponse()
+            response["X-Accel-Redirect"] = file_name
+        else:
+            response = StreamingHttpResponse(FileWrapper(open(file_name, "rb")), content_type="application/octet-stream")
+
         response["Content-Disposition"] = f"attachment; filename=problem_{problem.id}_test_cases.zip"
+        response["Content-Length"] = os.path.getsize(file_name)
         return response
 
     @problem_permission_required
