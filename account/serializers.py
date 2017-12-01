@@ -1,6 +1,6 @@
 from django import forms
 
-from utils.api import DateTimeTZField, serializers, UsernameSerializer
+from utils.api import serializers, UsernameSerializer
 
 from .models import AdminType, ProblemPermission, User, UserProfile
 
@@ -50,8 +50,6 @@ class ImportUserSeralizer(serializers.Serializer):
 
 class UserAdminSerializer(serializers.ModelSerializer):
     real_name = serializers.SerializerMethodField()
-    create_time = DateTimeTZField()
-    last_login = DateTimeTZField()
 
     class Meta:
         model = User
@@ -63,9 +61,6 @@ class UserAdminSerializer(serializers.ModelSerializer):
 
 
 class UserSerializer(serializers.ModelSerializer):
-    create_time = DateTimeTZField()
-    last_login = DateTimeTZField()
-
     class Meta:
         model = User
         fields = ["id", "username", "email", "admin_type", "problem_permission",
@@ -74,20 +69,10 @@ class UserSerializer(serializers.ModelSerializer):
 
 class UserProfileSerializer(serializers.ModelSerializer):
     user = UserSerializer()
-    acm_problems_status = serializers.JSONField()
-    oi_problems_status = serializers.JSONField()
 
     class Meta:
         model = UserProfile
         fields = "__all__"
-
-
-class UserInfoSerializer(serializers.ModelSerializer):
-    acm_problems_status = serializers.JSONField()
-    oi_problems_status = serializers.JSONField()
-
-    class Meta:
-        model = UserProfile
 
 
 class EditUserSerializer(serializers.Serializer):
@@ -105,12 +90,12 @@ class EditUserSerializer(serializers.Serializer):
 
 class EditUserProfileSerializer(serializers.Serializer):
     real_name = serializers.CharField(max_length=32, allow_null=True, required=False)
-    avatar = serializers.CharField(max_length=256, allow_null=True, allow_blank=True, required=False)
-    blog = serializers.URLField(max_length=256, allow_null=True, allow_blank=True, required=False)
-    mood = serializers.CharField(max_length=256, allow_null=True, allow_blank=True, required=False)
-    github = serializers.CharField(max_length=64, allow_null=True, allow_blank=True, required=False)
-    school = serializers.CharField(max_length=64, allow_null=True, allow_blank=True, required=False)
-    major = serializers.CharField(max_length=64, allow_null=True, allow_blank=True, required=False)
+    avatar = serializers.CharField(max_length=256, allow_blank=True, required=False)
+    blog = serializers.URLField(max_length=256, allow_blank=True, required=False)
+    mood = serializers.CharField(max_length=256, allow_blank=True, required=False)
+    github = serializers.CharField(max_length=64, allow_blank=True, required=False)
+    school = serializers.CharField(max_length=64, allow_blank=True, required=False)
+    major = serializers.CharField(max_length=64, allow_blank=True, required=False)
 
 
 class ApplyResetPasswordSerializer(serializers.Serializer):
@@ -142,3 +127,4 @@ class RankInfoSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = UserProfile
+        fields = "__all__"

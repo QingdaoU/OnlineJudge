@@ -1,4 +1,4 @@
-from utils.api import DateTimeTZField, serializers
+from utils.api import serializers
 
 from .models import JudgeServer
 
@@ -29,8 +29,6 @@ class CreateEditWebsiteConfigSerializer(serializers.Serializer):
 
 
 class JudgeServerSerializer(serializers.ModelSerializer):
-    create_time = DateTimeTZField()
-    last_heartbeat = DateTimeTZField()
     status = serializers.CharField()
 
     class Meta:

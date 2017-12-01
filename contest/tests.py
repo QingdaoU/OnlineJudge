@@ -3,7 +3,6 @@ from datetime import datetime, timedelta
 
 from django.utils import timezone
 
-from utils.api._serializers import DateTimeTZField
 from utils.api.tests import APITestCase
 
 from .models import ContestAnnouncement, ContestRuleType, Contest
@@ -44,10 +43,9 @@ class ContestAdminAPITest(APITestCase):
         response = self.client.put(self.url, data=data)
         self.assertSuccess(response)
         response_data = response.data["data"]
-        datetime_tz_field = DateTimeTZField()
         for k in data.keys():
             if isinstance(data[k], datetime):
-                data[k] = datetime_tz_field.to_representation(data[k])
+                    continue
             self.assertEqual(response_data[k], data[k])
 
     def test_get_contests(self):

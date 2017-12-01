@@ -1,5 +1,5 @@
 from utils.api import serializers
-from utils.api._serializers import DateTimeTZField, UsernameSerializer
+from utils.api._serializers import UsernameSerializer
 
 from .models import Announcement
 
@@ -11,12 +11,11 @@ class CreateAnnouncementSerializer(serializers.Serializer):
 
 
 class AnnouncementSerializer(serializers.ModelSerializer):
-    create_time = DateTimeTZField()
-    last_update_time = DateTimeTZField()
     created_by = UsernameSerializer()
 
     class Meta:
         model = Announcement
+        fields = "__all__"
 
 
 class EditAnnouncementSerializer(serializers.Serializer):
