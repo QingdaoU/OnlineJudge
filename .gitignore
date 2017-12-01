@@ -53,6 +53,7 @@ db.db
 *.rdb
 #*.out
 *.sqlite3
+.python-version
 .DS_Store
 build.txt
 tmp/
@@ -69,3 +70,4 @@ data/public/upload/*
 !data/public/upload/.gitkeep
 data/public/avatar/*
 !data/public/avatar/default.png
+

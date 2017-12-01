@@ -17,17 +17,15 @@ class ShareSubmissionSerializer(serializers.Serializer):
 
 
 class SubmissionModelSerializer(serializers.ModelSerializer):
-    info = serializers.JSONField()
-    statistic_info = serializers.JSONField()
 
     class Meta:
         model = Submission
+        fields = "__all__"
 
 
 # 不显示submission info的serializer, 用于ACM rule_type
 class SubmissionSafeModelSerializer(serializers.ModelSerializer):
     problem = serializers.SlugRelatedField(read_only=True, slug_field="_id")
-    statistic_info = serializers.JSONField()
 
     class Meta:
         model = Submission
@@ -36,7 +34,6 @@ class SubmissionSafeModelSerializer(serializers.ModelSerializer):
 
 class SubmissionListSerializer(serializers.ModelSerializer):
     problem = serializers.SlugRelatedField(read_only=True, slug_field="_id")
-    statistic_info = serializers.JSONField()
     show_link = serializers.SerializerMethodField()
 
     def __init__(self, *args, **kwargs):

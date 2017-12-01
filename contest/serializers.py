@@ -1,4 +1,4 @@
-from utils.api import DateTimeTZField, UsernameSerializer, serializers
+from utils.api import UsernameSerializer, serializers
 
 from .models import Contest, ContestAnnouncement, ContestRuleType
 from .models import ACMContestRank, OIContestRank
@@ -29,16 +29,13 @@ class EditConetestSeriaizer(serializers.Serializer):
 
 
 class ContestAdminSerializer(serializers.ModelSerializer):
-    start_time = DateTimeTZField()
-    end_time = DateTimeTZField()
-    create_time = DateTimeTZField()
-    last_update_time = DateTimeTZField()
     created_by = UsernameSerializer()
     status = serializers.CharField()
     contest_type = serializers.CharField()
 
     class Meta:
         model = Contest
+        fields = "__all__"
 
 
 class ContestSerializer(ContestAdminSerializer):
@@ -49,10 +46,10 @@ class ContestSerializer(ContestAdminSerializer):
 
 class ContestAnnouncementSerializer(serializers.ModelSerializer):
     created_by = UsernameSerializer()
-    create_time = DateTimeTZField()
 
     class Meta:
         model = ContestAnnouncement
+        fields = "__all__"
 
 
 class CreateContestAnnouncementSerializer(serializers.Serializer):
@@ -76,10 +73,10 @@ class ContestPasswordVerifySerializer(serializers.Serializer):
 
 class ACMContestRankSerializer(serializers.ModelSerializer):
     user = serializers.SerializerMethodField()
-    submission_info = serializers.JSONField()
 
     class Meta:
         model = ACMContestRank
+        fields = "__all__"
 
     def __init__(self, *args, **kwargs):
         self.is_admin_role = kwargs.pop("is_admin_role", False)
@@ -91,10 +88,10 @@ class ACMContestRankSerializer(serializers.ModelSerializer):
 
 class OIContestRankSerializer(serializers.ModelSerializer):
     user = serializers.SerializerMethodField()
-    submission_info = serializers.JSONField()
 
     class Meta:
         model = OIContestRank
+        fields = "__all__"
 
     def __init__(self, *args, **kwargs):
         self.is_admin_role = kwargs.pop("is_admin_role", False)

@@ -1,7 +1,7 @@
 from django import forms
 
 from judge.languages import language_names, spj_language_names
-from utils.api import DateTimeTZField, UsernameSerializer, serializers
+from utils.api import UsernameSerializer, serializers
 
 from .models import Problem, ProblemRuleType, ProblemTag
 from .utils import parse_problem_template
@@ -87,24 +87,11 @@ class CompileSPJSerializer(serializers.Serializer):
 
 
 class BaseProblemSerializer(serializers.ModelSerializer):
-    samples = serializers.JSONField()
-    test_case_score = serializers.JSONField()
-    languages = serializers.JSONField()
-    template = serializers.JSONField()
     tags = serializers.SlugRelatedField(many=True, slug_field="name", read_only=True)
-    create_time = DateTimeTZField()
-    last_update_time = DateTimeTZField()
     created_by = UsernameSerializer()
-    statistic_info = serializers.JSONField()
 
 
 class ProblemAdminSerializer(BaseProblemSerializer):
-    class Meta:
-        model = Problem
-        fields = "__all__"
-
-
-class ContestProblemAdminSerializer(BaseProblemSerializer):
     class Meta:
         model = Problem
         fields = "__all__"
@@ -121,21 +108,16 @@ class ProblemSerializer(BaseProblemSerializer):
 
     class Meta:
         model = Problem
-        exclude = ("contest", "test_case_score", "test_case_id", "visible", "is_public",
-                   "template", "spj_code", "spj_version", "spj_compile_ok")
+        exclude = ("test_case_score", "test_case_id", "visible", "is_public",
+                   "spj_code", "spj_version", "spj_compile_ok")
 
 
-class ContestProblemSerializer(BaseProblemSerializer):
+class ProblemSafeSerializer(BaseProblemSerializer):
     class Meta:
         model = Problem
-        exclude = ("test_case_score", "test_case_id", "visible", "is_public", "difficulty")
-
-
-class ContestProblemSafeSerializer(BaseProblemSerializer):
-    class Meta:
-        model = Problem
-        exclude = ("test_case_score", "test_case_id", "visible", "is_public", "difficulty",
-                   "submission_number", "accepted_number", "statistic_info")
+        exclude = ("test_case_score", "test_case_id", "visible", "is_public",
+                   "spj_code", "spj_version", "spj_compile_ok",
+                   "difficulty", "submission_number", "accepted_number", "statistic_info")
 
 
 class ContestProblemMakePublicSerializer(serializers.Serializer):

@@ -30,7 +30,11 @@
 
 ## 安装
 
-文档:  [https://github.com/QingdaoU/OnlineJudgeDeploy/tree/2.0](https://github.com/QingdaoU/OnlineJudgeDeploy/tree/2.0)
+请根据此进行安装:  [https://github.com/QingdaoU/OnlineJudgeDeploy/tree/2.0](https://github.com/QingdaoU/OnlineJudgeDeploy/tree/2.0)
+
+## 文档
+
+[http://docs.onlinejudge.me/](http://docs.onlinejudge.me/)
 
 ## 截图
 
@@ -63,6 +67,11 @@ Rankings 中可以控制图表和菜单的显隐。
 ![create-problem](https://user-images.githubusercontent.com/20637881/33372513-42472162-d539-11e7-8659-5497bf52dbea.png)
 
 ![create-contest](https://user-images.githubusercontent.com/20637881/33372514-428ab922-d539-11e7-8f68-da55dedf3ad3.png)
+
+
+## 浏览器支持
+
+Modern browsers(chrome, firefox) 和 Internet Explorer 10+.
 
 ## 特别感谢
 
