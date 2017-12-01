@@ -28,7 +28,7 @@ do
     sleep 8
 done
 
-echo "from options.options import SysOptions; SysOptions.judge_server_token=$JUDGE_SERVER_TOKEN" | pg shell || exit 1
+echo "from options.options import SysOptions; SysOptions.judge_server_token='$JUDGE_SERVER_TOKEN'" | python manage.py shell || exit 1
 
 cp data/public/avatar/default.png /data/public/avatar
 chown -R nobody:nogroup $DATA $APP/dist
