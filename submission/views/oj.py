@@ -194,7 +194,7 @@ class ContestSubmissionListAPI(APIView):
 
         # 封榜的时候只能看到自己的提交
         if contest.rule_type == ContestRuleType.ACM:
-            if not contest.real_time_rank and not contest.is_contest_admin(request.user):
+            if not contest.real_time_rank and not request.user.is_contest_admin(contest):
                 submissions = submissions.filter(user_id=request.user.id)
 
         data = self.paginate_data(request, submissions)
