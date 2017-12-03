@@ -11,7 +11,7 @@ install:
     - pip install -r deploy/requirements.txt
     - cp oj/custom_settings.example.py oj/custom_settings.py
     - echo "SECRET_KEY=\"`cat /dev/urandom | head -1 | md5sum | head -c 32`\"" >> oj/custom_settings.py
-    - python manage.py migrate
+    - sleep 10 && python manage.py migrate
 script:
     - docker ps -a
     - flake8 .
