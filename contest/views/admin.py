@@ -2,13 +2,15 @@ from ipaddress import ip_network
 import dateutil.parser
 
 from utils.api import APIView, validate_serializer
+from utils.cache import cache
+from utils.constants import CacheKey
 
-from ..models import Contest, ContestAnnouncement
+from account.decorators import check_contest_permission
+from ..models import Contest, ContestAnnouncement, ACMContestRank
 from ..serializers import (ContestAnnouncementSerializer, ContestAdminSerializer,
-                           CreateConetestSeriaizer,
-                           CreateContestAnnouncementSerializer,
-                           EditConetestSeriaizer,
-                           EditContestAnnouncementSerializer)
+                           CreateConetestSeriaizer, CreateContestAnnouncementSerializer,
+                           EditConetestSeriaizer, EditContestAnnouncementSerializer,
+                           ACMContesHelperSerializer)
 
 
 class ContestAPI(APIView):
@@ -50,6 +52,9 @@ class ContestAPI(APIView):
                 ip_network(ip_range, strict=False)
             except ValueError as e:
                 return self.error(f"{ip_range} is not a valid cidr network")
+        if not contest.real_time_rank and data.get("real_time_rank"):
+            cache_key = f"{CacheKey.contest_rank_cache}:{contest.id}"
+            cache.delete(cache_key)
 
         for k, v in data.items():
             setattr(contest, k, v)
@@ -150,3 +155,41 @@ class ContestAnnouncementAPI(APIView):
         if keyword:
             contest_announcements = contest_announcements.filter(title__contains=keyword)
         return self.success(ContestAnnouncementSerializer(contest_announcements, many=True).data)
+
+
+class ACMContestHelper(APIView):
+    @check_contest_permission(check_type="ranks")
+    def get(self, request):
+        ranks = ACMContestRank.objects.filter(contest=self.contest, accepted_number__gt=0) \
+            .values("id", "user__username", "user__userprofile__real_name", "submission_info")
+        results = []
+        for rank in ranks:
+            for problem_id, info in rank["submission_info"].items():
+                if info["is_ac"]:
+                    results.append({
+                        "id": rank["id"],
+                        "username": rank["user__username"],
+                        "real_name": rank["user__userprofile__real_name"],
+                        "problem_id": problem_id,
+                        "ac_info": info,
+                        "checked": info.get("checked", False)
+                    })
+        results.sort(key=lambda x: -x["ac_info"]["ac_time"])
+        return self.success(results)
+
+    @validate_serializer(ACMContesHelperSerializer)
+    @check_contest_permission(check_type="ranks")
+    def put(self, request):
+        data = request.data
+        if not request.user.is_contest_admin(self.contest):
+            return self.error("You are not contest admin")
+        try:
+            rank = ACMContestRank.objects.get(pk=data["rank_id"])
+        except ACMContestRank.DoesNotExist:
+            return self.error("Rank id does not exist")
+        problem_rank_status = rank.submission_info.get(data["problem_id"])
+        if not problem_rank_status:
+            return self.error("Problem id does not exist")
+        problem_rank_status["checked"] = data["checked"]
+        rank.save(update_fields=("submission_info",))
+        return self.success()

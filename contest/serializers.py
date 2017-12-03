@@ -79,11 +79,11 @@ class ACMContestRankSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
     def __init__(self, *args, **kwargs):
-        self.is_admin_role = kwargs.pop("is_admin_role", False)
+        self.is_contest_admin = kwargs.pop("is_contest_admin", False)
         super().__init__(*args, **kwargs)
 
     def get_user(self, obj):
-        return UsernameSerializer(obj.user, is_admin_role=self.is_admin_role).data
+        return UsernameSerializer(obj.user, need_real_name=self.is_contest_admin).data
 
 
 class OIContestRankSerializer(serializers.ModelSerializer):
@@ -94,8 +94,15 @@ class OIContestRankSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
     def __init__(self, *args, **kwargs):
-        self.is_admin_role = kwargs.pop("is_admin_role", False)
+        self.is_contest_admin = kwargs.pop("is_contest_admin", False)
         super().__init__(*args, **kwargs)
 
     def get_user(self, obj):
-        return UsernameSerializer(obj.user, is_admin_role=self.is_admin_role).data
+        return UsernameSerializer(obj.user, need_real_name=self.is_contest_admin).data
+
+
+class ACMContesHelperSerializer(serializers.Serializer):
+    contest_id = serializers.IntegerField()
+    problem_id = serializers.CharField()
+    rank_id = serializers.IntegerField()
+    checked = serializers.BooleanField()
