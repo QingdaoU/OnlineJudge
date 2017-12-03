@@ -68,8 +68,8 @@ def check_contest_permission(check_type="details"):
             self = args[0]
             request = args[1]
             user = request.user
-            if kwargs.get("contest_id"):
-                contest_id = kwargs.pop("contest_id")
+            if request.data.get("contest_id"):
+                contest_id = request.data["contest_id"]
             else:
                 contest_id = request.GET.get("contest_id")
             if not contest_id:

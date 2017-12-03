@@ -101,18 +101,21 @@ class ContestRankAPI(APIView):
 
     @check_contest_permission(check_type="ranks")
     def get(self, request):
-        user = request.user
+        force_refresh = request.GET.get("force_refresh")
+        is_contest_admin = request.user.is_contest_admin(self.contest)
         if self.contest.rule_type == ContestRuleType.OI:
             serializer = OIContestRankSerializer
         else:
             serializer = ACMContestRankSerializer
 
-        cache_key = f"{CacheKey.contest_rank_cache}:{self.contest.id}"
-        qs = cache.get(cache_key)
-        if not qs:
+        if force_refresh == "1" and is_contest_admin:
             qs = self.get_rank()
-            cache.set(cache_key, qs)
+        else:
+            cache_key = f"{CacheKey.contest_rank_cache}:{self.contest.id}"
+            qs = cache.get(cache_key)
+            if not qs:
+                qs = self.get_rank()
+                cache.set(cache_key, qs)
         page_qs = self.paginate_data(request, qs)
-        page_qs["results"] = serializer(page_qs["results"], many=True,
-                                        is_admin_role=user.is_authenticated() and user.is_admin_role()).data
+        page_qs["results"] = serializer(page_qs["results"], many=True, is_contest_admin=is_contest_admin).data
         return self.success(page_qs)
