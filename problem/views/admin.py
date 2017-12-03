@@ -10,7 +10,7 @@ from django.http import StreamingHttpResponse, HttpResponse
 
 from account.decorators import problem_permission_required
 from judge.dispatcher import SPJCompiler
-from contest.models import Contest
+from contest.models import Contest, ContestStatus
 from submission.models import Submission
 from utils.api import APIView, CSRFExemptAPIView, validate_serializer
 from utils.shortcuts import rand_str, natural_sort_key
@@ -18,7 +18,8 @@ from utils.shortcuts import rand_str, natural_sort_key
 from ..models import Problem, ProblemRuleType, ProblemTag
 from ..serializers import (CreateContestProblemSerializer, CompileSPJSerializer,
                            CreateProblemSerializer, EditProblemSerializer, EditContestProblemSerializer,
-                           ProblemAdminSerializer, TestCaseUploadForm, ContestProblemMakePublicSerializer)
+                           ProblemAdminSerializer, TestCaseUploadForm, ContestProblemMakePublicSerializer,
+                           AddContestProblemSerializer)
 
 
 class TestCaseAPI(CSRFExemptAPIView):
@@ -71,7 +72,8 @@ class TestCaseAPI(CSRFExemptAPIView):
             response = HttpResponse()
             response["X-Accel-Redirect"] = file_name
         else:
-            response = StreamingHttpResponse(FileWrapper(open(file_name, "rb")), content_type="application/octet-stream")
+            response = StreamingHttpResponse(FileWrapper(open(file_name, "rb")),
+                                             content_type="application/octet-stream")
 
         response["Content-Disposition"] = f"attachment; filename=problem_{problem.id}_test_cases.zip"
         response["Content-Length"] = os.path.getsize(file_name)
@@ -229,6 +231,7 @@ class ProblemAPI(ProblemBase):
     @problem_permission_required
     def get(self, request):
         problem_id = request.GET.get("id")
+        rule_type = request.GET.get("rule_type")
         user = request.user
         if problem_id:
             try:
@@ -240,6 +243,12 @@ class ProblemAPI(ProblemBase):
                 return self.error("Problem does not exist")
 
         problems = Problem.objects.filter(contest_id__isnull=True).order_by("-create_time")
+        if rule_type:
+            if rule_type not in ProblemRuleType.choices():
+                return self.error("Invalid rule_type")
+            else:
+                problems = problems.filter(rule_type=rule_type)
+
         if not user.can_mgmt_all_problem():
             problems = problems.filter(created_by=user)
         keyword = request.GET.get("keyword")
@@ -428,6 +437,34 @@ class MakeContestProblemPublicAPIView(APIView):
         problem.contest = None
         problem._id = display_id
         problem.visible = False
+        problem.submission_number = problem.accepted_number = 0
+        problem.statistic_info = {}
+        problem.save()
+        problem.tags.set(tags)
+        return self.success()
+
+
+class AddContestProblemAPI(APIView):
+    @validate_serializer(AddContestProblemSerializer)
+    def post(self, request):
+        data = request.data
+        try:
+            contest = Contest.objects.get(id=data["contest_id"])
+            problem = Problem.objects.get(id=data["problem_id"])
+        except (Contest.DoesNotExist, Problem.DoesNotExist):
+            return self.error("Contest or Problem does not exist")
+
+        if contest.status == ContestStatus.CONTEST_ENDED:
+            return self.error("Contest has ended")
+        if Problem.objects.filter(contest=contest, _id=data["display_id"]).exists():
+            return self.error("Duplicate display id in this contest")
+
+        tags = problem.tags.all()
+        problem.pk = None
+        problem.contest = contest
+        problem.is_public = True
+        problem.visible = True
+        problem._id = request.data["display_id"]
         problem.submission_number = problem.accepted_number = 0
         problem.statistic_info = {}
         problem.save()

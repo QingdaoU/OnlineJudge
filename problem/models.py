@@ -4,6 +4,7 @@ from utils.models import JSONField
 from account.models import User
 from contest.models import Contest
 from utils.models import RichTextField
+from utils.constants import Choices
 
 
 class ProblemTag(models.Model):
@@ -13,7 +14,7 @@ class ProblemTag(models.Model):
         db_table = "problem_tag"
 
 
-class ProblemRuleType(object):
+class ProblemRuleType(Choices):
     ACM = "ACM"
     OI = "OI"
 

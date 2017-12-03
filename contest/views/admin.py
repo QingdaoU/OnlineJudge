@@ -10,7 +10,7 @@ from ..models import Contest, ContestAnnouncement, ACMContestRank
 from ..serializers import (ContestAnnouncementSerializer, ContestAdminSerializer,
                            CreateConetestSeriaizer, CreateContestAnnouncementSerializer,
                            EditConetestSeriaizer, EditContestAnnouncementSerializer,
-                           ACMContesHelperSerializer)
+                           ACMContesHelperSerializer, )
 
 
 class ContestAPI(APIView):

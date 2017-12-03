@@ -174,3 +174,9 @@ class ExportProblemSerializer(serializers.ModelSerializer):
                   "input_description", "output_description",
                   "test_case_score", "hint", "time_limit", "memory_limit", "samples",
                   "template", "spj", "rule_type", "source", "template")
+
+
+class AddContestProblemSerializer(serializers.Serializer):
+    contest_id = serializers.IntegerField()
+    problem_id = serializers.IntegerField()
+    display_id = serializers.CharField()

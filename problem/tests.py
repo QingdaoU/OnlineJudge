@@ -17,7 +17,6 @@ from contest.tests import DEFAULT_CONTEST_DATA
 from .views.admin import TestCaseAPI
 from .utils import parse_problem_template
 
-
 DEFAULT_PROBLEM_DATA = {"_id": "A-110", "title": "test", "description": "<p>test</p>", "input_description": "test",
                         "output_description": "test", "time_limit": 1000, "memory_limit": 256, "difficulty": "Low",
                         "visible": True, "tags": ["test"], "languages": ["C", "C++", "Java", "Python2"], "template": {},
@@ -257,6 +256,29 @@ class ContestProblemTest(ProblemCreateTestBase):
         contest.save()
         resp = self.client.get(self.url + "?contest_id=" + str(self.contest["id"]))
         self.assertSuccess(resp)
+
+
+class AddProblemFromPublicProblemAPITest(ProblemCreateTestBase):
+    def setUp(self):
+        admin = self.create_admin()
+        url = self.reverse("contest_admin_api")
+        contest_data = copy.deepcopy(DEFAULT_CONTEST_DATA)
+        contest_data["password"] = ""
+        contest_data["start_time"] = contest_data["start_time"] + timedelta(hours=1)
+        self.contest = self.client.post(url, data=contest_data).data["data"]
+        self.problem = self.add_problem(DEFAULT_PROBLEM_DATA, admin)
+        self.url = self.reverse("add_contest_problem_from_public_api")
+        self.data = {
+            "display_id": "1000",
+            "contest_id": self.contest["id"],
+            "problem_id": self.problem.id
+        }
+
+    def test_add_contest_problem(self):
+        resp = self.client.post(self.url, data=self.data)
+        self.assertSuccess(resp)
+        self.assertTrue(Problem.objects.all().exists())
+        self.assertTrue(Problem.objects.filter(contest_id=self.contest["id"]).exists())
 
 
 class ParseProblemTemplateTest(APITestCase):
