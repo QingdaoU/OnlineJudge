@@ -4,6 +4,7 @@ import sys
 import re
 import json
 import django
+import hashlib
 
 sys.path.append("../")
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "oj.settings")
@@ -56,6 +57,12 @@ def set_problem_display_id_prefix():
                 return ""
 
 
+def get_stripped_output_md5(test_case_id, output_name):
+    output_path = os.path.join(settings.TEST_CASE_DIR, test_case_id, output_name)
+    with open(output_path, "r") as f:
+        return hashlib.md5(f.read().encode("utf-8").rstrip()).hexdigest()
+
+
 def get_test_case_score(test_case_id):
     info_path = os.path.join(settings.TEST_CASE_DIR, test_case_id, "info")
     if not os.path.exists(info_path):
@@ -63,11 +70,20 @@ def get_test_case_score(test_case_id):
     with open(info_path, "r") as info_file:
         info = json.load(info_file)
     test_case_score = []
+    need_rewrite = True
     for test_case in info["test_cases"].values():
-        test_case["stripped_output_md5"] = test_case.pop("striped_output_md5")
+        if test_case.__contains__("stripped_output_md5"):
+            need_rewrite = False
+        elif test_case.__contains__("striped_output_md5"):
+            test_case["stripped_output_md5"] = test_case.pop("striped_output_md5")
+        else:
+            test_case["stripped_output_md5"] = get_stripped_output_md5(test_case_id, test_case["output_name"])
         test_case_score.append({"input_name": test_case["input_name"],
                                 "output_name": test_case.get("output_name", "-"),
                                 "score": 0})
+    if need_rewrite:
+        with open(info_path, "w") as f:
+            f.write(json.dumps(info))
     return test_case_score
 
 
@@ -127,6 +143,10 @@ def import_problems():
     if get_input_result():
         default_creator = User.objects.first()
         for data in problems:
+            data["_id"] = prefix + str(data.pop("id"))
+            if Problem.objects.filter(_id=data["_id"]).exists():
+                print("%s has the same display_id with the db problem" % data["title"])
+                continue
             try:
                 creator_id = \
                     User.objects.filter(username=users[data["created_by"]]["username"]).values_list("id", flat=True)[0]
@@ -135,7 +155,6 @@ def import_problems():
                 creator_id = default_creator.id
             data["created_by_id"] = creator_id
             data.pop("created_by")
-            data["_id"] = prefix + str(data.pop("id"))
             data["difficulty"] = ProblemDifficulty.Mid
             if data["spj_language"]:
                 data["spj_language"] = languages_map[data["spj_language"]]
@@ -148,7 +167,6 @@ def import_problems():
             data["test_case_score"] = test_case_score
             data["rule_type"] = ProblemRuleType.ACM
             data["template"] = {}
-            data["visible"] = False
             data.pop("total_submit_number")
             data.pop("total_accepted_number")
             tag_ids = data.pop("tags")
