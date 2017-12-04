@@ -64,6 +64,7 @@ def get_test_case_score(test_case_id):
         info = json.load(info_file)
     test_case_score = []
     for test_case in info["test_cases"].values():
+        test_case["stripped_output_md5"] = test_case.pop("striped_output_md5")
         test_case_score.append({"input_name": test_case["input_name"],
                                 "output_name": test_case.get("output_name", "-"),
                                 "score": 0})
