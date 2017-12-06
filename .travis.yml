@@ -6,7 +6,7 @@ services:
     - docker
 before_install:
     - docker pull postgres:10
-    - docker run -it -d -e POSTGRES_DB=onlinejudge -e POSTGRES_USER=onlinejudge -e POSTGRES_PASSWORD=onlinejudge -p 127.0.0.1:5432:5432 postgres:10
+    - docker run -it -d -e POSTGRES_DB=onlinejudge -e POSTGRES_USER=onlinejudge -e POSTGRES_PASSWORD=onlinejudge -p 127.0.0.1:5433:5432 postgres:10
 install:
     - pip install -r deploy/requirements.txt
     - cp oj/custom_settings.example.py oj/custom_settings.py

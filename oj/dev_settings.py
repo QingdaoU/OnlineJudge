@@ -7,7 +7,7 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'HOST': '127.0.0.1',
-        'PORT': 5432,
+        'PORT': 5433,
         'NAME': "onlinejudge",
         'USER': "onlinejudge",
         'PASSWORD': 'onlinejudge'
