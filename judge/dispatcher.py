@@ -228,19 +228,14 @@ class JudgeDispatcher(DispatcherBase):
                                                       "score": score}
                     if self.submission.result == JudgeStatus.ACCEPTED:
                         user_profile.accepted_number += 1
-                else:
-                    if oi_problems_status[problem_id]["status"] == JudgeStatus.ACCEPTED and \
-                            self.submission.result != JudgeStatus.ACCEPTED:
-                        user_profile.accepted_number -= 1
-                    elif oi_problems_status[problem_id]["status"] != JudgeStatus.ACCEPTED and \
-                            self.submission.result == JudgeStatus:
-                        user_profile.accepted_number += 1
-
+                elif oi_problems_status[problem_id]["status"] != JudgeStatus.ACCEPTED:
                     # minus last time score, add this time score
                     user_profile.add_score(this_time_score=score,
                                            last_time_score=oi_problems_status[problem_id]["score"])
                     oi_problems_status[problem_id]["score"] = score
                     oi_problems_status[problem_id]["status"] = self.submission.result
+                    if self.submission.result == JudgeStatus.ACCEPTED:
+                        user_profile.accepted_number += 1
                 user_profile.oi_problems_status["problems"] = oi_problems_status
                 user_profile.save(update_fields=["submission_number", "accepted_number", "oi_problems_status"])
 
