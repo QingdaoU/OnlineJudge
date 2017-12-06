@@ -95,7 +95,7 @@ class JudgeServerHeartbeatAPI(CSRFExemptAPIView):
             server.memory_usage = data["memory"]
             server.cpu_usage = data["cpu"]
             server.service_url = service_url
-            server.ip = request.META["REMOTE_ADDR"]
+            server.ip = request.META["HTTP_X_REAL_IP"]
             server.last_heartbeat = timezone.now()
             server.save()
         except JudgeServer.DoesNotExist:
