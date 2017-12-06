@@ -3,6 +3,7 @@ from django.core.cache import cache
 from utils.api import APIView, validate_serializer
 from utils.constants import CacheKey
 from utils.shortcuts import datetime2str
+from account.models import AdminType
 from account.decorators import login_required, check_contest_permission
 
 from utils.constants import ContestRuleType, ContestStatus
@@ -93,10 +94,10 @@ class ContestAccessAPI(APIView):
 class ContestRankAPI(APIView):
     def get_rank(self):
         if self.contest.rule_type == ContestRuleType.ACM:
-            return ACMContestRank.objects.filter(contest=self.contest). \
+            return ACMContestRank.objects.filter(contest=self.contest, user__admin_type=AdminType.REGULAR_USER). \
                 select_related("user").order_by("-accepted_number", "total_time")
         else:
-            return OIContestRank.objects.filter(contest=self.contest). \
+            return OIContestRank.objects.filter(contest=self.contest, user__admin_type=AdminType.REGULAR_USER). \
                 select_related("user").order_by("-total_score")
 
     @check_contest_permission(check_type="ranks")

@@ -474,6 +474,22 @@ class UserRankAPITest(APITestCase):
         self.assertEqual(data[0]["user"]["username"], "test2")
         self.assertEqual(data[1]["user"]["username"], "test1")
 
+    def test_admin_role_filted(self):
+        self.create_admin("admin", "admin123")
+        admin = User.objects.get(username="admin")
+        profile1 = admin.userprofile
+        profile1.submission_number = 20
+        profile1.accepted_number = 5
+        profile1.total_score = 300
+        profile1.save()
+        resp = self.client.get(self.url, data={"rule": ContestRuleType.ACM})
+        self.assertSuccess(resp)
+        self.assertEqual(len(resp.data["data"]), 2)
+
+        resp = self.client.get(self.url, data={"rule": ContestRuleType.OI})
+        self.assertSuccess(resp)
+        self.assertEqual(len(resp.data["data"]), 2)
+
 
 class ProfileProblemDisplayIDRefreshAPITest(APITestCase):
     def setUp(self):
