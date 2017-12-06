@@ -94,10 +94,14 @@ class ContestAccessAPI(APIView):
 class ContestRankAPI(APIView):
     def get_rank(self):
         if self.contest.rule_type == ContestRuleType.ACM:
-            return ACMContestRank.objects.filter(contest=self.contest, user__admin_type=AdminType.REGULAR_USER). \
+            return ACMContestRank.objects.filter(contest=self.contest,
+                                                 user__admin_type=AdminType.REGULAR_USER,
+                                                 user__is_disabled=False).\
                 select_related("user").order_by("-accepted_number", "total_time")
         else:
-            return OIContestRank.objects.filter(contest=self.contest, user__admin_type=AdminType.REGULAR_USER). \
+            return OIContestRank.objects.filter(contest=self.contest,
+                                                user__admin_type=AdminType.REGULAR_USER,
+                                                user__is_disabled=False). \
                 select_related("user").order_by("-total_score")
 
     @check_contest_permission(check_type="ranks")
