@@ -10,7 +10,7 @@ def delete_user_output(apps, schema_editor):
         if "data" in item.info and isinstance(item.info["data"], list):
             for index in range(len(item.info["data"])):
                 item.info["data"][index]["output"] = ""
-        item.save()
+            item.save()
 
 
 class Migration(migrations.Migration):

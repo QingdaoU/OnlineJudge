@@ -117,7 +117,7 @@ class JudgeDispatcher(DispatcherBase):
                 return
             self.submission.statistic_info["score"] = score
 
-    def judge(self, output=True):
+    def judge(self):
         server = self.choose_judge_server()
         if not server:
             data = {"submission_id": self.submission.id, "problem_id": self.problem.id}
@@ -145,7 +145,7 @@ class JudgeDispatcher(DispatcherBase):
             "max_cpu_time": self.problem.time_limit,
             "max_memory": 1024 * 1024 * self.problem.memory_limit,
             "test_case_id": self.problem.test_case_id,
-            "output": output,
+            "output": False,
             "spj_version": self.problem.spj_version,
             "spj_config": spj_config.get("config"),
             "spj_compile_config": spj_config.get("compile"),
