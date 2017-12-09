@@ -77,9 +77,10 @@ class JudgeServerHeartbeatTest(APITestCase):
         self.token = "test"
         self.hashed_token = hashlib.sha256(self.token.encode("utf-8")).hexdigest()
         SysOptions.judge_server_token = self.token
+        self.headers = {"HTTP_X_JUDGE_SERVER_TOKEN": self.hashed_token, "HTTP_X_REAL_IP": "1.2.3.4"}
 
     def test_new_heartbeat(self):
-        resp = self.client.post(self.url, data=self.data, **{"HTTP_X_JUDGE_SERVER_TOKEN": self.hashed_token})
+        resp = self.client.post(self.url, data=self.data, **self.headers)
         self.assertSuccess(resp)
         server = JudgeServer.objects.first()
         self.assertEqual(server.ip, "127.0.0.1")
@@ -89,7 +90,7 @@ class JudgeServerHeartbeatTest(APITestCase):
         service_url = "http://1.2.3.4:8000/api/judge"
         data = self.data
         data["service_url"] = service_url
-        resp = self.client.post(self.url, data=self.data, **{"HTTP_X_JUDGE_SERVER_TOKEN": self.hashed_token})
+        resp = self.client.post(self.url, data=self.data, **self.headers)
         self.assertSuccess(resp)
         server = JudgeServer.objects.first()
         self.assertEqual(server.service_url, service_url)
@@ -98,7 +99,7 @@ class JudgeServerHeartbeatTest(APITestCase):
         self.test_new_heartbeat()
         data = self.data
         data["judger_version"] = "2.0.0"
-        resp = self.client.post(self.url, data=data, **{"HTTP_X_JUDGE_SERVER_TOKEN": self.hashed_token})
+        resp = self.client.post(self.url, data=data, **self.headers)
         self.assertSuccess(resp)
         self.assertEqual(JudgeServer.objects.get(hostname=self.data["hostname"]).judger_version, data["judger_version"])
 
