@@ -69,15 +69,24 @@ class UserSerializer(serializers.ModelSerializer):
 
 class UserProfileSerializer(serializers.ModelSerializer):
     user = UserSerializer()
+    real_name = serializers.SerializerMethodField()
 
     class Meta:
         model = UserProfile
         fields = "__all__"
 
+    def __init__(self, *args, **kwargs):
+        self.show_real_name = kwargs.pop("show_real_name", False)
+        super(UserProfileSerializer, self).__init__(*args, **kwargs)
+
+    def get_real_name(self, obj):
+        return obj.real_name if self.show_real_name else None
+
 
 class EditUserSerializer(serializers.Serializer):
     id = serializers.IntegerField()
     username = serializers.CharField(max_length=32)
+    real_name = serializers.CharField(max_length=32, allow_blank=True)
     password = serializers.CharField(min_length=6, allow_blank=True, required=False, default=None)
     email = serializers.EmailField(max_length=64)
     admin_type = serializers.ChoiceField(choices=(AdminType.REGULAR_USER, AdminType.ADMIN, AdminType.SUPER_ADMIN))
