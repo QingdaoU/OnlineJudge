@@ -61,7 +61,7 @@ class SubmissionAPI(APIView):
                     return self.error("Contest have not started")
                 user_ip = ipaddress.ip_address(request.session.get("ip"))
                 if contest.allowed_ip_ranges:
-                    if not any(user_ip in ipaddress.ip_network(cidr) for cidr in contest.allowed_ip_ranges):
+                    if not any(user_ip in ipaddress.ip_network(cidr, strict=False) for cidr in contest.allowed_ip_ranges):
                         return self.error("Your IP is not allowed in this contest")
 
             if not contest.problem_details_permission(request.user):
