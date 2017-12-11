@@ -314,7 +314,7 @@ class JudgeDispatcher(DispatcherBase):
 
                 if problem.accepted_number == 1:
                     info["is_first_ac"] = True
-            else:
+            elif self.submission.result != JudgeStatus.COMPILE_ERROR:
                 info["error_number"] += 1
 
         # 第一次提交
@@ -330,7 +330,7 @@ class JudgeDispatcher(DispatcherBase):
                 if problem.accepted_number == 1:
                     info["is_first_ac"] = True
 
-            else:
+            elif self.submission.result != JudgeStatus.COMPILE_ERROR:
                 info["error_number"] = 1
         rank.submission_info[str(self.submission.problem_id)] = info
         rank.save()
