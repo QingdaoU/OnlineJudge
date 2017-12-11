@@ -5,23 +5,23 @@
 [![Django Rest Framework](https://img.shields.io/badge/django_rest_framework-3.4.0-blue.svg?style=flat-square)](http://www.django-rest-framework.org/)
 [![Build Status](https://travis-ci.org/QingdaoU/OnlineJudge.svg?branch=master)](https://travis-ci.org/QingdaoU/OnlineJudge)
 
-> #### A onlinejudge system based on Python and Vue. [Demo](http://v2.qduoj.com)
+> #### An onlinejudge system based on Python and Vue. [Demo](http://v2.qduoj.com)
 
 [中文文档](https://github.com/QingdaoU/OnlineJudge/blob/2.0/README-CN.md)
 
 ## Overview
 
-+ Based on Docker, one-click deployment
-+ Separated backend and frontend, modular programming
-+ ACM/OI rule type, real-time rank or not, choose what you like
++ Based on Docker; One-click deployment
++ Separated backend and frontend; Modular programming; Micro service
++ ACM/OI rule support; realtime/non-realtime rank support
 + Amazing charting and visualization
-+ Template-Problem support
++ Template-problem support
 + More reasonable permission control
 + Multi-language support: `C`, `C++`, `Java`, `Python2`, `Python3`
 + Markdown & MathJax support
 + Contest participants IP limit(CIDR)
 
-The main modules are open source:
+Main modules are available below:
 
 + Backend(Django): [https://github.com/QingdaoU/OnlineJudge](https://github.com/QingdaoU/OnlineJudge)
 + Frontend(Vue): [https://github.com/QingdaoU/OnlineJudgeFE](https://github.com/QingdaoU/OnlineJudgeFE)
@@ -70,13 +70,13 @@ You can control the menu and chart status in rankings.
 
 ## Browser Support
 
-Modern browsers(chrome, firefox) 和 Internet Explorer 10+.
+Modern browsers(chrome, firefox) and Internet Explorer 10+.
 
-## Special Thanks
+## Thanks
 
-+ I'd appreciate a github star if you find this helpful
-+ Thanks to all the people that have contributed to the project
-+ A special thanks to [heb1c](https://github.com/hebicheng) who gave us a lot of suggestions
++ I'd appreciate a star if you find this helpful.
++ Thanks to everyone that contributes to this project.
++ special thanks to [heb1c](https://github.com/hebicheng), who has given us a lot of suggestions.
 
 ## License
 
