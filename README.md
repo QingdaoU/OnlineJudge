@@ -49,7 +49,9 @@ Follow me:  [https://github.com/QingdaoU/OnlineJudgeDeploy/tree/2.0](https://git
 ![contest-list](https://user-images.githubusercontent.com/20637881/33372509-40d880dc-d539-11e7-9eba-1f08dcb6b9a0.png)
 
 You can control the menu and chart status in rankings.
+
 ![acm-rankings](https://user-images.githubusercontent.com/20637881/33372510-41117f68-d539-11e7-9947-70e60bad3cf2.png)
+
 ![oi-rankings](https://user-images.githubusercontent.com/20637881/33372511-41d406fa-d539-11e7-9947-7a2a088785b0.png)
 
 ![status](https://user-images.githubusercontent.com/20637881/33372512-420ba240-d539-11e7-8645-594cac4a0b78.png)
@@ -76,8 +78,8 @@ Modern browsers(chrome, firefox) and Internet Explorer 10+.
 
 + I'd appreciate a star if you find this helpful.
 + Thanks to everyone that contributes to this project.
-+ special thanks to [heb1c](https://github.com/hebicheng), who has given us a lot of suggestions.
++ Special thanks to [heb1c](https://github.com/hebicheng), who has given us a lot of suggestions.
 
 ## License
 
-The [MIT](http://opensource.org/licenses/MIT) License
+[MIT](http://opensource.org/licenses/MIT)
