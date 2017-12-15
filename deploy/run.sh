@@ -3,11 +3,19 @@
 APP=/app
 DATA=/data
 
+mkdir -p $DATA/log $DATA/ssl $DATA/test_case $DATA/public/upload $DATA/public/avatar $DATA/public/website
+
 if [ ! -f "$APP/oj/custom_settings.py" ]; then
     echo SECRET_KEY=\"$(cat /dev/urandom | head -1 | md5sum | head -c 32)\" >> $APP/oj/custom_settings.py
 fi
 
-mkdir -p $DATA/log $DATA/ssl $DATA/test_case $DATA/public/upload $DATA/public/avatar
+if [ ! -f "$DATA/public/avatar/default.png" ]; then
+    cp data/public/avatar/default.png $DATA/public/avatar
+fi
+
+if [ ! -f "$DATA/public/website/favicon.ico" ]; then
+    cp data/public/website/favicon.ico $DATA/public/website
+fi
 
 SSL="$DATA/ssl"
 if [ ! -f "$SSL/server.key" ]; then
@@ -30,6 +38,5 @@ done
 
 echo "from options.options import SysOptions; SysOptions.judge_server_token='$JUDGE_SERVER_TOKEN'" | python manage.py shell || exit 1
 
-cp data/public/avatar/default.png /data/public/avatar
 chown -R nobody:nogroup $DATA $APP/dist
 exec supervisord -c /app/deploy/supervisord.conf
