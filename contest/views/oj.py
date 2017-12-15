@@ -32,7 +32,7 @@ class ContestAPI(APIView):
         if not id:
             return self.error("Invalid parameter, id is required")
         try:
-            contest = Contest.objects.get(id=id)
+            contest = Contest.objects.get(id=id, visible=True)
         except Contest.DoesNotExist:
             return self.error("Contest does not exist")
         data = ContestSerializer(contest).data
@@ -107,7 +107,7 @@ class ContestRankAPI(APIView):
     @check_contest_permission(check_type="ranks")
     def get(self, request):
         force_refresh = request.GET.get("force_refresh")
-        is_contest_admin = request.user.is_contest_admin(self.contest)
+        is_contest_admin = request.user.is_authenticated() and request.user.is_contest_admin(self.contest)
         if self.contest.rule_type == ContestRuleType.OI:
             serializer = OIContestRankSerializer
         else:

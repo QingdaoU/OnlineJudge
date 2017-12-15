@@ -51,7 +51,7 @@ class SubmissionAPI(APIView):
         hide_id = False
         if data.get("contest_id"):
             try:
-                contest = Contest.objects.get(id=data["contest_id"])
+                contest = Contest.objects.get(id=data["contest_id"], visible=True)
             except Contest.DoesNotExist:
                 return self.error("Contest doesn't exist.")
             if contest.status == ContestStatus.CONTEST_ENDED:

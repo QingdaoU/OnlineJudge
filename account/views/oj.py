@@ -396,7 +396,7 @@ class ProfileProblemDisplayIDRefreshAPI(APIView):
         ids = list(acm_problems.keys()) + list(oi_problems.keys())
         if not ids:
             return self.success()
-        display_ids = Problem.objects.filter(id__in=ids).values_list("_id", flat=True)
+        display_ids = Problem.objects.filter(id__in=ids, visible=True).values_list("_id", flat=True)
         id_map = dict(zip(ids, display_ids))
         for k, v in acm_problems.items():
             v["_id"] = id_map[k]
