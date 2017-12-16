@@ -23,6 +23,14 @@ if [ ! -f "$SSL/server.key" ]; then
         -subj "/C=CN/ST=Beijing/L=Beijing/O=Beijing OnlineJudge Technology Co., Ltd./OU=Service Infrastructure Department/CN=`hostname`" -nodes
 fi
 
+cd $APP/deploy/nginx
+ln -sf locations.conf https_locations.conf
+if [ -z "$FORCE_HTTPS" ]; then
+    ln -sf locations.conf http_locations.conf
+else
+    ln -sf https_redirect.conf http_locations.conf
+fi
+
 cd $APP
 
 n=0
