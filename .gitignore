@@ -71,3 +71,6 @@ data/public/upload/*
 data/public/avatar/*
 !data/public/avatar/default.png
 
+http_locations.conf
+https_locations.conf
+
