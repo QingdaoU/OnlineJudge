@@ -90,6 +90,12 @@ class BaseProblemSerializer(serializers.ModelSerializer):
     tags = serializers.SlugRelatedField(many=True, slug_field="name", read_only=True)
     created_by = UsernameSerializer()
 
+    def get_public_template(self, obj):
+        ret = {}
+        for lang, code in obj.template.items():
+            ret[lang] = parse_problem_template(code)["template"]
+        return ret
+
 
 class ProblemAdminSerializer(BaseProblemSerializer):
     class Meta:
@@ -98,13 +104,7 @@ class ProblemAdminSerializer(BaseProblemSerializer):
 
 
 class ProblemSerializer(BaseProblemSerializer):
-    template = serializers.SerializerMethodField()
-
-    def get_template(self, obj):
-        ret = {}
-        for lang, code in obj.template.items():
-            ret[lang] = parse_problem_template(code)["template"]
-        return ret
+    template = serializers.SerializerMethodField("get_public_template")
 
     class Meta:
         model = Problem
@@ -113,6 +113,8 @@ class ProblemSerializer(BaseProblemSerializer):
 
 
 class ProblemSafeSerializer(BaseProblemSerializer):
+    template = serializers.SerializerMethodField("get_public_template")
+
     class Meta:
         model = Problem
         exclude = ("test_case_score", "test_case_id", "visible", "is_public",
