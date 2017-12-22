@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/1.8/ref/settings/
 """
 import os
+import raven
 from copy import deepcopy
 
 if os.environ.get("OJ_ENV") == "production":
@@ -29,6 +30,7 @@ VENDOR_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    'raven.contrib.django.raven_compat'
 )
 LOCAL_APPS = (
     'account',
@@ -125,6 +127,8 @@ UPLOAD_DIR = f"{DATA_DIR}{UPLOAD_PREFIX}"
 
 STATICFILES_DIRS = [os.path.join(DATA_DIR, "public")]
 
+
+LOGGING_HANDLERS = ['console'] if DEBUG else ['console', 'sentry']
 LOGGING = {
    'version': 1,
    'disable_existing_loggers': False,
@@ -139,21 +143,26 @@ LOGGING = {
            'level': 'DEBUG',
            'class': 'logging.StreamHandler',
            'formatter': 'standard'
+       },
+       'sentry': {
+           'level': 'ERROR',
+           'class': 'raven.contrib.django.raven_compat.handlers.SentryHandler',
+           'formatter': 'standard'
        }
    },
    'loggers': {
        'django.request': {
-           'handlers': ['console'],
+           'handlers': LOGGING_HANDLERS,
            'level': 'ERROR',
            'propagate': True,
        },
        'django.db.backends': {
-           'handlers': ['console'],
+           'handlers': LOGGING_HANDLERS,
            'level': 'ERROR',
            'propagate': True,
        },
        '': {
-           'handlers': ['console'],
+           'handlers': LOGGING_HANDLERS,
            'level': 'WARNING',
            'propagate': True,
        }
@@ -201,3 +210,7 @@ TOKEN_BUCKET_DEFAULT_CAPACITY = 10
 
 # 单位:每分钟
 TOKEN_BUCKET_FILL_RATE = 2
+
+RAVEN_CONFIG = {
+    'dsn': 'https://b200023b8aed4d708fb593c5e0a6ad3d:1fddaba168f84fcf97e0d549faaeaff0@sentry.io/263057'
+}

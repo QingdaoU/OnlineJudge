@@ -16,3 +16,4 @@ psycopg2
 gunicorn
 jsonfield
 XlsxWriter
+raven
