@@ -1,4 +1,5 @@
 import hashlib
+from unittest import mock
 
 from django.utils import timezone
 
@@ -127,3 +128,24 @@ class LanguageListAPITest(APITestCase):
     def test_get_languages(self):
         resp = self.client.get(self.reverse("language_list_api"))
         self.assertSuccess(resp)
+
+
+class TestCasePruneAPITest(APITestCase):
+    def setUp(self):
+        self.url = self.reverse("prune_test_case_api")
+        self.create_super_admin()
+
+    def test_get_isolated_test_case(self):
+        resp = self.client.get(self.url)
+        self.assertSuccess(resp)
+
+    @mock.patch("conf.views.TestCasePruneAPI.delete_one")
+    @mock.patch("conf.views.os.listdir")
+    @mock.patch("conf.views.Problem")
+    def test_delete_test_case(self, mocked_problem, mocked_listdir, mocked_delete_one):
+        valid_id = "1172980672983b2b49820be3a741b109"
+        mocked_problem.return_value = [valid_id, ]
+        mocked_listdir.return_value = [valid_id, ".test", "aaa"]
+        resp = self.client.delete(self.url)
+        self.assertSuccess(resp)
+        mocked_delete_one.assert_called_once_with(valid_id)

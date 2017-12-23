@@ -1,8 +1,13 @@
+import os
+import re
 import hashlib
+import shutil
 
 from django.utils import timezone
+from django.conf import settings
 
 from account.decorators import super_admin_required
+from problem.models import Problem
 from judge.dispatcher import process_pending_task
 from judge.languages import languages, spj_languages
 from options.options import SysOptions
@@ -117,3 +122,43 @@ class JudgeServerHeartbeatAPI(CSRFExemptAPIView):
 class LanguagesAPI(APIView):
     def get(self, request):
         return self.success({"languages": languages, "spj_languages": spj_languages})
+
+
+class TestCasePruneAPI(APIView):
+    @super_admin_required
+    def get(self, request):
+        """
+        return isolated test_case list
+        """
+        ret_data = []
+        dir_to_be_removed = self.get_orphan_ids()
+
+        # return an iterator
+        for d in os.scandir(settings.TEST_CASE_DIR):
+            if d.name in dir_to_be_removed:
+                ret_data.append({"id": d.name, "create_time": d.stat().st_ctime})
+        return self.success(ret_data)
+
+    @super_admin_required
+    def delete(self, request):
+        test_case_id = request.GET.get("id")
+        if test_case_id:
+            self.delete_one(test_case_id)
+            return self.success()
+        for id in self.get_orphan_ids():
+            self.delete_one(id)
+        return self.success()
+
+    @staticmethod
+    def get_orphan_ids():
+        db_ids = Problem.objects.all().values_list("test_case_id", flat=True)
+        disk_ids = os.listdir(settings.TEST_CASE_DIR)
+        test_case_re = re.compile(r"^[a-zA-Z0-9]{32}$")
+        disk_ids = filter(lambda f: test_case_re.match(f), disk_ids)
+        return list(set(disk_ids) - set(db_ids))
+
+    @staticmethod
+    def delete_one(id):
+        test_case_dir = os.path.join(settings.TEST_CASE_DIR, id)
+        if os.path.isdir(test_case_dir):
+            shutil.rmtree(test_case_dir, ignore_errors=True)
