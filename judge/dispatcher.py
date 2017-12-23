@@ -180,6 +180,10 @@ class JudgeDispatcher(DispatcherBase):
         self.release_judge_server(server.id)
 
         if self.contest_id:
+            if self.contest.status != ContestStatus.CONTEST_UNDERWAY or \
+                    User.objects.get(id=self.submission.user_id).is_contest_admin(self.contest):
+                logger.info("Contest debug mode, id: " + str(self.contest_id) + ", submission id: " + self.submission.id)
+                return
             self.update_contest_problem_status()
             self.update_contest_rank()
         else:
@@ -240,9 +244,6 @@ class JudgeDispatcher(DispatcherBase):
                 user_profile.save(update_fields=["submission_number", "accepted_number", "oi_problems_status"])
 
     def update_contest_problem_status(self):
-        if self.contest_id and self.contest.status != ContestStatus.CONTEST_UNDERWAY:
-            logger.info("Contest debug mode, id: " + str(self.contest_id) + ", submission id: " + self.submission.id)
-            return
         with transaction.atomic():
             user = User.objects.select_for_update().get(id=self.submission.user_id)
             user_profile = user.userprofile
@@ -282,8 +283,6 @@ class JudgeDispatcher(DispatcherBase):
             problem.save(update_fields=["submission_number", "accepted_number", "statistic_info"])
 
     def update_contest_rank(self):
-        if self.contest_id and self.contest.status != ContestStatus.CONTEST_UNDERWAY:
-            return
         if self.contest.rule_type == ContestRuleType.OI or self.contest.real_time_rank:
             cache.delete(f"{CacheKey.contest_rank_cache}:{self.contest.id}")
         with transaction.atomic():
