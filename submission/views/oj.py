@@ -1,6 +1,5 @@
 import ipaddress
 
-from django.conf import settings
 from account.decorators import login_required, check_contest_permission
 from judge.tasks import judge_task
 # from judge.dispatcher import JudgeDispatcher
@@ -8,7 +7,7 @@ from problem.models import Problem, ProblemRuleType
 from contest.models import Contest, ContestStatus, ContestRuleType
 from options.options import SysOptions
 from utils.api import APIView, validate_serializer
-from utils.throttling import TokenBucket, BucketController
+from utils.throttling import TokenBucket
 from utils.captcha import Captcha
 from utils.cache import cache
 from ..models import Submission
@@ -19,29 +18,16 @@ from ..serializers import SubmissionSafeModelSerializer, SubmissionListSerialize
 
 class SubmissionAPI(APIView):
     def throttling(self, request):
-        user_controller = BucketController(factor=request.user.id,
-                                           redis_conn=cache,
-                                           default_capacity=settings.TOKEN_BUCKET_DEFAULT_CAPACITY)
-        user_bucket = TokenBucket(fill_rate=settings.TOKEN_BUCKET_FILL_RATE,
-                                  capacity=settings.TOKEN_BUCKET_DEFAULT_CAPACITY,
-                                  last_capacity=user_controller.last_capacity,
-                                  last_timestamp=user_controller.last_timestamp)
-        if user_bucket.consume():
-            user_controller.last_capacity -= 1
-        else:
-            return "Please wait %d seconds" % int(user_bucket.expected_time() + 1)
+        user_bucket = TokenBucket(key=str(request.user.id),
+                                  redis_conn=cache, **SysOptions.throttling["user"])
+        can_consume, wait = user_bucket.consume()
+        if not can_consume:
+            return "Please wait %d seconds" % (int(wait))
 
-        ip_controller = BucketController(factor=request.session["ip"],
-                                         redis_conn=cache,
-                                         default_capacity=settings.TOKEN_BUCKET_DEFAULT_CAPACITY * 3)
-
-        ip_bucket = TokenBucket(fill_rate=settings.TOKEN_BUCKET_FILL_RATE * 3,
-                                capacity=settings.TOKEN_BUCKET_DEFAULT_CAPACITY * 3,
-                                last_capacity=ip_controller.last_capacity,
-                                last_timestamp=ip_controller.last_timestamp)
-        if ip_bucket.consume():
-            ip_controller.last_capacity -= 1
-        else:
+        ip_bucket = TokenBucket(key=request.session["ip"],
+                                redis_conn=cache, **SysOptions.throttling["ip"])
+        can_consume, wait = ip_bucket.consume()
+        if not can_consume:
             return "Captcha is required"
 
     @validate_serializer(CreateSubmissionSerializer)

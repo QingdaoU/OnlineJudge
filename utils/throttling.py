@@ -1,90 +1,72 @@
-from __future__ import print_function
 import time
 
 
 class TokenBucket:
-    def __init__(self, fill_rate, capacity, last_capacity, last_timestamp):
-        self.capacity = float(capacity)
-        self._left_tokens = last_capacity
-        self.fill_rate = float(fill_rate)
-        self.timestamp = last_timestamp
+    """
+    注意：对于单个key的操作不是线程安全的
+    """
+    def __init__(self, key, capacity, fill_rate, default_capacity, redis_conn):
+        """
+        :param capacity: 最大容量
+        :param fill_rate: 填充速度/每秒
+        :param default_capacity: 初始容量
+        :param redis_conn: redis connection
+        """
+        self._key = key
+        self._capacity = capacity
+        self._fill_rate = fill_rate
+        self._default_capacity = default_capacity
+        self._redis_conn = redis_conn
 
-    def consume(self, tokens=1):
-        if tokens <= self.tokens:
-            self._left_tokens -= tokens
-            return True
-        return False
+        self._last_capacity_key = "last_capacity"
+        self._last_timestamp_key = "last_timestamp"
 
-    def expected_time(self, tokens=1):
-        _tokens = self.tokens
-        tokens = max(tokens, _tokens)
-        return (tokens - _tokens) / self.fill_rate * 60
+    def _init_key(self):
+        self._last_capacity = self._default_capacity
+        now = time.time()
+        self._last_timestamp = now
+        return self._default_capacity, now
 
     @property
-    def tokens(self):
-        if self._left_tokens < self.capacity:
+    def _last_capacity(self):
+        last_capacity = self._redis_conn.hget(self._key, self._last_capacity_key)
+        if last_capacity is None:
+            return self._init_key()[0]
+        else:
+            return float(last_capacity)
+
+    @_last_capacity.setter
+    def _last_capacity(self, value):
+        self._redis_conn.hset(self._key, self._last_capacity_key, value)
+
+    @property
+    def _last_timestamp(self):
+        return float(self._redis_conn.hget(self._key, self._last_timestamp_key))
+
+    @_last_timestamp.setter
+    def _last_timestamp(self, value):
+        self._redis_conn.hset(self._key, self._last_timestamp_key, value)
+
+    def _try_to_fill(self, now):
+        delta = self._fill_rate * (now - self._last_timestamp)
+        return min(self._last_capacity + delta, self._capacity)
+
+    def consume(self, num=1):
+        """
+        消耗 num 个 token，返回是否成功
+        :param num:
+        :return: result: bool, wait_time: float
+        """
+        # print("capacity ", self.fill(time.time()))
+        if self._last_capacity >= num:
+            self._last_capacity -= num
+            return True, 0
+        else:
             now = time.time()
-            delta = self.fill_rate * ((now - self.timestamp) / 60)
-            self._left_tokens = min(self.capacity, self._left_tokens + delta)
-            self.timestamp = now
-        return self._left_tokens
-
-
-class BucketController:
-    def __init__(self, factor, redis_conn, default_capacity):
-        self.default_capacity = default_capacity
-        self.redis = redis_conn
-        self.key = "bucket_" + str(factor)
-
-    @property
-    def last_capacity(self):
-        value = self.redis.hget(self.key, "last_capacity")
-        if value is None:
-            self.last_capacity = self.default_capacity
-            return self.default_capacity
-        return int(value)
-
-    @last_capacity.setter
-    def last_capacity(self, value):
-        self.redis.hset(self.key, "last_capacity", value)
-
-    @property
-    def last_timestamp(self):
-        value = self.redis.hget(self.key, "last_timestamp")
-        if value is None:
-            timestamp = int(time.time())
-            self.last_timestamp = timestamp
-            return timestamp
-        return int(value)
-
-    @last_timestamp.setter
-    def last_timestamp(self, value):
-        self.redis.hset(self.key, "last_timestamp", value)
-
-
-"""
-# # Token bucket, to limit submission rate
-# # Demo
-
-success = failure = 0
-current_user_id = 1
-token_bucket_default_capacity = 50
-token_bucket_fill_rate = 10
-for i in range(5000):
-    controller = BucketController(user_id=current_user_id,
-                                  redis_conn=redis.Redis(),
-                                  default_capacity=token_bucket_default_capacity)
-    bucket = TokenBucket(fill_rate=token_bucket_fill_rate,
-                         capacity=token_bucket_default_capacity,
-                         last_capacity=controller.last_capacity,
-                         last_timestamp=controller.last_timestamp)
-    time.sleep(0.05)
-    if bucket.consume():
-        success += 1
-        print(i, ": Accepted")
-        controller.last_capacity -= 1
-    else:
-        failure += 1
-        print(i, "Dropped, time left ", bucket.expected_time())
-print(success, failure)
-"""
+            cur_num = self._try_to_fill(now)
+            if cur_num >= num:
+                self._last_capacity = cur_num - num
+                self._last_timestamp = now
+                return True, 0
+            else:
+                return False, (num - cur_num) / self._fill_rate
