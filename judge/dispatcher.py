@@ -154,11 +154,7 @@ class JudgeDispatcher(DispatcherBase):
 
         Submission.objects.filter(id=self.submission.id).update(result=JudgeStatus.JUDGING)
 
-        service_url = server.service_url
-        # not set service_url, it should be a linked container
-        if not service_url:
-            service_url = settings.DEFAULT_JUDGE_SERVER_SERVICE_URL
-        resp = self._request(urljoin(service_url, "/judge"), data=data)
+        resp = self._request(urljoin(server.service_url, "/judge"), data=data)
         if resp["err"]:
             self.submission.result = JudgeStatus.COMPILE_ERROR
             self.submission.statistic_info["err_info"] = resp["data"]

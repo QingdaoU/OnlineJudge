@@ -110,7 +110,6 @@ class JudgeServerHeartbeatAPI(CSRFExemptAPIView):
         client_token = request.META.get("HTTP_X_JUDGE_SERVER_TOKEN")
         if hashlib.sha256(SysOptions.judge_server_token.encode("utf-8")).hexdigest() != client_token:
             return self.error("Invalid token")
-        service_url = data.get("service_url")
 
         try:
             server = JudgeServer.objects.get(hostname=data["hostname"])
@@ -118,7 +117,7 @@ class JudgeServerHeartbeatAPI(CSRFExemptAPIView):
             server.cpu_core = data["cpu_core"]
             server.memory_usage = data["memory"]
             server.cpu_usage = data["cpu"]
-            server.service_url = service_url
+            server.service_url = data["service_url"]
             server.ip = request.META["HTTP_X_REAL_IP"]
             server.last_heartbeat = timezone.now()
             server.save()
@@ -129,7 +128,7 @@ class JudgeServerHeartbeatAPI(CSRFExemptAPIView):
                                        memory_usage=data["memory"],
                                        cpu_usage=data["cpu"],
                                        ip=request.META["REMOTE_ADDR"],
-                                       service_url=service_url,
+                                       service_url=data["service_url"],
                                        last_heartbeat=timezone.now(),
                                        )
             # 新server上线 处理队列中的，防止没有新的提交而导致一直waiting

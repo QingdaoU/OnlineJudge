@@ -82,7 +82,7 @@ class JudgeServerHeartbeatTest(APITestCase):
     def setUp(self):
         self.url = self.reverse("judge_server_heartbeat_api")
         self.data = {"hostname": "testhostname", "judger_version": "1.0.4", "cpu_core": 4,
-                     "cpu": 90.5, "memory": 80.3, "action": "heartbeat"}
+                     "cpu": 90.5, "memory": 80.3, "action": "heartbeat", "service_url": "http://127.0.0.1"}
         self.token = "test"
         self.hashed_token = hashlib.sha256(self.token.encode("utf-8")).hexdigest()
         SysOptions.judge_server_token = self.token
@@ -93,16 +93,6 @@ class JudgeServerHeartbeatTest(APITestCase):
         self.assertSuccess(resp)
         server = JudgeServer.objects.first()
         self.assertEqual(server.ip, "127.0.0.1")
-        self.assertEqual(server.service_url, None)
-
-    def test_new_heartbeat_service_url(self):
-        service_url = "http://1.2.3.4:8000/api/judge"
-        data = self.data
-        data["service_url"] = service_url
-        resp = self.client.post(self.url, data=self.data, **self.headers)
-        self.assertSuccess(resp)
-        server = JudgeServer.objects.first()
-        self.assertEqual(server.service_url, service_url)
 
     def test_update_heartbeat(self):
         self.test_new_heartbeat()
