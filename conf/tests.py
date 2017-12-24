@@ -105,9 +105,9 @@ class JudgeServerHeartbeatTest(APITestCase):
 
 class JudgeServerAPITest(APITestCase):
     def setUp(self):
-        JudgeServer.objects.create(**{"hostname": "testhostname", "judger_version": "1.0.4",
-                                      "cpu_core": 4, "cpu_usage": 90.5, "memory_usage": 80.3,
-                                      "last_heartbeat": timezone.now()})
+        self.server = JudgeServer.objects.create(**{"hostname": "testhostname", "judger_version": "1.0.4",
+                                                    "cpu_core": 4, "cpu_usage": 90.5, "memory_usage": 80.3,
+                                                    "last_heartbeat": timezone.now()})
         self.url = self.reverse("judge_server_api")
         self.create_super_admin()
 
@@ -120,6 +120,11 @@ class JudgeServerAPITest(APITestCase):
         resp = self.client.delete(self.url + "?hostname=testhostname")
         self.assertSuccess(resp)
         self.assertFalse(JudgeServer.objects.filter(hostname="testhostname").exists())
+
+    def test_disabled_judge_server(self):
+        resp = self.client.put(self.url, data={"is_disabled": True, "id": self.server.id})
+        self.assertSuccess(resp)
+        self.assertTrue(JudgeServer.objects.get(id=self.server.id).is_disabled)
 
 
 class LanguageListAPITest(APITestCase):

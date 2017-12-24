@@ -44,3 +44,8 @@ class JudgeServerHeartbeatSerializer(serializers.Serializer):
     cpu = serializers.FloatField(min_value=0, max_value=100)
     action = serializers.ChoiceField(choices=("heartbeat", ))
     service_url = serializers.CharField(max_length=256)
+
+
+class EditJudgeServerSerializer(serializers.Serializer):
+    id = serializers.IntegerField()
+    is_disabled = serializers.BooleanField()

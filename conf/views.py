@@ -17,7 +17,7 @@ from .models import JudgeServer
 from .serializers import (CreateEditWebsiteConfigSerializer,
                           CreateSMTPConfigSerializer, EditSMTPConfigSerializer,
                           JudgeServerHeartbeatSerializer,
-                          JudgeServerSerializer, TestSMTPConfigSerializer)
+                          JudgeServerSerializer, TestSMTPConfigSerializer, EditJudgeServerSerializer)
 
 
 class SMTPAPI(APIView):
@@ -100,6 +100,12 @@ class JudgeServerAPI(APIView):
         hostname = request.GET.get("hostname")
         if hostname:
             JudgeServer.objects.filter(hostname=hostname).delete()
+        return self.success()
+
+    @validate_serializer(EditJudgeServerSerializer)
+    @super_admin_required
+    def put(self, request):
+        JudgeServer.objects.filter(id=request.data["id"]).update(is_disabled=request.data["is_disabled"])
         return self.success()
 
 

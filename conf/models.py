@@ -13,6 +13,7 @@ class JudgeServer(models.Model):
     create_time = models.DateTimeField(auto_now_add=True)
     task_number = models.IntegerField(default=0)
     service_url = models.CharField(max_length=256, blank=True, null=True)
+    is_disabled = models.BooleanField(default=False)
 
     @property
     def status(self):

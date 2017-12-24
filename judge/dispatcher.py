@@ -6,7 +6,6 @@ from urllib.parse import urljoin
 import requests
 from django.db import transaction
 from django.db.models import F
-from django.conf import settings
 
 from account.models import User
 from conf.models import JudgeServer
@@ -47,7 +46,7 @@ class DispatcherBase(object):
     @staticmethod
     def choose_judge_server():
         with transaction.atomic():
-            servers = JudgeServer.objects.select_for_update().all().order_by("task_number")
+            servers = JudgeServer.objects.select_for_update().filter(is_disabled=False).order_by("task_number")
             servers = [s for s in servers if s.status == "normal"]
             if servers:
                 server = servers[0]
