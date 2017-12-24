@@ -43,6 +43,14 @@ class SMTPConfigTest(APITestCase):
         resp = self.client.put(self.url, data=data)
         self.assertSuccess(resp)
 
+    @mock.patch("conf.views.send_email")
+    def test_test_smtp(self, mocked_send_email):
+        url = self.reverse("smtp_test_api")
+        self.test_create_smtp_config()
+        resp = self.client.post(url, data={"email": "test@test.com"})
+        self.assertSuccess(resp)
+        mocked_send_email.assert_called_once()
+
 
 class WebsiteConfigAPITest(APITestCase):
     def test_create_website_config(self):

@@ -12,6 +12,7 @@ from judge.dispatcher import process_pending_task
 from judge.languages import languages, spj_languages
 from options.options import SysOptions
 from utils.api import APIView, CSRFExemptAPIView, validate_serializer
+from utils.shortcuts import send_email
 from .models import JudgeServer
 from .serializers import (CreateEditWebsiteConfigSerializer,
                           CreateSMTPConfigSerializer, EditSMTPConfigSerializer,
@@ -51,7 +52,25 @@ class SMTPTestAPI(APIView):
     @super_admin_required
     @validate_serializer(TestSMTPConfigSerializer)
     def post(self, request):
-        return self.success({"result": True})
+        if not SysOptions.smtp_config:
+            return self.error("Please setup SMTP config at first")
+        try:
+            send_email(smtp_config=SysOptions.smtp_config,
+                       from_name=SysOptions.website_name_shortcut,
+                       to_name=request.user.username,
+                       to_email=request.data["email"],
+                       subject="You have successfully configured SMTP",
+                       content="You have successfully configured SMTP")
+        except Exception as e:
+            # guess error message encoding
+            msg = e.smtp_error
+            try:
+                # qq mail
+                msg = msg.decode("gbk")
+            except Exception:
+                msg = msg.decode("utf-8", "ignore")
+            return self.error(msg)
+        return self.success()
 
 
 class WebsiteConfigAPI(APIView):
