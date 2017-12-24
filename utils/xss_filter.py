@@ -30,7 +30,7 @@ import copy
 from html.parser import HTMLParser
 
 
-class XssHtml(HTMLParser):
+class XSSHtml(HTMLParser):
     allow_tags = ['a', 'img', 'br', 'strong', 'b', 'code', 'pre',
                   'p', 'div', 'em', 'span', 'h1', 'h2', 'h3', 'h4',
                   'h5', 'h6', 'blockquote', 'ul', 'ol', 'tr', 'th', 'td',
@@ -53,7 +53,17 @@ class XssHtml(HTMLParser):
         self.start = []
         self.data = []
 
-    def getHtml(self):
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        super().close()
+
+    def clean(self, content):
+        self.feed(content)
+        return self.get_html()
+
+    def get_html(self):
         """
         Get the safe html code
         """
@@ -188,11 +198,11 @@ class XssHtml(HTMLParser):
 
 
 if "__main__" == __name__:
-    parser = XssHtml()
-    parser.feed("""<p><img src=1 onerror=alert(/xss/)></p><div class="left">
-        <a href='javascript:prompt(1)'><br />hehe</a></div>
-        <p id="test" onmouseover="alert(1)">&gt;M<svg>
-        <a href="https://www.baidu.com" target="self">MM</a></p>
-        <embed src='javascript:alert(/hehe/)' allowscriptaccess=always />""")
-    parser.close()
-    print(parser.getHtml())
+    with XSSHtml() as parser:
+        ret = parser.clean("""<p><img src=1 onerror=alert(/xss/)></p><div class="left">
+            <a href='javascript:prompt(1)'><br />hehe</a></div>
+            <p id="test" onmouseover="alert(1)">&gt;M<svg>
+            <a href="https://www.baidu.com" target="self">MM</a></p>
+            <embed src='javascript:alert(/hehe/)' allowscriptaccess=always />
+            <img onerror=alert(1) src=#>""")
+        print(ret)

@@ -13,6 +13,7 @@ from judge.languages import languages, spj_languages
 from options.options import SysOptions
 from utils.api import APIView, CSRFExemptAPIView, validate_serializer
 from utils.shortcuts import send_email
+from utils.xss_filter import XSSHtml
 from .models import JudgeServer
 from .serializers import (CreateEditWebsiteConfigSerializer,
                           CreateSMTPConfigSerializer, EditSMTPConfigSerializer,
@@ -84,6 +85,9 @@ class WebsiteConfigAPI(APIView):
     @super_admin_required
     def post(self, request):
         for k, v in request.data.items():
+            if k == "website_footer":
+                with XSSHtml() as parser:
+                    v = parser.clean(v)
             setattr(SysOptions, k, v)
         return self.success()
 

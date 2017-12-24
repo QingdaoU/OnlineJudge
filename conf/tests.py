@@ -66,10 +66,11 @@ class WebsiteConfigAPITest(APITestCase):
         self.create_super_admin()
         url = self.reverse("website_config_api")
         data = {"website_base_url": "http://test.com", "website_name": "test name",
-                "website_name_shortcut": "test oj", "website_footer": "<a>test</a>",
+                "website_name_shortcut": "test oj", "website_footer": "<img onerror=alert(1) src=#>",
                 "allow_register": True, "submission_list_show_all": False}
         resp = self.client.post(url, data=data)
         self.assertSuccess(resp)
+        self.assertEqual(SysOptions.website_footer, "<img src=\"#\" />")
 
     def test_get_website_config(self):
         # do not need to login
