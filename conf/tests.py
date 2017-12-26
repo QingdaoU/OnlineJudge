@@ -43,6 +43,14 @@ class SMTPConfigTest(APITestCase):
         resp = self.client.put(self.url, data=data)
         self.assertSuccess(resp)
 
+    @mock.patch("conf.views.send_email")
+    def test_test_smtp(self, mocked_send_email):
+        url = self.reverse("smtp_test_api")
+        self.test_create_smtp_config()
+        resp = self.client.post(url, data={"email": "test@test.com"})
+        self.assertSuccess(resp)
+        mocked_send_email.assert_called_once()
+
 
 class WebsiteConfigAPITest(APITestCase):
     def test_create_website_config(self):
@@ -58,10 +66,11 @@ class WebsiteConfigAPITest(APITestCase):
         self.create_super_admin()
         url = self.reverse("website_config_api")
         data = {"website_base_url": "http://test.com", "website_name": "test name",
-                "website_name_shortcut": "test oj", "website_footer": "<a>test</a>",
+                "website_name_shortcut": "test oj", "website_footer": "<img onerror=alert(1) src=#>",
                 "allow_register": True, "submission_list_show_all": False}
         resp = self.client.post(url, data=data)
         self.assertSuccess(resp)
+        self.assertEqual(SysOptions.website_footer, "<img src=\"#\" />")
 
     def test_get_website_config(self):
         # do not need to login
@@ -74,7 +83,7 @@ class JudgeServerHeartbeatTest(APITestCase):
     def setUp(self):
         self.url = self.reverse("judge_server_heartbeat_api")
         self.data = {"hostname": "testhostname", "judger_version": "1.0.4", "cpu_core": 4,
-                     "cpu": 90.5, "memory": 80.3, "action": "heartbeat"}
+                     "cpu": 90.5, "memory": 80.3, "action": "heartbeat", "service_url": "http://127.0.0.1"}
         self.token = "test"
         self.hashed_token = hashlib.sha256(self.token.encode("utf-8")).hexdigest()
         SysOptions.judge_server_token = self.token
@@ -85,16 +94,6 @@ class JudgeServerHeartbeatTest(APITestCase):
         self.assertSuccess(resp)
         server = JudgeServer.objects.first()
         self.assertEqual(server.ip, "127.0.0.1")
-        self.assertEqual(server.service_url, None)
-
-    def test_new_heartbeat_service_url(self):
-        service_url = "http://1.2.3.4:8000/api/judge"
-        data = self.data
-        data["service_url"] = service_url
-        resp = self.client.post(self.url, data=self.data, **self.headers)
-        self.assertSuccess(resp)
-        server = JudgeServer.objects.first()
-        self.assertEqual(server.service_url, service_url)
 
     def test_update_heartbeat(self):
         self.test_new_heartbeat()
@@ -107,9 +106,9 @@ class JudgeServerHeartbeatTest(APITestCase):
 
 class JudgeServerAPITest(APITestCase):
     def setUp(self):
-        JudgeServer.objects.create(**{"hostname": "testhostname", "judger_version": "1.0.4",
-                                      "cpu_core": 4, "cpu_usage": 90.5, "memory_usage": 80.3,
-                                      "last_heartbeat": timezone.now()})
+        self.server = JudgeServer.objects.create(**{"hostname": "testhostname", "judger_version": "1.0.4",
+                                                    "cpu_core": 4, "cpu_usage": 90.5, "memory_usage": 80.3,
+                                                    "last_heartbeat": timezone.now()})
         self.url = self.reverse("judge_server_api")
         self.create_super_admin()
 
@@ -122,6 +121,11 @@ class JudgeServerAPITest(APITestCase):
         resp = self.client.delete(self.url + "?hostname=testhostname")
         self.assertSuccess(resp)
         self.assertFalse(JudgeServer.objects.filter(hostname="testhostname").exists())
+
+    def test_disabled_judge_server(self):
+        resp = self.client.put(self.url, data={"is_disabled": True, "id": self.server.id})
+        self.assertSuccess(resp)
+        self.assertTrue(JudgeServer.objects.get(id=self.server.id).is_disabled)
 
 
 class LanguageListAPITest(APITestCase):

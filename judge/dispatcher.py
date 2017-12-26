@@ -6,7 +6,6 @@ from urllib.parse import urljoin
 import requests
 from django.db import transaction
 from django.db.models import F
-from django.conf import settings
 
 from account.models import User
 from conf.models import JudgeServer
@@ -47,7 +46,7 @@ class DispatcherBase(object):
     @staticmethod
     def choose_judge_server():
         with transaction.atomic():
-            servers = JudgeServer.objects.select_for_update().all().order_by("task_number")
+            servers = JudgeServer.objects.select_for_update().filter(is_disabled=False).order_by("task_number")
             servers = [s for s in servers if s.status == "normal"]
             if servers:
                 server = servers[0]
@@ -154,11 +153,7 @@ class JudgeDispatcher(DispatcherBase):
 
         Submission.objects.filter(id=self.submission.id).update(result=JudgeStatus.JUDGING)
 
-        service_url = server.service_url
-        # not set service_url, it should be a linked container
-        if not service_url:
-            service_url = settings.DEFAULT_JUDGE_SERVER_SERVICE_URL
-        resp = self._request(urljoin(service_url, "/judge"), data=data)
+        resp = self._request(urljoin(server.service_url, "/judge"), data=data)
         if resp["err"]:
             self.submission.result = JudgeStatus.COMPILE_ERROR
             self.submission.statistic_info["err_info"] = resp["data"]

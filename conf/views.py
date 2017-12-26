@@ -12,11 +12,13 @@ from judge.dispatcher import process_pending_task
 from judge.languages import languages, spj_languages
 from options.options import SysOptions
 from utils.api import APIView, CSRFExemptAPIView, validate_serializer
+from utils.shortcuts import send_email
+from utils.xss_filter import XSSHtml
 from .models import JudgeServer
 from .serializers import (CreateEditWebsiteConfigSerializer,
                           CreateSMTPConfigSerializer, EditSMTPConfigSerializer,
                           JudgeServerHeartbeatSerializer,
-                          JudgeServerSerializer, TestSMTPConfigSerializer)
+                          JudgeServerSerializer, TestSMTPConfigSerializer, EditJudgeServerSerializer)
 
 
 class SMTPAPI(APIView):
@@ -51,7 +53,25 @@ class SMTPTestAPI(APIView):
     @super_admin_required
     @validate_serializer(TestSMTPConfigSerializer)
     def post(self, request):
-        return self.success({"result": True})
+        if not SysOptions.smtp_config:
+            return self.error("Please setup SMTP config at first")
+        try:
+            send_email(smtp_config=SysOptions.smtp_config,
+                       from_name=SysOptions.website_name_shortcut,
+                       to_name=request.user.username,
+                       to_email=request.data["email"],
+                       subject="You have successfully configured SMTP",
+                       content="You have successfully configured SMTP")
+        except Exception as e:
+            # guess error message encoding
+            msg = e.smtp_error
+            try:
+                # qq mail
+                msg = msg.decode("gbk")
+            except Exception:
+                msg = msg.decode("utf-8", "ignore")
+            return self.error(msg)
+        return self.success()
 
 
 class WebsiteConfigAPI(APIView):
@@ -65,6 +85,9 @@ class WebsiteConfigAPI(APIView):
     @super_admin_required
     def post(self, request):
         for k, v in request.data.items():
+            if k == "website_footer":
+                with XSSHtml() as parser:
+                    v = parser.clean(v)
             setattr(SysOptions, k, v)
         return self.success()
 
@@ -83,6 +106,12 @@ class JudgeServerAPI(APIView):
             JudgeServer.objects.filter(hostname=hostname).delete()
         return self.success()
 
+    @validate_serializer(EditJudgeServerSerializer)
+    @super_admin_required
+    def put(self, request):
+        JudgeServer.objects.filter(id=request.data["id"]).update(is_disabled=request.data["is_disabled"])
+        return self.success()
+
 
 class JudgeServerHeartbeatAPI(CSRFExemptAPIView):
     @validate_serializer(JudgeServerHeartbeatSerializer)
@@ -91,7 +120,6 @@ class JudgeServerHeartbeatAPI(CSRFExemptAPIView):
         client_token = request.META.get("HTTP_X_JUDGE_SERVER_TOKEN")
         if hashlib.sha256(SysOptions.judge_server_token.encode("utf-8")).hexdigest() != client_token:
             return self.error("Invalid token")
-        service_url = data.get("service_url")
 
         try:
             server = JudgeServer.objects.get(hostname=data["hostname"])
@@ -99,7 +127,7 @@ class JudgeServerHeartbeatAPI(CSRFExemptAPIView):
             server.cpu_core = data["cpu_core"]
             server.memory_usage = data["memory"]
             server.cpu_usage = data["cpu"]
-            server.service_url = service_url
+            server.service_url = data["service_url"]
             server.ip = request.META["HTTP_X_REAL_IP"]
             server.last_heartbeat = timezone.now()
             server.save()
@@ -110,7 +138,7 @@ class JudgeServerHeartbeatAPI(CSRFExemptAPIView):
                                        memory_usage=data["memory"],
                                        cpu_usage=data["cpu"],
                                        ip=request.META["REMOTE_ADDR"],
-                                       service_url=service_url,
+                                       service_url=data["service_url"],
                                        last_heartbeat=timezone.now(),
                                        )
             # 新server上线 处理队列中的，防止没有新的提交而导致一直waiting
