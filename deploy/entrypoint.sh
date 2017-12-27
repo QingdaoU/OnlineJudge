@@ -31,6 +31,12 @@ else
     ln -sf https_redirect.conf http_locations.conf
 fi
 
+cd $APP/dist
+if [ ! -z "$STATIC_CDN_HOST" ]; then
+    find . -name index.html -exec sed -i "s/link href=\/static/link href=\/\/$STATIC_CDN_HOST\/static/g" {} \;
+    find . -name index.html -exec sed -i "s/script type=text\/javascript src=\/static/script type=text\/javascript src=\/\/$STATIC_CDN_HOST\/static/g" {} \;
+fi
+
 cd $APP
 
 n=0
