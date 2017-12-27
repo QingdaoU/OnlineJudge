@@ -164,7 +164,7 @@ class TestCasePruneAPI(APIView):
         # return an iterator
         for d in os.scandir(settings.TEST_CASE_DIR):
             if d.name in dir_to_be_removed:
-                ret_data.append({"id": d.name, "create_time": d.stat().st_ctime})
+                ret_data.append({"id": d.name, "create_time": d.stat().st_mtime})
         return self.success(ret_data)
 
     @super_admin_required
