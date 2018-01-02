@@ -2,6 +2,9 @@ import os
 import re
 import hashlib
 import shutil
+import json
+import requests
+from requests.exceptions import RequestException
 
 from django.utils import timezone
 from django.conf import settings
@@ -156,7 +159,7 @@ class TestCasePruneAPI(APIView):
     @super_admin_required
     def get(self, request):
         """
-        return isolated test_case list
+        return orphan test_case list
         """
         ret_data = []
         dir_to_be_removed = self.get_orphan_ids()
@@ -190,3 +193,24 @@ class TestCasePruneAPI(APIView):
         test_case_dir = os.path.join(settings.TEST_CASE_DIR, id)
         if os.path.isdir(test_case_dir):
             shutil.rmtree(test_case_dir, ignore_errors=True)
+
+
+class CheckNewVersionAPI(APIView):
+    @staticmethod
+    def get_latest_version(data):
+        return list(map(lambda x: int(x), data["update"][0]["version"].split("-")))
+
+    def get(self, request):
+        try:
+            resp = requests.get("https://raw.githubusercontent.com/QingdaoU/OnlineJudge/master/docs/data.json",
+                                timeout=3)
+            remote = resp.json()
+        except (RequestException, ValueError):
+            return self.success()
+        with open("docs/data.json", "r") as f:
+            local = json.load(f)
+        remote_version = self.get_latest_version(remote)
+        local_version = self.get_latest_version(local)
+        if remote_version > local_version:
+            return self.success(remote["update"][0])
+        return self.success()

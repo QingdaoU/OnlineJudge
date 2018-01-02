@@ -6,6 +6,7 @@ from django.utils import timezone
 from options.options import SysOptions
 from utils.api.tests import APITestCase
 from .models import JudgeServer
+from .views import CheckNewVersionAPI
 
 
 class SMTPConfigTest(APITestCase):
@@ -153,3 +154,27 @@ class TestCasePruneAPITest(APITestCase):
         resp = self.client.delete(self.url)
         self.assertSuccess(resp)
         mocked_delete_one.assert_called_once_with(valid_id)
+
+
+class CheckNewVersionAPITest(APITestCase):
+    def setUp(self):
+        self.url = self.reverse("check_new_version_api")
+        self.create_super_admin()
+        self.latest_data = {"update": [
+            {
+                "version": "2099-12-25",
+                "level": 1,
+                "title": "Update at 2099-12-25",
+                "details": ["test get", ]
+            }
+        ]}
+
+    @mock.patch("conf.views.requests.get", autospec=True)
+    def test_get_latest_version(self, mocked_requests):
+        resp = self.client.get(self.url)
+        self.assertSuccess(resp)
+        mocked_requests.assert_called_once()
+
+    def test_get_version(self):
+        version = CheckNewVersionAPI().get_latest_version(self.latest_data)
+        self.assertListEqual(version, [2099, 12, 25])

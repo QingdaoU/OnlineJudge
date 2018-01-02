@@ -423,7 +423,7 @@ class MakeContestProblemPublicAPIView(APIView):
             return self.error("Problem does not exist")
 
         if not problem.contest or problem.is_public:
-            return self.error("Alreay be a public problem")
+            return self.error("Already be a public problem")
         problem.is_public = True
         problem.save()
         # https://docs.djangoproject.com/en/1.11/topics/db/queries/#copying-model-instances

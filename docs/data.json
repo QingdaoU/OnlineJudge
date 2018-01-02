@@ -2,7 +2,7 @@
   "update": [
     {
       "version": "2017-12-25",
-      "level": 1,
+      "level": "Recommend",
       "title": "Update at 2017-12-25",
       "details": [
         "Fix some issues under IE/Edge",
