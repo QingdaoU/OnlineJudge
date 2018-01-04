@@ -5,7 +5,7 @@ from utils.api import APIView, validate_serializer
 from utils.cache import cache
 from utils.constants import CacheKey
 
-from account.decorators import check_contest_permission
+from account.decorators import check_contest_permission, ensure_created_by
 from ..models import Contest, ContestAnnouncement, ACMContestRank
 from ..serializers import (ContestAnnouncementSerializer, ContestAdminSerializer,
                            CreateConetestSeriaizer, CreateContestAnnouncementSerializer,
@@ -37,8 +37,7 @@ class ContestAPI(APIView):
         data = request.data
         try:
             contest = Contest.objects.get(id=data.pop("id"))
-            if request.user.is_admin() and contest.created_by != request.user:
-                return self.error("Contest does not exist")
+            ensure_created_by(contest, request.user)
         except Contest.DoesNotExist:
             return self.error("Contest does not exist")
         data["start_time"] = dateutil.parser.parse(data["start_time"])
@@ -66,20 +65,18 @@ class ContestAPI(APIView):
         if contest_id:
             try:
                 contest = Contest.objects.get(id=contest_id)
-                if request.user.is_admin() and contest.created_by != request.user:
-                    return self.error("Contest does not exist")
+                ensure_created_by(contest, request.user)
                 return self.success(ContestAdminSerializer(contest).data)
             except Contest.DoesNotExist:
                 return self.error("Contest does not exist")
 
         contests = Contest.objects.all().order_by("-create_time")
+        if request.user.is_admin():
+            contests = contests.filter(created_by=request.user)
 
         keyword = request.GET.get("keyword")
         if keyword:
             contests = contests.filter(title__contains=keyword)
-
-        if request.user.is_admin():
-            contests = contests.filter(created_by=request.user)
         return self.success(self.paginate_data(request, contests, ContestAdminSerializer))
 
 
@@ -92,8 +89,7 @@ class ContestAnnouncementAPI(APIView):
         data = request.data
         try:
             contest = Contest.objects.get(id=data.pop("contest_id"))
-            if request.user.is_admin() and contest.created_by != request.user:
-                return self.error("Contest does not exist")
+            ensure_created_by(contest, request.user)
             data["contest"] = contest
             data["created_by"] = request.user
         except Contest.DoesNotExist:
@@ -109,8 +105,7 @@ class ContestAnnouncementAPI(APIView):
         data = request.data
         try:
             contest_announcement = ContestAnnouncement.objects.get(id=data.pop("id"))
-            if request.user.is_admin() and contest_announcement.created_by != request.user:
-                return self.error("Contest announcement does not exist")
+            ensure_created_by(contest_announcement, request.user)
         except ContestAnnouncement.DoesNotExist:
             return self.error("Contest announcement does not exist")
         for k, v in data.items():
@@ -139,15 +134,14 @@ class ContestAnnouncementAPI(APIView):
         if contest_announcement_id:
             try:
                 contest_announcement = ContestAnnouncement.objects.get(id=contest_announcement_id)
-                if request.user.is_admin() and contest_announcement.created_by != request.user:
-                    return self.error("Contest announcement does not exist")
+                ensure_created_by(contest_announcement, request.user)
                 return self.success(ContestAnnouncementSerializer(contest_announcement).data)
             except ContestAnnouncement.DoesNotExist:
                 return self.error("Contest announcement does not exist")
 
         contest_id = request.GET.get("contest_id")
         if not contest_id:
-            return self.error("Paramater error")
+            return self.error("Parameter error")
         contest_announcements = ContestAnnouncement.objects.filter(contest_id=contest_id)
         if request.user.is_admin():
             contest_announcements = contest_announcements.filter(created_by=request.user)
@@ -177,12 +171,10 @@ class ACMContestHelper(APIView):
         results.sort(key=lambda x: -x["ac_info"]["ac_time"])
         return self.success(results)
 
-    @validate_serializer(ACMContesHelperSerializer)
     @check_contest_permission(check_type="ranks")
+    @validate_serializer(ACMContesHelperSerializer)
     def put(self, request):
         data = request.data
-        if not request.user.is_contest_admin(self.contest):
-            return self.error("You are not contest admin")
         try:
             rank = ACMContestRank.objects.get(pk=data["rank_id"])
         except ACMContestRank.DoesNotExist:

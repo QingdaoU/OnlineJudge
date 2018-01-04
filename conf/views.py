@@ -30,14 +30,14 @@ class SMTPAPI(APIView):
         smtp.pop("password")
         return self.success(smtp)
 
-    @validate_serializer(CreateSMTPConfigSerializer)
     @super_admin_required
+    @validate_serializer(CreateSMTPConfigSerializer)
     def post(self, request):
         SysOptions.smtp_config = request.data
         return self.success()
 
-    @validate_serializer(EditSMTPConfigSerializer)
     @super_admin_required
+    @validate_serializer(EditSMTPConfigSerializer)
     def put(self, request):
         smtp = SysOptions.smtp_config
         data = request.data
@@ -81,8 +81,8 @@ class WebsiteConfigAPI(APIView):
                 "website_footer", "allow_register", "submission_list_show_all"]}
         return self.success(ret)
 
-    @validate_serializer(CreateEditWebsiteConfigSerializer)
     @super_admin_required
+    @validate_serializer(CreateEditWebsiteConfigSerializer)
     def post(self, request):
         for k, v in request.data.items():
             if k == "website_footer":

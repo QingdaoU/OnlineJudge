@@ -11,6 +11,13 @@ from django.views.generic import View
 logger = logging.getLogger("")
 
 
+class APIError(Exception):
+    def __init__(self, msg, err=None):
+        self.err = err
+        self.msg = msg
+        super().__init__(err, msg)
+
+
 class ContentType(object):
     json_request = "application/json"
     json_response = "application/json;charset=UTF-8"
@@ -137,6 +144,11 @@ class APIView(View):
                 return self.error(err="invalid-request", msg=str(e))
         try:
             return super(APIView, self).dispatch(request, *args, **kwargs)
+        except APIError as e:
+            ret = {"msg": e.msg}
+            if e.err:
+                ret["err"] = e.err
+            return self.error(**ret)
         except Exception as e:
             logger.exception(e)
             return self.server_error()

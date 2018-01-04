@@ -1,10 +1,7 @@
 import functools
-
-from utils.api import JSONResponse
-
-from .models import ProblemPermission
-
 from contest.models import Contest, ContestType, ContestStatus, ContestRuleType
+from utils.api import JSONResponse, APIError
+from .models import ProblemPermission
 
 
 class BasePermissionDecorator(object):
@@ -90,8 +87,7 @@ def check_contest_permission(check_type="details"):
                 if not user.is_authenticated():
                     return self.error("Please login first.")
                 # password error
-                if ("accessible_contests" not in request.session) or \
-                        (self.contest.id not in request.session["accessible_contests"]):
+                if self.contest.id not in request.session.get("accessible_contests", []):
                     return self.error("Password is required.")
 
             # regular user get contest problems, ranks etc. before contest started
@@ -104,7 +100,10 @@ def check_contest_permission(check_type="details"):
                     return self.error(f"No permission to get {check_type}")
 
             return func(*args, **kwargs)
-
         return _check_permission
-
     return decorator
+
+
+def ensure_created_by(obj, user):
+    if not user.is_admin_role() or (user.is_admin() and obj.created_by != user):
+        raise APIError(msg=f"{obj.__class__.__name__} does not exist")
