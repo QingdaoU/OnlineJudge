@@ -12,13 +12,14 @@ https://docs.djangoproject.com/en/1.8/ref/settings/
 import os
 import raven
 from copy import deepcopy
+from utils.shortcuts import get_env
+from .custom_settings import *
 
-if os.environ.get("OJ_ENV") == "production":
+production_env = get_env("OJ_ENV", "dev") == "production"
+if production_env:
     from .production_settings import *
 else:
     from .dev_settings import *
-
-from .custom_settings import *
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -128,7 +129,7 @@ UPLOAD_DIR = f"{DATA_DIR}{UPLOAD_PREFIX}"
 STATICFILES_DIRS = [os.path.join(DATA_DIR, "public")]
 
 
-LOGGING_HANDLERS = ['console'] if DEBUG else ['console', 'sentry']
+LOGGING_HANDLERS = ['console', 'sentry'] if production_env else ['console']
 LOGGING = {
    'version': 1,
    'disable_existing_loggers': False,
@@ -204,13 +205,6 @@ BROKER_URL = f"{REDIS_URL}/3"
 CELERY_TASK_SOFT_TIME_LIMIT = CELERY_TASK_TIME_LIMIT = 180
 CELERY_ACCEPT_CONTENT = ["json"]
 CELERY_TASK_SERIALIZER = "json"
-
-# 用于限制用户恶意提交大量代码
-TOKEN_BUCKET_DEFAULT_CAPACITY = 10
-
-# 单位:每分钟
-TOKEN_BUCKET_FILL_RATE = 2
-
 RAVEN_CONFIG = {
     'dsn': 'https://b200023b8aed4d708fb593c5e0a6ad3d:1fddaba168f84fcf97e0d549faaeaff0@sentry.io/263057'
 }
