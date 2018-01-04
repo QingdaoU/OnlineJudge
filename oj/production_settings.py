@@ -1,9 +1,4 @@
-import os
-
-
-def get_env(name, default=""):
-    return os.environ.get(name, default)
-
+from utils.shortcuts import get_env
 
 DATABASES = {
     'default': {

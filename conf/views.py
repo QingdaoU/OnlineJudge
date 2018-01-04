@@ -3,7 +3,9 @@ import re
 import hashlib
 import shutil
 import json
+import pytz
 import requests
+from datetime import datetime
 from requests.exceptions import RequestException
 
 from django.utils import timezone
@@ -11,11 +13,14 @@ from django.conf import settings
 
 from account.decorators import super_admin_required
 from problem.models import Problem
+from account.models import User
+from submission.models import Submission
+from contest.models import Contest
 from judge.dispatcher import process_pending_task
 from judge.languages import languages, spj_languages
 from options.options import SysOptions
 from utils.api import APIView, CSRFExemptAPIView, validate_serializer
-from utils.shortcuts import send_email
+from utils.shortcuts import send_email, get_env
 from utils.xss_filter import XSSHtml
 from .models import JudgeServer
 from .serializers import (CreateEditWebsiteConfigSerializer,
@@ -195,22 +200,34 @@ class TestCasePruneAPI(APIView):
             shutil.rmtree(test_case_dir, ignore_errors=True)
 
 
-class CheckNewVersionAPI(APIView):
-    @staticmethod
-    def get_latest_version(data):
-        return list(map(lambda x: int(x), data["update"][0]["version"].split("-")))
-
+class ReleaseNotesAPI(APIView):
     def get(self, request):
         try:
             resp = requests.get("https://raw.githubusercontent.com/QingdaoU/OnlineJudge/master/docs/data.json",
                                 timeout=3)
-            remote = resp.json()
+            releases = resp.json()
         except (RequestException, ValueError):
             return self.success()
         with open("docs/data.json", "r") as f:
-            local = json.load(f)
-        remote_version = self.get_latest_version(remote)
-        local_version = self.get_latest_version(local)
-        if remote_version > local_version:
-            return self.success(remote["update"][0])
-        return self.success()
+            local_version = json.load(f)["update"][0]["version"]
+        releases["local_version"] = local_version
+        return self.success(releases)
+
+
+class DashboardInfoAPI(APIView):
+    def get(self, request):
+        today = datetime.today()
+        today_submission_count = Submission.objects.filter(
+            create_time__gte=datetime(today.year, today.month, today.day, 0, 0, tzinfo=pytz.UTC)).count()
+        recent_contest_count = Contest.objects.exclude(end_time__lt=timezone.now()).count()
+        judge_server_count = len(list(filter(lambda x: x.status == "normal", JudgeServer.objects.all())))
+        return self.success({
+            "user_count": User.objects.count(),
+            "recent_contest_count": recent_contest_count,
+            "today_submission_count": today_submission_count,
+            "judge_server_count": judge_server_count,
+            "env": {
+                "FORCE_HTTPS": get_env("FORCE_HTTPS", default=False),
+                "STATIC_CDN_HOST": get_env("STATIC_CDN_HOST", default="")
+            }
+        })
