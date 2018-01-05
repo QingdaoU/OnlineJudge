@@ -31,6 +31,12 @@ else
     ln -sf https_redirect.conf http_locations.conf
 fi
 
+if [ ! -z "$LOWER_IP_HEADER" ]; then
+    sed -i "s/__IP_HEADER__/\$http_$LOWER_IP_HEADER/g" api_proxy.conf;
+else
+    sed -i "s/__IP_HEADER__/\$remote_addr/g" api_proxy.conf;
+fi
+
 cd $APP/dist
 if [ ! -z "$STATIC_CDN_HOST" ]; then
     find . -name index.html -exec sed -i "s/link href=\/static/link href=\/\/$STATIC_CDN_HOST\/static/g" {} \;
