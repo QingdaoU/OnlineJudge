@@ -8,7 +8,7 @@ from wsgiref.util import FileWrapper
 from django.conf import settings
 from django.http import StreamingHttpResponse, HttpResponse
 
-from account.decorators import problem_permission_required
+from account.decorators import problem_permission_required, ensure_created_by
 from judge.dispatcher import SPJCompiler
 from contest.models import Contest, ContestStatus
 from submission.models import Submission
@@ -49,7 +49,6 @@ class TestCaseAPI(CSRFExemptAPIView):
                 else:
                     return sorted(ret, key=natural_sort_key)
 
-    @problem_permission_required
     def get(self, request):
         problem_id = request.GET.get("problem_id")
         if not problem_id:
@@ -58,6 +57,11 @@ class TestCaseAPI(CSRFExemptAPIView):
             problem = Problem.objects.get(id=problem_id)
         except Problem.DoesNotExist:
             return self.error("Problem does not exists")
+
+        if problem.contest:
+            ensure_created_by(problem.contest, request.user)
+        else:
+            ensure_created_by(problem, request.user)
 
         test_case_dir = os.path.join(settings.TEST_CASE_DIR, problem.test_case_id)
         if not os.path.isdir(test_case_dir):
@@ -79,7 +83,6 @@ class TestCaseAPI(CSRFExemptAPIView):
         response["Content-Length"] = os.path.getsize(file_name)
         return response
 
-    @problem_permission_required
     def post(self, request):
         form = TestCaseUploadForm(request.POST, request.FILES)
         if form.is_valid():
@@ -147,7 +150,6 @@ class TestCaseAPI(CSRFExemptAPIView):
 
 class CompileSPJAPI(APIView):
     @validate_serializer(CompileSPJSerializer)
-    @problem_permission_required
     def post(self, request):
         data = request.data
         spj_version = rand_str(8)
@@ -186,11 +188,12 @@ class ProblemBase(APIView):
     def delete(self, request):
         id = request.GET.get("id")
         if not id:
-            return self.error("Invalid parameter, id is requred")
+            return self.error("Invalid parameter, id is required")
         try:
-            problem = Problem.objects.get(id=id)
+            problem = Problem.objects.get(id=id, contest_id__isnull=True)
         except Problem.DoesNotExist:
             return self.error("Problem does not exists")
+        ensure_created_by(problem, request.user)
         if Submission.objects.filter(problem=problem).exists():
             return self.error("Can't delete the problem as it has submissions")
         d = os.path.join(settings.TEST_CASE_DIR, problem.test_case_id)
@@ -201,11 +204,10 @@ class ProblemBase(APIView):
 
 
 class ProblemAPI(ProblemBase):
-    @validate_serializer(CreateProblemSerializer)
     @problem_permission_required
+    @validate_serializer(CreateProblemSerializer)
     def post(self, request):
         data = request.data
-
         _id = data["_id"]
         if not _id:
             return self.error("Display ID is required")
@@ -236,8 +238,7 @@ class ProblemAPI(ProblemBase):
         if problem_id:
             try:
                 problem = Problem.objects.get(id=problem_id)
-                if not user.can_mgmt_all_problem() and problem.created_by != user:
-                    return self.error("Problem does not exist")
+                ensure_created_by(problem, request.user)
                 return self.success(ProblemAdminSerializer(problem).data)
             except Problem.DoesNotExist:
                 return self.error("Problem does not exist")
@@ -256,17 +257,15 @@ class ProblemAPI(ProblemBase):
             problems = problems.filter(title__contains=keyword)
         return self.success(self.paginate_data(request, problems, ProblemAdminSerializer))
 
-    @validate_serializer(EditProblemSerializer)
     @problem_permission_required
+    @validate_serializer(EditProblemSerializer)
     def put(self, request):
         data = request.data
         problem_id = data.pop("id")
-        user = request.user
 
         try:
             problem = Problem.objects.get(id=problem_id)
-            if not user.can_mgmt_all_problem() and problem.created_by != user:
-                return self.error("Problem does not exist")
+            ensure_created_by(problem, request.user)
         except Problem.DoesNotExist:
             return self.error("Problem does not exist")
 
@@ -300,13 +299,11 @@ class ProblemAPI(ProblemBase):
 
 class ContestProblemAPI(ProblemBase):
     @validate_serializer(CreateContestProblemSerializer)
-    @problem_permission_required
     def post(self, request):
         data = request.data
         try:
             contest = Contest.objects.get(id=data.pop("contest_id"))
-            if request.user.is_admin() and contest.created_by != request.user:
-                return self.error("Contest does not exist")
+            ensure_created_by(contest, request.user)
         except Contest.DoesNotExist:
             return self.error("Contest does not exist")
 
@@ -345,8 +342,7 @@ class ContestProblemAPI(ProblemBase):
         if problem_id:
             try:
                 problem = Problem.objects.get(id=problem_id)
-                if user.is_admin() and problem.contest.created_by != user:
-                    return self.error("Problem does not exist")
+                ensure_created_by(problem, user)
             except Problem.DoesNotExist:
                 return self.error("Problem does not exist")
             return self.success(ProblemAdminSerializer(problem).data)
@@ -366,10 +362,11 @@ class ContestProblemAPI(ProblemBase):
     @problem_permission_required
     def put(self, request):
         data = request.data
+        user = request.user
+
         try:
             contest = Contest.objects.get(id=data.pop("contest_id"))
-            if request.user.is_admin() and contest.created_by != request.user:
-                return self.error("Contest does not exist")
+            ensure_created_by(contest, user)
         except Contest.DoesNotExist:
             return self.error("Contest does not exist")
 
@@ -377,12 +374,10 @@ class ContestProblemAPI(ProblemBase):
             return self.error("Invalid rule type")
 
         problem_id = data.pop("id")
-        user = request.user
 
         try:
             problem = Problem.objects.get(id=problem_id)
-            if not user.can_mgmt_all_problem() and problem.created_by != user:
-                return self.error("Problem does not exist")
+            ensure_created_by(problem, user)
         except Problem.DoesNotExist:
             return self.error("Problem does not exist")
 
@@ -428,7 +423,7 @@ class MakeContestProblemPublicAPIView(APIView):
             return self.error("Problem does not exist")
 
         if not problem.contest or problem.is_public:
-            return self.error("Alreay be a public problem")
+            return self.error("Already be a public problem")
         problem.is_public = True
         problem.save()
         # https://docs.djangoproject.com/en/1.11/topics/db/queries/#copying-model-instances

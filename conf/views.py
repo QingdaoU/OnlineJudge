@@ -2,17 +2,25 @@ import os
 import re
 import hashlib
 import shutil
+import json
+import pytz
+import requests
+from datetime import datetime
+from requests.exceptions import RequestException
 
 from django.utils import timezone
 from django.conf import settings
 
 from account.decorators import super_admin_required
 from problem.models import Problem
+from account.models import User
+from submission.models import Submission
+from contest.models import Contest
 from judge.dispatcher import process_pending_task
 from judge.languages import languages, spj_languages
 from options.options import SysOptions
 from utils.api import APIView, CSRFExemptAPIView, validate_serializer
-from utils.shortcuts import send_email
+from utils.shortcuts import send_email, get_env
 from utils.xss_filter import XSSHtml
 from .models import JudgeServer
 from .serializers import (CreateEditWebsiteConfigSerializer,
@@ -30,14 +38,14 @@ class SMTPAPI(APIView):
         smtp.pop("password")
         return self.success(smtp)
 
-    @validate_serializer(CreateSMTPConfigSerializer)
     @super_admin_required
+    @validate_serializer(CreateSMTPConfigSerializer)
     def post(self, request):
         SysOptions.smtp_config = request.data
         return self.success()
 
-    @validate_serializer(EditSMTPConfigSerializer)
     @super_admin_required
+    @validate_serializer(EditSMTPConfigSerializer)
     def put(self, request):
         smtp = SysOptions.smtp_config
         data = request.data
@@ -81,8 +89,8 @@ class WebsiteConfigAPI(APIView):
                 "website_footer", "allow_register", "submission_list_show_all"]}
         return self.success(ret)
 
-    @validate_serializer(CreateEditWebsiteConfigSerializer)
     @super_admin_required
+    @validate_serializer(CreateEditWebsiteConfigSerializer)
     def post(self, request):
         for k, v in request.data.items():
             if k == "website_footer":
@@ -156,7 +164,7 @@ class TestCasePruneAPI(APIView):
     @super_admin_required
     def get(self, request):
         """
-        return isolated test_case list
+        return orphan test_case list
         """
         ret_data = []
         dir_to_be_removed = self.get_orphan_ids()
@@ -190,3 +198,36 @@ class TestCasePruneAPI(APIView):
         test_case_dir = os.path.join(settings.TEST_CASE_DIR, id)
         if os.path.isdir(test_case_dir):
             shutil.rmtree(test_case_dir, ignore_errors=True)
+
+
+class ReleaseNotesAPI(APIView):
+    def get(self, request):
+        try:
+            resp = requests.get("https://raw.githubusercontent.com/QingdaoU/OnlineJudge/master/docs/data.json",
+                                timeout=3)
+            releases = resp.json()
+        except (RequestException, ValueError):
+            return self.success()
+        with open("docs/data.json", "r") as f:
+            local_version = json.load(f)["update"][0]["version"]
+        releases["local_version"] = local_version
+        return self.success(releases)
+
+
+class DashboardInfoAPI(APIView):
+    def get(self, request):
+        today = datetime.today()
+        today_submission_count = Submission.objects.filter(
+            create_time__gte=datetime(today.year, today.month, today.day, 0, 0, tzinfo=pytz.UTC)).count()
+        recent_contest_count = Contest.objects.exclude(end_time__lt=timezone.now()).count()
+        judge_server_count = len(list(filter(lambda x: x.status == "normal", JudgeServer.objects.all())))
+        return self.success({
+            "user_count": User.objects.count(),
+            "recent_contest_count": recent_contest_count,
+            "today_submission_count": today_submission_count,
+            "judge_server_count": judge_server_count,
+            "env": {
+                "FORCE_HTTPS": get_env("FORCE_HTTPS", default=False),
+                "STATIC_CDN_HOST": get_env("STATIC_CDN_HOST", default="")
+            }
+        })

@@ -31,10 +31,17 @@ else
     ln -sf https_redirect.conf http_locations.conf
 fi
 
+if [ ! -z "$LOWER_IP_HEADER" ]; then
+    sed -i "s/__IP_HEADER__/\$http_$LOWER_IP_HEADER/g" api_proxy.conf;
+else
+    sed -i "s/__IP_HEADER__/\$remote_addr/g" api_proxy.conf;
+fi
+
 cd $APP/dist
 if [ ! -z "$STATIC_CDN_HOST" ]; then
-    find . -name index.html -exec sed -i "s/link href=\/static/link href=\/\/$STATIC_CDN_HOST\/static/g" {} \;
-    find . -name index.html -exec sed -i "s/script type=text\/javascript src=\/static/script type=text\/javascript src=\/\/$STATIC_CDN_HOST\/static/g" {} \;
+    find . -name index.html -exec sed -i "s/__STATIC_CDN_HOST__/\/\/$STATIC_CDN_HOST/g" {} \;
+else
+    find . -name index.html -exec sed -i "s/__STATIC_CDN_HOST__//g" {} \;
 fi
 
 cd $APP
@@ -44,13 +51,13 @@ while [ $n -lt 5 ]
 do
     python manage.py migrate --no-input &&
     python manage.py inituser --username=root --password=rootroot --action=create_super_admin &&
+    echo "from options.options import SysOptions; SysOptions.judge_server_token='$JUDGE_SERVER_TOKEN'" | python manage.py shell &&
     break
     n=$(($n+1))
     echo "Failed to migrate, going to retry..."
     sleep 8
 done
 
-echo "from options.options import SysOptions; SysOptions.judge_server_token='$JUDGE_SERVER_TOKEN'" | python manage.py shell || exit 1
 
 chown -R nobody:nogroup $DATA $APP/dist
 exec supervisord -c /app/deploy/supervisord.conf

@@ -1,14 +1,15 @@
 {
   "update": [
     {
-      "version": "2017-12-25",
-      "level": 1,
-      "title": "Update at 2017-12-25",
+      "version": "2017-01-04",
+      "level": "Recommend",
+      "title": "Update at 2018-01-04",
       "details": [
         "Fix some issues under IE/Edge",
         "Add backend error reporter",
         "New email template",
         "A more flexible throttling function",
+        "Add admin dashboard (this page)",
         "Other bugs and enhancements"
       ]
     }

@@ -1,3 +1,4 @@
+import os
 import re
 import datetime
 import random
@@ -76,3 +77,7 @@ def send_email(smtp_config, from_name, to_email, to_name, subject, content):
                          password=smtp_config["password"],
                          port=smtp_config["port"],
                          tls=smtp_config["tls"])
+
+
+def get_env(name, default=""):
+    return os.environ.get(name, default)
