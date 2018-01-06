@@ -208,3 +208,5 @@ CELERY_TASK_SERIALIZER = "json"
 RAVEN_CONFIG = {
     'dsn': 'https://b200023b8aed4d708fb593c5e0a6ad3d:1fddaba168f84fcf97e0d549faaeaff0@sentry.io/263057'
 }
+
+IP_HEADER = "HTTP_X_REAL_IP"

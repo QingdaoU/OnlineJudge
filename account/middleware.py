@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.db import connection
 from django.utils.timezone import now
 from django.utils.deprecation import MiddlewareMixin
@@ -19,10 +20,11 @@ class APITokenAuthMiddleware(MiddlewareMixin):
 
 class SessionRecordMiddleware(MiddlewareMixin):
     def process_request(self, request):
+        request.ip = request.META.get(settings.IP_HEADER, request.META.get("REMOTE_ADDR"))
         if request.user.is_authenticated():
             session = request.session
             session["user_agent"] = request.META.get("HTTP_USER_AGENT", "")
-            session["ip"] = request.META.get("HTTP_X_REAL_IP", request.META.get("REMOTE_ADDR"))
+            session["ip"] = request.ip
             session["last_activity"] = now()
             user_sessions = request.user.session_keys
             if session.session_key not in user_sessions:
