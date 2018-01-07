@@ -26,3 +26,9 @@ class CacheKey:
     contest_rank_cache = "contest_rank_cache"
     website_config = "website_config"
     option = "option"
+
+
+class Difficulty(Choices):
+    LOW = "Low"
+    MID = "Mid"
+    HIGH = "High"

@@ -1,26 +1,33 @@
 #!/usr/bin/env python3
+
 import base64
 import copy
 import random
 import string
+import hashlib
+import json
 import xml.etree.ElementTree as ET
 
 
 class FPSParser(object):
-    def __init__(self, fps_path):
-        self.fps_path = fps_path
-
-    @property
-    def _root(self):
-        root = ET.ElementTree(file=self.fps_path).getroot()
-        version = root.attrib.get("version", "No Version")
+    def __init__(self, fps_path=None, string_data=None):
+        if fps_path:
+            self._etree = ET.parse(fps_path).getroot()
+        elif string_data:
+            self._ertree = ET.fromstring(string_data).getroot()
+        else:
+            raise ValueError("You must tell me the file path or directly give me the data for the file")
+        version = self._etree.attrib.get("version", "No Version")
         if version not in ["1.1", "1.2"]:
             raise ValueError("Unsupported version '" + version + "'")
-        return root
+
+    @property
+    def etree(self):
+        return self._etree
 
     def parse(self):
         ret = []
-        for node in self._root:
+        for node in self._etree:
             if node.tag == "item":
                 ret.append(self._parse_one_problem(node))
         return ret
@@ -112,20 +119,50 @@ class FPSHelper(object):
                 _problem[item] = _problem[item].replace(img["src"], os.path.join(base_url, file_name))
         return _problem
 
-    def save_test_case(self, problem, base_dir, input_preprocessor=None, output_preprocessor=None):
+    # {
+    #     "spj": false,
+    #     "test_cases": {
+    #         "1": {
+    #             "stripped_output_md5": "84f244e41d3c8fd4bdb43ed0e1f7a067",
+    #             "input_size": 12,
+    #             "output_size": 7,
+    #             "input_name": "1.in",
+    #             "output_name": "1.out"
+    #         }
+    #     }
+    # }
+    def save_test_case(self, problem, base_dir):
+        spj = problem.get("spj", {})
+        test_cases = {}
         for index, item in enumerate(problem["test_cases"]):
-            with open(os.path.join(base_dir, str(index + 1) + ".in"), "w", encoding="utf-8") as f:
-                if input_preprocessor:
-                    input_content = input_preprocessor(item["input"])
-                else:
-                    input_content = item["input"]
-                f.write(input_content)
-            with open(os.path.join(base_dir, str(index + 1) + ".out"), "w", encoding="utf-8") as f:
-                if output_preprocessor:
-                    output_content = output_preprocessor(item["output"])
-                else:
-                    output_content = item["output"]
-                f.write(output_content)
+            input_content = item.get("input")
+            output_content = item.get("output")
+            if input_content:
+                with open(os.path.join(base_dir, str(index + 1) + ".in"), "w", encoding="utf-8") as f:
+                    f.write(input_content)
+            if output_content:
+                with open(os.path.join(base_dir, str(index + 1) + ".out"), "w", encoding="utf-8") as f:
+                    f.write(output_content)
+            if spj:
+                one_info = {
+                    "input_size": len(input_content),
+                    "input_name": f"{index}.in"
+                }
+            else:
+                one_info = {
+                    "input_size": len(input_content),
+                    "input_name": f"{index}.in",
+                    "output_size": len(output_content),
+                    "output_name": f"{index}.out",
+                    "stripped_output_md5": hashlib.md5(output_content.rstrip()).hexdigest()
+                }
+            test_cases[index] = one_info
+        info = {
+            "spj": True if spj else False,
+            "test_cases": test_cases
+        }
+        with open(os.path.join(base_dir, "info"), "w", encoding="utf-8") as f:
+            f.write(json.dumps(info, indent=4))
 
 
 if __name__ == "__main__":

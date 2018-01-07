@@ -5,6 +5,7 @@ import re
 import json
 import django
 import hashlib
+from json.decoder import JSONDecodeError
 
 sys.path.append("../")
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "oj.settings")
@@ -59,8 +60,8 @@ def set_problem_display_id_prefix():
 
 def get_stripped_output_md5(test_case_id, output_name):
     output_path = os.path.join(settings.TEST_CASE_DIR, test_case_id, output_name)
-    with open(output_path, "r") as f:
-        return hashlib.md5(f.read().encode("utf-8").rstrip()).hexdigest()
+    with open(output_path, 'r') as f:
+        return hashlib.md5(f.read().rstrip().encode('utf-8')).hexdigest()
 
 
 def get_test_case_score(test_case_id):
@@ -190,8 +191,12 @@ if __name__ == "__main__":
         print("Data file does not exist")
         exit(1)
 
-    with open(data_path, "r") as data_file:
-        old_data = json.load(data_file)
+    try:
+        with open(data_path, "r") as data_file:
+            old_data = json.load(data_file)
+    except JSONDecodeError:
+        print("Data file format error, ensure it's a valid json file!")
+        exit(1)
     print("Read old data successfully.\n")
 
     for obj in old_data:
