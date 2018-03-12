@@ -198,7 +198,7 @@ class JudgeDispatcher(DispatcherBase):
         with transaction.atomic():
             # update problem status
             problem = Problem.objects.select_for_update().get(contest_id=self.contest_id, id=self.problem.id)
-            if self.last_result is not None:
+            if self.last_result is None:
                 problem.submission_number += 1
             if self.submission.result == JudgeStatus.ACCEPTED and self.last_result != JudgeStatus.ACCEPTED:
                 problem.accepted_number += 1
