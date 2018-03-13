@@ -151,7 +151,11 @@ class JudgeDispatcher(DispatcherBase):
             "spj_compile_config": spj_config.get("compile"),
             "spj_src": self.problem.spj_code
         }
-
+        self.last_result = None
+        try:
+            self.last_result = Submission.objects.get(id=self.submission.id).result
+        except:
+            pass
         Submission.objects.filter(id=self.submission.id).update(result=JudgeStatus.JUDGING)
 
         service_url = server.service_url
@@ -194,9 +198,13 @@ class JudgeDispatcher(DispatcherBase):
         with transaction.atomic():
             # update problem status
             problem = Problem.objects.select_for_update().get(contest_id=self.contest_id, id=self.problem.id)
-            problem.submission_number += 1
-            if self.submission.result == JudgeStatus.ACCEPTED:
+            if self.last_result is None:
+                problem.submission_number += 1
+            if self.submission.result == JudgeStatus.ACCEPTED and self.last_result != JudgeStatus.ACCEPTED:
                 problem.accepted_number += 1
+            if self.submission.result != JudgeStatus.ACCEPTED and self.last_result == JudgeStatus.ACCEPTED:
+                problem.accepted_number -= 1
+
             problem_info = problem.statistic_info
             problem_info[result] = problem_info.get(result, 0) + 1
             problem.save(update_fields=["accepted_number", "submission_number", "statistic_info"])
