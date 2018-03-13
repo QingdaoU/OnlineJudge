@@ -202,6 +202,9 @@ class JudgeDispatcher(DispatcherBase):
                 problem.submission_number += 1
             if self.submission.result == JudgeStatus.ACCEPTED and self.last_result != JudgeStatus.ACCEPTED:
                 problem.accepted_number += 1
+            if self.submission.result != JudgeStatus.ACCEPTED and self.last_result == JudgeStatus.ACCEPTED:
+                problem.accepted_number -= 1
+
             problem_info = problem.statistic_info
             problem_info[result] = problem_info.get(result, 0) + 1
             problem.save(update_fields=["accepted_number", "submission_number", "statistic_info"])
