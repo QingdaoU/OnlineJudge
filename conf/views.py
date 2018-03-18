@@ -1,24 +1,25 @@
+import hashlib
+import json
 import os
 import re
-import hashlib
 import shutil
-import json
+import smtplib
+from datetime import datetime
+
 import pytz
 import requests
-from datetime import datetime
+from django.conf import settings
+from django.utils import timezone
 from requests.exceptions import RequestException
 
-from django.utils import timezone
-from django.conf import settings
-
 from account.decorators import super_admin_required
-from problem.models import Problem
 from account.models import User
-from submission.models import Submission
 from contest.models import Contest
 from judge.dispatcher import process_pending_task
 from judge.languages import languages, spj_languages
 from options.options import SysOptions
+from problem.models import Problem
+from submission.models import Submission
 from utils.api import APIView, CSRFExemptAPIView, validate_serializer
 from utils.shortcuts import send_email, get_env
 from utils.xss_filter import XSSHtml
@@ -70,14 +71,18 @@ class SMTPTestAPI(APIView):
                        to_email=request.data["email"],
                        subject="You have successfully configured SMTP",
                        content="You have successfully configured SMTP")
-        except Exception as e:
+        except smtplib.SMTPException as e:
             # guess error message encoding
-            msg = e.smtp_error
+            msg = b"Failed to send email"
             try:
+                msg = e.smtp_error
                 # qq mail
                 msg = msg.decode("gbk")
             except Exception:
                 msg = msg.decode("utf-8", "ignore")
+            return self.error(msg)
+        except Exception as e:
+            msg = str(e)
             return self.error(msg)
         return self.success()
 
