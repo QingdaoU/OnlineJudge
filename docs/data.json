@@ -1,6 +1,18 @@
 {
   "update": [
     {
+      "version": "2017-03-23",
+      "level": "Recommend",
+      "title": "Update at 2018-03-23",
+      "details": [
+        "Fix a bug about Java language memory usage",
+        "Update Java to version 1.8",
+        "[important] Google analytics is added with developer's account, it is only used for statistics",
+        "Problem export and import function will be released in next week",
+        "Other bugs and enhancements"
+      ]
+    },
+    {
       "version": "2017-01-04",
       "level": "Recommend",
       "title": "Update at 2018-01-04",
