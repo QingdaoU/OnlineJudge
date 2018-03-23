@@ -1,4 +1,4 @@
-
+default_env = ["LANG=en_US.UTF-8", "LANGUAGE=en_US:en", "LC_ALL=en_US.UTF-8"]
 
 _c_lang_config = {
     "template": """//PREPEND BEGIN
@@ -29,6 +29,7 @@ int main() {
     "run": {
         "command": "{exe_path}",
         "seccomp_rule": "c_cpp",
+        "env": default_env
     }
 }
 
@@ -75,7 +76,8 @@ int main() {
     },
     "run": {
         "command": "{exe_path}",
-        "seccomp_rule": "c_cpp"
+        "seccomp_rule": "c_cpp",
+        "env": default_env
     }
 }
 
@@ -112,10 +114,11 @@ _java_lang_config = {
         "compile_command": "/usr/bin/javac {src_path} -d {exe_dir} -encoding UTF8"
     },
     "run": {
-        "command": "/usr/bin/java -cp {exe_dir} -Xss1M -Xms16M -Xmx{max_memory}k "
-                   "-Djava.security.manager -Djava.security.policy=/etc/java_policy -Djava.awt.headless=true Main",
+        "command": "/usr/bin/java -cp {exe_dir} -XX:MaxRAM={max_memory}k -Djava.security.manager -Dfile.encoding=UTF-8 "
+                   "-Djava.security.policy==/etc/java_policy -Djava.awt.headless=true Main",
         "seccomp_rule": None,
-        "env": ["MALLOC_ARENA_MAX=1"]
+        "env": default_env,
+        "memory_limit_check_only": 1
     }
 }
 
@@ -140,6 +143,7 @@ _py2_lang_config = {
     "run": {
         "command": "/usr/bin/python {exe_path}",
         "seccomp_rule": "general",
+        "env": default_env
     }
 }
 _py3_lang_config = {
@@ -162,7 +166,7 @@ _py3_lang_config = {
     "run": {
         "command": "/usr/bin/python3 {exe_path}",
         "seccomp_rule": "general",
-        "env": ["PYTHONIOENCODING=UTF-8"]
+        "env": default_env
     }
 }
 
@@ -171,7 +175,7 @@ languages = [
      "name": "C", "description": "GCC 5.4", "content_type": "text/x-csrc"},
     {"config": _cpp_lang_config, "spj": {"compile": _cpp_lang_spj_compile, "config": _cpp_lang_spj_config},
      "name": "C++", "description": "G++ 5.4", "content_type": "text/x-c++src"},
-    {"config": _java_lang_config, "name": "Java", "description": "OpenJDK 1.7", "content_type": "text/x-java"},
+    {"config": _java_lang_config, "name": "Java", "description": "OpenJDK 1.8", "content_type": "text/x-java"},
     {"config": _py2_lang_config, "name": "Python2", "description": "Python 2.7", "content_type": "text/x-python"},
     {"config": _py3_lang_config, "name": "Python3", "description": "Python 3.5", "content_type": "text/x-python"},
 ]
