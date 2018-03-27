@@ -2,7 +2,7 @@ from account.decorators import super_admin_required
 from judge.tasks import judge_task
 # from judge.dispatcher import JudgeDispatcher
 from utils.api import APIView
-from ..models import Submission, JudgeStatus
+from ..models import Submission
 
 
 class SubmissionRejudgeAPI(APIView):
@@ -19,5 +19,5 @@ class SubmissionRejudgeAPI(APIView):
         submission.statistic_info = {}
         submission.save()
 
-        judge_task.delay(submission.id, submission.problem.id, is_rejudge=True)
+        judge_task.delay(submission.id, submission.problem.id)
         return self.success()
