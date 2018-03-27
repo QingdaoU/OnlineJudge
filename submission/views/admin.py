@@ -10,15 +10,14 @@ class SubmissionRejudgeAPI(APIView):
     def get(self, request):
         id = request.GET.get("id")
         if not id:
-            return self.error("Paramater error, id is required")
+            return self.error("Parameter error, id is required")
         try:
             submission = Submission.objects.select_related("problem").get(id=id, contest_id__isnull=True)
         except Submission.DoesNotExist:
             return self.error("Submission does not exists")
-        submission.result = JudgeStatus.PENDING
         submission.info = {}
         submission.statistic_info = {}
         submission.save()
 
-        judge_task.delay(submission.id, submission.problem.id)
+        judge_task.delay(submission.id, submission.problem.id, is_rejudge=True)
         return self.success()

@@ -85,10 +85,13 @@ class SPJCompiler(DispatcherBase):
 
 
 class JudgeDispatcher(DispatcherBase):
-    def __init__(self, submission_id, problem_id):
+    def __init__(self, submission_id, problem_id, is_rejudge=False):
         super().__init__()
         self.submission = Submission.objects.get(id=submission_id)
         self.contest_id = self.submission.contest_id
+        self.is_rejudge = is_rejudge
+        self.last_result = None
+
         if self.contest_id:
             self.problem = Problem.objects.select_related("contest").get(id=problem_id, contest_id=self.contest_id)
             self.contest = self.problem.contest
@@ -119,7 +122,7 @@ class JudgeDispatcher(DispatcherBase):
     def judge(self):
         server = self.choose_judge_server()
         if not server:
-            data = {"submission_id": self.submission.id, "problem_id": self.problem.id}
+            data = {"submission_id": self.submission.id, "problem_id": self.problem.id, "is_rejudge": self.is_rejudge}
             cache.lpush(CacheKey.waiting_queue, json.dumps(data))
             return
 
@@ -150,11 +153,8 @@ class JudgeDispatcher(DispatcherBase):
             "spj_compile_config": spj_config.get("compile"),
             "spj_src": self.problem.spj_code
         }
-        self.last_result = None
-        try:
-            self.last_result = Submission.objects.get(id=self.submission.id).result
-        except Submission.DoesNotExist:
-            pass
+        self.last_result = self.submission.result
+
         Submission.objects.filter(id=self.submission.id).update(result=JudgeStatus.JUDGING)
 
         resp = self._request(urljoin(server.service_url, "/judge"), data=data)
@@ -197,7 +197,7 @@ class JudgeDispatcher(DispatcherBase):
         with transaction.atomic():
             # update problem status
             problem = Problem.objects.select_for_update().get(contest_id=self.contest_id, id=self.problem.id)
-            if not self.last_result:
+            if not self.is_rejudge:
                 problem.submission_number += 1
             if self.submission.result == JudgeStatus.ACCEPTED:
                 if self.last_result != JudgeStatus.ACCEPTED:
