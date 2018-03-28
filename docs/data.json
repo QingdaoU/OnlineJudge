@@ -1,6 +1,15 @@
 {
   "update": [
     {
+      "version": "2017-03-27",
+      "level": "Important",
+      "title": "Update at 2018-03-27",
+      "details": [
+        "<span style=\"color:  red;\">Fix some bugs about problem submission statistics</span>",
+        "Fix some bugs that may cause 'compile error' when submitted code contains unicode characters"
+      ]
+    },
+    {
       "version": "2017-03-23",
       "level": "Recommend",
       "title": "Update at 2018-03-23",
