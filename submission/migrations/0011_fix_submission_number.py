@@ -19,6 +19,7 @@ def fix_rejudge_bugs(apps, schema_editor):
 class Migration(migrations.Migration):
     dependencies = [
         ('submission', '0009_delete_user_output'),
+        ('problem', '0010_problem_spj_compile_ok'),
     ]
 
     operations = [

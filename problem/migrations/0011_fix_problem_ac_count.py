@@ -27,6 +27,7 @@ def fix_problem_count_bugs(apps, schema_editor):
 class Migration(migrations.Migration):
     dependencies = [
         ('problem', '0010_problem_spj_compile_ok'),
+        ('submission', '0009_delete_user_output'),
     ]
 
     operations = [
