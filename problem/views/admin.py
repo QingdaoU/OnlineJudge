@@ -181,7 +181,6 @@ class ProblemBase(APIView):
                 else:
                     total_score += item["score"]
             data["total_score"] = total_score
-        data["created_by"] = request.user
         data["languages"] = list(data["languages"])
 
     @problem_permission_required
@@ -220,6 +219,7 @@ class ProblemAPI(ProblemBase):
 
         # todo check filename and score info
         tags = data.pop("tags")
+        data["created_by"] = request.user
         problem = Problem.objects.create(**data)
 
         for item in tags:
@@ -324,6 +324,7 @@ class ContestProblemAPI(ProblemBase):
         # todo check filename and score info
         data["contest"] = contest
         tags = data.pop("tags")
+        data["created_by"] = request.user
         problem = Problem.objects.create(**data)
 
         for item in tags:

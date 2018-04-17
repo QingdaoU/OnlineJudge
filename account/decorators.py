@@ -1,4 +1,5 @@
 import functools
+from problem.models import Problem
 from contest.models import Contest, ContestType, ContestStatus, ContestRuleType
 from utils.api import JSONResponse, APIError
 from .models import ProblemPermission
@@ -105,5 +106,11 @@ def check_contest_permission(check_type="details"):
 
 
 def ensure_created_by(obj, user):
-    if not user.is_admin_role() or (user.is_admin() and obj.created_by != user):
-        raise APIError(msg=f"{obj.__class__.__name__} does not exist")
+    e = APIError(msg=f"{obj.__class__.__name__} does not exist")
+    if not user.is_admin_role():
+        raise e
+    if isinstance(obj, Problem):
+        if not user.can_mgmt_all_problem() and obj.created_by != user:
+            raise e
+    elif obj.created_by != user:
+        raise e
