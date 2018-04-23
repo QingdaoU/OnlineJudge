@@ -71,7 +71,7 @@ class SMTPTestAPI(APIView):
                        to_email=request.data["email"],
                        subject="You have successfully configured SMTP",
                        content="You have successfully configured SMTP")
-        except smtplib.SMTPException as e:
+        except smtplib.SMTPResponseException as e:
             # guess error message encoding
             msg = b"Failed to send email"
             try:
