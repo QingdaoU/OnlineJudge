@@ -102,7 +102,7 @@ class TwoFactorAuthAPI(APIView):
         user.save()
 
         label = f"{SysOptions.website_name_shortcut}:{user.username}"
-        image = qrcode.make(OtpAuth(token).to_uri("totp", label, SysOptions.website_name))
+        image = qrcode.make(OtpAuth(token).to_uri("totp", label, SysOptions.website_name.replace(" ", "")))
         return self.success(img2base64(image))
 
     @login_required
