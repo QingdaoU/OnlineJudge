@@ -9,13 +9,13 @@ from utils.models import RichTextField
 
 
 class Contest(models.Model):
-    title = models.CharField(max_length=40)
+    title = models.TextField()
     description = RichTextField()
     # show real time rank or cached rank
     real_time_rank = models.BooleanField()
-    password = models.CharField(max_length=30, blank=True, null=True)
+    password = models.TextField(null=True)
     # enum of ContestRuleType
-    rule_type = models.CharField(max_length=36)
+    rule_type = models.TextField()
     start_time = models.DateTimeField()
     end_time = models.DateTimeField()
     create_time = models.DateTimeField(auto_now_add=True)
@@ -88,7 +88,7 @@ class OIContestRank(AbstractContestRank):
 
 class ContestAnnouncement(models.Model):
     contest = models.ForeignKey(Contest)
-    title = models.CharField(max_length=128)
+    title = models.TextField()
     content = RichTextField()
     created_by = models.ForeignKey(User)
     visible = models.BooleanField(default=True)

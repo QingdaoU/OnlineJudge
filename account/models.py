@@ -24,22 +24,22 @@ class UserManager(models.Manager):
 
 
 class User(AbstractBaseUser):
-    username = models.CharField(max_length=32, unique=True)
-    email = models.EmailField(max_length=64, null=True)
+    username = models.TextField(unique=True)
+    email = models.TextField(null=True)
     create_time = models.DateTimeField(auto_now_add=True, null=True)
     # One of UserType
-    admin_type = models.CharField(max_length=32, default=AdminType.REGULAR_USER)
-    problem_permission = models.CharField(max_length=32, default=ProblemPermission.NONE)
-    reset_password_token = models.CharField(max_length=32, null=True)
+    admin_type = models.TextField(default=AdminType.REGULAR_USER)
+    problem_permission = models.TextField(default=ProblemPermission.NONE)
+    reset_password_token = models.TextField(null=True)
     reset_password_token_expire_time = models.DateTimeField(null=True)
     # SSO auth token
-    auth_token = models.CharField(max_length=32, null=True)
+    auth_token = models.TextField(null=True)
     two_factor_auth = models.BooleanField(default=False)
-    tfa_token = models.CharField(max_length=32, null=True)
+    tfa_token = models.TextField(null=True)
     session_keys = JSONField(default=list)
     # open api key
     open_api = models.BooleanField(default=False)
-    open_api_appkey = models.CharField(max_length=32, null=True)
+    open_api_appkey = models.TextField(null=True)
     is_disabled = models.BooleanField(default=False)
 
     USERNAME_FIELD = "username"
@@ -87,13 +87,13 @@ class UserProfile(models.Model):
     # like acm_problems_status, merely add "score" field
     oi_problems_status = JSONField(default=dict)
 
-    real_name = models.CharField(max_length=32, blank=True, null=True)
-    avatar = models.CharField(max_length=256, default=f"{settings.AVATAR_URI_PREFIX}/default.png")
-    blog = models.URLField(blank=True, null=True)
-    mood = models.CharField(max_length=256, blank=True, null=True)
-    github = models.CharField(max_length=64, blank=True, null=True)
-    school = models.CharField(max_length=64, blank=True, null=True)
-    major = models.CharField(max_length=64, blank=True, null=True)
+    real_name = models.TextField(null=True)
+    avatar = models.TextField(default=f"{settings.AVATAR_URI_PREFIX}/default.png")
+    blog = models.URLField(null=True)
+    mood = models.TextField(null=True)
+    github = models.TextField(null=True)
+    school = models.TextField(null=True)
+    major = models.TextField(null=True)
     # for ACM
     accepted_number = models.IntegerField(default=0)
     # for OI

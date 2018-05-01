@@ -8,7 +8,7 @@ from utils.constants import Choices
 
 
 class ProblemTag(models.Model):
-    name = models.CharField(max_length=30)
+    name = models.TextField()
 
     class Meta:
         db_table = "problem_tag"
@@ -27,26 +27,26 @@ class ProblemDifficulty(object):
 
 class Problem(models.Model):
     # display ID
-    _id = models.CharField(max_length=24, db_index=True)
-    contest = models.ForeignKey(Contest, null=True, blank=True)
+    _id = models.TextField(db_index=True)
+    contest = models.ForeignKey(Contest, null=True)
     # for contest problem
     is_public = models.BooleanField(default=False)
-    title = models.CharField(max_length=128)
+    title = models.TextField()
     # HTML
     description = RichTextField()
     input_description = RichTextField()
     output_description = RichTextField()
     # [{input: "test", output: "123"}, {input: "test123", output: "456"}]
     samples = JSONField()
-    test_case_id = models.CharField(max_length=32)
+    test_case_id = models.TextField()
     # [{"input_name": "1.in", "output_name": "1.out", "score": 0}]
     test_case_score = JSONField()
-    hint = RichTextField(blank=True, null=True)
+    hint = RichTextField(null=True)
     languages = JSONField()
     template = JSONField()
     create_time = models.DateTimeField(auto_now_add=True)
     # we can not use auto_now here
-    last_update_time = models.DateTimeField(blank=True, null=True)
+    last_update_time = models.DateTimeField(null=True)
     created_by = models.ForeignKey(User)
     # ms
     time_limit = models.IntegerField()
@@ -54,17 +54,17 @@ class Problem(models.Model):
     memory_limit = models.IntegerField()
     # special judge related
     spj = models.BooleanField(default=False)
-    spj_language = models.CharField(max_length=32, blank=True, null=True)
-    spj_code = models.TextField(blank=True, null=True)
-    spj_version = models.CharField(max_length=32, blank=True, null=True)
+    spj_language = models.TextField(null=True)
+    spj_code = models.TextField(null=True)
+    spj_version = models.TextField(null=True)
     spj_compile_ok = models.BooleanField(default=False)
-    rule_type = models.CharField(max_length=32)
+    rule_type = models.TextField()
     visible = models.BooleanField(default=True)
-    difficulty = models.CharField(max_length=32)
+    difficulty = models.TextField()
     tags = models.ManyToManyField(ProblemTag)
-    source = models.CharField(max_length=200, blank=True, null=True)
+    source = models.TextField(null=True)
     # for OI mode
-    total_score = models.IntegerField(default=0, blank=True)
+    total_score = models.IntegerField(default=0)
     submission_number = models.BigIntegerField(default=0)
     accepted_number = models.BigIntegerField(default=0)
     # {JudgeStatus.ACCEPTED: 3, JudgeStaus.WRONG_ANSWER: 11}, the number means count

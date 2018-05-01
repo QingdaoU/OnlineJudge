@@ -5,7 +5,7 @@ from utils.models import RichTextField
 
 
 class Announcement(models.Model):
-    title = models.CharField(max_length=64)
+    title = models.TextField()
     # HTML
     content = RichTextField()
     create_time = models.DateTimeField(auto_now_add=True)

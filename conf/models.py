@@ -3,16 +3,16 @@ from django.utils import timezone
 
 
 class JudgeServer(models.Model):
-    hostname = models.CharField(max_length=128)
-    ip = models.CharField(max_length=32, blank=True, null=True)
-    judger_version = models.CharField(max_length=32)
+    hostname = models.TextField()
+    ip = models.TextField(null=True)
+    judger_version = models.TextField()
     cpu_core = models.IntegerField()
     memory_usage = models.FloatField()
     cpu_usage = models.FloatField()
     last_heartbeat = models.DateTimeField()
     create_time = models.DateTimeField(auto_now_add=True)
     task_number = models.IntegerField(default=0)
-    service_url = models.CharField(max_length=256, blank=True, null=True)
+    service_url = models.TextField(null=True)
     is_disabled = models.BooleanField(default=False)
 
     @property

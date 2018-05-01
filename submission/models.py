@@ -21,22 +21,22 @@ class JudgeStatus:
 
 
 class Submission(models.Model):
-    id = models.CharField(max_length=32, default=rand_str, primary_key=True, db_index=True)
+    id = models.TextField(default=rand_str, primary_key=True, db_index=True)
     contest = models.ForeignKey(Contest, null=True)
     problem = models.ForeignKey(Problem)
     create_time = models.DateTimeField(auto_now_add=True)
     user_id = models.IntegerField(db_index=True)
-    username = models.CharField(max_length=30)
+    username = models.TextField()
     code = models.TextField()
     result = models.IntegerField(db_index=True, default=JudgeStatus.PENDING)
     # 从JudgeServer返回的判题详情
     info = JSONField(default=dict)
-    language = models.CharField(max_length=20)
+    language = models.TextField()
     shared = models.BooleanField(default=False)
     # 存储该提交所用时间和内存值，方便提交列表显示
     # {time_cost: "", memory_cost: "", err_info: "", score: 0}
     statistic_info = JSONField(default=dict)
-    ip = models.CharField(max_length=32, null=True, blank=True)
+    ip = models.TextField(null=True)
 
     def check_user_permission(self, user, check_share=True):
         return self.user_id == user.id or \
