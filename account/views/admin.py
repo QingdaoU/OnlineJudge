@@ -54,14 +54,14 @@ class UserAdminAPI(APIView):
             user = User.objects.get(id=data["id"])
         except User.DoesNotExist:
             return self.error("User does not exist")
-        if User.objects.filter(username=data["username"]).exclude(id=user.id).exists():
+        if User.objects.filter(username=data["username"].lower()).exclude(id=user.id).exists():
             return self.error("Username already exists")
         if User.objects.filter(email=data["email"].lower()).exclude(id=user.id).exists():
             return self.error("Email already exists")
 
         pre_username = user.username
-        user.username = data["username"]
-        user.email = data["email"]
+        user.username = data["username"].lower()
+        user.email = data["email"].lower()
         user.admin_type = data["admin_type"]
         user.is_disabled = data["is_disabled"]
 
