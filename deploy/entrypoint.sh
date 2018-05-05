@@ -3,10 +3,10 @@
 APP=/app
 DATA=/data
 
-mkdir -p $DATA/log $DATA/ssl $DATA/test_case $DATA/public/upload $DATA/public/avatar $DATA/public/website
+mkdir -p $DATA/log $DATA/config $DATA/ssl $DATA/test_case $DATA/public/upload $DATA/public/avatar $DATA/public/website
 
-if [ ! -f "$APP/oj/custom_settings.py" ]; then
-    echo SECRET_KEY=\"$(cat /dev/urandom | head -1 | md5sum | head -c 32)\" >> $APP/oj/custom_settings.py
+if [ ! -f "$DATA/config/secret.key" ]; then
+    echo $(cat /dev/urandom | head -1 | md5sum | head -c 32) > "$DATA/config/secret.key"
 fi
 
 if [ ! -f "$DATA/public/avatar/default.png" ]; then

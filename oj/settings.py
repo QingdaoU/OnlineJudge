@@ -13,13 +13,15 @@ import os
 import raven
 from copy import deepcopy
 from utils.shortcuts import get_env
-from .custom_settings import *
 
 production_env = get_env("OJ_ENV", "dev") == "production"
 if production_env:
     from .production_settings import *
 else:
     from .dev_settings import *
+
+with open(os.path.join(DATA_DIR, "config", "secret.key"), "r") as f:
+    SECRET_KEY = f.read()
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
