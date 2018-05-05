@@ -1,7 +1,16 @@
 {
   "update": [
     {
-      "version": "2017-03-27",
+      "version": "2018-05-25",
+      "level": "Recommend",
+      "title": "Update at 2018-05-05",
+      "details": [
+        "Fix a bug that user is logged out when re-creating container",
+        "Fix a bug that JudgeServer may use a lot of memory (<span style=\"color:  red;\">Please update docker-compose.yml at first</span>)"
+      ]
+    },
+    {
+      "version": "2018-03-27",
       "level": "Important",
       "title": "Update at 2018-03-27",
       "details": [
@@ -10,7 +19,7 @@
       ]
     },
     {
-      "version": "2017-03-23",
+      "version": "2018-03-23",
       "level": "Recommend",
       "title": "Update at 2018-03-23",
       "details": [
@@ -22,7 +31,7 @@
       ]
     },
     {
-      "version": "2017-01-04",
+      "version": "2018-01-04",
       "level": "Recommend",
       "title": "Update at 2018-01-04",
       "details": [
