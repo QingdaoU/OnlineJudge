@@ -5,7 +5,6 @@ from importlib import import_module
 import qrcode
 from django.conf import settings
 from django.contrib import auth
-from django.http import HttpResponseRedirect
 from django.template.loader import render_to_string
 from django.utils.decorators import method_decorator
 from django.utils.timezone import now

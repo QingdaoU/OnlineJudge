@@ -1,5 +1,11 @@
+import io
+
+import xlsxwriter
+from django.http import HttpResponse
 from django.utils.timezone import now
 from django.core.cache import cache
+
+from problem.models import Problem
 from utils.api import APIView, validate_serializer
 from utils.constants import CacheKey
 from utils.shortcuts import datetime2str
@@ -104,8 +110,16 @@ class ContestRankAPI(APIView):
                                                 user__is_disabled=False). \
                 select_related("user").order_by("-total_score")
 
+    def column_string(self, n):
+        string = ""
+        while n > 0:
+            n, remainder = divmod(n - 1, 26)
+            string = chr(65 + remainder) + string
+        return string
+
     @check_contest_permission(check_type="ranks")
     def get(self, request):
+        download_csv = request.GET.get("download_csv")
         force_refresh = request.GET.get("force_refresh")
         is_contest_admin = request.user.is_authenticated() and request.user.is_contest_admin(self.contest)
         if self.contest.rule_type == ContestRuleType.OI:
@@ -121,6 +135,53 @@ class ContestRankAPI(APIView):
             if not qs:
                 qs = self.get_rank()
                 cache.set(cache_key, qs)
+
+        if download_csv:
+            data = serializer(qs, many=True, is_contest_admin=is_contest_admin).data
+            contest_problems = Problem.objects.filter(contest=self.contest, visible=True).order_by("_id")
+            problem_ids = [item.id for item in contest_problems]
+
+            f = io.BytesIO()
+            workbook = xlsxwriter.Workbook(f)
+            worksheet = workbook.add_worksheet()
+            worksheet.write("A1", "User ID")
+            worksheet.write("B1", "Username")
+            worksheet.write("C1", "Real Name")
+            if self.contest.rule_type == ContestRuleType.OI:
+                worksheet.write("D1", "Total Score")
+                for item in range(contest_problems.count()):
+                    worksheet.write(self.column_string(5 + item) + "1", f"{contest_problems[item].title}")
+                for index, item in enumerate(data):
+                    worksheet.write_string(index + 1, 0, str(item["user"]["id"]))
+                    worksheet.write_string(index + 1, 1, item["user"]["username"])
+                    worksheet.write_string(index + 1, 2, item["user"]["real_name"] or "")
+                    worksheet.write_string(index + 1, 3, str(item["total_score"]))
+                    for k, v in item["submission_info"].items():
+                        worksheet.write_string(index + 1, 4 + problem_ids.index(int(k)), str(v))
+            else:
+                worksheet.write("D1", "AC")
+                worksheet.write("E1", "Total Submission")
+                worksheet.write("F1", "Total Time")
+                for item in range(contest_problems.count()):
+                    worksheet.write(self.column_string(7 + item) + "1", f"{contest_problems[item].title}")
+
+                for index, item in enumerate(data):
+                    worksheet.write_string(index + 1, 0, str(item["user"]["id"]))
+                    worksheet.write_string(index + 1, 1, item["user"]["username"])
+                    worksheet.write_string(index + 1, 2, item["user"]["real_name"] or "")
+                    worksheet.write_string(index + 1, 3, str(item["accepted_number"]))
+                    worksheet.write_string(index + 1, 4, str(item["submission_number"]))
+                    worksheet.write_string(index + 1, 5, str(item["total_time"]))
+                    for k, v in item["submission_info"].items():
+                        worksheet.write_string(index + 1, 6 + problem_ids.index(int(k)), str(v["is_ac"]))
+
+            workbook.close()
+            f.seek(0)
+            response = HttpResponse(f.read())
+            response["Content-Disposition"] = f"attachment; filename=content-{self.contest.id}-rank.xlsx"
+            response["Content-Type"] = "application/xlsx"
+            return response
+
         page_qs = self.paginate_data(request, qs)
         page_qs["results"] = serializer(page_qs["results"], many=True, is_contest_admin=is_contest_admin).data
         return self.success(page_qs)
