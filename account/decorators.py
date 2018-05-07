@@ -48,7 +48,7 @@ class admin_role_required(BasePermissionDecorator):
 
 class problem_permission_required(admin_role_required):
     def check_permission(self):
-        if not super(problem_permission_required, self).check_permission():
+        if not super().check_permission():
             return False
         if self.request.user.problem_permission == ProblemPermission.NONE:
             return False
