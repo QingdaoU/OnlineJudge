@@ -131,6 +131,7 @@ class SubmissionListAPI(APIView):
         myself = request.GET.get("myself")
         result = request.GET.get("result")
         username = request.GET.get("username")
+        tags = request.GET.getlist("tags[]")
         if problem_id:
             try:
                 problem = Problem.objects.get(_id=problem_id, contest_id__isnull=True, visible=True)
@@ -143,6 +144,8 @@ class SubmissionListAPI(APIView):
             submissions = submissions.filter(username__icontains=username)
         if result:
             submissions = submissions.filter(result=result)
+        if tags:
+            submissions = submissions.filter(problem__id__in=Problem.objects.filter(tags__name__in=tags).values_list("id", flat=True))
         data = self.paginate_data(request, submissions)
         data["results"] = SubmissionListSerializer(data["results"], many=True, user=request.user).data
         return self.success(data)
