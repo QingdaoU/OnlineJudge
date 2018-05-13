@@ -11,6 +11,7 @@ from django.utils.timezone import now
 from django.views.decorators.csrf import ensure_csrf_cookie, csrf_exempt
 from otpauth import OtpAuth
 
+from group.models import Group
 from problem.models import Problem
 from utils.constants import ContestRuleType
 from options.options import SysOptions
@@ -375,6 +376,7 @@ class SessionManagementAPI(APIView):
 
 class UserRankAPI(APIView):
     def get(self, request):
+        group_id = request.GET.get("group_id")
         rule_type = request.GET.get("rule")
         if rule_type not in ContestRuleType.choices():
             rule_type = ContestRuleType.ACM
@@ -384,6 +386,8 @@ class UserRankAPI(APIView):
             profiles = profiles.filter(submission_number__gt=0).order_by("-accepted_number", "submission_number")
         else:
             profiles = profiles.filter(total_score__gt=0).order_by("-total_score")
+        if group_id:
+            profiles = profiles.filter(user__in=Group.objects.get(id=group_id).members.all())
         return self.success(self.paginate_data(request, profiles, RankInfoSerializer))
 
 
