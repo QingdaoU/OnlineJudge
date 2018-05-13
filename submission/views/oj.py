@@ -24,11 +24,11 @@ class SubmissionAPI(APIView):
         if not can_consume:
             return "Please wait %d seconds" % (int(wait))
 
-        ip_bucket = TokenBucket(key=request.session["ip"],
-                                redis_conn=cache, **SysOptions.throttling["ip"])
-        can_consume, wait = ip_bucket.consume()
-        if not can_consume:
-            return "Captcha is required"
+        # ip_bucket = TokenBucket(key=request.session["ip"],
+        #                         redis_conn=cache, **SysOptions.throttling["ip"])
+        # can_consume, wait = ip_bucket.consume()
+        # if not can_consume:
+        #     return "Captcha is required"
 
     @validate_serializer(CreateSubmissionSerializer)
     @login_required
