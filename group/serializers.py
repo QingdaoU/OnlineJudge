@@ -31,12 +31,17 @@ class DeleteGroupSerializer(serializers.Serializer):
 
 class SimpleGroupSerializer(serializers.ModelSerializer):
     created_by = UsernameSerializer()
+    password = serializers.SerializerMethodField()
+    me = serializers.BooleanField()
+
+    def get_password(self, obj):
+        return obj.password != ""
 
     class Meta:
         model = Group
-        fields = ["id", "created_by", "name"]
+        fields = ["id", "created_by", "name", "password", "me"]
 
 
 class JoinGroupSerializer(serializers.Serializer):
     group_name = serializers.CharField()
-    password = serializers.CharField()
+    password = serializers.CharField(allow_blank=True)

@@ -5,7 +5,10 @@ from ..serializers import SimpleGroupSerializer, JoinGroupSerializer
 
 class GroupAPI(APIView):
     def get(self, request):
-        return self.success(SimpleGroupSerializer(Group.objects.filter(allow_join=True).order_by("-id"), many=True).data)
+        groups = Group.objects.filter(allow_join=True).order_by("-id")
+        for item in groups:
+            item.me = item.members.filter(username=request.user.username).exists()
+        return self.success(SimpleGroupSerializer(groups, many=True).data)
 
     @validate_serializer(JoinGroupSerializer)
     def post(self, request):

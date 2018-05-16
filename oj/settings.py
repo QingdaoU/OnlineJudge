@@ -180,7 +180,7 @@ REST_FRAMEWORK = {
     )
 }
 
-REDIS_URL = "redis://:foobar@%s:%s" % (REDIS_CONF["host"], REDIS_CONF["port"])
+REDIS_URL = "redis://@%s:%s" % (REDIS_CONF["host"], REDIS_CONF["port"])
 
 
 def redis_config(db):
