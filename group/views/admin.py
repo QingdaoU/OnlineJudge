@@ -5,7 +5,7 @@ from account.models import User
 from utils.api import APIView, validate_serializer
 
 from ..models import Group
-from ..serializers import GroupSerializer, CreateGroupSerializer, EditGroupSerializer, DeleteGroupSerializer
+from ..serializers import GroupSerializer, CreateGroupSerializer, EditGroupSerializer, DeleteGroupSerializer, AddUserToGroupSerializer
 
 
 class GroupAPI(APIView):
@@ -68,3 +68,15 @@ class GroupAPI(APIView):
         else:
             group.members.remove(User.objects.get(id=data["user_id"]))
             return self.success(GroupSerializer(group).data)
+
+
+class AddUserToGroupAPI(APIView):
+    @validate_serializer(AddUserToGroupSerializer)
+    def post(self, request):
+        try:
+            user = User.objects.get(username=request.data["username"])
+            group = Group.objects.get(id=request.data["group_id"])
+        except Exception:
+            return self.error("用户不存在")
+        group.members.add(user)
+        return self.success(GroupSerializer(group).data)

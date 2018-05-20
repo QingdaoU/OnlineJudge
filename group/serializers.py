@@ -33,15 +33,21 @@ class SimpleGroupSerializer(serializers.ModelSerializer):
     created_by = UsernameSerializer()
     password = serializers.SerializerMethodField()
     me = serializers.BooleanField()
+    members = UsernameSerializer(many=True)
 
     def get_password(self, obj):
         return obj.password != ""
 
     class Meta:
         model = Group
-        fields = ["id", "created_by", "name", "password", "me"]
+        fields = ["id", "created_by", "name", "password", "me", "members"]
 
 
 class JoinGroupSerializer(serializers.Serializer):
     group_name = serializers.CharField()
     password = serializers.CharField(allow_blank=True)
+
+
+class AddUserToGroupSerializer(serializers.Serializer):
+    group_id = serializers.IntegerField()
+    username = serializers.CharField()
