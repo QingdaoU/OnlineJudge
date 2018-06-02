@@ -1,6 +1,17 @@
 {
   "update": [
     {
+      "version": "2018-06-02",
+      "level": "Recommend",
+      "title": "Update at 2018-06-02",
+      "details": [
+        "Add Chinese, by <a href='https://github.com/QingdaoU/OnlineJudgeFE/issues/22'>hirCodd</a>",
+        "Integrate with katex",
+        "Update libraries to latest version",
+        "The first page in management is changed to dashboard"
+      ]
+    },
+    {
       "version": "2018-05-25",
       "level": "Important",
       "title": "Update at 2018-05-05",
