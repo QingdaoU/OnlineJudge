@@ -194,24 +194,6 @@ class ProblemBase(APIView):
             data["total_score"] = total_score
         data["languages"] = list(data["languages"])
 
-    @problem_permission_required
-    def delete(self, request):
-        id = request.GET.get("id")
-        if not id:
-            return self.error("Invalid parameter, id is required")
-        try:
-            problem = Problem.objects.get(id=id, contest_id__isnull=True)
-        except Problem.DoesNotExist:
-            return self.error("Problem does not exists")
-        ensure_created_by(problem, request.user)
-        if Submission.objects.filter(problem=problem).exists():
-            return self.error("Can't delete the problem as it has submissions")
-        d = os.path.join(settings.TEST_CASE_DIR, problem.test_case_id)
-        if os.path.isdir(d):
-            shutil.rmtree(d, ignore_errors=True)
-        problem.delete()
-        return self.success()
-
 
 class ProblemAPI(ProblemBase):
     @problem_permission_required
@@ -307,6 +289,24 @@ class ProblemAPI(ProblemBase):
 
         return self.success()
 
+    @problem_permission_required
+    def delete(self, request):
+        id = request.GET.get("id")
+        if not id:
+            return self.error("Invalid parameter, id is required")
+        try:
+            problem = Problem.objects.get(id=id, contest_id__isnull=True)
+        except Problem.DoesNotExist:
+            return self.error("Problem does not exists")
+        ensure_created_by(problem, request.user)
+        if Submission.objects.filter(problem=problem).exists():
+            return self.error("Can't delete the problem as it has submissions")
+        d = os.path.join(settings.TEST_CASE_DIR, problem.test_case_id)
+        if os.path.isdir(d):
+            shutil.rmtree(d, ignore_errors=True)
+        problem.delete()
+        return self.success()
+
 
 class ContestProblemAPI(ProblemBase):
     @validate_serializer(CreateContestProblemSerializer)
@@ -346,7 +346,6 @@ class ContestProblemAPI(ProblemBase):
             problem.tags.add(tag)
         return self.success(ProblemAdminSerializer(problem).data)
 
-    @problem_permission_required
     def get(self, request):
         problem_id = request.GET.get("id")
         contest_id = request.GET.get("contest_id")
@@ -354,15 +353,19 @@ class ContestProblemAPI(ProblemBase):
         if problem_id:
             try:
                 problem = Problem.objects.get(id=problem_id)
-                ensure_created_by(problem, user)
+                ensure_created_by(problem.contest, user)
             except Problem.DoesNotExist:
                 return self.error("Problem does not exist")
             return self.success(ProblemAdminSerializer(problem).data)
 
         if not contest_id:
             return self.error("Contest id is required")
-
-        problems = Problem.objects.filter(contest_id=contest_id).order_by("-create_time")
+        try:
+            contest = Contest.objects.get(id=contest_id)
+            ensure_created_by(contest, user)
+        except Contest.DoesNotExist:
+            return self.error("Contest does not exist")
+        problems = Problem.objects.filter(contest=contest).order_by("-create_time")
         if user.is_admin():
             problems = problems.filter(contest__created_by=user)
         keyword = request.GET.get("keyword")
@@ -371,7 +374,6 @@ class ContestProblemAPI(ProblemBase):
         return self.success(self.paginate_data(request, problems, ProblemAdminSerializer))
 
     @validate_serializer(EditContestProblemSerializer)
-    @problem_permission_required
     def put(self, request):
         data = request.data
         user = request.user
@@ -388,8 +390,7 @@ class ContestProblemAPI(ProblemBase):
         problem_id = data.pop("id")
 
         try:
-            problem = Problem.objects.get(id=problem_id)
-            ensure_created_by(problem, user)
+            problem = Problem.objects.get(id=problem_id, contest=contest)
         except Problem.DoesNotExist:
             return self.error("Problem does not exist")
 
@@ -417,6 +418,23 @@ class ContestProblemAPI(ProblemBase):
             except ProblemTag.DoesNotExist:
                 tag = ProblemTag.objects.create(name=tag)
             problem.tags.add(tag)
+        return self.success()
+
+    def delete(self, request):
+        id = request.GET.get("id")
+        if not id:
+            return self.error("Invalid parameter, id is required")
+        try:
+            problem = Problem.objects.get(id=id, contest_id__isnull=False)
+        except Problem.DoesNotExist:
+            return self.error("Problem does not exists")
+        ensure_created_by(problem.contest, request.user)
+        if Submission.objects.filter(problem=problem).exists():
+            return self.error("Can't delete the problem as it has submissions")
+        d = os.path.join(settings.TEST_CASE_DIR, problem.test_case_id)
+        if os.path.isdir(d):
+            shutil.rmtree(d, ignore_errors=True)
+        problem.delete()
         return self.success()
 
 

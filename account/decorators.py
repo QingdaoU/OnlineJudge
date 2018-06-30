@@ -110,6 +110,8 @@ def ensure_created_by(obj, user):
     e = APIError(msg=f"{obj.__class__.__name__} does not exist")
     if not user.is_admin_role():
         raise e
+    if user.is_super_admin():
+        return
     if isinstance(obj, Problem):
         if not user.can_mgmt_all_problem() and obj.created_by != user:
             raise e
