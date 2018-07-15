@@ -1,11 +1,21 @@
 {
   "update": [
     {
+      "version": "2018-07-15",
+      "level": "Recommend",
+      "title": "Update at 2018-07-15",
+      "details": [
+        "Add Traditional Chinese, by <a href='https://github.com/QingdaoU/OnlineJudgeFE/pull/27'>xdavidwu</a>",
+        "Fix a bug in the navigation bar",
+        "Move language switch to profile settings page"
+      ]
+    },
+    {
       "version": "2018-06-02",
       "level": "Recommend",
       "title": "Update at 2018-06-02",
       "details": [
-        "Add Chinese, by <a href='https://github.com/QingdaoU/OnlineJudgeFE/issues/22'>hirCodd</a>",
+        "Add Simple Chinese, by <a href='https://github.com/QingdaoU/OnlineJudgeFE/issues/22'>hirCodd</a>",
         "Integrate with katex",
         "Update libraries to latest version",
         "The first page in management is changed to dashboard"
