@@ -252,12 +252,13 @@ class UserProfileAPITest(APITestCase):
 
     def test_update_profile(self):
         self.create_user("test", "test123")
-        update_data = {"real_name": "zemal", "submission_number": 233}
+        update_data = {"real_name": "zemal", "submission_number": 233, "language": "en-US"}
         resp = self.client.put(self.url, data=update_data)
         self.assertSuccess(resp)
         data = resp.data["data"]
         self.assertEqual(data["real_name"], "zemal")
         self.assertEqual(data["submission_number"], 0)
+        self.assertEqual(data["language"], "en-US")
 
 
 class TwoFactorAuthAPITest(APITestCase):
