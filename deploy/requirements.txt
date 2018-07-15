@@ -12,7 +12,7 @@ qrcode
 flake8-coding
 requests
 django-redis
-psycopg2
+psycopg2-binary
 gunicorn
 jsonfield
 XlsxWriter
