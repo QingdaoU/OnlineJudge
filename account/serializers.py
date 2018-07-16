@@ -105,6 +105,7 @@ class EditUserProfileSerializer(serializers.Serializer):
     github = serializers.CharField(max_length=64, allow_blank=True, required=False)
     school = serializers.CharField(max_length=64, allow_blank=True, required=False)
     major = serializers.CharField(max_length=64, allow_blank=True, required=False)
+    language = serializers.CharField(max_length=32, allow_blank=True, required=False)
 
 
 class ApplyResetPasswordSerializer(serializers.Serializer):
