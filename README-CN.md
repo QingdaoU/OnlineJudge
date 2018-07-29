@@ -7,7 +7,7 @@
 
 > #### 基于 Python 和 Vue 的在线评测系统。 [Demo](http://v2.qduoj.com)
 
-[English Document](https://github.com/QingdaoU/OnlineJudge/blob/2.0/README.md)
+[English Document](README.md)
 
 ## 概览
 
