@@ -64,7 +64,8 @@ class SubmissionAPI(APIView):
             problem = Problem.objects.get(id=data["problem_id"], contest_id=data.get("contest_id"), visible=True)
         except Problem.DoesNotExist:
             return self.error("Problem not exist")
-
+        if data["language"] not in problem.languages:
+            return self.error(f"{data['language']} is now allowed in the problem")
         submission = Submission.objects.create(user_id=request.user.id,
                                                username=request.user.username,
                                                language=data["language"],

@@ -1,9 +1,9 @@
-from unittest import mock
 from copy import deepcopy
+from unittest import mock
 
-from .models import Submission
 from problem.models import Problem, ProblemTag
 from utils.api.tests import APITestCase
+from .models import Submission
 
 DEFAULT_PROBLEM_DATA = {"_id": "A-110", "title": "test", "description": "<p>test</p>", "input_description": "test",
                         "output_description": "test", "time_limit": 1000, "memory_limit": 256, "difficulty": "Low",
@@ -25,6 +25,8 @@ DEFAULT_SUBMISSION_DATA = {
     "language": "C",
     "statistic_info": {}
 }
+
+
 # todo contest submission
 
 
@@ -66,3 +68,11 @@ class SubmissionAPITest(SubmissionPrepare):
         resp = self.client.post(self.url, self.submission_data)
         self.assertSuccess(resp)
         judge_task.assert_called()
+
+    def test_create_submission_with_wrong_language(self, judge_task):
+        self.submission_data.update({"language": "Python3"})
+        resp = self.client.post(self.url, self.submission_data)
+        self.assertFailed(resp)
+        self.assertDictEqual(resp.data, {"error": "error",
+                                         "data": "Python3 is now allowed in the problem"})
+        judge_task.assert_not_called()
