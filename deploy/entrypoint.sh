@@ -60,4 +60,5 @@ done
 
 
 chown -R nobody:nogroup $DATA $APP/dist
+chmod -R 700 $DATA/test_case
 exec supervisord -c /app/deploy/supervisord.conf
