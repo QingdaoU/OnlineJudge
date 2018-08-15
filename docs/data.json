@@ -1,6 +1,14 @@
 {
   "update": [
     {
+      "version": "2018-08-15",
+      "level": "Important",
+      "title": "Update at 2018-08-15",
+      "details": [
+        "<span style=\"color:  red;\">Fix some vulnerabilities, by @andyliu24 @plusls</span>"
+      ]
+    },
+    {
       "version": "2018-07-15",
       "level": "Recommend",
       "title": "Update at 2018-07-15",
