@@ -5,7 +5,8 @@
       "level": "Important",
       "title": "Update at 2018-08-15",
       "details": [
-        "<span style=\"color:  red;\">Fix some vulnerabilities, by @andyliu24 @plusls</span>"
+        "<span style=\"color:  red;\">Fix some vulnerabilities, by @andyliu24 @plusls</span>",
+        "Add export and import problem function (beta), if you have any question, please <a href='https://docs.onlinejudge.me/#/onlinejudge/guide/qq_group'>give us feedback</a>"
       ]
     },
     {
