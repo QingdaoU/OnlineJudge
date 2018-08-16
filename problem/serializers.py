@@ -154,7 +154,7 @@ class ExportProblemSerializer(serializers.ModelSerializer):
         return self._html_format_value(obj.hint)
 
     def get_test_case_score(self, obj):
-        return [{"score": item["score"], "input_name": item["input_name"]}
+        return [{"score": item["score"], "input_name": item["input_name"], "output_name": item["output_name"]}
                 for item in obj.test_case_score] if obj.rule_type == ProblemRuleType.OI else None
 
     def get_spj(self, obj):
@@ -200,6 +200,7 @@ class FormatValueSerializer(serializers.Serializer):
 class TestCaseScoreSerializer(serializers.Serializer):
     score = serializers.IntegerField(min_value=1)
     input_name = serializers.CharField(max_length=32)
+    output_name = serializers.CharField(max_length=32)
 
 
 class TemplateSerializer(serializers.Serializer):
