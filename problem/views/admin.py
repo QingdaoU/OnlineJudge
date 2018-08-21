@@ -2,26 +2,24 @@ import hashlib
 import json
 import os
 import shutil
-import zipfile
 import tempfile
+import zipfile
 from wsgiref.util import FileWrapper
 
 from django.conf import settings
-from django.http import StreamingHttpResponse, HttpResponse, FileResponse
 from django.db import transaction
+from django.http import StreamingHttpResponse, FileResponse
 
 from account.decorators import problem_permission_required, ensure_created_by
+from contest.models import Contest, ContestStatus
+from fps.parser import FPSHelper, FPSParser
 from judge.dispatcher import SPJCompiler
 from judge.languages import language_names
-from contest.models import Contest, ContestStatus
 from submission.models import Submission, JudgeStatus
-from fps.parser import FPSHelper, FPSParser
 from utils.api import APIView, CSRFExemptAPIView, validate_serializer, APIError
+from utils.constants import Difficulty
 from utils.shortcuts import rand_str, natural_sort_key
 from utils.tasks import delete_files
-from utils.constants import Difficulty
-
-from ..utils import TEMPLATE_BASE, build_problem_template
 from ..models import Problem, ProblemRuleType, ProblemTag
 from ..serializers import (CreateContestProblemSerializer, CompileSPJSerializer,
                            CreateProblemSerializer, EditProblemSerializer, EditContestProblemSerializer,
@@ -29,6 +27,7 @@ from ..serializers import (CreateContestProblemSerializer, CompileSPJSerializer,
                            AddContestProblemSerializer, ExportProblemSerializer,
                            ExportProblemRequestSerialzier, UploadProblemForm, ImportProblemSerializer,
                            FPSProblemSerializer)
+from ..utils import TEMPLATE_BASE, build_problem_template
 
 
 class TestCaseZipProcessor(object):
@@ -137,12 +136,8 @@ class TestCaseAPI(CSRFExemptAPIView, TestCaseZipProcessor):
         with zipfile.ZipFile(file_name, "w") as file:
             for test_case in name_list:
                 file.write(f"{test_case_dir}/{test_case}", test_case)
-        if os.environ.get("OJ_ENV") == "production":
-            response = HttpResponse()
-            response["X-Accel-Redirect"] = file_name
-        else:
-            response = StreamingHttpResponse(FileWrapper(open(file_name, "rb")),
-                                             content_type="application/octet-stream")
+        response = StreamingHttpResponse(FileWrapper(open(file_name, "rb")),
+                                         content_type="application/octet-stream")
 
         response["Content-Disposition"] = f"attachment; filename=problem_{problem.id}_test_cases.zip"
         response["Content-Length"] = os.path.getsize(file_name)

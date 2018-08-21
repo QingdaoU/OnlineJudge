@@ -123,7 +123,10 @@ class JudgeServerAPI(APIView):
     @validate_serializer(EditJudgeServerSerializer)
     @super_admin_required
     def put(self, request):
-        JudgeServer.objects.filter(id=request.data["id"]).update(is_disabled=request.data["is_disabled"])
+        is_disabled = request.data.get("is_disabled", False)
+        JudgeServer.objects.filter(id=request.data["id"]).update(is_disabled=is_disabled)
+        if not is_disabled:
+            process_pending_task()
         return self.success()
 
 
