@@ -48,18 +48,18 @@ class DispatcherBase(object):
         with transaction.atomic():
             servers = JudgeServer.objects.select_for_update().filter(is_disabled=False).order_by("task_number")
             servers = [s for s in servers if s.status == "normal"]
-            if servers:
-                server = servers[0]
-                server.used_instance_number = F("task_number") + 1
-                server.save()
-                return server
+            for server in servers:
+                if server.task_number <= server.cpu_core * 2:
+                    server.task_number = F("task_number") + 1
+                    server.save()
+                    return server
 
     @staticmethod
     def release_judge_server(judge_server_id):
         with transaction.atomic():
             # 使用原子操作, 同时因为use和release中间间隔了判题过程,需要重新查询一下
             server = JudgeServer.objects.get(id=judge_server_id)
-            server.used_instance_number = F("task_number") - 1
+            server.task_number = F("task_number") - 1
             server.save()
 
 
