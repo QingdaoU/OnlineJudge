@@ -8,6 +8,7 @@ from wsgiref.util import FileWrapper
 
 from django.conf import settings
 from django.db import transaction
+from django.db.models import Q
 from django.http import StreamingHttpResponse, FileResponse
 
 from account.decorators import problem_permission_required, ensure_created_by
@@ -243,11 +244,11 @@ class ProblemAPI(ProblemBase):
             else:
                 problems = problems.filter(rule_type=rule_type)
 
+        keyword = request.GET.get("keyword", "").strip()
+        if keyword:
+            problems = problems.filter(Q(title__icontains=keyword) | Q(_id__icontains=keyword))
         if not user.can_mgmt_all_problem():
             problems = problems.filter(created_by=user)
-        keyword = request.GET.get("keyword")
-        if keyword:
-            problems = problems.filter(title__contains=keyword)
         return self.success(self.paginate_data(request, problems, ProblemAdminSerializer))
 
     @problem_permission_required
