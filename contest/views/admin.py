@@ -1,11 +1,19 @@
+import copy
+import os
+import zipfile
 from ipaddress import ip_network
-import dateutil.parser
 
+import dateutil.parser
+from django.http import FileResponse
+
+from account.decorators import check_contest_permission, ensure_created_by
+from account.models import User
+from submission.models import Submission, JudgeStatus
 from utils.api import APIView, validate_serializer
 from utils.cache import cache
 from utils.constants import CacheKey
-
-from account.decorators import check_contest_permission, ensure_created_by
+from utils.shortcuts import rand_str
+from utils.tasks import delete_files
 from ..models import Contest, ContestAnnouncement, ACMContestRank
 from ..serializers import (ContestAnnouncementSerializer, ContestAdminSerializer,
                            CreateConetestSeriaizer, CreateContestAnnouncementSerializer,
@@ -185,3 +193,49 @@ class ACMContestHelper(APIView):
         problem_rank_status["checked"] = data["checked"]
         rank.save(update_fields=("submission_info",))
         return self.success()
+
+
+class DownloadContestSubmissions(APIView):
+    def _dump_submissions(self, contest, exclude_admin=True):
+        problem_ids = contest.problem_set.all().values_list("id", "_id")
+        id2display_id = {k[0]: k[1] for k in problem_ids}
+        ac_map = {k[0]: False for k in problem_ids}
+        submissions = Submission.objects.filter(contest=contest, result=JudgeStatus.ACCEPTED).order_by("-create_time")
+        user_ids = submissions.values_list("user_id", flat=True)
+        users = User.objects.filter(id__in=user_ids)
+        path = f"./{rand_str()}.zip"
+        with zipfile.ZipFile(path, "w") as zip_file:
+            for user in users:
+                if user.is_admin_role() and exclude_admin:
+                    continue
+                user_ac_map = copy.deepcopy(ac_map)
+                user_submissions = submissions.filter(user_id=user.id)
+                for submission in user_submissions:
+                    problem_id = submission.problem_id
+                    if user_ac_map[problem_id]:
+                        continue
+                    file_name = f"{user.username}_{id2display_id[submission.problem_id]}.txt"
+                    compression = zipfile.ZIP_DEFLATED
+                    zip_file.writestr(zinfo_or_arcname=f"{file_name}",
+                                      data=submission.code,
+                                      compress_type=compression)
+                    user_ac_map[problem_id] = True
+        return path
+
+    def get(self, request):
+        contest_id = request.GET.get("contest_id")
+        if not contest_id:
+            return self.error("Parameter error")
+        try:
+            contest = Contest.objects.get(id=contest_id)
+            ensure_created_by(contest, request.user)
+        except Contest.DoesNotExist:
+            return self.error("Contest does not exist")
+
+        exclude_admin = request.GET.get("exclude_admin") == "1"
+        zip_path = self._dump_submissions(contest, exclude_admin)
+        delete_files.apply_async((zip_path,), countdown=300)
+        resp = FileResponse(open(zip_path, "rb"))
+        resp["Content-Type"] = "application/zip"
+        resp["Content-Disposition"] = f"attachment;filename={os.path.basename(zip_path)}"
+        return resp
