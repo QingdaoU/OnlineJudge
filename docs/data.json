@@ -1,6 +1,19 @@
 {
   "update": [
     {
+      "version": "2018-09-07",
+      "level": "Recommend",
+      "title": "Update at 2018-09-07",
+      "details": [
+        "Fix Problem title overflow, by @queensferryme",
+        "Fix the pagination in problem export page",
+        "Add a gadget to reset code to problem template",
+        "Support for contest submissions download (accepted answer only)",
+        "Progress is preserved when uploading files",
+        "UI improvements"
+      ]
+    },
+    {
       "version": "2018-08-15",
       "level": "Important",
       "title": "Update at 2018-08-15",
