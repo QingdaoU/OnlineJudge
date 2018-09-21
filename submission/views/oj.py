@@ -2,6 +2,7 @@ import ipaddress
 
 from account.decorators import login_required, check_contest_permission
 from judge.tasks import judge_task
+from judge.dispatcher import Foo
 # from judge.dispatcher import JudgeDispatcher
 from problem.models import Problem, ProblemRuleType
 from contest.models import Contest, ContestStatus, ContestRuleType
@@ -14,6 +15,137 @@ from ..models import Submission
 from ..serializers import (CreateSubmissionSerializer, SubmissionModelSerializer,
                            ShareSubmissionSerializer)
 from ..serializers import SubmissionSafeModelSerializer, SubmissionListSerializer
+
+
+# new code for template START 18.9.20
+def hidden_template_parser(template_str):
+    lines = template_str.split("\n")
+    lines = [line.replace(" ","") for line in lines if line!=""]
+    labels = {}
+    labels_flag = False
+
+    category_name = ""
+
+    for line in lines:
+        if line == '/*' or line == '*/':
+            continue
+
+        if "//PREPENDEND" in line:
+            labels_flag = False
+
+        if labels_flag == True:
+            if "[" in line:
+                category_name = line[1:-1]
+                if category_name not in labels:
+                    labels[category_name] = {}
+            else:
+                problem_num = line.split('.')[0]
+                label = line.split('.')[1].split('/')[0]
+                assigned_score = line.split('/')[1][:-1]
+                labels[category_name][problem_num] = [label.upper(), int(assigned_score)]
+
+        if "//PREPENDBEGIN" in line:
+            labels_flag = True
+   
+    return labels
+
+def pred_parser(code):
+    
+    lines = code.split("\n")
+    lines = [line.replace(" ","") for line in lines if line!=""] 
+    
+    preds = {}
+    for line in lines:
+        if "[" in line:
+            category_name = line[1:-1]
+            if category_name not in preds:
+                preds[category_name] = {}
+        else:
+            problem_num = line.split('.')[0]
+            pred = line.split('.')[1].split('/')[0]
+            preds[category_name][problem_num] = [pred.upper()]
+    return preds
+
+def get_evals_json(preds, labels):
+
+    _evals = {}
+    sum_score = 0
+    total_score = 0
+    for category_name, problem_info_labels in labels.items():
+
+        category_eval_score = 0
+        category_total_score = 0
+
+        if category_name not in _evals:
+            _evals[category_name] = {}
+
+
+        if category_name not in preds: # if there is no answer, all scores are 0
+            for problem_num, _ in problem_info_labels.items(): 
+                _evals[category_name][problem_num] = 0
+                _evals[category_name]["category_sum_score"] = 0
+            continue
+
+        for problem_num, _ in problem_info_labels.items(): 
+            labels_problem = labels[category_name][problem_num][0]
+            labels_assigned_score = labels[category_name][problem_num][1]
+            category_total_score += labels_assigned_score
+
+            if problem_num not in preds[category_name]:
+                _evals[category_name][problem_num] = 0
+                continue
+
+            preds_problem = preds[category_name][problem_num][0]
+
+            if labels_problem.upper() == preds_problem.upper():
+                _evals[category_name][problem_num] = labels_assigned_score
+                category_eval_score += labels_assigned_score
+
+            else:
+                _evals[category_name][problem_num] = 0
+                # category_eval_score += 0
+                _evals[category_name]["category_sum_score"] = category_eval_score
+
+        _evals[category_name]["category_total_score"] = category_total_score
+        _evals[category_name]["category_sum_score"] = category_eval_score
+        sum_score += category_eval_score
+        total_score += category_total_score
+        
+    _evals["sum_score"] = sum_score
+    _evals["total_score"] = total_score
+    
+    evals = {}    
+    evals["evals"] = _evals
+    evals["preds"] = preds
+    evals["labels"] = labels
+    return evals
+# new code for template END 18.9.20
+
+
+class SubmissionAPI_compile(APIView):
+    def throttling(self, request):
+        user_bucket = TokenBucket(key=str(request.user.id),
+                                  redis_conn=cache, **SysOptions.throttling["user"])
+        can_consume, wait = user_bucket.consume()
+        if not can_consume:
+            return "Please wait %d seconds" % (int(wait))
+
+        ip_bucket = TokenBucket(key=request.session["ip"],
+                                redis_conn=cache, **SysOptions.throttling["ip"])
+        can_consume, wait = ip_bucket.consume()
+        if not can_consume:
+            return "Captcha is required"
+
+    @validate_serializer(CreateSubmissionSerializer)
+    @login_required
+    def post(self, request):
+        data = request.data
+        hide_id = False
+        problem = Problem.objects.get(id=data["problem_id"], contest_id=data.get("contest_id"), visible=True)
+
+        result = Foo.judge(data, problem.id)
+
+        return self.success(result)
 
 
 class SubmissionAPI(APIView):
@@ -65,13 +197,23 @@ class SubmissionAPI(APIView):
         except Problem.DoesNotExist:
             return self.error("Problem not exist")
 
+        # new code for O/X test 18.9.20
+        ox_result_jsonb = None
+        if str(data["language"]) == "PlainText":
+            template_str = problem.template["PlainText"]
+            labels = hidden_template_parser(str(template_str))
+            preds = pred_parser(str(data["code"]))
+            evals = get_evals_json(preds, labels)
+            ox_result_jsonb = evals
+
         submission = Submission.objects.create(user_id=request.user.id,
                                                username=request.user.username,
                                                language=data["language"],
                                                code=data["code"],
                                                problem_id=problem.id,
                                                ip=request.session["ip"],
-                                               contest_id=data.get("contest_id"))
+                                               contest_id=data.get("contest_id"),
+                                               ox_result_jsonb=ox_result_jsonb)
         # use this for debug
         # JudgeDispatcher(submission.id, problem.id).judge()
         judge_task.delay(submission.id, problem.id)
@@ -195,3 +337,15 @@ class SubmissionExistsAPI(APIView):
         return self.success(request.user.is_authenticated() and
                             Submission.objects.filter(problem_id=request.GET["problem_id"],
                                                       user_id=request.user.id).exists())
+
+class SubmissionByUserAPI(APIView):
+    def get(self, request):
+        if not request.GET.get("userId"):
+            return self.error("no userId")
+
+        submissions = Submission.objects.filter(contest_id__isnull=True).select_related("problem__created_by")
+        u_id = request.GET.get("userId")
+        submissions = submissions.filter(user_id=u_id)
+        data = self.paginate_data(request, submissions)
+        data["results"] = SubmissionListSerializer(data["results"], many=True, user=request.user).data
+        return self.success(data)

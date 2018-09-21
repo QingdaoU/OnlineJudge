@@ -37,6 +37,7 @@ class Submission(models.Model):
     # {time_cost: "", memory_cost: "", err_info: "", score: 0}
     statistic_info = JSONField(default=dict)
     ip = models.CharField(max_length=32, null=True, blank=True)
+    ox_result_jsonb = JSONField(default=dict)
 
     def check_user_permission(self, user, check_share=True):
         return self.user_id == user.id or \

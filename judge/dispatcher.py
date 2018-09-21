@@ -29,6 +29,84 @@ def process_pending_task():
         data = json.loads(cache.rpop(CacheKey.waiting_queue).decode("utf-8"))
         judge_task.delay(**data)
 
+class Foo:
+    def _request(url, data=None):       
+        token = hashlib.sha256(SysOptions.judge_server_token.encode("utf-8")).hexdigest()
+        kwargs = {"headers": {"X-Judge-Server-Token": token}}
+        if data:
+            kwargs["json"] = data
+        try:
+            return requests.post(url, **kwargs).json()
+        except Exception as e:
+            logger.exception(e)
+
+    @staticmethod
+    def choose_judge_server():
+        with transaction.atomic():
+            servers = JudgeServer.objects.select_for_update().filter(is_disabled=False).order_by("task_number")
+            servers = [s for s in servers if s.status == "normal"]
+            if servers:
+                server = servers[0]
+                server.used_instance_number = F("task_number") + 1
+                server.save()
+                return server
+
+    def judge(data_input, problem_id):        
+        server = Foo.choose_judge_server()
+        submission = data_input
+        problem = Problem.objects.get(id=problem_id)
+
+        language = submission['language']
+        sub_config = list(filter(lambda item: language == item["name"], languages))[0]
+        spj_config = {}
+        if problem.spj_code:
+            for lang in spj_languages:
+                if lang["name"] == problem.spj_language:
+                    spj_config = lang["spj"]
+                    break
+
+        if language in problem.template:
+            template = parse_problem_template(problem.template[language])
+            code = f"{template['prepend']}\n{submission['code']}\n{template['append']}"
+        else:
+            code = submission['code']
+
+        data = {
+            "language_config": sub_config["config"],
+            "src": code,
+            "max_cpu_time": problem.time_limit,
+            "max_memory": 1024 * 1024 * problem.memory_limit,
+            "test_case_id": problem.test_case_id,
+            "output": True,
+            "spj_version": problem.spj_version,
+            "spj_config": spj_config.get("config"),
+            "spj_compile_config": spj_config.get("compile"),
+            "spj_src": problem.spj_code
+        }
+
+        resp = Foo._request(urljoin(server.service_url, "/judge"), data=data)
+
+        if resp["err"]:
+            resp['result'] = JudgeStatus.COMPILE_ERROR
+            return resp
+        else:
+            resp["data"].sort(key=lambda x: int(x["test_case"]))
+            error_test_case = list(filter(lambda case: case["result"] != 0, resp["data"]))
+
+            if not error_test_case:
+                result = JudgeStatus.ACCEPTED
+            elif problem.rule_type == ProblemRuleType.ACM or len(error_test_case) == len(resp["data"]):
+                result = error_test_case[0]["result"]
+            else:
+                result = JudgeStatus.PARTIALLY_ACCEPTED
+
+        num = resp['data']
+        su = num[0]
+        output = {"result": result}
+        output['data'] = su['output']
+        return output
+
+
 
 class DispatcherBase(object):
     def __init__(self):
@@ -146,7 +224,7 @@ class JudgeDispatcher(DispatcherBase):
             "max_cpu_time": self.problem.time_limit,
             "max_memory": 1024 * 1024 * self.problem.memory_limit,
             "test_case_id": self.problem.test_case_id,
-            "output": False,
+            "output": True,
             "spj_version": self.problem.spj_version,
             "spj_config": spj_config.get("config"),
             "spj_compile_config": spj_config.get("compile"),
