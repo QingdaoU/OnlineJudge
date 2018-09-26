@@ -203,7 +203,7 @@ class DownloadContestSubmissions(APIView):
         submissions = Submission.objects.filter(contest=contest, result=JudgeStatus.ACCEPTED).order_by("-create_time")
         user_ids = submissions.values_list("user_id", flat=True)
         users = User.objects.filter(id__in=user_ids)
-        path = f"./{rand_str()}.zip"
+        path = f"/tmp/{rand_str()}.zip"
         with zipfile.ZipFile(path, "w") as zip_file:
             for user in users:
                 if user.is_admin_role() and exclude_admin:
