@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-
+import os
 import base64
 import copy
 import random
@@ -154,7 +154,7 @@ class FPSHelper(object):
                     "input_name": f"{index}.in",
                     "output_size": len(output_content),
                     "output_name": f"{index}.out",
-                    "stripped_output_md5": hashlib.md5(output_content.rstrip()).hexdigest()
+                    "stripped_output_md5": hashlib.md5(output_content.rstrip().encode("utf-8")).hexdigest()
                 }
             test_cases[index] = one_info
         info = {
