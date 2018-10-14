@@ -45,6 +45,7 @@ class TestCaseZipProcessor(object):
         test_case_id = rand_str()
         test_case_dir = os.path.join(settings.TEST_CASE_DIR, test_case_id)
         os.mkdir(test_case_dir)
+        os.chmod(test_case_dir, 0o710)
 
         size_cache = {}
         md5_cache = {}
@@ -80,9 +81,8 @@ class TestCaseZipProcessor(object):
         with open(os.path.join(test_case_dir, "info"), "w", encoding="utf-8") as f:
             f.write(json.dumps(test_case_info, indent=4))
 
-        os.chmod(test_case_dir, 0o700)
         for item in os.listdir(test_case_dir):
-            os.chmod(os.path.join(test_case_dir, item), 0o600)
+            os.chmod(os.path.join(test_case_dir, item), 0o640)
 
         return info, test_case_id
 
