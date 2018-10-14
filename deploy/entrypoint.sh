@@ -63,5 +63,6 @@ addgroup -g 12003 spj
 adduser -u 12000 -S -G spj server
 
 chown -R server:spj $DATA $APP/dist
-chmod 710 $DATA/test_case
+find $DATA/test_case -type d -exec chmod 710 {} \;
+find $DATA/test_case -type f -exec chmod 640 {} \;
 exec supervisord -c /app/deploy/supervisord.conf
