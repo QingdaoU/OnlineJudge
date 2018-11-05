@@ -9,7 +9,7 @@ from problem.models import Problem
 from utils.api import APIView, validate_serializer
 from utils.constants import CacheKey
 from utils.shortcuts import datetime2str
-from account.models import AdminType
+from account.models import AdminType, User, UserProfile
 from account.decorators import login_required, check_contest_permission
 
 from utils.constants import ContestRuleType, ContestStatus
@@ -147,17 +147,21 @@ class ContestRankAPI(APIView):
             worksheet.write("A1", "User ID")
             worksheet.write("B1", "Username")
             worksheet.write("C1", "Real Name")
+            worksheet.write("D1", "School") 
             if self.contest.rule_type == ContestRuleType.OI:
-                worksheet.write("D1", "Total Score")
+                worksheet.write("E1", "Total Score")
                 for item in range(contest_problems.count()):
-                    worksheet.write(self.column_string(5 + item) + "1", f"{contest_problems[item].title}")
+                    worksheet.write(self.column_string(6 + item) + "1", f"{contest_problems[item].title}")
                 for index, item in enumerate(data):
                     worksheet.write_string(index + 1, 0, str(item["user"]["id"]))
                     worksheet.write_string(index + 1, 1, item["user"]["username"])
                     worksheet.write_string(index + 1, 2, item["user"]["real_name"] or "")
-                    worksheet.write_string(index + 1, 3, str(item["total_score"]))
+                    usera = User.objects.get(id=item["user"]["id"])                                       
+                    user = UserProfile.objects.get(user=usera) 
+                    worksheet.write_string(index + 1, 3, user.school or "")  
+                    worksheet.write_string(index + 1, 4, str(item["total_score"]))
                     for k, v in item["submission_info"].items():
-                        worksheet.write_string(index + 1, 4 + problem_ids.index(int(k)), str(v))
+                        worksheet.write_string(index + 1, 5 + problem_ids.index(int(k)), str(v))
             else:
                 worksheet.write("D1", "AC")
                 worksheet.write("E1", "Total Submission")

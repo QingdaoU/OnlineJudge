@@ -6,6 +6,7 @@ from django.db import transaction, IntegrityError
 from django.db.models import Q
 from django.http import HttpResponse
 from django.contrib.auth.hashers import make_password
+from django.contrib import auth
 
 from submission.models import Submission
 from utils.api import APIView, validate_serializer
@@ -13,7 +14,7 @@ from utils.shortcuts import rand_str
 
 from ..decorators import super_admin_required
 from ..models import AdminType, ProblemPermission, User, UserProfile
-from ..serializers import EditUserSerializer, UserAdminSerializer, GenerateUserSerializer
+from ..serializers import EditUserSerializer, UserAdminSerializer, GenerateUserSerializer, ChangeUserpasswordSerializer
 from ..serializers import ImportUserSeralizer
 
 
@@ -209,4 +210,24 @@ class GenerateUserAPI(APIView):
             # Extract detail from exception message
             #    duplicate key value violates unique constraint "user_username_key"
             #    DETAIL:  Key (username)=(root11) already exists.
+            return self.error(str(e).split("\n")[1])
+
+class ChangeUserpasswordAPI(APIView):
+    @validate_serializer(ChangeUserpasswordSerializer)
+    @super_admin_required
+    def post(self, request):
+        data = request.data
+        suffix = data["suffix"]
+        right_length = data["right_length"]
+        
+        try:
+            for user in User.objects.all():
+                if len(user.username) == 14:
+                    newpass = suffix
+                    if right_length > 0:
+                        newpass = user.username[-right_length:] + suffix
+                    user.set_password(newpass)
+                    user.save()
+            return self.success()
+        except IntegrityError as e:
             return self.error(str(e).split("\n")[1])

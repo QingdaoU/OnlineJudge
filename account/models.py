@@ -62,6 +62,11 @@ class User(AbstractBaseUser):
     def is_contest_admin(self, contest):
         return self.is_authenticated() and (contest.created_by == self or self.admin_type == AdminType.SUPER_ADMIN)
 
+    def __getattribute__(self, item):
+        if item == 'get_session_auth_hash':
+            raise AttributeError
+        return super().__getattribute__(item)
+
     class Meta:
         db_table = "user"
 
