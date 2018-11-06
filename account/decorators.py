@@ -92,6 +92,15 @@ def check_contest_permission(check_type="details"):
                 if self.contest.id not in request.session.get("accessible_contests", []):
                     return self.error("Password is required.")
 
+            # username limited
+            limit_search = re.search(r"limit:[\s]*#.*?#", self.contest.description)
+            if limit_search is not None:
+                limit_str = limit_search.group()
+                limit_str = limit_str[limit_str.index("#")+1:-1]
+                match_result = re.match(limit_str, user.username)
+                if match_result is None or (match_result is not None and match_result.group() is not user.username):
+                    return self.error(f"Username not match {limit_str}")
+
             # regular user get contest problems, ranks etc. before contest started
             if self.contest.status == ContestStatus.CONTEST_NOT_START and check_type != "details":
                 return self.error("Contest has not started yet.")
