@@ -89,7 +89,7 @@ class JudgeDispatcher(DispatcherBase):
         super().__init__()
         self.submission = Submission.objects.get(id=submission_id)
         self.contest_id = self.submission.contest_id
-        self.last_result = self.submission.result if self.submission.info else None
+        self.last_result = self.submission.result
 
         if self.contest_id:
             self.problem = Problem.objects.select_related("contest").get(id=problem_id, contest_id=self.contest_id)
@@ -185,7 +185,7 @@ class JudgeDispatcher(DispatcherBase):
             self.update_contest_problem_status()
             self.update_contest_rank()
         else:
-            if self.last_result:
+            if self.last_result != JudgeStatus.PENDING and self.last_result != JudgeStatus.JUDGING:
                 self.update_problem_status_rejudge()
             else:
                 self.update_problem_status()
@@ -199,7 +199,9 @@ class JudgeDispatcher(DispatcherBase):
         with transaction.atomic():
             # update problem status
             problem = Problem.objects.select_for_update().get(contest_id=self.contest_id, id=self.problem.id)
-            if self.last_result != JudgeStatus.ACCEPTED and self.submission.result == JudgeStatus.ACCEPTED:
+            if self.last_result == JudgeStatus.ACCEPTED:
+                problem.accepted_number -= 1
+            if self.submission.result == JudgeStatus.ACCEPTED:
                 problem.accepted_number += 1
             problem_info = problem.statistic_info
             problem_info[self.last_result] = problem_info.get(self.last_result, 1) - 1
