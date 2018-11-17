@@ -697,3 +697,10 @@ class FPSProblemImport(CSRFExemptAPIView):
                 problem_data["test_case_id"] = test_case_id
                 self._create_problem(problem_data, request.user)
         return self.success({"import_count": len(problems)})
+
+
+class ProblemRejudgeAPI(APIView):
+    @super_admin_required
+    def get(self, request):
+        # ... do something
+        return self.success()
