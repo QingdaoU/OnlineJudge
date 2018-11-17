@@ -29,6 +29,7 @@ from ..serializers import (CreateContestProblemSerializer, CompileSPJSerializer,
                            ExportProblemRequestSerialzier, UploadProblemForm, ImportProblemSerializer,
                            FPSProblemSerializer)
 from ..utils import TEMPLATE_BASE, build_problem_template
+from account.decorators import super_admin_required
 
 
 class TestCaseZipProcessor(object):
