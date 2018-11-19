@@ -5,6 +5,7 @@ from utils.api import JSONResponse, APIError
 from .models import ProblemPermission
 import re
 
+
 class BasePermissionDecorator(object):
     def __init__(self, func):
         self.func = func
