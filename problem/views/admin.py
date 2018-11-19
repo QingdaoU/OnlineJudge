@@ -16,6 +16,7 @@ from contest.models import Contest, ContestStatus
 from fps.parser import FPSHelper, FPSParser
 from judge.dispatcher import SPJCompiler
 from judge.languages import language_names
+from judge.tasks import judge_task
 from submission.models import Submission, JudgeStatus
 from utils.api import APIView, CSRFExemptAPIView, validate_serializer, APIError
 from utils.constants import Difficulty
@@ -703,5 +704,43 @@ class FPSProblemImport(CSRFExemptAPIView):
 class ProblemRejudgeAPI(APIView):
     @super_admin_required
     def get(self, request):
-        # ... do something
+        cid = request.GET.get("contest_id")
+        pid = request.GET.get("problem_id")
+        if not pid:
+            return self.error("Parameter error, id is required")
+        if cid:
+            try:
+                problem = Problem.objects.get(_id=pid, contest_id=cid)
+                pid = problem.id
+            except Problem.DoesNotExist:
+                return self.error("Problem doesn't exist")
+        else:
+            try:
+                problem = Problem.objects.get(_id=pid, contest_id__isnull=True)
+                pid = problem.id
+            except Problem.DoesNotExist:
+                return self.error("Problem doesn't exist")
+        if problem.visible:
+                return self.error("Problem should be invisiable")
+        try:
+            submissions = Submission.objects.filter(problem_id=pid)
+        except Submission.DoesNotExist:
+            return self.error("No submission for this problem")
+        for submission in submissions:
+            if submission.result == JudgeStatus.PENDING or submission.result == JudgeStatus.JUDGING:
+                return self.error("Judgeing or pending submissions left")
+        problem.statistic_info = {}
+        problem.accepted_number = 0
+        problem.submission_number = 0
+        problem.save()
+        if cid:
+            # clear the ranklist
+            pass
+        for submission in submissions:
+            submission.info = {}
+            submission.statistic_info = {}
+            submission.result = JudgeStatus.PENDING
+            submission.save()
+        for submission in submissions:
+            judge_task.delay(submission.id, pid)
         return self.success()
