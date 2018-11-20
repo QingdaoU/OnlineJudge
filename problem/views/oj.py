@@ -2,6 +2,7 @@ import random
 from django.db.models import Q, Count
 from utils.api import APIView
 from account.decorators import check_contest_permission
+from account.models import AdminType
 from ..models import ProblemTag, Problem, ProblemRuleType
 from ..serializers import ProblemSerializer, TagSerializer, ProblemSafeSerializer
 from contest.models import ContestRuleType
@@ -93,11 +94,18 @@ class ContestProblemAPI(APIView):
     @check_contest_permission(check_type="problems")
     def get(self, request):
         problem_id = request.GET.get("problem_id")
+        is_admin = False
+        if request.user.admin_type == AdminType.SUPER_ADMIN:
+            is_admin = True
         if problem_id:
             try:
-                problem = Problem.objects.select_related("created_by").get(_id=problem_id,
-                                                                           contest=self.contest,
-                                                                           visible=True)
+                if is_admin:
+                    problem = Problem.objects.select_related("created_by").get(_id=problem_id,
+                                                                               contest=self.contest)
+                else:
+                    problem = Problem.objects.select_related("created_by").get(_id=problem_id,
+                                                                               contest=self.contest,
+                                                                               visible=True)
             except Problem.DoesNotExist:
                 return self.error("Problem does not exist.")
             if self.contest.problem_details_permission(request.user):
@@ -107,7 +115,13 @@ class ContestProblemAPI(APIView):
                 problem_data = ProblemSafeSerializer(problem).data
             return self.success(problem_data)
 
-        contest_problems = Problem.objects.select_related("created_by").filter(contest=self.contest, visible=True)
+        if is_admin:
+            contest_problems = Problem.objects.select_related("created_by").filter(contest=self.contest)
+            for problem in contest_problems:
+                if not problem.visible:
+                    problem.title = problem.title + " ( HIDEN )"
+        else:
+            contest_problems = Problem.objects.select_related("created_by").filter(contest=self.contest, visible=True)
         if self.contest.problem_details_permission(request.user):
             data = ProblemSerializer(contest_problems, many=True).data
             self._add_problem_status(request, data)
