@@ -723,7 +723,7 @@ class ProblemRejudgeAPI(APIView):
         if problem.visible:
                 return self.error("Problem should be invisiable")
         try:
-            submissions = Submission.objects.filter(problem_id=pid).order_by("create_time")
+            submissions = Submission.objects.filter(problem_id=pid)
         except Submission.DoesNotExist:
             return self.error("No submission for this problem")
         for submission in submissions:
