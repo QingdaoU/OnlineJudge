@@ -12,7 +12,8 @@ from django.db.models import Q
 from django.http import StreamingHttpResponse, FileResponse
 
 from account.decorators import problem_permission_required, ensure_created_by
-from contest.models import Contest, ContestStatus
+from account.models import User
+from contest.models import Contest, ContestStatus, ContestRuleType, OIContestRank, ACMContestRank
 from fps.parser import FPSHelper, FPSParser
 from judge.dispatcher import SPJCompiler
 from judge.languages import language_names
