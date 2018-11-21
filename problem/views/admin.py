@@ -734,8 +734,28 @@ class ProblemRejudgeAPI(APIView):
         problem.submission_number = 0
         problem.save()
         if cid:
-            # clear the ranklist
-            pass
+            contest = Contest.objects.get(id=cid)
+            if contest.rule_type == ContestRuleType.ACM:
+                ranks = ACMContestRank.objects.filter(contest_id=cid)
+                for rank in ranks:
+                    if rank.submission_info:
+                        problem_info = rank.submission_info.get(str(pid))
+                        if problem_info:
+                            user = User.objects.get(id=rank.user_id)
+                            user.userprofile.acm_problems_status["contest_problems"].pop(str(pid))
+                            user.userprofile.save()
+                            rank.submission_number -= problem_info["error_number"]
+                            if problem_info["is_ac"]:
+                                rank.submission_number -= 1
+                                rank.accepted_number -= 1
+                                rank.total_time = rank.total_time - problem_info["error_number"] * 20 * 60
+                                rank.total_time = rank.total_time - problem_info["ac_time"]
+                            rank.submission_info.pop(str(pid))
+                            rank.save()
+            else:
+                ranks = OIContestRank.objects.filter(contest_id=cid)
+                # todo: clear the rank for single problem
+                pass
         for submission in submissions:
             submission.info = {}
             submission.statistic_info = {}
