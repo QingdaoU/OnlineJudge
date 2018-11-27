@@ -24,7 +24,7 @@ int main() {
         "max_cpu_time": 3000,
         "max_real_time": 10000,
         "max_memory": 256 * 1024 * 1024,
-        "compile_command": "/usr/bin/gcc -DONLINE_JUDGE -O2 -w -fmax-errors=3 -std=c11 {src_path} -lm -o {exe_path}",
+        "compile_command": "/usr/bin/gcc -DONLINE_JUDGE -O2 -Wall -Werror -Wno-unused-variable -Wno-deprecated-declarations -Wno-unused-result -Wno-maybe-uninitialized -Wno-implicit-function-declaration -fmax-errors=3 -std=c99 {src_path} -lm -o {exe_path}",
     },
     "run": {
         "command": "{exe_path}",
