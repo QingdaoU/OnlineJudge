@@ -1,15 +1,15 @@
 import ipaddress
 
 from account.decorators import login_required, check_contest_permission
+from contest.models import ContestStatus, ContestRuleType
 from judge.tasks import judge_task
+from options.options import SysOptions
 # from judge.dispatcher import JudgeDispatcher
 from problem.models import Problem, ProblemRuleType
-from contest.models import Contest, ContestStatus, ContestRuleType
-from options.options import SysOptions
 from utils.api import APIView, validate_serializer
-from utils.throttling import TokenBucket
-from utils.captcha import Captcha
 from utils.cache import cache
+from utils.captcha import Captcha
+from utils.throttling import TokenBucket
 from ..models import Submission
 from ..serializers import (CreateSubmissionSerializer, SubmissionModelSerializer,
                            ShareSubmissionSerializer)
@@ -34,26 +34,27 @@ class SubmissionAPI(APIView):
         # if not can_consume:
         #     return "Captcha is required"
 
+    @check_contest_permission(check_type="problems")
+    def check_contest_permission(self, request):
+        contest = self.contest
+        if contest.status == ContestStatus.CONTEST_ENDED:
+            return self.error("The contest have ended")
+        if not request.user.is_contest_admin(contest):
+            user_ip = ipaddress.ip_address(request.session.get("ip"))
+            if contest.allowed_ip_ranges:
+                if not any(user_ip in ipaddress.ip_network(cidr, strict=False) for cidr in contest.allowed_ip_ranges):
+                    return self.error("Your IP is not allowed in this contest")
+
     @validate_serializer(CreateSubmissionSerializer)
     @login_required
     def post(self, request):
         data = request.data
         hide_id = False
         if data.get("contest_id"):
-            try:
-                contest = Contest.objects.get(id=data["contest_id"], visible=True)
-            except Contest.DoesNotExist:
-                return self.error("Contest doesn't exist.")
-            if contest.status == ContestStatus.CONTEST_ENDED:
-                return self.error("The contest have ended")
-            if not request.user.is_contest_admin(contest):
-                if contest.status == ContestStatus.CONTEST_NOT_START:
-                    return self.error("Contest have not started")
-                user_ip = ipaddress.ip_address(request.session.get("ip"))
-                if contest.allowed_ip_ranges:
-                    if not any(user_ip in ipaddress.ip_network(cidr, strict=False) for cidr in contest.allowed_ip_ranges):
-                        return self.error("Your IP is not allowed in this contest")
-
+            error = self.check_contest_permission(request)
+            if error:
+                return error
+            contest = self.contest
             if not contest.problem_details_permission(request.user):
                 hide_id = True
 
