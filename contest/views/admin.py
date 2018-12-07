@@ -20,6 +20,7 @@ from ..serializers import (ContestAnnouncementSerializer, ContestAdminSerializer
                            EditConetestSeriaizer, EditContestAnnouncementSerializer,
                            ACMContesHelperSerializer, )
 from account.decorators import super_admin_required
+from contest.tasks import similiar_task
 
 
 class ContestAPI(APIView):
@@ -245,4 +246,6 @@ class DownloadContestSubmissions(APIView):
 class ContestCheckSimiliarAPI(APIView):
     @super_admin_required
     def get(self, request):
+        cid = request.GET.get("contest_id")
+        similiar_task.delay(cid)
         return self.success()
