@@ -19,6 +19,7 @@ from ..serializers import (ContestAnnouncementSerializer, ContestAdminSerializer
                            CreateConetestSeriaizer, CreateContestAnnouncementSerializer,
                            EditConetestSeriaizer, EditContestAnnouncementSerializer,
                            ACMContesHelperSerializer, )
+from account.decorators import super_admin_required
 
 
 class ContestAPI(APIView):
@@ -239,3 +240,9 @@ class DownloadContestSubmissions(APIView):
         resp["Content-Type"] = "application/zip"
         resp["Content-Disposition"] = f"attachment;filename={os.path.basename(zip_path)}"
         return resp
+
+
+class ContestCheckSimiliarAPI(APIView):
+    @super_admin_required
+    def get(self, request):
+        return self.success()

@@ -185,3 +185,8 @@ class ContestRankAPI(APIView):
         page_qs = self.paginate_data(request, qs)
         page_qs["results"] = serializer(page_qs["results"], many=True, is_contest_admin=is_contest_admin).data
         return self.success(page_qs)
+
+
+class ContestGetSimiliarAPI(APIView):
+    def get(self, request):
+        return self.success()
