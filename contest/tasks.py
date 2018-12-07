@@ -10,13 +10,13 @@ from submission.models import JudgeStatus
 
 
 @shared_task(time_limit=30)
-def similiar_task(contest_id):
+def similar_task(contest_id):
     problems = Problem.objects.filter(contest_id=contest_id)
     owner = {}
     data_to_write = []
 
     for problem in problems:
-        check_dir = os.path.join(settings.TEST_CASE_DIR, str(problem.id) + "_similiar_tmp")
+        check_dir = os.path.join(settings.TEST_CASE_DIR, str(problem.id) + "_similar_tmp")
         if not os.path.exists(check_dir):
             os.mkdir(check_dir)
             os.chmod(check_dir, 0o710)

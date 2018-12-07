@@ -187,6 +187,6 @@ class ContestRankAPI(APIView):
         return self.success(page_qs)
 
 
-class ContestGetSimiliarAPI(APIView):
+class ContestGetSimilarAPI(APIView):
     def get(self, request):
         return self.success()
