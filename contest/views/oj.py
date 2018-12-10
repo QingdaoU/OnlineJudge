@@ -17,6 +17,7 @@ from ..models import ContestAnnouncement, Contest, OIContestRank, ACMContestRank
 from ..serializers import ContestAnnouncementSerializer
 from ..serializers import ContestSerializer, ContestPasswordVerifySerializer
 from ..serializers import OIContestRankSerializer, ACMContestRankSerializer
+from ..serializers import ContestSimilarResultSerializer
 
 
 class ContestAnnouncementListAPI(APIView):
@@ -189,4 +190,6 @@ class ContestRankAPI(APIView):
 
 class ContestGetSimilarAPI(APIView):
     def get(self, request):
-        return self.success()
+        contest_id = request.GET.get("contest_id")
+        contest = Contest.objects.get(id=contest_id, visible=True)
+        return self.success(ContestSimilarResultSerializer(contest).data)
