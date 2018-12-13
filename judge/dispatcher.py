@@ -9,7 +9,7 @@ from django.db.models import F
 
 from account.models import User
 from conf.models import JudgeServer
-from contest.models import ContestRuleType, ACMContestRank, OIContestRank, ContestStatus
+from contest.models import ContestRuleType, ACMContestRank, OIContestRank
 from judge.languages import languages, spj_languages
 from options.options import SysOptions
 from problem.models import Problem, ProblemRuleType

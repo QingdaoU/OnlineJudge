@@ -63,7 +63,7 @@ class ContestAPITest(APITestCase):
     def setUp(self):
         user = self.create_admin()
         self.contest = Contest.objects.create(created_by=user, **DEFAULT_CONTEST_DATA)
-        self.contest.similarity_check_result = ["aaa", "bbb", "ccc"]
+        self.contest.similarity_check_result = [{"user1": "aaa", "user2": "bbb"}, {"user1": "ccc", "user2": "ddd"}]
         self.contest.save()
         self.url = self.reverse("contest_api") + "?id=" + str(self.contest.id)
 
@@ -103,7 +103,8 @@ class ContestAPITest(APITestCase):
         self.create_user("test", "test123")
         url = self.reverse("contest_get_similar_api")
         resp = self.client.get(url + "?contest_id=" + str(self.contest.id))
-        self.assertEqual(resp.data["data"]["similarity_check_result"], ["aaa", "bbb", "ccc"])
+        self.assertEqual(resp.data["data"]["similarity_check_result"][0], {"user1": "aaa", "user2": "bbb"})
+        self.assertEqual(resp.data["data"]["similarity_check_result"][1], {"user1": "ccc", "user2": "ddd"})
 
 
 class ContestAnnouncementAdminAPITest(APITestCase):

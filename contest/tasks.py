@@ -42,7 +42,15 @@ def similar_task(contest_id):
                 if owner[sub1] == owner[sub2]:
                     continue
                 sim = splited_line[3]
-                data_to_write.append("#".join([problem._id, sub1, owner[sub1], sub2, owner[sub2], sim]))
+                to_append = {
+                    "problem_id": problem._id,
+                    "submission_a": sub1,
+                    "user_a": owner[sub1],
+                    "submission_b": sub2,
+                    "user_b": owner[sub2],
+                    "similarity": sim
+                }
+                data_to_write.append(to_append)
         f.close()
 
         os.remove(output_dir)
