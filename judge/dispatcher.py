@@ -177,7 +177,7 @@ class JudgeDispatcher(DispatcherBase):
         self.release_judge_server(server.id)
 
         if self.contest_id:
-            if self.contest.status != ContestStatus.CONTEST_UNDERWAY or \
+            if self.submission.create_time > self.contest.end_time or \
                     User.objects.get(id=self.submission.user_id).is_contest_admin(self.contest):
                 logger.info(
                     "Contest debug mode, id: " + str(self.contest_id) + ", submission id: " + self.submission.id)
