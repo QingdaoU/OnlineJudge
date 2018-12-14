@@ -20,22 +20,21 @@
 
 ## 比赛代码查重
 
-比赛结束后在前台点击一键查重,然后进入查重页面即可看到结果(未完成).
+比赛结束后在前台点击一键查重,然后进入查重页面即可看到结果(相似度40%以上).该功能需要在比赛结束后点,同时被查到的代码会被公开(share).
 
-# Todo
+![相似度示例][4]
+
+# 功能列表与进度
 
 - [x] 完成contest的rejudge功能
 - [x] 添加contest用户名限制功能(正则检查)
-- [ ] 重写contest rank字段,更好的支持rejudge功能
-- [ ] contest代码相似查重 (后台已完成,前台Todo)
+- [ ] 重写contest rank字段逻辑,更好的支持rejudge功能
+- [ ] 将比赛用户名限制作为单独一个字段,并在前端添加对应位置.
+- [x] contest代码相似查重 
 
-
-
-## License
-
-[MIT](http://opensource.org/licenses/MIT)
 
 
   [1]: https://raw.githubusercontent.com/HandsomeHow/OnlineJudge/master/docs/rejudge_in_contest.png
   [2]: https://raw.githubusercontent.com/HandsomeHow/OnlineJudge/master/docs/limit_example.png
   [3]: https://raw.githubusercontent.com/HandsomeHow/OnlineJudge/master/docs/limit_result.png
+  [4]: https://raw.githubusercontent.com/HandsomeHow/OnlineJudge/master/docs/similar_check.png
