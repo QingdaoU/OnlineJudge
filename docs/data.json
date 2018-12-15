@@ -1,6 +1,17 @@
 {
   "update": [
     {
+      "version": "2018-12-15",
+      "level": "Recommend",
+      "title": "Update at 2018-12-15",
+      "details": [
+        "Fix bugs when root user is renamed",
+        "Use more secure ssl ciphers",
+        "Fix minor bugs in rejudge function and fps related api",
+        "Frontend and UI improvements"
+      ]
+    },
+    {
       "version": "2018-09-07",
       "level": "Recommend",
       "title": "Update at 2018-09-07",
