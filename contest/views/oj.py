@@ -101,20 +101,20 @@ class ContestAccessAPI(APIView):
 class ContestRankAPI(APIView):
     # filter root or *{username}
 
-    def realrank_filter(self, page_qs):
+    def realrank_filter(self, qs):
         rank_cnt = 1
-        for t in page_qs["results"]:
-            if t["user"]["username"][0] == '*':
-                t["rank"] = '*'
+        for t in qs:
+            if t.user.username == "*":
+                t.rank = "*"
             else:
-                t["rank"] = rank_cnt
+                t.rank = rank_cnt
                 rank_cnt = rank_cnt + 1
 
     def get_rank(self):
         if self.contest.rule_type == ContestRuleType.ACM:
             return ACMContestRank.objects.filter(contest=self.contest,
                                                  user__admin_type=AdminType.REGULAR_USER,
-                                                 user__is_disabled=False).\
+                                                 user__is_disabled=False). \
                 select_related("user").order_by("-accepted_number", "total_time")
         else:
             return OIContestRank.objects.filter(contest=self.contest,
@@ -194,10 +194,12 @@ class ContestRankAPI(APIView):
             response["Content-Type"] = "application/xlsx"
             return response
 
+        self.realrank_filter(qs)
         page_qs = self.paginate_data(request, qs)
         page_qs["results"] = serializer(page_qs["results"], many=True, is_contest_admin=is_contest_admin).data
         self.realrank_filter(page_qs)
         return self.success(page_qs)
+
 
 class ContestGetSimilarAPI(APIView):
     def get(self, request):
