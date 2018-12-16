@@ -14,6 +14,7 @@ class APITokenAuthMiddleware(MiddlewareMixin):
             try:
                 request.user = User.objects.get(open_api_appkey=appkey, open_api=True, is_disabled=False)
                 request.csrf_processing_done = True
+                request.auth_method = "api_key"
             except User.DoesNotExist:
                 pass
 
