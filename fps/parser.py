@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-import os
 import base64
 import copy
 import random

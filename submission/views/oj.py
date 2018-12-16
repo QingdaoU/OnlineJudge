@@ -18,6 +18,10 @@ from ..serializers import SubmissionSafeModelSerializer, SubmissionListSerialize
 
 class SubmissionAPI(APIView):
     def throttling(self, request):
+        # 使用 open_api 的请求暂不做限制
+        auth_method = getattr(request, "auth_method", "")
+        if auth_method == "api_key":
+            return
         user_bucket = TokenBucket(key=str(request.user.id),
                                   redis_conn=cache, **SysOptions.throttling["user"])
         can_consume, wait = user_bucket.consume()
