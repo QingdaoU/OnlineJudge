@@ -18,9 +18,16 @@ from submission.models import JudgeStatus, Submission
 from utils.cache import cache
 from utils.constants import CacheKey
 
+from googletrans import Translator
+
 logger = logging.getLogger(__name__)
 
+def GoogleTranslate(msg):
+    translator = Translator(service_urls=['translate.google.cn'])
+    translation = translator.translate(msg, src='en', dest='zh-cn')
+    return translation.text
 
+        
 # 继续处理在队列中的问题
 def process_pending_task():
     if cache.llen(CacheKey.waiting_queue):
@@ -159,6 +166,7 @@ class JudgeDispatcher(DispatcherBase):
         if resp["err"]:
             self.submission.result = JudgeStatus.COMPILE_ERROR
             self.submission.statistic_info["err_info"] = resp["data"]
+            self.submission.statistic_info["err_info_cn"] = GoogleTranslate(resp["data"])
             self.submission.statistic_info["score"] = 0
         else:
             resp["data"].sort(key=lambda x: int(x["test_case"]))
