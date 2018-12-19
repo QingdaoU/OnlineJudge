@@ -99,8 +99,6 @@ class ContestAccessAPI(APIView):
 
 
 class ContestRankAPI(APIView):
-    # filter root or *{username}
-
     def realrank_filter(self, qs):
         rank_cnt = 1
         for t in qs:
@@ -197,7 +195,6 @@ class ContestRankAPI(APIView):
         self.realrank_filter(qs)
         page_qs = self.paginate_data(request, qs)
         page_qs["results"] = serializer(page_qs["results"], many=True, is_contest_admin=is_contest_admin).data
-        self.realrank_filter(page_qs)
         return self.success(page_qs)
 
 
