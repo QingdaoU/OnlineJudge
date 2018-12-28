@@ -10,7 +10,6 @@ import hashlib
 
 
 def update_all_stripped_md5(apps, schema_editor):
-    os.system("whoami")
     Problem = apps.get_model("problem", "Problem")
     problems = Problem.objects.all()
     for problem in problems:
