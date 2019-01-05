@@ -2,15 +2,11 @@ language: python
 python:
     - "3.6"
 services:
-    - redis-server
     - docker
-before_install:
-    - docker pull postgres:10
-    - docker run -it -d -e POSTGRES_DB=onlinejudge -e POSTGRES_USER=onlinejudge -e POSTGRES_PASSWORD=onlinejudge -p 127.0.0.1:5433:5432 postgres:10
 install:
     - pip install -r deploy/requirements.txt
     - echo `cat /dev/urandom | head -1 | md5sum | head -c 32` > data/config/secret.key
-    - sleep 10 && python manage.py migrate
+    - ./init_db.sh
 script:
     - docker ps -a
     - flake8 .
