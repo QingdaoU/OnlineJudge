@@ -154,8 +154,9 @@ class ExportProblemSerializer(serializers.ModelSerializer):
         return self._html_format_value(obj.hint)
 
     def get_test_case_score(self, obj):
-        return [{"score": item["score"], "input_name": item["input_name"], "output_name": item["output_name"]}
-                for item in obj.test_case_score] if obj.rule_type == ProblemRuleType.OI else None
+        return [{"score": item["score"] if obj.rule_type == ProblemRuleType.OI else 100,
+                 "input_name": item["input_name"], "output_name": item["output_name"]}
+                for item in obj.test_case_score]
 
     def get_spj(self, obj):
         return {"code": obj.spj_code,
