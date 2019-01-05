@@ -37,6 +37,15 @@ else
     sed -i "s/__IP_HEADER__/\$remote_addr/g" api_proxy.conf;
 fi
 
+if [ -z "$MAX_WORKER_NUM" ]; then
+    export CPU_CORE_NUM=$(grep -c ^processor /proc/cpuinfo)
+    if [[ $CPU_CORE_NUM -lt 2 ]]; then
+        export MAX_WORKER_NUM=2
+    else
+        export MAX_WORKER_NUM=$(($CPU_CORE_NUM))
+    fi
+fi
+
 cd $APP/dist
 if [ ! -z "$STATIC_CDN_HOST" ]; then
     find . -name "*.*" -type f -exec sed -i "s/__STATIC_CDN_HOST__/\/$STATIC_CDN_HOST/g" {} \;
