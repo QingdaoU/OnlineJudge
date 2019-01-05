@@ -1,9 +1,9 @@
 from django import forms
 
 from options.options import SysOptions
-from judge.languages import language_names, spj_language_names
 from utils.api import UsernameSerializer, serializers
 from utils.constants import Difficulty
+from utils.serializers import LanguageNameMultiChoiceField, SPJLanguageNameChoiceField, LanguageNameChoiceField
 
 from .models import Problem, ProblemRuleType, ProblemTag
 from .utils import parse_problem_template
@@ -40,11 +40,11 @@ class CreateOrEditProblemSerializer(serializers.Serializer):
     test_case_score = serializers.ListField(child=CreateTestCaseScoreSerializer(), allow_empty=True)
     time_limit = serializers.IntegerField(min_value=1, max_value=1000 * 60)
     memory_limit = serializers.IntegerField(min_value=1, max_value=1024)
-    languages = serializers.MultipleChoiceField(choices=language_names)
+    languages = LanguageNameMultiChoiceField()
     template = serializers.DictField(child=serializers.CharField(min_length=1))
     rule_type = serializers.ChoiceField(choices=[ProblemRuleType.ACM, ProblemRuleType.OI])
     spj = serializers.BooleanField()
-    spj_language = serializers.ChoiceField(choices=spj_language_names, allow_blank=True, allow_null=True)
+    spj_language = SPJLanguageNameChoiceField(allow_blank=True, allow_null=True)
     spj_code = serializers.CharField(allow_blank=True, allow_null=True)
     spj_compile_ok = serializers.BooleanField(default=False)
     visible = serializers.BooleanField()
@@ -78,7 +78,7 @@ class TagSerializer(serializers.ModelSerializer):
 
 
 class CompileSPJSerializer(serializers.Serializer):
-    spj_language = serializers.ChoiceField(choices=spj_language_names)
+    spj_language = SPJLanguageNameChoiceField()
     spj_code = serializers.CharField()
 
 
@@ -212,12 +212,12 @@ class TemplateSerializer(serializers.Serializer):
 
 class SPJSerializer(serializers.Serializer):
     code = serializers.CharField()
-    language = serializers.ChoiceField(choices=spj_language_names)
+    language = SPJLanguageNameChoiceField()
 
 
 class AnswerSerializer(serializers.Serializer):
     code = serializers.CharField()
-    language = serializers.ChoiceField(choices=language_names)
+    language = LanguageNameChoiceField()
 
 
 class ImportProblemSerializer(serializers.Serializer):
