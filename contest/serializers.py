@@ -106,3 +106,9 @@ class ACMContesHelperSerializer(serializers.Serializer):
     problem_id = serializers.CharField()
     rank_id = serializers.IntegerField()
     checked = serializers.BooleanField()
+
+
+class ContestSimilarResultSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Contest
+        fields = ["similarity_check_result"]

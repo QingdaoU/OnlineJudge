@@ -24,6 +24,7 @@ class Contest(models.Model):
     # 是否可见 false的话相当于删除
     visible = models.BooleanField(default=True)
     allowed_ip_ranges = JSONField(default=list)
+    similarity_check_result = JSONField(default=list)
 
     @property
     def status(self):
