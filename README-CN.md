@@ -5,7 +5,7 @@
 [![Django Rest Framework](https://img.shields.io/badge/django_rest_framework-3.4.0-blue.svg?style=flat-square)](http://www.django-rest-framework.org/)
 [![Build Status](https://travis-ci.org/QingdaoU/OnlineJudge.svg?branch=master)](https://travis-ci.org/QingdaoU/OnlineJudge)
 
-> #### 基于 Python 和 Vue 的在线评测系统。 [Demo](http://v2.qduoj.com)
+> #### 基于 Python 和 Vue 的在线评测系统。 [Demo](https://qduoj.com)
 
 [English Document](README.md)
 
