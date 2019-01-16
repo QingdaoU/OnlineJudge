@@ -17,7 +17,6 @@ from account.decorators import super_admin_required
 from account.models import User
 from contest.models import Contest
 from judge.dispatcher import process_pending_task
-from judge.languages import languages, spj_languages
 from options.options import SysOptions
 from problem.models import Problem
 from submission.models import Submission
@@ -166,7 +165,7 @@ class JudgeServerHeartbeatAPI(CSRFExemptAPIView):
 
 class LanguagesAPI(APIView):
     def get(self, request):
-        return self.success({"languages": languages, "spj_languages": spj_languages})
+        return self.success({"languages": SysOptions.languages, "spj_languages": SysOptions.spj_languages})
 
 
 class TestCasePruneAPI(APIView):

@@ -4,6 +4,7 @@ from django.db import transaction, IntegrityError
 
 from utils.constants import CacheKey
 from utils.shortcuts import rand_str
+from judge.languages import languages
 from .models import SysOptions as SysOptionsModel
 
 
@@ -22,6 +23,7 @@ class OptionKeys:
     smtp_config = "smtp_config"
     judge_server_token = "judge_server_token"
     throttling = "throttling"
+    languages = "languages"
 
 
 class OptionDefaultValue:
@@ -35,6 +37,7 @@ class OptionDefaultValue:
     judge_server_token = default_token
     throttling = {"ip": {"capacity": 100, "fill_rate": 0.1, "default_capacity": 50},
                   "user": {"capacity": 20, "fill_rate": 0.03, "default_capacity": 10}}
+    languages = languages
 
 
 class _SysOptionsMeta(type):
@@ -190,6 +193,29 @@ class _SysOptionsMeta(type):
     @throttling.setter
     def throttling(cls, value):
         cls._set_option(OptionKeys.throttling, value)
+
+    @property
+    def languages(cls):
+        return cls._get_option(OptionKeys.languages)
+
+    @languages.setter
+    def languages(cls, value):
+        cls._set_option(OptionKeys.languages, value)
+
+    @property
+    def spj_languages(cls):
+        return [item for item in cls.languages if "spj" in item]
+
+    @property
+    def language_names(cls):
+        return [item["name"] for item in languages]
+
+    @property
+    def spj_language_names(cls):
+        return [item["name"] for item in cls.languages if "spj" in item]
+
+    def reset_languages(cls):
+        cls.languages = languages
 
 
 class SysOptions(metaclass=_SysOptionsMeta):

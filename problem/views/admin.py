@@ -15,7 +15,7 @@ from account.decorators import problem_permission_required, ensure_created_by
 from contest.models import Contest, ContestStatus
 from fps.parser import FPSHelper, FPSParser
 from judge.dispatcher import SPJCompiler
-from judge.languages import language_names
+from options.options import SysOptions
 from submission.models import Submission, JudgeStatus
 from utils.api import APIView, CSRFExemptAPIView, validate_serializer, APIError
 from utils.constants import Difficulty
@@ -578,7 +578,7 @@ class ImportProblemAPI(CSRFExemptAPIView, TestCaseZipProcessor):
                         else:
                             problem_info = serializer.data
                             for item in problem_info["template"].keys():
-                                if item not in language_names:
+                                if item not in SysOptions.language_names:
                                     return self.error(f"Unsupported language {item}")
 
                         problem_info["display_id"] = problem_info["display_id"][:24]
@@ -613,7 +613,7 @@ class ImportProblemAPI(CSRFExemptAPIView, TestCaseZipProcessor):
                                                              spj_language=problem_info["spj"][
                                                                  "language"] if spj else None,
                                                              spj_version=rand_str(8) if spj else "",
-                                                             languages=language_names,
+                                                             languages=SysOptions.language_names,
                                                              created_by=request.user,
                                                              visible=False,
                                                              difficulty=Difficulty.MID,
@@ -666,7 +666,7 @@ class FPSProblemImport(CSRFExemptAPIView):
                                spj_language=problem_data["spj"]["language"] if spj else None,
                                spj_version=rand_str(8) if spj else "",
                                visible=False,
-                               languages=language_names,
+                               languages=SysOptions.language_names,
                                created_by=creator,
                                difficulty=Difficulty.MID,
                                test_case_id=problem_data["test_case_id"])
