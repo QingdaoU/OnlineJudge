@@ -1,11 +1,11 @@
 from .models import Submission
 from utils.api import serializers
-from judge.languages import language_names
+from utils.serializers import LanguageNameChoiceField
 
 
 class CreateSubmissionSerializer(serializers.Serializer):
     problem_id = serializers.IntegerField()
-    language = serializers.ChoiceField(choices=language_names)
+    language = LanguageNameChoiceField()
     code = serializers.CharField(max_length=1024 * 1024)
     contest_id = serializers.IntegerField(required=False)
     captcha = serializers.CharField(required=False)

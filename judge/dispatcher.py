@@ -10,7 +10,6 @@ from django.db.models import F
 from account.models import User
 from conf.models import JudgeServer
 from contest.models import ContestRuleType, ACMContestRank, OIContestRank, ContestStatus
-from judge.languages import languages, spj_languages
 from options.options import SysOptions
 from problem.models import Problem, ProblemRuleType
 from problem.utils import parse_problem_template
@@ -66,7 +65,7 @@ class DispatcherBase(object):
 class SPJCompiler(DispatcherBase):
     def __init__(self, spj_code, spj_version, spj_language):
         super().__init__()
-        spj_compile_config = list(filter(lambda config: spj_language == config["name"], spj_languages))[0]["spj"][
+        spj_compile_config = list(filter(lambda config: spj_language == config["name"], SysOptions.spj_languages))[0]["spj"][
             "compile"]
         self.data = {
             "src": spj_code,
@@ -126,10 +125,10 @@ class JudgeDispatcher(DispatcherBase):
             return
 
         language = self.submission.language
-        sub_config = list(filter(lambda item: language == item["name"], languages))[0]
+        sub_config = list(filter(lambda item: language == item["name"], SysOptions.languages))[0]
         spj_config = {}
         if self.problem.spj_code:
-            for lang in spj_languages:
+            for lang in SysOptions.spj_languages:
                 if lang["name"] == self.problem.spj_language:
                     spj_config = lang["spj"]
                     break

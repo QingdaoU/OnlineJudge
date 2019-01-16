@@ -76,3 +76,4 @@ data/config/*
 http_locations.conf
 https_locations.conf
 
+venv/

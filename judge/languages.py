@@ -179,9 +179,3 @@ languages = [
     {"config": _py2_lang_config, "name": "Python2", "description": "Python 2.7", "content_type": "text/x-python"},
     {"config": _py3_lang_config, "name": "Python3", "description": "Python 3.5", "content_type": "text/x-python"},
 ]
-
-spj_languages = list(filter(lambda item: "spj" in item, languages))
-
-
-language_names = [item["name"] for item in languages]
-spj_language_names = [item["name"] for item in spj_languages]
