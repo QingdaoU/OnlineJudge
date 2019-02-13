@@ -18,7 +18,7 @@ from ..models import Contest, ContestAnnouncement, ACMContestRank
 from ..serializers import (ContestAnnouncementSerializer, ContestAdminSerializer,
                            CreateConetestSeriaizer, CreateContestAnnouncementSerializer,
                            EditConetestSeriaizer, EditContestAnnouncementSerializer,
-                           ACMContesHelperSerializer, )
+                           ACMContestHelperSerializer, )
 
 
 class ContestAPI(APIView):
@@ -180,7 +180,7 @@ class ACMContestHelper(APIView):
         return self.success(results)
 
     @check_contest_permission(check_type="ranks")
-    @validate_serializer(ACMContesHelperSerializer)
+    @validate_serializer(ACMContestHelperSerializer)
     def put(self, request):
         data = request.data
         try:
