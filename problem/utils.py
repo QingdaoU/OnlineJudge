@@ -1,4 +1,6 @@
 import re
+from functools import lru_cache
+
 
 TEMPLATE_BASE = """//PREPEND BEGIN
 {}
@@ -13,6 +15,7 @@ TEMPLATE_BASE = """//PREPEND BEGIN
 //APPEND END"""
 
 
+@lru_cache(maxsize=100)
 def parse_problem_template(template_str):
     prepend = re.findall(r"//PREPEND BEGIN\n([\s\S]+?)//PREPEND END", template_str)
     template = re.findall(r"//TEMPLATE BEGIN\n([\s\S]+?)//TEMPLATE END", template_str)
@@ -22,5 +25,6 @@ def parse_problem_template(template_str):
             "append": append[0] if append else ""}
 
 
+@lru_cache(maxsize=100)
 def build_problem_template(prepend, template, append):
     return TEMPLATE_BASE.format(prepend, template, append)
