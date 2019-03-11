@@ -22,8 +22,8 @@ class JudgeStatus:
 
 class Submission(models.Model):
     id = models.TextField(default=rand_str, primary_key=True, db_index=True)
-    contest = models.ForeignKey(Contest, null=True)
-    problem = models.ForeignKey(Problem)
+    contest = models.ForeignKey(Contest, null=True, on_delete=models.CASCADE)
+    problem = models.ForeignKey(Problem, on_delete=models.CASCADE)
     create_time = models.DateTimeField(auto_now_add=True)
     user_id = models.IntegerField(db_index=True)
     username = models.TextField()

@@ -101,13 +101,13 @@ class UserLoginAPITest(APITestCase):
         self.assertDictEqual(response.data, {"error": None, "data": "Succeeded"})
 
         user = auth.get_user(self.client)
-        self.assertTrue(user.is_authenticated())
+        self.assertTrue(user.is_authenticated)
 
     def test_login_with_correct_info_upper_username(self):
         resp = self.client.post(self.login_url, data={"username": self.username.upper(), "password": self.password})
         self.assertDictEqual(resp.data, {"error": None, "data": "Succeeded"})
         user = auth.get_user(self.client)
-        self.assertTrue(user.is_authenticated())
+        self.assertTrue(user.is_authenticated)
 
     def test_login_with_wrong_info(self):
         response = self.client.post(self.login_url,
@@ -115,7 +115,7 @@ class UserLoginAPITest(APITestCase):
         self.assertDictEqual(response.data, {"error": "error", "data": "Invalid username or password"})
 
         user = auth.get_user(self.client)
-        self.assertFalse(user.is_authenticated())
+        self.assertFalse(user.is_authenticated)
 
     def test_tfa_login(self):
         token = self._set_tfa()
@@ -129,7 +129,7 @@ class UserLoginAPITest(APITestCase):
         self.assertDictEqual(response.data, {"error": None, "data": "Succeeded"})
 
         user = auth.get_user(self.client)
-        self.assertTrue(user.is_authenticated())
+        self.assertTrue(user.is_authenticated)
 
     def test_tfa_login_wrong_code(self):
         self._set_tfa()
@@ -140,7 +140,7 @@ class UserLoginAPITest(APITestCase):
         self.assertDictEqual(response.data, {"error": "error", "data": "Invalid two factor verification code"})
 
         user = auth.get_user(self.client)
-        self.assertFalse(user.is_authenticated())
+        self.assertFalse(user.is_authenticated)
 
     def test_tfa_login_without_code(self):
         self._set_tfa()
@@ -150,7 +150,7 @@ class UserLoginAPITest(APITestCase):
         self.assertDictEqual(response.data, {"error": "error", "data": "tfa_required"})
 
         user = auth.get_user(self.client)
-        self.assertFalse(user.is_authenticated())
+        self.assertFalse(user.is_authenticated)
 
     def test_user_disabled(self):
         self.user.is_disabled = True

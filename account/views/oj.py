@@ -35,7 +35,7 @@ class UserProfileAPI(APIView):
         判断是否登录， 若登录返回用户信息
         """
         user = request.user
-        if not user.is_authenticated():
+        if not user.is_authenticated:
             return self.success()
         show_real_name = False
         username = request.GET.get("username")
@@ -280,7 +280,7 @@ class UserChangePasswordAPI(APIView):
 class ApplyResetPasswordAPI(APIView):
     @validate_serializer(ApplyResetPasswordSerializer)
     def post(self, request):
-        if request.user.is_authenticated():
+        if request.user.is_authenticated:
             return self.error("You have already logged in, are you kidding me? ")
         data = request.data
         captcha = Captcha(request)

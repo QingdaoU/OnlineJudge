@@ -25,7 +25,7 @@ class PickOneAPI(APIView):
 class ProblemAPI(APIView):
     @staticmethod
     def _add_problem_status(request, queryset_values):
-        if request.user.is_authenticated():
+        if request.user.is_authenticated:
             profile = request.user.userprofile
             acm_problems_status = profile.acm_problems_status.get("problems", {})
             oi_problems_status = profile.oi_problems_status.get("problems", {})
@@ -81,7 +81,7 @@ class ProblemAPI(APIView):
 
 class ContestProblemAPI(APIView):
     def _add_problem_status(self, request, queryset_values):
-        if request.user.is_authenticated():
+        if request.user.is_authenticated:
             profile = request.user.userprofile
             if self.contest.rule_type == ContestRuleType.ACM:
                 problems_status = profile.acm_problems_status.get("contest_problems", {})

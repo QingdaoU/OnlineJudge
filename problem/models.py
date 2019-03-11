@@ -28,7 +28,7 @@ class ProblemDifficulty(object):
 class Problem(models.Model):
     # display ID
     _id = models.TextField(db_index=True)
-    contest = models.ForeignKey(Contest, null=True)
+    contest = models.ForeignKey(Contest, null=True, on_delete=models.CASCADE)
     # for contest problem
     is_public = models.BooleanField(default=False)
     title = models.TextField()
@@ -47,7 +47,7 @@ class Problem(models.Model):
     create_time = models.DateTimeField(auto_now_add=True)
     # we can not use auto_now here
     last_update_time = models.DateTimeField(null=True)
-    created_by = models.ForeignKey(User)
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE)
     # ms
     time_limit = models.IntegerField()
     # MB

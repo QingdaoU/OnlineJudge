@@ -60,7 +60,7 @@ class User(AbstractBaseUser):
         return self.problem_permission == ProblemPermission.ALL
 
     def is_contest_admin(self, contest):
-        return self.is_authenticated() and (contest.created_by == self or self.admin_type == AdminType.SUPER_ADMIN)
+        return self.is_authenticated and (contest.created_by == self or self.admin_type == AdminType.SUPER_ADMIN)
 
     class Meta:
         db_table = "user"
