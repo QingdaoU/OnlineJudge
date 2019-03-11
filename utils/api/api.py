@@ -1,7 +1,6 @@
 import functools
 import json
 import logging
-from collections import OrderedDict
 
 from django.http import HttpResponse, QueryDict
 from django.utils.decorators import method_decorator
@@ -97,6 +96,8 @@ class APIView(View):
             return self.extract_errors(errors.pop(key), key)
         elif isinstance(errors, list):
             return self.extract_errors(errors[0], key)
+
+        return key, errors
 
     def invalid_serializer(self, serializer):
         key, error = self.extract_errors(serializer.errors)

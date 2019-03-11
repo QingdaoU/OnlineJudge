@@ -1,12 +1,12 @@
-from __future__ import absolute_import, unicode_literals
-from celery import shared_task
+import dramatiq
 
 from account.models import User
 from submission.models import Submission
 from judge.dispatcher import JudgeDispatcher
+from utils.shortcuts import DRAMATIQ_WORKER_ARGS
 
 
-@shared_task
+@dramatiq.actor(**DRAMATIQ_WORKER_ARGS())
 def judge_task(submission_id, problem_id):
     uid = Submission.objects.get(id=submission_id).user_id
     if User.objects.get(id=uid).is_disabled:

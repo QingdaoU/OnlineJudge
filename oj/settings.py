@@ -33,7 +33,8 @@ VENDOR_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
-    'raven.contrib.django.raven_compat'
+    'raven.contrib.django.raven_compat',
+    'django_dramatiq',
 )
 LOCAL_APPS = (
     'account',
@@ -164,6 +165,11 @@ LOGGING = {
            'level': 'ERROR',
            'propagate': True,
        },
+        'dramatiq': {
+            'handlers': LOGGING_HANDLERS,
+            'level': 'DEBUG',
+            'propagate': False,
+        },
        '': {
            'handlers': LOGGING_HANDLERS,
            'level': 'WARNING',
@@ -202,11 +208,32 @@ CACHES = {
 SESSION_ENGINE = "django.contrib.sessions.backends.cache"
 SESSION_CACHE_ALIAS = "default"
 
-CELERY_RESULT_BACKEND = f"{REDIS_URL}/2"
-BROKER_URL = f"{REDIS_URL}/3"
-CELERY_TASK_SOFT_TIME_LIMIT = CELERY_TASK_TIME_LIMIT = 180
-CELERY_ACCEPT_CONTENT = ["json"]
-CELERY_TASK_SERIALIZER = "json"
+DRAMATIQ_BROKER = {
+    "BROKER": "dramatiq.brokers.redis.RedisBroker",
+    "OPTIONS": {
+        "url": f"{REDIS_URL}/4",
+    },
+    "MIDDLEWARE": [
+        # "dramatiq.middleware.Prometheus",
+        "dramatiq.middleware.AgeLimit",
+        "dramatiq.middleware.TimeLimit",
+        "dramatiq.middleware.Callbacks",
+        "dramatiq.middleware.Retries",
+        # "django_dramatiq.middleware.AdminMiddleware",
+        "django_dramatiq.middleware.DbConnectionsMiddleware"
+    ]
+}
+
+DRAMATIQ_RESULT_BACKEND = {
+    "BACKEND": "dramatiq.results.backends.redis.RedisBackend",
+    "BACKEND_OPTIONS": {
+        "url": f"{REDIS_URL}/4",
+    },
+    "MIDDLEWARE_OPTIONS": {
+        "result_ttl": None
+    }
+}
+
 RAVEN_CONFIG = {
     'dsn': 'https://b200023b8aed4d708fb593c5e0a6ad3d:1fddaba168f84fcf97e0d549faaeaff0@sentry.io/263057'
 }

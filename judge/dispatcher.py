@@ -26,7 +26,7 @@ def process_pending_task():
         # 防止循环引入
         from judge.tasks import judge_task
         data = json.loads(cache.rpop(CacheKey.waiting_queue).decode("utf-8"))
-        judge_task.delay(**data)
+        judge_task.send(**data)
 
 
 class DispatcherBase(object):
