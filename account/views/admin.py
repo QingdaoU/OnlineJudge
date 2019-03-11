@@ -121,25 +121,15 @@ class UserAdminAPI(APIView):
                                Q(email__icontains=keyword))
         return self.success(self.paginate_data(request, user, UserAdminSerializer))
 
-    def delete_one(self, user_id):
-        try:
-            user = User.objects.get(id=user_id)
-        except User.DoesNotExist:
-            return f"User {user_id} does not exist"
-        if Submission.objects.filter(user_id=user_id).exists():
-            return f"Can't delete the user {user_id} as he/she has submissions"
-        user.delete()
-
     @super_admin_required
     def delete(self, request):
         id = request.GET.get("id")
         if not id:
             return self.error("Invalid Parameter, id is required")
-        for user_id in id.split(","):
-            if user_id:
-                error = self.delete_one(user_id)
-                if error:
-                    return self.error(error)
+        ids = id.split(",")
+        if str(request.user.id) in ids:
+            return self.error("Current user can not be deleted")
+        User.objects.filter(id__in=ids).delete()
         return self.success()
 
 
