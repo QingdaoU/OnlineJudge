@@ -131,6 +131,10 @@ class ImageUploadForm(forms.Form):
     image = forms.FileField()
 
 
+class FileUploadForm(forms.Form):
+    file = forms.FileField()
+
+
 class RankInfoSerializer(serializers.ModelSerializer):
     user = UsernameSerializer()
 
