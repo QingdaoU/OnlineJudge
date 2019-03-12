@@ -25,6 +25,15 @@ class ProblemDifficulty(object):
     Low = "Low"
 
 
+class ProblemIOMode(Choices):
+    standard = "Standard IO"
+    file = "File IO"
+
+
+def _default_io_mode():
+    return {"io_mode": ProblemIOMode.standard, "input": "input.txt", "output": "output.txt"}
+
+
 class Problem(models.Model):
     # display ID
     _id = models.TextField(db_index=True)
@@ -52,6 +61,8 @@ class Problem(models.Model):
     time_limit = models.IntegerField()
     # MB
     memory_limit = models.IntegerField()
+    # io mode
+    io_mode = JSONField(default=_default_io_mode)
     # special judge related
     spj = models.BooleanField(default=False)
     spj_language = models.TextField(null=True)
