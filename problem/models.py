@@ -80,6 +80,7 @@ class Problem(models.Model):
     accepted_number = models.BigIntegerField(default=0)
     # {JudgeStatus.ACCEPTED: 3, JudgeStaus.WRONG_ANSWER: 11}, the number means count
     statistic_info = JSONField(default=dict)
+    share_submission = models.BooleanField(default=False)
 
     class Meta:
         db_table = "problem"

@@ -68,6 +68,7 @@ class CreateOrEditProblemSerializer(serializers.Serializer):
     tags = serializers.ListField(child=serializers.CharField(max_length=32), allow_empty=False)
     hint = serializers.CharField(allow_blank=True, allow_null=True)
     source = serializers.CharField(max_length=256, allow_blank=True, allow_null=True)
+    share_submission = serializers.BooleanField()
 
 
 class CreateProblemSerializer(CreateOrEditProblemSerializer):

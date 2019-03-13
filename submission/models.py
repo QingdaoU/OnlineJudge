@@ -41,6 +41,7 @@ class Submission(models.Model):
     def check_user_permission(self, user, check_share=True):
         return self.user_id == user.id or \
                (check_share and self.shared is True) or \
+               (check_share and self.problem.share_submission) or \
                user.is_super_admin() or \
                user.can_mgmt_all_problem() or \
                self.problem.created_by_id == user.id
