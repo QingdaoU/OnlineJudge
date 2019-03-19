@@ -122,7 +122,7 @@ class UserAdminAPI(APIView):
 
         only_admin = request.GET.get("onlyadmin", None)
         if only_admin:
-            user = user.filter(Q(admin_type__icontains='Admin'))
+            user = user.filter(Q(admin_type__icontains="Admin"))
 
         return self.success(self.paginate_data(request, user, UserAdminSerializer))
 
