@@ -119,7 +119,7 @@ class UserAdminAPI(APIView):
             user = user.filter(Q(username__icontains=keyword) |
                                Q(userprofile__real_name__icontains=keyword) |
                                Q(email__icontains=keyword))
-        
+
         only_admin = request.GET.get("onlyadmin", None)
         if only_admin:
             user = user.filter(Q(admin_type__icontains='Admin'))
