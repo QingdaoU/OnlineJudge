@@ -38,7 +38,8 @@ class TestCaseZipProcessor(object):
         except zipfile.BadZipFile:
             raise APIError("Bad zip file")
         name_list = zip_file.namelist()
-        test_case_list = self.filter_name_list(name_list, spj=spj, dir=dir)
+        # # 在 spj 情况下，可以不传 out 文件，但是一旦传了，也是可以接受的，就按照非 spj 去过滤一遍，test_case_spj 代表这种情况
+        test_case_spj, test_case_list = self.filter_name_list(name_list, spj=spj, dir=dir)
         if not test_case_list:
             raise APIError("Empty file")
 
@@ -61,7 +62,7 @@ class TestCaseZipProcessor(object):
 
         info = []
 
-        if spj:
+        if test_case_spj:
             for index, item in enumerate(test_case_list):
                 data = {"input_name": item, "input_size": size_cache[item]}
                 info.append(data)
@@ -89,6 +90,9 @@ class TestCaseZipProcessor(object):
     def filter_name_list(self, name_list, spj, dir=""):
         ret = []
         prefix = 1
+        # 在 spj 情况下，可以不传 out 文件，但是一旦传了，也是可以接受的，就按照非 spj 去过滤一遍
+        if f"{dir}1.out" in name_list:
+            spj = False
         if spj:
             while True:
                 in_name = f"{prefix}.in"
@@ -97,7 +101,7 @@ class TestCaseZipProcessor(object):
                     prefix += 1
                     continue
                 else:
-                    return sorted(ret, key=natural_sort_key)
+                    return spj, sorted(ret, key=natural_sort_key)
         else:
             while True:
                 in_name = f"{prefix}.in"
@@ -108,7 +112,7 @@ class TestCaseZipProcessor(object):
                     prefix += 1
                     continue
                 else:
-                    return sorted(ret, key=natural_sort_key)
+                    return spj, sorted(ret, key=natural_sort_key)
 
 
 class TestCaseAPI(CSRFExemptAPIView, TestCaseZipProcessor):
@@ -131,7 +135,7 @@ class TestCaseAPI(CSRFExemptAPIView, TestCaseZipProcessor):
         test_case_dir = os.path.join(settings.TEST_CASE_DIR, problem.test_case_id)
         if not os.path.isdir(test_case_dir):
             return self.error("Test case does not exists")
-        name_list = self.filter_name_list(os.listdir(test_case_dir), problem.spj)
+        _, name_list = self.filter_name_list(os.listdir(test_case_dir), problem.spj)
         name_list.append("info")
         file_name = os.path.join(test_case_dir, problem.test_case_id + ".zip")
         with zipfile.ZipFile(file_name, "w") as file:

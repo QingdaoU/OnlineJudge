@@ -111,11 +111,13 @@ class JudgeDispatcher(DispatcherBase):
             score = 0
             try:
                 for i in range(len(resp_data)):
-                    if resp_data[i]["result"] == JudgeStatus.ACCEPTED:
+                    if self.problem.spj:
+                        resp_data[i]["score"] = resp_data[i]["score"]
+                    elif not self.problem.spj and resp_data[i]["result"] == JudgeStatus.ACCEPTED:
                         resp_data[i]["score"] = self.problem.test_case_score[i]["score"]
-                        score += resp_data[i]["score"]
                     else:
                         resp_data[i]["score"] = 0
+                    score += resp_data[i]["score"]
             except IndexError:
                 logger.error(f"Index Error raised when summing up the score in problem {self.problem.id}")
                 self.submission.statistic_info["score"] = 0
@@ -149,7 +151,8 @@ class JudgeDispatcher(DispatcherBase):
             "spj_config": spj_config.get("config"),
             "spj_compile_config": spj_config.get("compile"),
             "spj_src": self.problem.spj_code,
-            "io_mode": self.problem.io_mode
+            "io_mode": self.problem.io_mode,
+            "test_case_score": self.problem.test_case_score
         }
 
         with ChooseJudgeServer() as server:
