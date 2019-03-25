@@ -203,7 +203,7 @@ class DownloadContestSubmissions(APIView):
         submissions = Submission.objects.filter(contest=contest, result=JudgeStatus.ACCEPTED).order_by("-create_time")
         user_ids = submissions.values_list("user_id", flat=True)
         users = User.objects.filter(id__in=user_ids)
-        path = f"/tmp/{rand_str()}.zip"
+        path = f"/tmp/{contest.title}-{rand_str()}.zip"
         with zipfile.ZipFile(path, "w") as zip_file:
             for user in users:
                 if user.is_admin_role() and exclude_admin:
@@ -214,7 +214,17 @@ class DownloadContestSubmissions(APIView):
                     problem_id = submission.problem_id
                     if user_ac_map[problem_id]:
                         continue
-                    file_name = f"{user.username}_{id2display_id[submission.problem_id]}.txt"
+                    suffix = "cpp"
+                    if submission.language == "Java":
+                        suffix = "java"
+                    elif submission.language == "C":
+                        suffix = "c"
+                    elif submission.language == "Python2":
+                        suffix = "py"
+                    elif submission.language == "Python3":
+                        suffix = "py"
+
+                    file_name = f"{user.username}/{user.username}_{id2display_id[submission.problem_id]}." + suffix
                     compression = zipfile.ZIP_DEFLATED
                     zip_file.writestr(zinfo_or_arcname=f"{file_name}",
                                       data=submission.code,
