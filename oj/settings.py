@@ -26,17 +26,21 @@ with open(os.path.join(DATA_DIR, "config", "secret.key"), "r") as f:
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # Applications
-VENDOR_APPS = (
+VENDOR_APPS = [
     'django.contrib.auth',
     'django.contrib.sessions',
     'django.contrib.contenttypes',
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
-    'raven.contrib.django.raven_compat',
     'django_dramatiq',
-)
-LOCAL_APPS = (
+]
+
+if production_env:
+    VENDOR_APPS.append('raven.contrib.django.raven_compat')
+
+
+LOCAL_APPS = [
     'account',
     'announcement',
     'conf',
@@ -46,7 +50,7 @@ LOCAL_APPS = (
     'submission',
     'options',
     'judge',
-)
+]
 
 INSTALLED_APPS = VENDOR_APPS + LOCAL_APPS
 
