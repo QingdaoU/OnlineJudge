@@ -187,8 +187,9 @@ class JudgeDispatcher(DispatcherBase):
                 logger.info(
                     "Contest debug mode, id: " + str(self.contest_id) + ", submission id: " + self.submission.id)
                 return
-            self.update_contest_problem_status()
-            self.update_contest_rank()
+            with transaction.atomic():
+                self.update_contest_problem_status()
+                self.update_contest_rank()
         else:
             if self.last_result:
                 self.update_problem_status_rejudge()
@@ -329,29 +330,30 @@ class JudgeDispatcher(DispatcherBase):
         if self.contest.rule_type == ContestRuleType.OI or self.contest.real_time_rank:
             cache.delete(f"{CacheKey.contest_rank_cache}:{self.contest.id}")
 
-        with transaction.atomic():
-            if self.contest.rule_type == ContestRuleType.ACM:
-                model = ACMContestRank
-                func = self._update_acm_contest_rank
-            else:
-                model = OIContestRank
-                func = self._update_oi_contest_rank
+        def get_rank(model):
+            return model.objects.select_for_update().get(user_id=self.submission.user_id, contest=self.contest)
 
+        if self.contest.rule_type == ContestRuleType.ACM:
+            model = ACMContestRank
+            func = self._update_acm_contest_rank
+        else:
+            model = OIContestRank
+            func = self._update_oi_contest_rank
+
+        try:
+            rank = get_rank(model)
+        except model.DoesNotExist:
             try:
-                # todo unique index
-                # func 也不是安全的
-                rank = model.objects.get(user_id=self.submission.user_id, contest=self.contest)
-            except ACMContestRank.DoesNotExist:
-                try:
-                    rank = model.objects.create(user_id=self.submission.user_id, contest=self.contest)
-                except IntegrityError:
-                    rank = model.objects.get(user_id=self.submission.user_id, contest=self.contest)
-            func(rank)
+                model.objects.create(user_id=self.submission.user_id, contest=self.contest)
+                rank = get_rank(model)
+            except IntegrityError:
+                rank = get_rank(model)
+        func(rank)
 
     def _update_acm_contest_rank(self, rank):
         info = rank.submission_info.get(str(self.submission.problem_id))
         # 因前面更改过，这里需要重新获取
-        problem = Problem.objects.get(contest_id=self.contest_id, id=self.problem.id)
+        problem = Problem.objects.select_for_update().get(contest_id=self.contest_id, id=self.problem.id)
         # 此题提交过
         if info:
             if info["is_ac"]:

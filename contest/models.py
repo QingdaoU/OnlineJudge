@@ -74,6 +74,7 @@ class ACMContestRank(AbstractContestRank):
 
     class Meta:
         db_table = "acm_contest_rank"
+        unique_together = (("user", "contest"),)
 
 
 class OIContestRank(AbstractContestRank):
@@ -84,6 +85,7 @@ class OIContestRank(AbstractContestRank):
 
     class Meta:
         db_table = "oi_contest_rank"
+        unique_together = (("user", "contest"),)
 
 
 class ContestAnnouncement(models.Model):
