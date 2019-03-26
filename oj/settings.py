@@ -34,6 +34,7 @@ VENDOR_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'django_dramatiq',
+    'django_dbconn_retry',
 ]
 
 if production_env:
