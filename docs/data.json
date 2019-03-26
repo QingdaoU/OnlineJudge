@@ -1,6 +1,20 @@
 {
   "update": [
     {
+      "version": "2019-03-25",
+      "level": "Recommend",
+      "title": "2019-03-25",
+      "details": [
+        "Update Django to version 2.1 and Python to version 3.7",
+        "Replace celery with dramatiq",
+        "Add problem file IO Mode",
+        "You can add attachments in all editor",
+        "You can upload source code file in submission editor",
+        "Frontend and UI improvements",
+        "Fixed a lot of bugs"
+      ]
+    },
+    {
       "version": "2018-12-15",
       "level": "Recommend",
       "title": "Update at 2018-12-15",
