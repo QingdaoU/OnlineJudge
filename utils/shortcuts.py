@@ -90,5 +90,5 @@ def DRAMATIQ_WORKER_ARGS(time_limit=3600_000, max_retries=0, max_age=7200_000):
 def check_is_id(value):
     try:
         return int(value) > 0
-    except Exception as e:
+    except Exception:
         return False
