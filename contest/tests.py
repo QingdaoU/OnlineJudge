@@ -45,7 +45,7 @@ class ContestAdminAPITest(APITestCase):
         response_data = response.data["data"]
         for k in data.keys():
             if isinstance(data[k], datetime):
-                    continue
+                continue
             self.assertEqual(response_data[k], data[k])
 
     def test_get_contests(self):

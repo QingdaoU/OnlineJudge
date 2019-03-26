@@ -1,3 +1,5 @@
+import re
+
 from django import forms
 
 from options.options import SysOptions
@@ -5,7 +7,7 @@ from utils.api import UsernameSerializer, serializers
 from utils.constants import Difficulty
 from utils.serializers import LanguageNameMultiChoiceField, SPJLanguageNameChoiceField, LanguageNameChoiceField
 
-from .models import Problem, ProblemRuleType, ProblemTag
+from .models import Problem, ProblemRuleType, ProblemTag, ProblemIOMode
 from .utils import parse_problem_template
 
 
@@ -29,6 +31,20 @@ class CreateProblemCodeTemplateSerializer(serializers.Serializer):
     pass
 
 
+class ProblemIOModeSerializer(serializers.Serializer):
+    io_mode = serializers.ChoiceField(choices=ProblemIOMode.choices())
+    input = serializers.CharField()
+    output = serializers.CharField()
+
+    def validate(self, attrs):
+        if attrs["input"] == attrs["output"]:
+            raise serializers.ValidationError("Invalid io mode")
+        for item in (attrs["input"], attrs["output"]):
+            if not re.match("^[a-zA-Z0-9.]+$", item):
+                raise serializers.ValidationError("Invalid io file name format")
+        return attrs
+
+
 class CreateOrEditProblemSerializer(serializers.Serializer):
     _id = serializers.CharField(max_length=32, allow_blank=True, allow_null=True)
     title = serializers.CharField(max_length=1024)
@@ -43,6 +59,7 @@ class CreateOrEditProblemSerializer(serializers.Serializer):
     languages = LanguageNameMultiChoiceField()
     template = serializers.DictField(child=serializers.CharField(min_length=1))
     rule_type = serializers.ChoiceField(choices=[ProblemRuleType.ACM, ProblemRuleType.OI])
+    io_mode = ProblemIOModeSerializer()
     spj = serializers.BooleanField()
     spj_language = SPJLanguageNameChoiceField(allow_blank=True, allow_null=True)
     spj_code = serializers.CharField(allow_blank=True, allow_null=True)
@@ -52,6 +69,7 @@ class CreateOrEditProblemSerializer(serializers.Serializer):
     tags = serializers.ListField(child=serializers.CharField(max_length=32), allow_empty=False)
     hint = serializers.CharField(allow_blank=True, allow_null=True)
     source = serializers.CharField(max_length=256, allow_blank=True, allow_null=True)
+    share_submission = serializers.BooleanField()
 
 
 class CreateProblemSerializer(CreateOrEditProblemSerializer):

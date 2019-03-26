@@ -9,7 +9,7 @@ from django.conf import settings
 
 from utils.api.tests import APITestCase
 
-from .models import ProblemTag
+from .models import ProblemTag, ProblemIOMode
 from .models import Problem, ProblemRuleType
 from contest.models import Contest
 from contest.tests import DEFAULT_CONTEST_DATA
@@ -25,6 +25,8 @@ DEFAULT_PROBLEM_DATA = {"_id": "A-110", "title": "test", "description": "<p>test
                         "test_case_score": [{"output_name": "1.out", "input_name": "1.in", "output_size": 0,
                                              "stripped_output_md5": "d41d8cd98f00b204e9800998ecf8427e",
                                              "input_size": 0, "score": 0}],
+                        "io_mode": {"io_mode": ProblemIOMode.standard, "input": "input.txt", "output": "output.txt"},
+                        "share_submission": False,
                         "rule_type": "ACM", "hint": "<p>test</p>", "source": "test"}
 
 

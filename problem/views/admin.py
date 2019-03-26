@@ -300,8 +300,6 @@ class ProblemAPI(ProblemBase):
         except Problem.DoesNotExist:
             return self.error("Problem does not exists")
         ensure_created_by(problem, request.user)
-        if Submission.objects.filter(problem=problem).exists():
-            return self.error("Can't delete the problem as it has submissions")
         d = os.path.join(settings.TEST_CASE_DIR, problem.test_case_id)
         if os.path.isdir(d):
             shutil.rmtree(d, ignore_errors=True)
@@ -541,7 +539,7 @@ class ExportProblemAPI(APIView):
         with zipfile.ZipFile(path, "w") as zip_file:
             for index, problem in enumerate(problems):
                 self.process_one_problem(zip_file=zip_file, user=request.user, problem=problem, index=index + 1)
-        delete_files.apply_async((path,), countdown=300)
+        delete_files.send_with_options(args=(path,), delay=300_000)
         resp = FileResponse(open(path, "rb"))
         resp["Content-Type"] = "application/zip"
         resp["Content-Disposition"] = f"attachment;filename=problem-export.zip"

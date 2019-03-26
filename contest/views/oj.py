@@ -8,7 +8,7 @@ from django.core.cache import cache
 from problem.models import Problem
 from utils.api import APIView, validate_serializer
 from utils.constants import CacheKey
-from utils.shortcuts import datetime2str
+from utils.shortcuts import datetime2str, check_is_id
 from account.models import AdminType
 from account.decorators import login_required, check_contest_permission
 
@@ -35,7 +35,7 @@ class ContestAnnouncementListAPI(APIView):
 class ContestAPI(APIView):
     def get(self, request):
         id = request.GET.get("id")
-        if not id:
+        if not id or not check_is_id(id):
             return self.error("Invalid parameter, id is required")
         try:
             contest = Contest.objects.get(id=id, visible=True)
@@ -121,7 +121,7 @@ class ContestRankAPI(APIView):
     def get(self, request):
         download_csv = request.GET.get("download_csv")
         force_refresh = request.GET.get("force_refresh")
-        is_contest_admin = request.user.is_authenticated() and request.user.is_contest_admin(self.contest)
+        is_contest_admin = request.user.is_authenticated and request.user.is_contest_admin(self.contest)
         if self.contest.rule_type == ContestRuleType.OI:
             serializer = OIContestRankSerializer
         else:

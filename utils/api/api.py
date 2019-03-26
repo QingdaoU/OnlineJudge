@@ -1,7 +1,6 @@
 import functools
 import json
 import logging
-from collections import OrderedDict
 
 from django.http import HttpResponse, QueryDict
 from django.utils.decorators import method_decorator
@@ -89,20 +88,24 @@ class APIView(View):
     def error(self, msg="error", err="error"):
         return self.response({"error": err, "data": msg})
 
-    def _serializer_error_to_str(self, errors):
-        for k, v in errors.items():
-            if isinstance(v, list):
-                return k, v[0]
-            elif isinstance(v, OrderedDict):
-                for _k, _v in v.items():
-                    return self._serializer_error_to_str({_k: _v})
+    def extract_errors(self, errors, key="field"):
+        if isinstance(errors, dict):
+            if not errors:
+                return key, "Invalid field"
+            key = list(errors.keys())[0]
+            return self.extract_errors(errors.pop(key), key)
+        elif isinstance(errors, list):
+            return self.extract_errors(errors[0], key)
+
+        return key, errors
 
     def invalid_serializer(self, serializer):
-        k, v = self._serializer_error_to_str(serializer.errors)
-        if k != "non_field_errors":
-            return self.error(err="invalid-" + k, msg=k + ": " + v)
+        key, error = self.extract_errors(serializer.errors)
+        if key == "non_field_errors":
+            msg = error
         else:
-            return self.error(err="invalid-field", msg=v)
+            msg = f"{key}: {error}"
+        return self.error(err=f"invalid-{key}", msg=msg)
 
     def server_error(self):
         return self.error(err="server-error", msg="server error")

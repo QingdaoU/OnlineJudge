@@ -57,7 +57,7 @@ class SubmissionListTest(SubmissionPrepare):
         self.assertSuccess(resp)
 
 
-@mock.patch("submission.views.oj.judge_task.delay")
+@mock.patch("submission.views.oj.judge_task.send")
 class SubmissionAPITest(SubmissionPrepare):
     def setUp(self):
         self._create_problem_and_submission()

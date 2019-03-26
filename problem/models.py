@@ -25,10 +25,19 @@ class ProblemDifficulty(object):
     Low = "Low"
 
 
+class ProblemIOMode(Choices):
+    standard = "Standard IO"
+    file = "File IO"
+
+
+def _default_io_mode():
+    return {"io_mode": ProblemIOMode.standard, "input": "input.txt", "output": "output.txt"}
+
+
 class Problem(models.Model):
     # display ID
     _id = models.TextField(db_index=True)
-    contest = models.ForeignKey(Contest, null=True)
+    contest = models.ForeignKey(Contest, null=True, on_delete=models.CASCADE)
     # for contest problem
     is_public = models.BooleanField(default=False)
     title = models.TextField()
@@ -47,11 +56,13 @@ class Problem(models.Model):
     create_time = models.DateTimeField(auto_now_add=True)
     # we can not use auto_now here
     last_update_time = models.DateTimeField(null=True)
-    created_by = models.ForeignKey(User)
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE)
     # ms
     time_limit = models.IntegerField()
     # MB
     memory_limit = models.IntegerField()
+    # io mode
+    io_mode = JSONField(default=_default_io_mode)
     # special judge related
     spj = models.BooleanField(default=False)
     spj_language = models.TextField(null=True)
@@ -69,6 +80,7 @@ class Problem(models.Model):
     accepted_number = models.BigIntegerField(default=0)
     # {JudgeStatus.ACCEPTED: 3, JudgeStaus.WRONG_ANSWER: 11}, the number means count
     statistic_info = JSONField(default=dict)
+    share_submission = models.BooleanField(default=False)
 
     class Meta:
         db_table = "problem"

@@ -142,7 +142,7 @@ class XSSHtml(HTMLParser):
         return attrs
 
     def _true_url(self, url):
-        prog = re.compile(r"^(http|https|ftp)://.+", re.I | re.S)
+        prog = re.compile(r"(^(http|https|ftp)://.+)|(^/)", re.I | re.S)
         if prog.match(url):
             return url
         else:

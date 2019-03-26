@@ -31,19 +31,19 @@ class BasePermissionDecorator(object):
 
 class login_required(BasePermissionDecorator):
     def check_permission(self):
-        return self.request.user.is_authenticated()
+        return self.request.user.is_authenticated
 
 
 class super_admin_required(BasePermissionDecorator):
     def check_permission(self):
         user = self.request.user
-        return user.is_authenticated() and user.is_super_admin()
+        return user.is_authenticated and user.is_super_admin()
 
 
 class admin_role_required(BasePermissionDecorator):
     def check_permission(self):
         user = self.request.user
-        return user.is_authenticated() and user.is_admin_role()
+        return user.is_authenticated and user.is_admin_role()
 
 
 class problem_permission_required(admin_role_required):
@@ -80,7 +80,7 @@ def check_contest_permission(check_type="details"):
                 return self.error("Contest %s doesn't exist" % contest_id)
 
             # Anonymous
-            if not user.is_authenticated():
+            if not user.is_authenticated:
                 return self.error("Please login first.")
 
             # creator or owner
