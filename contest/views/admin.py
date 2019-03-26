@@ -11,7 +11,7 @@ from account.models import User
 from submission.models import Submission, JudgeStatus
 from utils.api import APIView, validate_serializer
 from utils.cache import cache
-from utils.constants import CacheKey
+from utils.constants import CacheKey, ContestRuleType
 from utils.shortcuts import rand_str
 from utils.tasks import delete_files
 from ..models import Contest, ContestAnnouncement, ACMContestRank
@@ -200,7 +200,10 @@ class DownloadContestSubmissions(APIView):
         problem_ids = contest.problem_set.all().values_list("id", "_id")
         id2display_id = {k[0]: k[1] for k in problem_ids}
         ac_map = {k[0]: False for k in problem_ids}
-        submissions = Submission.objects.filter(contest=contest, result=JudgeStatus.ACCEPTED).order_by("-create_time")
+        if contest.rule_type == ContestRuleType.OI:
+            submissions = Submission.objects.filter(contest=contest).order_by("-create_time")
+        else:
+            submissions = Submission.objects.filter(contest=contest, result=JudgeStatus.ACCEPTED).order_by("-create_time")
         user_ids = submissions.values_list("user_id", flat=True)
         users = User.objects.filter(id__in=user_ids)
         path = f"/tmp/{contest.title}-{rand_str()}.zip"
@@ -224,7 +227,12 @@ class DownloadContestSubmissions(APIView):
                     elif submission.language == "Python3":
                         suffix = "py"
 
-                    file_name = f"{user.username}/{user.username}_{id2display_id[submission.problem_id]}." + suffix
+                    file_name = f"{user.username}/{user.username}_{id2display_id[submission.problem_id]}"
+                    if contest.rule_type == ContestRuleType.OI:
+                        statistic_info = submission.statistic_info
+                        score = statistic_info["score"]
+                        file_name = file_name + f"_{score}"
+                    file_name = file_name + "." + suffix
                     compression = zipfile.ZIP_DEFLATED
                     zip_file.writestr(zinfo_or_arcname=f"{file_name}",
                                       data=submission.code,
