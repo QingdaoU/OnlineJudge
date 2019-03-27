@@ -19,6 +19,7 @@ from ..serializers import (ContestAnnouncementSerializer, ContestAdminSerializer
                            CreateConetestSeriaizer, CreateContestAnnouncementSerializer,
                            EditConetestSeriaizer, EditContestAnnouncementSerializer,
                            ACMContesHelperSerializer, )
+from django.utils.encoding import escape_uri_path
 
 
 class ContestAPI(APIView):
@@ -255,5 +256,6 @@ class DownloadContestSubmissions(APIView):
         delete_files.apply_async((zip_path,), countdown=300)
         resp = FileResponse(open(zip_path, "rb"))
         resp["Content-Type"] = "application/zip"
-        resp["Content-Disposition"] = f"attachment;filename={os.path.basename(zip_path)}"
+        file_name = os.path.basename(zip_path)
+        resp["Content-Disposition"] = f"attachment;filename={escape_uri_path(file_name)}"
         return resp
