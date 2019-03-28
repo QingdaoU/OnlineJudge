@@ -79,7 +79,7 @@ int main() {
     },
     "run": {
         "command": "{exe_path}",
-        "seccomp_rule": "c_cpp",
+        "seccomp_rule": {ProblemIOMode.standard: "c_cpp", ProblemIOMode.file: "c_cpp_file_io"},
         "env": default_env
     }
 }
