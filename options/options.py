@@ -267,7 +267,7 @@ class _SysOptionsMeta(type):
 
     @my_property(ttl=DEFAULT_SHORT_TTL)
     def language_names(cls):
-        return [item["name"] for item in languages]
+        return [item["name"] for item in cls.languages]
 
     @my_property(ttl=DEFAULT_SHORT_TTL)
     def spj_language_names(cls):
