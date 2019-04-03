@@ -25,8 +25,10 @@ def process_pending_task():
     if cache.llen(CacheKey.waiting_queue):
         # 防止循环引入
         from judge.tasks import judge_task
-        data = json.loads(cache.rpop(CacheKey.waiting_queue).decode("utf-8"))
-        judge_task.send(**data)
+        tmp_data = cache.rpop(CacheKey.waiting_queue)
+        if tmp_data:
+            data = json.loads(tmp_data.decode("utf-8"))
+            judge_task.send(**data)
 
 
 class ChooseJudgeServer:
@@ -40,7 +42,7 @@ class ChooseJudgeServer:
             for server in servers:
                 if server.task_number <= server.cpu_core * 2:
                     server.task_number = F("task_number") + 1
-                    server.save()
+                    server.save(update_fields=["task_number"])
                     self.server = server
                     return server
         return None
