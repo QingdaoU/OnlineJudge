@@ -27,6 +27,39 @@ int main() {
         "max_cpu_time": 3000,
         "max_real_time": 10000,
         "max_memory": 256 * 1024 * 1024,
+        "compile_command": "/usr/bin/gcc -DONLINE_JUDGE -w -fmax-errors=3 -std=c11 {src_path} -lm -o {exe_path}",
+    },
+    "run": {
+        "command": "{exe_path}",
+        "seccomp_rule": {ProblemIOMode.standard: "c_cpp", ProblemIOMode.file: "c_cpp_file_io"},
+        "env": default_env
+    }
+}
+
+_c_o2_lang_config = {
+    "template": """//PREPEND BEGIN
+#include <stdio.h>
+//PREPEND END
+
+//TEMPLATE BEGIN
+int add(int a, int b) {
+  // Please fill this blank
+  return ___________;
+}
+//TEMPLATE END
+
+//APPEND BEGIN
+int main() {
+  printf("%d", add(1, 2));
+  return 0;
+}
+//APPEND END""",
+    "compile": {
+        "src_name": "main.c",
+        "exe_name": "main",
+        "max_cpu_time": 3000,
+        "max_real_time": 10000,
+        "max_memory": 256 * 1024 * 1024,
         "compile_command": "/usr/bin/gcc -DONLINE_JUDGE -O2 -w -fmax-errors=3 -std=c11 {src_path} -lm -o {exe_path}",
     },
     "run": {
@@ -52,6 +85,39 @@ _c_lang_spj_config = {
 }
 
 _cpp_lang_config = {
+    "template": """//PREPEND BEGIN
+#include <iostream>
+//PREPEND END
+
+//TEMPLATE BEGIN
+int add(int a, int b) {
+  // Please fill this blank
+  return ___________;
+}
+//TEMPLATE END
+
+//APPEND BEGIN
+int main() {
+  std::cout << add(1, 2);
+  return 0;
+}
+//APPEND END""",
+    "compile": {
+        "src_name": "main.cpp",
+        "exe_name": "main",
+        "max_cpu_time": 3000,
+        "max_real_time": 10000,
+        "max_memory": 512 * 1024 * 1024,
+        "compile_command": "/usr/bin/g++ -DONLINE_JUDGE -w -fmax-errors=3 -std=c++14 {src_path} -lm -o {exe_path}",
+    },
+    "run": {
+        "command": "{exe_path}",
+        "seccomp_rule": {ProblemIOMode.standard: "c_cpp", ProblemIOMode.file: "c_cpp_file_io"},
+        "env": default_env
+    }
+}
+
+_cpp_o2_lang_config = {
     "template": """//PREPEND BEGIN
 #include <iostream>
 //PREPEND END
@@ -174,10 +240,12 @@ _py3_lang_config = {
 }
 
 languages = [
-    {"config": _c_lang_config, "spj": {"compile": _c_lang_spj_compile, "config": _c_lang_spj_config},
-     "name": "C", "description": "GCC 5.4", "content_type": "text/x-csrc"},
     {"config": _cpp_lang_config, "spj": {"compile": _cpp_lang_spj_compile, "config": _cpp_lang_spj_config},
      "name": "C++", "description": "G++ 5.4", "content_type": "text/x-c++src"},
+    {"config": _cpp_o2_lang_config, "name": "C++ With O2", "description": "G++ 5.4", "content_type": "text/x-c++src"},
+	{"config": _c_lang_config, "spj": {"compile": _c_lang_spj_compile, "config": _c_lang_spj_config},
+     "name": "C", "description": "GCC 5.4", "content_type": "text/x-csrc"},
+    {"config": _c_o2_lang_config, "name": "C With O2", "description": "GCC 5.4", "content_type": "text/x-csrc"},
     {"config": _java_lang_config, "name": "Java", "description": "OpenJDK 1.8", "content_type": "text/x-java"},
     {"config": _py2_lang_config, "name": "Python2", "description": "Python 2.7", "content_type": "text/x-python"},
     {"config": _py3_lang_config, "name": "Python3", "description": "Python 3.5", "content_type": "text/x-python"},
