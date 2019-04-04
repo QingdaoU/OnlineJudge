@@ -1,6 +1,14 @@
 {
   "update": [
     {
+      "version": "2019-04-03",
+      "level": "Important",
+      "title": "2019-04-03",
+      "details": [
+        "Fix bugs in judge server scheduler"
+      ]
+    },
+    {
       "version": "2019-03-25",
       "level": "Recommend",
       "title": "2019-03-25",
