@@ -1,6 +1,14 @@
 {
   "update": [
     {
+      "version": "2019-04-05",
+      "level": "Recommend",
+      "title": "2019-04-05",
+      "details": [
+        "Fix bugs in Free Problem Set parser"
+      ]
+    },
+    {
       "version": "2019-04-03",
       "level": "Important",
       "title": "2019-04-03",
