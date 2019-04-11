@@ -257,5 +257,5 @@ class DownloadContestSubmissions(APIView):
         resp = FileResponse(open(zip_path, "rb"))
         resp["Content-Type"] = "application/zip"
         file_name = os.path.basename(zip_path)
-        resp["Content-Disposition"] = f"attachment;filename={escape_uri_path(file_name)}"
+        resp["Content-Disposition"] = f"attachment;filename=\"{escape_uri_path(file_name)}\""
         return resp
