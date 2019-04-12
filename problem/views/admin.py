@@ -300,6 +300,8 @@ class ProblemAPI(ProblemBase):
         except Problem.DoesNotExist:
             return self.error("Problem does not exists")
         ensure_created_by(problem, request.user)
+        #if Submission.objects.filter(problem=problem).exists():
+        #    return self.error("Can't delete the problem as it has submissions")
         d = os.path.join(settings.TEST_CASE_DIR, problem.test_case_id)
         if os.path.isdir(d):
             shutil.rmtree(d, ignore_errors=True)
@@ -428,8 +430,8 @@ class ContestProblemAPI(ProblemBase):
         except Problem.DoesNotExist:
             return self.error("Problem does not exists")
         ensure_created_by(problem.contest, request.user)
-        if Submission.objects.filter(problem=problem).exists():
-            return self.error("Can't delete the problem as it has submissions")
+        #if Submission.objects.filter(problem=problem).exists():
+        #    return self.error("Can't delete the problem as it has submissions")
         d = os.path.join(settings.TEST_CASE_DIR, problem.test_case_id)
         if os.path.isdir(d):
             shutil.rmtree(d, ignore_errors=True)

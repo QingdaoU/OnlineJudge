@@ -6,6 +6,7 @@ from django.db import transaction, IntegrityError
 from django.db.models import Q
 from django.http import HttpResponse
 from django.contrib.auth.hashers import make_password
+from django.contrib import auth
 
 from submission.models import Submission
 from utils.api import APIView, validate_serializer
@@ -13,7 +14,7 @@ from utils.shortcuts import rand_str
 
 from ..decorators import super_admin_required
 from ..models import AdminType, ProblemPermission, User, UserProfile
-from ..serializers import EditUserSerializer, UserAdminSerializer, GenerateUserSerializer
+from ..serializers import EditUserSerializer, UserAdminSerializer, GenerateUserSerializer, ChangeUserpasswordSerializer
 from ..serializers import ImportUserSeralizer
 
 
@@ -30,12 +31,22 @@ class UserAdminAPI(APIView):
         for user_data in data:
             if len(user_data) != 3 or len(user_data[0]) > 32:
                 return self.error(f"Error occurred while processing data '{user_data}'")
-            user_list.append(User(username=user_data[0], password=make_password(user_data[1]), email=user_data[2]))
+            #username real_name classroom(school)
+            user_list.append(User(username=user_data[0],password=make_password('123456')))
 
         try:
             with transaction.atomic():
                 ret = User.objects.bulk_create(user_list)
                 UserProfile.objects.bulk_create([UserProfile(user=user) for user in ret])
+
+                for user_data in data:
+                    user = User.objects.get(username=user_data[0])
+                    p = UserProfile.objects.get(user=user)
+                    p.real_name = user_data[1]
+                    p.school = user_data[2]
+                    p.language = 'zh-CN'
+                    p.save()
+
             return self.success()
         except IntegrityError as e:
             # Extract detail from exception message
@@ -199,4 +210,24 @@ class GenerateUserAPI(APIView):
             # Extract detail from exception message
             #    duplicate key value violates unique constraint "user_username_key"
             #    DETAIL:  Key (username)=(root11) already exists.
+            return self.error(str(e).split("\n")[1])
+
+class ChangeUserpasswordAPI(APIView):
+    @validate_serializer(ChangeUserpasswordSerializer)
+    @super_admin_required
+    def post(self, request):
+        data = request.data
+        suffix = data["suffix"]
+        right_length = data["right_length"]
+        
+        try:
+            for user in User.objects.all():
+                if len(user.username) == 14:
+                    newpass = suffix
+                    if right_length > 0:
+                        newpass = user.username[-right_length:] + suffix
+                    user.set_password(newpass)
+                    user.save()
+            return self.success()
+        except IntegrityError as e:
             return self.error(str(e).split("\n")[1])
