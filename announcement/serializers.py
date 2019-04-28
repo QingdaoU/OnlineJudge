@@ -25,6 +25,11 @@ class EditAnnouncementSerializer(serializers.Serializer):
     visible = serializers.BooleanField()
 
 
+class CreateAboutUsSerializer(serializers.Serializer):
+    title = serializers.CharField(max_length=64)
+    content = serializers.CharField(max_length=1024 * 1024 * 8)
+
+
 class AboutUsSerializer(serializers.ModelSerializer):
     created_by = UsernameSerializer()
 

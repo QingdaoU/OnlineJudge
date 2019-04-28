@@ -3,7 +3,7 @@ from utils.api import APIView, validate_serializer
 
 from announcement.models import (Announcement, AboutUs)
 from announcement.serializers import (AnnouncementSerializer, CreateAnnouncementSerializer, EditAnnouncementSerializer,
-                                      AboutUsSerializer, EditAboutUsSerializer)
+                                      AboutUsSerializer, EditAboutUsSerializer, CreateAboutUsSerializer)
 
 
 class AnnouncementAdminAPI(APIView):
@@ -63,6 +63,18 @@ class AnnouncementAdminAPI(APIView):
 
 
 class AboutUsAdminAPI(APIView):
+    @validate_serializer(CreateAboutUsSerializer)
+    @super_admin_required
+    def post(self, request):
+        """
+        publish aboutus
+        """
+        data = request.data
+        aboutus = AboutUs.objects.create(title=data["title"],
+                                         content=data["content"],
+                                         created_by=request.user)
+        return self.success(AboutUsSerializer(aboutus).data)
+
     @validate_serializer(EditAboutUsSerializer)
     @super_admin_required
     def put(self, request):
@@ -71,7 +83,7 @@ class AboutUsAdminAPI(APIView):
         """
         data = request.data
         try:
-            aboutus = AboutUs.objects.get(content=data.pop("title"))
+            aboutus = AboutUs.objects.get(title=data.pop("title"))
         except AboutUs.DoesNotExist:
             return self.error("AboutUs does not exist")
 
@@ -89,7 +101,7 @@ class AboutUsAdminAPI(APIView):
         aboutus_id = request.GET.get("title")
         if aboutus_id:
             try:
-                aboutus = AboutUs.objects.get(content=aboutus_id)
+                aboutus = AboutUs.objects.get(title=aboutus_id)
                 return self.success(AboutUsSerializer(aboutus).data)
             except AboutUs.DoesNotExist:
                 return self.error("AboutUs does not exist")
