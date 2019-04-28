@@ -48,7 +48,7 @@ class Migration(migrations.Migration):
                 ('created_by', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
             ],
             options={
-                'db_table': 'about',
+                'db_table': 'aboutus',
             },
         ),
     ]
