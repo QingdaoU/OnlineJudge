@@ -16,3 +16,12 @@ class Announcement(models.Model):
     class Meta:
         db_table = "announcement"
         ordering = ("-create_time",)
+
+class AboutUs(models.Model):
+    # HTML
+    content = RichTextField()
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE)
+    last_update_time = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = "aboutus"
