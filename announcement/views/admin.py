@@ -54,3 +54,9 @@ class AnnouncementAdminAPI(APIView):
         if request.GET.get("visible") == "true":
             announcement = announcement.filter(visible=True)
         return self.success(self.paginate_data(request, announcement, AnnouncementSerializer))
+
+    @super_admin_required
+    def delete(self, request):
+        if request.GET.get("id"):
+            Announcement.objects.filter(id=request.GET["id"]).delete()
+        return self.success()
