@@ -3,7 +3,7 @@ from utils.api import APIView, validate_serializer
 
 from announcement.models import Announcement
 from announcement.serializers import (AnnouncementSerializer, CreateAnnouncementSerializer,
-                                     EditAnnouncementSerializer)
+                                      EditAnnouncementSerializer)
 
 
 class AnnouncementAdminAPI(APIView):
