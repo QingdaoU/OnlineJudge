@@ -300,9 +300,9 @@ class ProblemAPI(ProblemBase):
         except Problem.DoesNotExist:
             return self.error("Problem does not exists")
         ensure_created_by(problem, request.user)
-        d = os.path.join(settings.TEST_CASE_DIR, problem.test_case_id)
-        if os.path.isdir(d):
-            shutil.rmtree(d, ignore_errors=True)
+        # d = os.path.join(settings.TEST_CASE_DIR, problem.test_case_id)
+        # if os.path.isdir(d):
+        #     shutil.rmtree(d, ignore_errors=True)
         problem.delete()
         return self.success()
 
