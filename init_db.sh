@@ -14,6 +14,6 @@ docker run -it -d -p 127.0.0.1:6380:6379 --name oj-redis-dev redis:4.0-alpine
 if [ "$1" = "--migrate" ]; then
     sleep 3
     echo `cat /dev/urandom | head -1 | md5sum | head -c 32` > data/config/secret.key
-    python manage.py migrate
-    python manage.py inituser --username root --password rootroot --action create_super_admin
+    python3.7 manage.py migrate
+    python3.7 manage.py inituser --username root --password rootroot --action create_super_admin
 fi
