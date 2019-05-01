@@ -12,5 +12,8 @@ class AnnouncementAPI(APIView):
 
 class AboutUsAPI(APIView):
     def get(self, request):
-        aboutus = AboutUs.objects.get(id=1)
-        return self.error("About Us does not exist")
+        try:
+            aboutus = AboutUs.objects.get(id=1)
+            return self.success(AboutUsSerializer(aboutus).data)
+        except AboutUs.DoesNotExist:
+            return self.error("About Us does not exist")
