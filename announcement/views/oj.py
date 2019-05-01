@@ -12,5 +12,5 @@ class AnnouncementAPI(APIView):
 
 class AboutUsAPI(APIView):
     def get(self, request):
-        aboutus = AboutUs.objects.filter(id=0)
-        return self.success(self.paginate_data(request, aboutus, AboutUsSerializer))
+        aboutus = AboutUs.objects.get(id=1)
+        return self.success(AboutUsSerializer(aboutus).data)
