@@ -81,9 +81,9 @@ class AboutUsAdminAPI(APIView):
         """
         data = request.data
         try:
-            aboutus = AboutUs.objects.get(id=0)
+            aboutus = AboutUs.objects.get(id=1)
         except AboutUs.DoesNotExist:
-            return self.error("About_Us does not exist")
+            return self.error("About Us does not exist")
 
         for k, v in data.items():
             setattr(aboutus, k, v)
@@ -96,12 +96,9 @@ class AboutUsAdminAPI(APIView):
         """
         get about_us list / get about_us
         """
-        aboutus_id = 0
-        if aboutus_id:
-            try:
-                aboutus = AboutUs.objects.get(id=aboutus_id)
-                return self.success(AboutUsSerializer(aboutus).data)
-            except AboutUs.DoesNotExist:
-                return self.error("About_Us does not exist")
-        aboutus = AboutUs.objects.all()
-        return self.success(self.paginate_data(request, aboutus, AboutUsSerializer))
+        aboutus_id = 1
+        try:
+            aboutus = AboutUs.objects.get(id=aboutus_id)
+            return self.success(AboutUsSerializer(aboutus).data)
+        except AboutUs.DoesNotExist:
+            return self.success(None)
