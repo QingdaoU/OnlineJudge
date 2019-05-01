@@ -99,7 +99,7 @@ class AboutUsAdminAPI(APIView):
         aboutus_id = 0
         if aboutus_id:
             try:
-                aboutus = AboutUs.objects.get(id=announcement_id)
+                aboutus = AboutUs.objects.get(id=aboutus_id)
                 return self.success(AboutUsSerializer(aboutus).data)
             except AboutUs.DoesNotExist:
                 return self.error("About_Us does not exist")
