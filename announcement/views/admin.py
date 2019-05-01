@@ -1,9 +1,9 @@
 from account.decorators import super_admin_required
 from utils.api import APIView, validate_serializer
 
-from announcement.models import Announcement
-from announcement.serializers import (AnnouncementSerializer, CreateAnnouncementSerializer,
-                                      EditAnnouncementSerializer)
+from announcement.models import Announcement, AboutUs
+from announcement.serializers import (AnnouncementSerializer, CreateAnnouncementSerializer, EditAnnouncementSerializer,
+                                      AboutUsSerializer, CreateAboutUsSerializer, EditAboutUsSerializer)
 
 
 class AnnouncementAdminAPI(APIView):
@@ -60,3 +60,48 @@ class AnnouncementAdminAPI(APIView):
         if request.GET.get("id"):
             Announcement.objects.filter(id=request.GET["id"]).delete()
         return self.success()
+
+
+class AboutUsAdminAPI(APIView):
+    @validate_serializer(CreateAboutUsSerializer)
+    @super_admin_required
+    def post(self, request):
+        """
+        publish aboutus
+        """
+        data = request.data
+        aboutus = AboutUs.objects.create(content=data["content"])
+        return self.success(AboutUsSerializer(aboutus).data)
+
+    @validate_serializer(EditAboutUsSerializer)
+    @super_admin_required
+    def put(self, request):
+        """
+        edit aboutus
+        """
+        data = request.data
+        try:
+            aboutus = AboutUs.objects.get(id=0)
+        except AboutUs.DoesNotExist:
+            return self.error("About_Us does not exist")
+
+        for k, v in data.items():
+            setattr(aboutus, k, v)
+        aboutus.save()
+
+        return self.success(AboutUsSerializer(aboutus).data)
+
+    @super_admin_required
+    def get(self, request):
+        """
+        get about_us list / get about_us
+        """
+        aboutus_id = 0
+        if aboutus_id:
+            try:
+                aboutus = AboutUs.objects.get(id=announcement_id)
+                return self.success(AboutUsSerializer(aboutus).data)
+            except AboutUs.DoesNotExist:
+                return self.error("About_Us does not exist")
+        aboutus = AboutUs.objects.all()
+        return self.success(self.paginate_data(request, aboutus, AboutUsSerializer))
