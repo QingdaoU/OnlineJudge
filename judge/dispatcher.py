@@ -407,7 +407,7 @@ class IDEDispatcher(DispatcherBase):
     def __init__(lang, code, test_case):
         super().__init__()
 
-    def judge(lang, code, test_case):
+    def judge(slef,lang, code, test_case):
         language = lang
         sub_config = list(filter(lambda item: language == item["name"], SysOptions.languages))[0]
 
@@ -424,7 +424,7 @@ class IDEDispatcher(DispatcherBase):
             if not server:
                 cache.lpush(CacheKey.waiting_queue, json.dumps(data))
                 return "Server ERROR"
-            resp = _request(urljoin(server.service_url, "/judge"), data=data)
+            resp = self._request(urljoin(server.service_url, "/judge"), data=data)
 
         if resp["err"]:
             return resp["data"]

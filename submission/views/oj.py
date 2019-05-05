@@ -202,8 +202,8 @@ class SubmissionExistsAPI(APIView):
                             Submission.objects.filter(problem_id=request.GET["problem_id"],
                                                       user_id=request.user.id).exists())
 
+
 class IDEAPI(APIView):
-    @validate_serializer(CreateIDESerializer)
     @login_required
     def post(self, request):
         data = request.data
@@ -218,8 +218,9 @@ class IDEAPI(APIView):
         # use this for debug
         # JudgeDispatcher(submission.id, problem.id).judge()
         data = judge_IDE_task.send(language, code, input)
-        
+
         return self.success(data)
 
     def get(self, request):
+        data = judge_IDE_task.send(language, code, input)
         return self.success(data)

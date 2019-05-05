@@ -1,4 +1,4 @@
-from .models import Submission, IDE
+from .models import Submission
 from utils.api import serializers
 from utils.serializers import LanguageNameChoiceField
 

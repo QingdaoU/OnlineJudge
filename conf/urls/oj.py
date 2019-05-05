@@ -1,6 +1,6 @@
 from django.conf.urls import url
 
-from ..views import JudgeServerHeartbeatAPI, LanguagesAPI, WebsiteConfigAPI, AboutConfigAPI
+from ..views import JudgeServerHeartbeatAPI, LanguagesAPI, WebsiteConfigAPI
 
 urlpatterns = [
     url(r"^website/?$", WebsiteConfigAPI.as_view(), name="website_info_api"),
