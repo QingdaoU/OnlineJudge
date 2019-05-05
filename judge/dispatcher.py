@@ -407,7 +407,7 @@ class IDEDispatcher(DispatcherBase):
     def __init__(lang, code, test_case):
         super().__init__()
 
-    def judge(slef,lang, code, test_case):
+    def judge(self, lang, code, test_case):
         language = lang
         sub_config = list(filter(lambda item: language == item["name"], SysOptions.languages))[0]
 
@@ -430,7 +430,6 @@ class IDEDispatcher(DispatcherBase):
             return resp["data"]
         else:
             return resp["output", "cpu_time", "real_time"]
-
 
         # 至此判题结束，尝试处理任务队列中剩余的任务
         process_pending_task()

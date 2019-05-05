@@ -222,5 +222,4 @@ class IDEAPI(APIView):
         return self.success(data)
 
     def get(self, request):
-        data = judge_IDE_task.send(language, code, input)
-        return self.success(data)
+        return self.success
