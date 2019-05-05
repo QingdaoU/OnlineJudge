@@ -2,7 +2,7 @@ import ipaddress
 
 from account.decorators import login_required, check_contest_permission
 from contest.models import ContestStatus, ContestRuleType
-from judge.tasks import judge_task
+from judge.tasks import judge_task, judge_IDE_task
 from options.options import SysOptions
 # from judge.dispatcher import JudgeDispatcher
 from problem.models import Problem, ProblemRuleType
@@ -10,10 +10,11 @@ from utils.api import APIView, validate_serializer
 from utils.cache import cache
 from utils.captcha import Captcha
 from utils.throttling import TokenBucket
-from ..models import Submission
+from ..models import Submission, IDE
 from ..serializers import (CreateSubmissionSerializer, SubmissionModelSerializer,
                            ShareSubmissionSerializer)
 from ..serializers import SubmissionSafeModelSerializer, SubmissionListSerializer
+from ..serializers import CreateIDESerializer, IDEModelSerializer
 
 
 class SubmissionAPI(APIView):
@@ -201,3 +202,28 @@ class SubmissionExistsAPI(APIView):
         return self.success(request.user.is_authenticated and
                             Submission.objects.filter(problem_id=request.GET["problem_id"],
                                                       user_id=request.user.id).exists())
+
+class IDEAPI(APIView):
+    @validate_serializer(CreateIDESerializer)
+    @login_required
+    def post(self, request):
+        data = request.data
+
+        if data.get("captcha"):
+            if not Captcha(request).check(data["captcha"]):
+                return self.error("Invalid captcha")
+
+        user_id=request.user.id
+        username=request.user.username
+        language=data["language"]
+        code=data["code"]
+        input=data["input"]
+        ip=request.session["ip"]
+        # use this for debug
+        # JudgeDispatcher(submission.id, problem.id).judge()
+        data = judge_IDE_task.send(language, code, input)
+        
+        return self.success(data)
+
+    def get(self, request):
+        return self.success(submission_data)

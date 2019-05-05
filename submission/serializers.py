@@ -1,4 +1,4 @@
-from .models import Submission
+from .models import Submission, IDE
 from utils.api import serializers
 from utils.serializers import LanguageNameChoiceField
 
@@ -33,7 +33,6 @@ class SubmissionSafeModelSerializer(serializers.ModelSerializer):
 
 
 class SubmissionListSerializer(serializers.ModelSerializer):
-    problem = serializers.SlugRelatedField(read_only=True, slug_field="_id")
     show_link = serializers.SerializerMethodField()
 
     def __init__(self, *args, **kwargs):
@@ -42,10 +41,23 @@ class SubmissionListSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Submission
-        exclude = ("info", "contest", "code", "ip")
+        exclude = ("info", "code", "ip")
 
     def get_show_link(self, obj):
         # 没传user或为匿名user
         if self.user is None or not self.user.is_authenticated:
             return False
         return obj.check_user_permission(self.user)
+
+
+class CreateIDESerializer(serializers.Serializer):
+    language = LanguageNameChoiceField()
+    code = serializers.CharField(max_length=1024 * 1024)
+    captcha = serializers.CharField(required=False)
+    input = serializers.CharField(max_length=1024 * 1024)
+
+
+class IDEModelSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = IDE

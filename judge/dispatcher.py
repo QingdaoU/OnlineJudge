@@ -401,3 +401,35 @@ class JudgeDispatcher(DispatcherBase):
             rank.total_score = rank.total_score + current_score
         rank.submission_info[problem_id] = current_score
         rank.save()
+
+
+class IDEDispatcher(DispatcherBase):
+    def __init__(lang, code, testcase):
+        super().__init__()
+
+    def judge(lang, code, testcase):
+        language = lang
+
+        data = {
+            "language_config": sub_config["config"],
+            "src": code,
+            "max_cpu_time": 2000,
+            "max_memory": 1024 * 1024 * 128,
+            "test_case": testcase,
+            "output": True,
+        }
+
+        with ChooseJudgeServer() as server:
+            if not server:
+                cache.lpush(CacheKey.waiting_queue, json.dumps(data))
+                return "Server ERROR"
+            resp = _request(urljoin(server.service_url, "/judge"), data=data)
+
+        if resp["err"]:
+            return resp["data"]
+        else:
+            return resp["output", "cpu_time", "real_time"]
+
+
+        # 至此判题结束，尝试处理任务队列中剩余的任务
+        process_pending_task()
