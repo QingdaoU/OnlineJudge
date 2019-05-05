@@ -49,7 +49,3 @@ class JudgeServerHeartbeatSerializer(serializers.Serializer):
 class EditJudgeServerSerializer(serializers.Serializer):
     id = serializers.IntegerField()
     is_disabled = serializers.BooleanField()
-
-
-class CreateEditAboutConfigSerializer(serializers.Serializer):
-    about_us_content = serializers.CharField(max_length=1024 * 1024 * 8)

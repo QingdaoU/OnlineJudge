@@ -404,18 +404,19 @@ class JudgeDispatcher(DispatcherBase):
 
 
 class IDEDispatcher(DispatcherBase):
-    def __init__(lang, code, testcase):
+    def __init__(lang, code, test_case):
         super().__init__()
 
-    def judge(lang, code, testcase):
+    def judge(lang, code, test_case):
         language = lang
+        sub_config = list(filter(lambda item: language == item["name"], SysOptions.languages))[0]
 
         data = {
             "language_config": sub_config["config"],
             "src": code,
             "max_cpu_time": 2000,
             "max_memory": 1024 * 1024 * 128,
-            "test_case": testcase,
+            "test_case": test_case,
             "output": True,
         }
 

@@ -13,6 +13,7 @@ def judge_task(submission_id, problem_id):
         return
     JudgeDispatcher(submission_id, problem_id).judge()
 
+
 @dramatiq.actor(**DRAMATIQ_WORKER_ARGS())
 def judge_IDE_task(lang, code, test_case):
     uid = IDE.user_id

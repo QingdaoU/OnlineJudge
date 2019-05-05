@@ -48,16 +48,3 @@ class SubmissionListSerializer(serializers.ModelSerializer):
         if self.user is None or not self.user.is_authenticated:
             return False
         return obj.check_user_permission(self.user)
-
-
-class CreateIDESerializer(serializers.Serializer):
-    language = LanguageNameChoiceField()
-    code = serializers.CharField(max_length=1024 * 1024)
-    captcha = serializers.CharField(required=False)
-    input = serializers.CharField(max_length=1024 * 1024)
-
-
-class IDEModelSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = IDE

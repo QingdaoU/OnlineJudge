@@ -27,8 +27,7 @@ from .models import JudgeServer
 from .serializers import (CreateEditWebsiteConfigSerializer,
                           CreateSMTPConfigSerializer, EditSMTPConfigSerializer,
                           JudgeServerHeartbeatSerializer,
-                          JudgeServerSerializer, TestSMTPConfigSerializer, EditJudgeServerSerializer,
-                          CreateEditAboutConfigSerializer)
+                          JudgeServerSerializer, TestSMTPConfigSerializer, EditJudgeServerSerializer)
 
 
 class SMTPAPI(APIView):
@@ -240,19 +239,3 @@ class DashboardInfoAPI(APIView):
                 "STATIC_CDN_HOST": get_env("STATIC_CDN_HOST", default="")
             }
         })
-
-class AboutConfigAPI(APIView):
-    def get(self, request):
-        ret = {key: getattr(SysOptions, key) for key in
-               ["about_us_content"]}
-        return self.success(ret)
-
-    @super_admin_required
-    @validate_serializer(CreateEditWebsiteConfigSerializer)
-    def post(self, request):
-        for k, v in request.data.items():
-            if k == "about_us_content":
-                with XSSHtml() as parser:
-                    v = parser.clean(v)
-            setattr(SysOptions, k, v)
-        return self.success()

@@ -10,11 +10,10 @@ from utils.api import APIView, validate_serializer
 from utils.cache import cache
 from utils.captcha import Captcha
 from utils.throttling import TokenBucket
-from ..models import Submission, IDE
+from ..models import Submission
 from ..serializers import (CreateSubmissionSerializer, SubmissionModelSerializer,
                            ShareSubmissionSerializer)
 from ..serializers import SubmissionSafeModelSerializer, SubmissionListSerializer
-from ..serializers import CreateIDESerializer, IDEModelSerializer
 
 
 class SubmissionAPI(APIView):
@@ -213,12 +212,9 @@ class IDEAPI(APIView):
             if not Captcha(request).check(data["captcha"]):
                 return self.error("Invalid captcha")
 
-        user_id=request.user.id
-        username=request.user.username
-        language=data["language"]
-        code=data["code"]
-        input=data["input"]
-        ip=request.session["ip"]
+        language = data["language"]
+        code = data["code"]
+        input = data["input"]
         # use this for debug
         # JudgeDispatcher(submission.id, problem.id).judge()
         data = judge_IDE_task.send(language, code, input)
@@ -226,4 +222,4 @@ class IDEAPI(APIView):
         return self.success(data)
 
     def get(self, request):
-        return self.success(submission_data)
+        return self.success(data)
