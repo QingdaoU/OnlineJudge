@@ -16,6 +16,5 @@ def judge_task(submission_id, problem_id):
 
 @dramatiq.actor(**DRAMATIQ_WORKER_ARGS())
 def judge_IDE_task(lang, code, test_case):
-    if User.objects.get(id=uid).is_disabled:
-        return
-    IDEDispatcher(lang, code, test_case).judge()
+    result = IDEDispatcher(lang, code, test_case).judge()
+    return result

@@ -217,9 +217,9 @@ class IDEAPI(APIView):
         input = data["input"]
         # use this for debug
         # JudgeDispatcher(submission.id, problem.id).judge()
-        data = judge_IDE_task.send(language, code, input)
+        result = judge_IDE_task.send(language, code, input)
 
-        return self.success(data)
+        return self.success(result)
 
     def get(self, request):
         return self.success
