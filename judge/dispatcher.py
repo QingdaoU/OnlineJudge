@@ -404,25 +404,28 @@ class JudgeDispatcher(DispatcherBase):
 
 
 class IDEDispatcher(DispatcherBase):
-    def __init__(lang, code, test_case):
+    def __init__(self, lang, code, test_case):
         super().__init__()
+        self.language = lang
+        self.code = code
+        self.test_case = test_case
 
-    def judge(self, lang, code, test_case):
-        language = lang
+    def judge(self):
+        language = self.language
         sub_config = list(filter(lambda item: language == item["name"], SysOptions.languages))[0]
 
         data = {
             "language_config": sub_config["config"],
-            "src": code,
+            "src": self.code,
             "max_cpu_time": 2000,
             "max_memory": 1024 * 1024 * 128,
-            "test_case": test_case,
+            "test_case": self.test_case,
             "output": True,
         }
 
         with ChooseJudgeServer() as server:
             if not server:
-                cache.lpush(CacheKey.waiting_queue, json.dumps(data))
+                # cache.lpush(CacheKey.waiting_queue, json.dumps(data))
                 return "Server ERROR"
             resp = self._request(urljoin(server.service_url, "/judge"), data=data)
 

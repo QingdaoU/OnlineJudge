@@ -2,8 +2,10 @@ import ipaddress
 
 from account.decorators import login_required, check_contest_permission
 from contest.models import ContestStatus, ContestRuleType
-from judge.tasks import judge_task, judge_IDE_task
+from judge.tasks import judge_task
+# from judge.tasks import judge_IDE_task
 from options.options import SysOptions
+from judge.dispatcher import IDEDispatcher
 # from judge.dispatcher import JudgeDispatcher
 from problem.models import Problem, ProblemRuleType
 from utils.api import APIView, validate_serializer
@@ -212,12 +214,15 @@ class IDEAPI(APIView):
             if not Captcha(request).check(data["captcha"]):
                 return self.error("Invalid captcha")
 
-        language = data["language"]
+        lang = data["language"]
         code = data["code"]
-        input = data["input"]
+        test_case = data["input"]
         # use this for debug
         # JudgeDispatcher(submission.id, problem.id).judge()
-        result = judge_IDE_task.send(language, code, input)
+
+        # use this to debug
+        result = IDEDispatcher(lang, code, test_case).judge()
+        # result = judge_IDE_task.send(lang, code, input)
 
         return self.success(result)
 
