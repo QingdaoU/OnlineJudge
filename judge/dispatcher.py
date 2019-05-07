@@ -408,7 +408,12 @@ class IDEDispatcher(DispatcherBase):
         super().__init__()
         self.language = lang
         self.code = code
-        self.test_case = test_case
+        self.test_case = {
+            "input": test_case,
+            "output": 0,
+        }
+        self.max_cpu_time = 2000
+        self.max_memory = 1024 * 1024 * 128
 
     def judge(self):
         language = self.language
@@ -417,8 +422,8 @@ class IDEDispatcher(DispatcherBase):
         data = {
             "language_config": sub_config["config"],
             "src": self.code,
-            "max_cpu_time": 2000,
-            "max_memory": 1024 * 1024 * 128,
+            "max_cpu_time": self.max_cpu_time,
+            "max_memory": self.max_memory,
             "test_case": self.test_case,
             "output": True,
         }
