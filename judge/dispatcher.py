@@ -425,14 +425,14 @@ class IDEDispatcher(DispatcherBase):
 
         with ChooseJudgeServer() as server:
             if not server:
-                # cache.lpush(CacheKey.waiting_queue, json.dumps(data))
+                cache.lpush(CacheKey.waiting_queue, json.dumps(data))
                 return "Server ERROR"
             resp = self._request(urljoin(server.service_url, "/judge"), data=data)
 
         if resp["err"]:
-            return resp["data"]
+            return resp
         else:
-            return resp["output", "cpu_time", "real_time"]
+            return resp
 
         # 至此判题结束，尝试处理任务队列中剩余的任务
         process_pending_task()
