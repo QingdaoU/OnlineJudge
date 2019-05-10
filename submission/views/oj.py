@@ -214,14 +214,17 @@ class IDEAPI(APIView):
             if not Captcha(request).check(data["captcha"]):
                 return self.error("Invalid captcha")
 
-        lang = data["language"]
-        code = data["code"]
-        test_case = data["input"]
+        language = data["language"]
+        src = data["code"]
+        test_case = {
+            "input": data["input"],
+            "output": "0"
+        }
         # use this for debug
         # JudgeDispatcher(submission.id, problem.id).judge()
 
         # use this to debug
-        result = IDEDispatcher(lang, code, test_case).judge()
+        result = IDEDispatcher(src, language, test_case).judge()
         # result = judge_IDE_task.send(lang, code, input)
 
         return self.success(result)

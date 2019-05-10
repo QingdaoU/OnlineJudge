@@ -17,6 +17,8 @@ from submission.models import JudgeStatus, Submission
 from utils.cache import cache
 from utils.constants import CacheKey
 
+from judge.languages import _c_lang_config, _c_o2_lang_config, _cpp_lang_config, _cpp_o2_lang_config, _java_lang_config, _py2_lang_config, _py3_lang_config
+
 logger = logging.getLogger(__name__)
 
 
@@ -403,7 +405,62 @@ class JudgeDispatcher(DispatcherBase):
         rank.save()
 
 
+class JudgeServerClientError(Exception):
+    pass
+
+
 class IDEDispatcher(DispatcherBase):
+    def __init__(self, src, language, test_case=None):
+        self.src = src
+        self.language = language
+        self.test_case = test_case
+
+    def _request(self, url, data=None):
+        kwargs = {"headers": {"X-Judge-Server-Token": self.token,
+                              "Content-Type": "application/json"}}
+        if data:
+            kwargs["data"] = json.dumps(data)
+        try:
+            return requests.post(url, **kwargs).json()
+        except Exception as e:
+            raise JudgeServerClientError(str(e))
+
+    def judge(self):
+        if not self.test_case:
+            raise ValueError("invalid parameter")
+
+        if self.language == 'C':
+            language_config = _c_lang_config
+        if self.language == 'C With O2':
+            language_config = _c_o2_lang_config
+        if self.language == 'C++':
+            language_config = _cpp_lang_config
+        if self.language == 'C++ With O2':
+            language_config = _cpp_o2_lang_config
+        if self.language == 'Java':
+            language_config = _java_lang_config
+        if self.language == 'Python2':
+            language_config = _py2_lang_config
+        if self.language == 'Python3':
+            language_config = _py3_lang_config
+
+        max_cpu_time = 2000
+        max_memory = 1024 * 1024 * 128
+        output = True
+        data = {"language_config": language_config,
+                "src": self.src,
+                "max_cpu_time": max_cpu_time,
+                "max_memory": max_memory,
+                "test_case": self.test_case,
+                "output": output}
+        with ChooseJudgeServer() as server:
+            if not server:
+                cache.lpush(CacheKey.waiting_queue, json.dumps(data))
+                return "Server ERROR"
+            # resp = self._request(urljoin(server.service_url, "/judge"), data=data)
+        return self._request(self.server_base_url + "/judge", data=data)
+
+    """
     def __init__(self, lang, code, test_case):
         super().__init__()
         self.language = lang
@@ -441,3 +498,4 @@ class IDEDispatcher(DispatcherBase):
 
         # 至此判题结束，尝试处理任务队列中剩余的任务
         process_pending_task()
+    """

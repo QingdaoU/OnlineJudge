@@ -15,5 +15,5 @@ def judge_task(submission_id, problem_id):
 
 
 @dramatiq.actor(**DRAMATIQ_WORKER_ARGS())
-def judge_IDE_task(lang, code, test_case):
-    IDEDispatcher(lang, code, test_case).judge()
+def judge_IDE_task(src, language, test_case):
+    IDEDispatcher(src, language, test_case).judge()
