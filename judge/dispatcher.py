@@ -415,16 +415,6 @@ class IDEDispatcher(DispatcherBase):
         self.language = language
         self.test_case = test_case
 
-    def _request(self, url, data=None):
-        kwargs = {"headers": {"X-Judge-Server-Token": self.token,
-                              "Content-Type": "application/json"}}
-        if data:
-            kwargs["data"] = json.dumps(data)
-        try:
-            return requests.post(url, **kwargs).json()
-        except Exception as e:
-            raise JudgeServerClientError(str(e))
-
     def judge(self):
         if not self.test_case:
             raise ValueError("invalid parameter")
@@ -458,7 +448,7 @@ class IDEDispatcher(DispatcherBase):
                 cache.lpush(CacheKey.waiting_queue, json.dumps(data))
                 return "Server ERROR"
             # resp = self._request(urljoin(server.service_url, "/judge"), data=data)
-        return self._request(self.server_base_url + "/judge", data=data)
+        return self._request(urljoin(server.service_url, "/judge"), data=data)
 
     """
     def __init__(self, lang, code, test_case):

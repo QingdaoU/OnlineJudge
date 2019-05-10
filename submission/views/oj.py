@@ -3,9 +3,9 @@ import ipaddress
 from account.decorators import login_required, check_contest_permission
 from contest.models import ContestStatus, ContestRuleType
 from judge.tasks import judge_task
-# from judge.tasks import judge_IDE_task
+from judge.tasks import judge_IDE_task
 from options.options import SysOptions
-from judge.dispatcher import IDEDispatcher
+# from judge.dispatcher import IDEDispatcher
 # from judge.dispatcher import JudgeDispatcher
 from problem.models import Problem, ProblemRuleType
 from utils.api import APIView, validate_serializer
@@ -220,12 +220,10 @@ class IDEAPI(APIView):
             "input": data["input"],
             "output": "0"
         }
-        # use this for debug
-        # JudgeDispatcher(submission.id, problem.id).judge()
 
         # use this to debug
-        result = IDEDispatcher(src, language, test_case).judge()
-        # result = judge_IDE_task.send(lang, code, input)
+        # result = IDEDispatcher(src, language, test_case).judge()
+        result = judge_IDE_task.send(src, language, test_case)
 
         return self.success(result)
 
