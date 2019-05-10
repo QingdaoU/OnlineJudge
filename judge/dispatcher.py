@@ -419,19 +419,19 @@ class IDEDispatcher(DispatcherBase):
         if not self.test_case:
             raise ValueError("invalid parameter")
 
-        if self.language == 'C':
+        if self.language == "C":
             language_config = _c_lang_config
-        if self.language == 'C With O2':
+        if self.language == "C With O2":
             language_config = _c_o2_lang_config
-        if self.language == 'C++':
+        if self.language == "C++":
             language_config = _cpp_lang_config
-        if self.language == 'C++ With O2':
+        if self.language == "C++ With O2":
             language_config = _cpp_o2_lang_config
-        if self.language == 'Java':
+        if self.language == "Java":
             language_config = _java_lang_config
-        if self.language == 'Python2':
+        if self.language == "Python2":
             language_config = _py2_lang_config
-        if self.language == 'Python3':
+        if self.language == "Python3":
             language_config = _py3_lang_config
 
         max_cpu_time = 2000
