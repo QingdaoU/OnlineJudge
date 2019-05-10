@@ -222,8 +222,8 @@ class IDEAPI(APIView):
         }
 
         # use this to debug
-        # result = IDEDispatcher(src, language, test_case).judge()
-        result = judge_IDE_task.send(src, language, test_case)
+        result = IDEDispatcher(src, language, test_case).judge()
+        # result = judge_IDE_task.send(src, language, test_case)
 
         return self.success(result)
 
