@@ -2,7 +2,8 @@ import dramatiq
 
 from account.models import User
 from submission.models import Submission
-from judge.dispatcher import JudgeDispatcher, IDEDispatcher
+from judge.dispatcher import JudgeDispatcher
+from judge.ide import IDEDispatcher
 from utils.shortcuts import DRAMATIQ_WORKER_ARGS
 
 
@@ -16,4 +17,4 @@ def judge_task(submission_id, problem_id):
 
 @dramatiq.actor(**DRAMATIQ_WORKER_ARGS())
 def judge_IDE_task(src, language, test_case):
-    IDEDispatcher(src, language, test_case).judge()
+    return IDEDispatcher(src, language, test_case).judge()

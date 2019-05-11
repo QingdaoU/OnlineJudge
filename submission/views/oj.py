@@ -5,7 +5,7 @@ from contest.models import ContestStatus, ContestRuleType
 from judge.tasks import judge_task
 # from judge.tasks import judge_IDE_task
 from options.options import SysOptions
-from judge.dispatcher import IDEDispatcher
+from judge.ide import IDEDispatcher
 # from judge.dispatcher import JudgeDispatcher
 from problem.models import Problem, ProblemRuleType
 from utils.api import APIView, validate_serializer
@@ -216,10 +216,10 @@ class IDEAPI(APIView):
 
         language = data["language"]
         src = data["code"]
-        test_case = {
+        test_case = [{
             "input": data["input"],
             "output": "0"
-        }
+        }]
 
         # use this to debug
         result = IDEDispatcher(src, language, test_case).judge()
