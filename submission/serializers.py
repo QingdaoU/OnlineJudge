@@ -33,6 +33,7 @@ class SubmissionSafeModelSerializer(serializers.ModelSerializer):
 
 
 class SubmissionListSerializer(serializers.ModelSerializer):
+    problem = serializers.SlugRelatedField(read_only=True, slug_field="_id")
     show_link = serializers.SerializerMethodField()
 
     def __init__(self, *args, **kwargs):
@@ -41,7 +42,7 @@ class SubmissionListSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Submission
-        exclude = ("info", "code", "ip")
+        exclude = ("info", "contest", "code", "ip")
 
     def get_show_link(self, obj):
         # 没传user或为匿名user
