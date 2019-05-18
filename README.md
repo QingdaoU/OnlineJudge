@@ -34,7 +34,7 @@ Follow me:  [https://github.com/QingdaoU/OnlineJudgeDeploy/tree/2.0](https://git
 
 ## Documents
 
-[http://docs.onlinejudge.me/](http://docs.onlinejudge.me/)
+[http://docs.onlinejudge.me/](https://docs.onlinejudge.me/)
 
 ## Screenshots
 
