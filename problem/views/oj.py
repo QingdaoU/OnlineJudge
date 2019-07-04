@@ -107,7 +107,29 @@ class ContestProblemAPI(APIView):
                 problem_data = ProblemSafeSerializer(problem).data
             return self.success(problem_data)
 
-        contest_problems = Problem.objects.select_related("created_by").filter(contest=self.contest, visible=True)
+        random.seed(request.user.id + request.contest.id)
+        
+        # Random problems for every students in contest
+        def random_contest_problems(self, difficulty='Low', count=3):
+            contest_problem_set = Problem.objects.select_related("created_by").filter(contest=self.contest, visible=True, difficulty=difficulty).all()
+            contest_problem_id = []
+            for i in contest_problem_set:
+                contest_problem_id.append(i._id)
+            contest_problem_id = random.sample(contest_problem_id, count)
+            contest_problems = Problem.objects.select_related("created_by").filter(contest=self.contest, visible=True, _id__in=contest_problem_id)
+            return contest_problems
+        
+        contest_low_problems = random_contest_problems(difficulty='Low', count=3)
+        contest_mid_problems = random_contest_problems(difficulty='Mid', count=2)
+        contest_high_problems = random_contest_problems(difficulty='High', count=0)
+
+        contest_problems = (contest_low_problems | contest_mid_problems | contest_high_problems).order_by("_id")
+
+        # self.contest_problem_list = random.sample(contest_low_problem_set, 3)
+        # self.contest_problem_list.extend(random.sample(contest_mid_problem_set, 2))
+        # self.contest_problem_list.extend(random.sample(contest_high_problem_set, 0))
+
+        # # contest_problems = Problem.objects.select_related("created_by").filter(contest=self.contest, visible=True, _id__in=self.probelm_list).order_by('_id')
         if self.contest.problem_details_permission(request.user):
             data = ProblemSerializer(contest_problems, many=True).data
             self._add_problem_status(request, data)
