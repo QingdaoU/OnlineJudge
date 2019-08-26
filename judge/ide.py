@@ -7,7 +7,6 @@ import requests
 from django.db import transaction
 from django.db.models import F
 from conf.models import JudgeServer
-from conf.models import JudgeServer
 from options.options import SysOptions
 from utils.cache import cache
 from utils.constants import CacheKey
