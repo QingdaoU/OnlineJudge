@@ -70,7 +70,10 @@ data/public/upload/*
 !data/public/upload/.gitkeep
 data/public/avatar/*
 !data/public/avatar/default.png
+data/config/*
+!data/config/.gitkeep
 
 http_locations.conf
 https_locations.conf
 
+venv/

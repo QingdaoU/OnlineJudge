@@ -5,9 +5,9 @@
 [![Django Rest Framework](https://img.shields.io/badge/django_rest_framework-3.4.0-blue.svg?style=flat-square)](http://www.django-rest-framework.org/)
 [![Build Status](https://travis-ci.org/QingdaoU/OnlineJudge.svg?branch=master)](https://travis-ci.org/QingdaoU/OnlineJudge)
 
-> #### An onlinejudge system based on Python and Vue. [Demo](http://v2.qduoj.com)
+> #### An onlinejudge system based on Python and Vue. [Demo](https://qduoj.com)
 
-[中文文档](https://github.com/QingdaoU/OnlineJudge/blob/2.0/README-CN.md)
+[中文文档](README-CN.md)
 
 ## Overview
 
@@ -34,7 +34,7 @@ Follow me:  [https://github.com/QingdaoU/OnlineJudgeDeploy/tree/2.0](https://git
 
 ## Documents
 
-[http://docs.onlinejudge.me/](http://docs.onlinejudge.me/)
+[https://docs.onlinejudge.me/](https://docs.onlinejudge.me/)
 
 ## Screenshots
 

@@ -1,11 +1,13 @@
+import re
+
 from django import forms
 
 from options.options import SysOptions
-from judge.languages import language_names, spj_language_names
 from utils.api import UsernameSerializer, serializers
 from utils.constants import Difficulty
+from utils.serializers import LanguageNameMultiChoiceField, SPJLanguageNameChoiceField, LanguageNameChoiceField
 
-from .models import Problem, ProblemRuleType, ProblemTag
+from .models import Problem, ProblemRuleType, ProblemTag, ProblemIOMode
 from .utils import parse_problem_template
 
 
@@ -29,9 +31,23 @@ class CreateProblemCodeTemplateSerializer(serializers.Serializer):
     pass
 
 
+class ProblemIOModeSerializer(serializers.Serializer):
+    io_mode = serializers.ChoiceField(choices=ProblemIOMode.choices())
+    input = serializers.CharField()
+    output = serializers.CharField()
+
+    def validate(self, attrs):
+        if attrs["input"] == attrs["output"]:
+            raise serializers.ValidationError("Invalid io mode")
+        for item in (attrs["input"], attrs["output"]):
+            if not re.match("^[a-zA-Z0-9.]+$", item):
+                raise serializers.ValidationError("Invalid io file name format")
+        return attrs
+
+
 class CreateOrEditProblemSerializer(serializers.Serializer):
     _id = serializers.CharField(max_length=32, allow_blank=True, allow_null=True)
-    title = serializers.CharField(max_length=128)
+    title = serializers.CharField(max_length=1024)
     description = serializers.CharField()
     input_description = serializers.CharField()
     output_description = serializers.CharField()
@@ -40,11 +56,12 @@ class CreateOrEditProblemSerializer(serializers.Serializer):
     test_case_score = serializers.ListField(child=CreateTestCaseScoreSerializer(), allow_empty=True)
     time_limit = serializers.IntegerField(min_value=1, max_value=1000 * 60)
     memory_limit = serializers.IntegerField(min_value=1, max_value=1024)
-    languages = serializers.MultipleChoiceField(choices=language_names)
+    languages = LanguageNameMultiChoiceField()
     template = serializers.DictField(child=serializers.CharField(min_length=1))
     rule_type = serializers.ChoiceField(choices=[ProblemRuleType.ACM, ProblemRuleType.OI])
+    io_mode = ProblemIOModeSerializer()
     spj = serializers.BooleanField()
-    spj_language = serializers.ChoiceField(choices=spj_language_names, allow_blank=True, allow_null=True)
+    spj_language = SPJLanguageNameChoiceField(allow_blank=True, allow_null=True)
     spj_code = serializers.CharField(allow_blank=True, allow_null=True)
     spj_compile_ok = serializers.BooleanField(default=False)
     visible = serializers.BooleanField()
@@ -52,6 +69,7 @@ class CreateOrEditProblemSerializer(serializers.Serializer):
     tags = serializers.ListField(child=serializers.CharField(max_length=32), allow_empty=False)
     hint = serializers.CharField(allow_blank=True, allow_null=True)
     source = serializers.CharField(max_length=256, allow_blank=True, allow_null=True)
+    share_submission = serializers.BooleanField()
 
 
 class CreateProblemSerializer(CreateOrEditProblemSerializer):
@@ -78,7 +96,7 @@ class TagSerializer(serializers.ModelSerializer):
 
 
 class CompileSPJSerializer(serializers.Serializer):
-    spj_language = serializers.ChoiceField(choices=spj_language_names)
+    spj_language = SPJLanguageNameChoiceField()
     spj_code = serializers.CharField()
 
 
@@ -154,8 +172,9 @@ class ExportProblemSerializer(serializers.ModelSerializer):
         return self._html_format_value(obj.hint)
 
     def get_test_case_score(self, obj):
-        return [{"score": item["score"], "input_name": item["input_name"]}
-                for item in obj.test_case_score] if obj.rule_type == ProblemRuleType.OI else None
+        return [{"score": item["score"] if obj.rule_type == ProblemRuleType.OI else 100,
+                 "input_name": item["input_name"], "output_name": item["output_name"]}
+                for item in obj.test_case_score]
 
     def get_spj(self, obj):
         return {"code": obj.spj_code,
@@ -200,6 +219,7 @@ class FormatValueSerializer(serializers.Serializer):
 class TestCaseScoreSerializer(serializers.Serializer):
     score = serializers.IntegerField(min_value=1)
     input_name = serializers.CharField(max_length=32)
+    output_name = serializers.CharField(max_length=32)
 
 
 class TemplateSerializer(serializers.Serializer):
@@ -210,12 +230,12 @@ class TemplateSerializer(serializers.Serializer):
 
 class SPJSerializer(serializers.Serializer):
     code = serializers.CharField()
-    language = serializers.ChoiceField(choices=spj_language_names)
+    language = SPJLanguageNameChoiceField()
 
 
 class AnswerSerializer(serializers.Serializer):
     code = serializers.CharField()
-    language = serializers.ChoiceField(choices=language_names)
+    language = LanguageNameChoiceField()
 
 
 class ImportProblemSerializer(serializers.Serializer):

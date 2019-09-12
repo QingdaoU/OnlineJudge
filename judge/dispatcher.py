@@ -4,13 +4,12 @@ import logging
 from urllib.parse import urljoin
 
 import requests
-from django.db import transaction
+from django.db import transaction, IntegrityError
 from django.db.models import F
 
 from account.models import User
 from conf.models import JudgeServer
 from contest.models import ContestRuleType, ACMContestRank, OIContestRank, ContestStatus
-from judge.languages import languages, spj_languages
 from options.options import SysOptions
 from problem.models import Problem, ProblemRuleType
 from problem.utils import parse_problem_template
@@ -26,8 +25,31 @@ def process_pending_task():
     if cache.llen(CacheKey.waiting_queue):
         # 防止循环引入
         from judge.tasks import judge_task
-        data = json.loads(cache.rpop(CacheKey.waiting_queue).decode("utf-8"))
-        judge_task.delay(**data)
+        tmp_data = cache.rpop(CacheKey.waiting_queue)
+        if tmp_data:
+            data = json.loads(tmp_data.decode("utf-8"))
+            judge_task.send(**data)
+
+
+class ChooseJudgeServer:
+    def __init__(self):
+        self.server = None
+
+    def __enter__(self) -> [JudgeServer, None]:
+        with transaction.atomic():
+            servers = JudgeServer.objects.select_for_update().filter(is_disabled=False).order_by("task_number")
+            servers = [s for s in servers if s.status == "normal"]
+            for server in servers:
+                if server.task_number <= server.cpu_core * 2:
+                    server.task_number = F("task_number") + 1
+                    server.save(update_fields=["task_number"])
+                    self.server = server
+                    return server
+        return None
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        if self.server:
+            JudgeServer.objects.filter(id=self.server.id).update(task_number=F("task_number") - 1)
 
 
 class DispatcherBase(object):
@@ -43,30 +65,11 @@ class DispatcherBase(object):
         except Exception as e:
             logger.exception(e)
 
-    @staticmethod
-    def choose_judge_server():
-        with transaction.atomic():
-            servers = JudgeServer.objects.select_for_update().filter(is_disabled=False).order_by("task_number")
-            servers = [s for s in servers if s.status == "normal"]
-            if servers:
-                server = servers[0]
-                server.used_instance_number = F("task_number") + 1
-                server.save()
-                return server
-
-    @staticmethod
-    def release_judge_server(judge_server_id):
-        with transaction.atomic():
-            # 使用原子操作, 同时因为use和release中间间隔了判题过程,需要重新查询一下
-            server = JudgeServer.objects.get(id=judge_server_id)
-            server.used_instance_number = F("task_number") - 1
-            server.save()
-
 
 class SPJCompiler(DispatcherBase):
     def __init__(self, spj_code, spj_version, spj_language):
         super().__init__()
-        spj_compile_config = list(filter(lambda config: spj_language == config["name"], spj_languages))[0]["spj"][
+        spj_compile_config = list(filter(lambda config: spj_language == config["name"], SysOptions.spj_languages))[0]["spj"][
             "compile"]
         self.data = {
             "src": spj_code,
@@ -75,13 +78,14 @@ class SPJCompiler(DispatcherBase):
         }
 
     def compile_spj(self):
-        server = self.choose_judge_server()
-        if not server:
-            return "No available judge_server"
-        result = self._request(urljoin(server.service_url, "compile_spj"), data=self.data)
-        self.release_judge_server(server.id)
-        if result["err"]:
-            return result["data"]
+        with ChooseJudgeServer() as server:
+            if not server:
+                return "No available judge_server"
+            result = self._request(urljoin(server.service_url, "compile_spj"), data=self.data)
+            if not result:
+                return "Failed to call judge server"
+            if result["err"]:
+                return result["data"]
 
 
 class JudgeDispatcher(DispatcherBase):
@@ -119,17 +123,11 @@ class JudgeDispatcher(DispatcherBase):
             self.submission.statistic_info["score"] = score
 
     def judge(self):
-        server = self.choose_judge_server()
-        if not server:
-            data = {"submission_id": self.submission.id, "problem_id": self.problem.id}
-            cache.lpush(CacheKey.waiting_queue, json.dumps(data))
-            return
-
         language = self.submission.language
-        sub_config = list(filter(lambda item: language == item["name"], languages))[0]
+        sub_config = list(filter(lambda item: language == item["name"], SysOptions.languages))[0]
         spj_config = {}
         if self.problem.spj_code:
-            for lang in spj_languages:
+            for lang in SysOptions.spj_languages:
                 if lang["name"] == self.problem.spj_language:
                     spj_config = lang["spj"]
                     break
@@ -150,12 +148,22 @@ class JudgeDispatcher(DispatcherBase):
             "spj_version": self.problem.spj_version,
             "spj_config": spj_config.get("config"),
             "spj_compile_config": spj_config.get("compile"),
-            "spj_src": self.problem.spj_code
+            "spj_src": self.problem.spj_code,
+            "io_mode": self.problem.io_mode
         }
 
-        Submission.objects.filter(id=self.submission.id).update(result=JudgeStatus.JUDGING)
+        with ChooseJudgeServer() as server:
+            if not server:
+                data = {"submission_id": self.submission.id, "problem_id": self.problem.id}
+                cache.lpush(CacheKey.waiting_queue, json.dumps(data))
+                return
+            Submission.objects.filter(id=self.submission.id).update(result=JudgeStatus.JUDGING)
+            resp = self._request(urljoin(server.service_url, "/judge"), data=data)
 
-        resp = self._request(urljoin(server.service_url, "/judge"), data=data)
+        if not resp:
+            Submission.objects.filter(id=self.submission.id).update(result=JudgeStatus.SYSTEM_ERROR)
+            return
+
         if resp["err"]:
             self.submission.result = JudgeStatus.COMPILE_ERROR
             self.submission.statistic_info["err_info"] = resp["data"]
@@ -174,7 +182,6 @@ class JudgeDispatcher(DispatcherBase):
             else:
                 self.submission.result = JudgeStatus.PARTIALLY_ACCEPTED
         self.submission.save()
-        self.release_judge_server(server.id)
 
         if self.contest_id:
             if self.contest.status != ContestStatus.CONTEST_UNDERWAY or \
@@ -182,8 +189,9 @@ class JudgeDispatcher(DispatcherBase):
                 logger.info(
                     "Contest debug mode, id: " + str(self.contest_id) + ", submission id: " + self.submission.id)
                 return
-            self.update_contest_problem_status()
-            self.update_contest_rank()
+            with transaction.atomic():
+                self.update_contest_problem_status()
+                self.update_contest_rank()
         else:
             if self.last_result:
                 self.update_problem_status_rejudge()
@@ -323,20 +331,31 @@ class JudgeDispatcher(DispatcherBase):
     def update_contest_rank(self):
         if self.contest.rule_type == ContestRuleType.OI or self.contest.real_time_rank:
             cache.delete(f"{CacheKey.contest_rank_cache}:{self.contest.id}")
-        with transaction.atomic():
-            if self.contest.rule_type == ContestRuleType.ACM:
-                acm_rank, _ = ACMContestRank.objects.select_for_update(). \
-                    get_or_create(user_id=self.submission.user_id, contest=self.contest)
-                self._update_acm_contest_rank(acm_rank)
-            else:
-                oi_rank, _ = OIContestRank.objects.select_for_update(). \
-                    get_or_create(user_id=self.submission.user_id, contest=self.contest)
-                self._update_oi_contest_rank(oi_rank)
+
+        def get_rank(model):
+            return model.objects.select_for_update().get(user_id=self.submission.user_id, contest=self.contest)
+
+        if self.contest.rule_type == ContestRuleType.ACM:
+            model = ACMContestRank
+            func = self._update_acm_contest_rank
+        else:
+            model = OIContestRank
+            func = self._update_oi_contest_rank
+
+        try:
+            rank = get_rank(model)
+        except model.DoesNotExist:
+            try:
+                model.objects.create(user_id=self.submission.user_id, contest=self.contest)
+                rank = get_rank(model)
+            except IntegrityError:
+                rank = get_rank(model)
+        func(rank)
 
     def _update_acm_contest_rank(self, rank):
         info = rank.submission_info.get(str(self.submission.problem_id))
         # 因前面更改过，这里需要重新获取
-        problem = Problem.objects.get(contest_id=self.contest_id, id=self.problem.id)
+        problem = Problem.objects.select_for_update().get(contest_id=self.contest_id, id=self.problem.id)
         # 此题提交过
         if info:
             if info["is_ac"]:

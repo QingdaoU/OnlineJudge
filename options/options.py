@@ -1,10 +1,90 @@
+import functools
 import os
-from django.core.cache import cache
+import threading
+import time
+
 from django.db import transaction, IntegrityError
 
-from utils.constants import CacheKey
 from utils.shortcuts import rand_str
+from judge.languages import languages
 from .models import SysOptions as SysOptionsModel
+
+
+class my_property:
+    """
+    在 metaclass 中使用，以实现：
+    1. ttl = None，不缓存
+    2. ttl is callable，条件缓存
+    3. 缓存 ttl 秒
+    """
+    def __init__(self, func=None, fset=None, ttl=None):
+        self.fset = fset
+        self.local = threading.local()
+        self.ttl = ttl
+        self._check_ttl(ttl)
+        self.func = func
+        functools.update_wrapper(self, func)
+
+    def _check_ttl(self, value):
+        if value is None or callable(value):
+            return
+        return self._check_timeout(value)
+
+    def _check_timeout(self, value):
+        if not isinstance(value, int):
+            raise ValueError(f"Invalid timeout type: {type(value)}")
+        if value < 0:
+            raise ValueError("Invalid timeout value, it must >= 0")
+
+    def __get__(self, obj, cls):
+        if obj is None:
+            return self
+
+        now = time.time()
+        if self.ttl:
+            if hasattr(self.local, "value"):
+                value, expire_at = self.local.value
+                if now < expire_at:
+                    return value
+
+            value = self.func(obj)
+
+            # 如果定义了条件缓存, ttl 是一个函数，返回要缓存多久；返回 0 代表不要缓存
+            if callable(self.ttl):
+                # 而且条件缓存说不要缓存，那就直接返回，不要设置 local
+                timeout = self.ttl(value)
+                self._check_timeout(timeout)
+
+                if timeout == 0:
+                    return value
+                elif timeout > 0:
+                    self.local.value = (value, now + timeout)
+            else:
+                # ttl 是一个数字
+                self.local.value = (value, now + self.ttl)
+            return value
+        else:
+            return self.func(obj)
+
+    def __set__(self, obj, value):
+        if not self.fset:
+            raise AttributeError("can't set attribute")
+        self.fset(obj, value)
+        if hasattr(self.local, "value"):
+            del self.local.value
+
+    def setter(self, func):
+        self.fset = func
+        return self
+
+    def __call__(self, func, *args, **kwargs) -> "my_property":
+        if self.func is None:
+            self.func = func
+            functools.update_wrapper(self, func)
+        return self
+
+
+DEFAULT_SHORT_TTL = 2
 
 
 def default_token():
@@ -22,6 +102,7 @@ class OptionKeys:
     smtp_config = "smtp_config"
     judge_server_token = "judge_server_token"
     throttling = "throttling"
+    languages = "languages"
 
 
 class OptionDefaultValue:
@@ -35,25 +116,13 @@ class OptionDefaultValue:
     judge_server_token = default_token
     throttling = {"ip": {"capacity": 100, "fill_rate": 0.1, "default_capacity": 50},
                   "user": {"capacity": 20, "fill_rate": 0.03, "default_capacity": 10}}
+    languages = languages
 
 
 class _SysOptionsMeta(type):
     @classmethod
-    def _set_cache(mcs, option_key, option_value):
-        cache.set(f"{CacheKey.option}:{option_key}", option_value, timeout=60)
-
-    @classmethod
-    def _del_cache(mcs, option_key):
-        cache.delete(f"{CacheKey.option}:{option_key}")
-
-    @classmethod
     def _get_keys(cls):
         return [key for key in OptionKeys.__dict__ if not key.startswith("__")]
-
-    def rebuild_cache(cls):
-        for key in cls._get_keys():
-            # get option 的时候会写 cache 的
-            cls._get_option(key, use_cache=False)
 
     @classmethod
     def _init_option(mcs):
@@ -68,19 +137,14 @@ class _SysOptionsMeta(type):
                     pass
 
     @classmethod
-    def _get_option(mcs, option_key, use_cache=True):
+    def _get_option(mcs, option_key):
         try:
-            if use_cache:
-                option = cache.get(f"{CacheKey.option}:{option_key}")
-                if option:
-                    return option
             option = SysOptionsModel.objects.get(key=option_key)
             value = option.value
-            mcs._set_cache(option_key, value)
             return value
         except SysOptionsModel.DoesNotExist:
             mcs._init_option()
-            return mcs._get_option(option_key, use_cache=use_cache)
+            return mcs._get_option(option_key)
 
     @classmethod
     def _set_option(mcs, option_key: str, option_value):
@@ -89,7 +153,6 @@ class _SysOptionsMeta(type):
                 option = SysOptionsModel.objects.select_for_update().get(key=option_key)
                 option.value = option_value
                 option.save()
-                mcs._del_cache(option_key)
         except SysOptionsModel.DoesNotExist:
             mcs._init_option()
             mcs._set_option(option_key, option_value)
@@ -102,7 +165,6 @@ class _SysOptionsMeta(type):
                 value = option.value + 1
                 option.value = value
                 option.save()
-                mcs._del_cache(option_key)
         except SysOptionsModel.DoesNotExist:
             mcs._init_option()
             return mcs._increment(option_key)
@@ -119,7 +181,7 @@ class _SysOptionsMeta(type):
             result[key] = mcs._get_option(key)
         return result
 
-    @property
+    @my_property(ttl=DEFAULT_SHORT_TTL)
     def website_base_url(cls):
         return cls._get_option(OptionKeys.website_base_url)
 
@@ -127,7 +189,7 @@ class _SysOptionsMeta(type):
     def website_base_url(cls, value):
         cls._set_option(OptionKeys.website_base_url, value)
 
-    @property
+    @my_property(ttl=DEFAULT_SHORT_TTL)
     def website_name(cls):
         return cls._get_option(OptionKeys.website_name)
 
@@ -135,7 +197,7 @@ class _SysOptionsMeta(type):
     def website_name(cls, value):
         cls._set_option(OptionKeys.website_name, value)
 
-    @property
+    @my_property(ttl=DEFAULT_SHORT_TTL)
     def website_name_shortcut(cls):
         return cls._get_option(OptionKeys.website_name_shortcut)
 
@@ -143,7 +205,7 @@ class _SysOptionsMeta(type):
     def website_name_shortcut(cls, value):
         cls._set_option(OptionKeys.website_name_shortcut, value)
 
-    @property
+    @my_property(ttl=DEFAULT_SHORT_TTL)
     def website_footer(cls):
         return cls._get_option(OptionKeys.website_footer)
 
@@ -151,7 +213,7 @@ class _SysOptionsMeta(type):
     def website_footer(cls, value):
         cls._set_option(OptionKeys.website_footer, value)
 
-    @property
+    @my_property
     def allow_register(cls):
         return cls._get_option(OptionKeys.allow_register)
 
@@ -159,7 +221,7 @@ class _SysOptionsMeta(type):
     def allow_register(cls, value):
         cls._set_option(OptionKeys.allow_register, value)
 
-    @property
+    @my_property(ttl=DEFAULT_SHORT_TTL)
     def submission_list_show_all(cls):
         return cls._get_option(OptionKeys.submission_list_show_all)
 
@@ -167,7 +229,7 @@ class _SysOptionsMeta(type):
     def submission_list_show_all(cls, value):
         cls._set_option(OptionKeys.submission_list_show_all, value)
 
-    @property
+    @my_property
     def smtp_config(cls):
         return cls._get_option(OptionKeys.smtp_config)
 
@@ -175,7 +237,7 @@ class _SysOptionsMeta(type):
     def smtp_config(cls, value):
         cls._set_option(OptionKeys.smtp_config, value)
 
-    @property
+    @my_property
     def judge_server_token(cls):
         return cls._get_option(OptionKeys.judge_server_token)
 
@@ -183,13 +245,36 @@ class _SysOptionsMeta(type):
     def judge_server_token(cls, value):
         cls._set_option(OptionKeys.judge_server_token, value)
 
-    @property
+    @my_property
     def throttling(cls):
         return cls._get_option(OptionKeys.throttling)
 
     @throttling.setter
     def throttling(cls, value):
         cls._set_option(OptionKeys.throttling, value)
+
+    @my_property(ttl=DEFAULT_SHORT_TTL)
+    def languages(cls):
+        return cls._get_option(OptionKeys.languages)
+
+    @languages.setter
+    def languages(cls, value):
+        cls._set_option(OptionKeys.languages, value)
+
+    @my_property(ttl=DEFAULT_SHORT_TTL)
+    def spj_languages(cls):
+        return [item for item in cls.languages if "spj" in item]
+
+    @my_property(ttl=DEFAULT_SHORT_TTL)
+    def language_names(cls):
+        return [item["name"] for item in cls.languages]
+
+    @my_property(ttl=DEFAULT_SHORT_TTL)
+    def spj_language_names(cls):
+        return [item["name"] for item in cls.languages if "spj" in item]
+
+    def reset_languages(cls):
+        cls.languages = languages
 
 
 class SysOptions(metaclass=_SysOptionsMeta):

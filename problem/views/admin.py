@@ -2,26 +2,25 @@ import hashlib
 import json
 import os
 import shutil
-import zipfile
 import tempfile
+import zipfile
 from wsgiref.util import FileWrapper
 
 from django.conf import settings
-from django.http import StreamingHttpResponse, HttpResponse, FileResponse
 from django.db import transaction
+from django.db.models import Q
+from django.http import StreamingHttpResponse, FileResponse
 
 from account.decorators import problem_permission_required, ensure_created_by
-from judge.dispatcher import SPJCompiler
-from judge.languages import language_names
 from contest.models import Contest, ContestStatus
-from submission.models import Submission, JudgeStatus
 from fps.parser import FPSHelper, FPSParser
+from judge.dispatcher import SPJCompiler
+from options.options import SysOptions
+from submission.models import Submission, JudgeStatus
 from utils.api import APIView, CSRFExemptAPIView, validate_serializer, APIError
+from utils.constants import Difficulty
 from utils.shortcuts import rand_str, natural_sort_key
 from utils.tasks import delete_files
-from utils.constants import Difficulty
-
-from ..utils import TEMPLATE_BASE, build_problem_template
 from ..models import Problem, ProblemRuleType, ProblemTag
 from ..serializers import (CreateContestProblemSerializer, CompileSPJSerializer,
                            CreateProblemSerializer, EditProblemSerializer, EditContestProblemSerializer,
@@ -29,6 +28,7 @@ from ..serializers import (CreateContestProblemSerializer, CompileSPJSerializer,
                            AddContestProblemSerializer, ExportProblemSerializer,
                            ExportProblemRequestSerialzier, UploadProblemForm, ImportProblemSerializer,
                            FPSProblemSerializer)
+from ..utils import TEMPLATE_BASE, build_problem_template
 
 
 class TestCaseZipProcessor(object):
@@ -45,6 +45,7 @@ class TestCaseZipProcessor(object):
         test_case_id = rand_str()
         test_case_dir = os.path.join(settings.TEST_CASE_DIR, test_case_id)
         os.mkdir(test_case_dir)
+        os.chmod(test_case_dir, 0o710)
 
         size_cache = {}
         md5_cache = {}
@@ -79,6 +80,10 @@ class TestCaseZipProcessor(object):
 
         with open(os.path.join(test_case_dir, "info"), "w", encoding="utf-8") as f:
             f.write(json.dumps(test_case_info, indent=4))
+
+        for item in os.listdir(test_case_dir):
+            os.chmod(os.path.join(test_case_dir, item), 0o640)
+
         return info, test_case_id
 
     def filter_name_list(self, name_list, spj, dir=""):
@@ -132,12 +137,8 @@ class TestCaseAPI(CSRFExemptAPIView, TestCaseZipProcessor):
         with zipfile.ZipFile(file_name, "w") as file:
             for test_case in name_list:
                 file.write(f"{test_case_dir}/{test_case}", test_case)
-        if os.environ.get("OJ_ENV") == "production":
-            response = HttpResponse()
-            response["X-Accel-Redirect"] = file_name
-        else:
-            response = StreamingHttpResponse(FileWrapper(open(file_name, "rb")),
-                                             content_type="application/octet-stream")
+        response = StreamingHttpResponse(FileWrapper(open(file_name, "rb")),
+                                         content_type="application/octet-stream")
 
         response["Content-Disposition"] = f"attachment; filename=problem_{problem.id}_test_cases.zip"
         response["Content-Length"] = os.path.getsize(file_name)
@@ -194,24 +195,6 @@ class ProblemBase(APIView):
             data["total_score"] = total_score
         data["languages"] = list(data["languages"])
 
-    @problem_permission_required
-    def delete(self, request):
-        id = request.GET.get("id")
-        if not id:
-            return self.error("Invalid parameter, id is required")
-        try:
-            problem = Problem.objects.get(id=id, contest_id__isnull=True)
-        except Problem.DoesNotExist:
-            return self.error("Problem does not exists")
-        ensure_created_by(problem, request.user)
-        if Submission.objects.filter(problem=problem).exists():
-            return self.error("Can't delete the problem as it has submissions")
-        d = os.path.join(settings.TEST_CASE_DIR, problem.test_case_id)
-        if os.path.isdir(d):
-            shutil.rmtree(d, ignore_errors=True)
-        problem.delete()
-        return self.success()
-
 
 class ProblemAPI(ProblemBase):
     @problem_permission_required
@@ -261,11 +244,11 @@ class ProblemAPI(ProblemBase):
             else:
                 problems = problems.filter(rule_type=rule_type)
 
+        keyword = request.GET.get("keyword", "").strip()
+        if keyword:
+            problems = problems.filter(Q(title__icontains=keyword) | Q(_id__icontains=keyword))
         if not user.can_mgmt_all_problem():
             problems = problems.filter(created_by=user)
-        keyword = request.GET.get("keyword")
-        if keyword:
-            problems = problems.filter(title__contains=keyword)
         return self.success(self.paginate_data(request, problems, ProblemAdminSerializer))
 
     @problem_permission_required
@@ -307,6 +290,22 @@ class ProblemAPI(ProblemBase):
 
         return self.success()
 
+    @problem_permission_required
+    def delete(self, request):
+        id = request.GET.get("id")
+        if not id:
+            return self.error("Invalid parameter, id is required")
+        try:
+            problem = Problem.objects.get(id=id, contest_id__isnull=True)
+        except Problem.DoesNotExist:
+            return self.error("Problem does not exists")
+        ensure_created_by(problem, request.user)
+        # d = os.path.join(settings.TEST_CASE_DIR, problem.test_case_id)
+        # if os.path.isdir(d):
+        #     shutil.rmtree(d, ignore_errors=True)
+        problem.delete()
+        return self.success()
+
 
 class ContestProblemAPI(ProblemBase):
     @validate_serializer(CreateContestProblemSerializer)
@@ -346,7 +345,6 @@ class ContestProblemAPI(ProblemBase):
             problem.tags.add(tag)
         return self.success(ProblemAdminSerializer(problem).data)
 
-    @problem_permission_required
     def get(self, request):
         problem_id = request.GET.get("id")
         contest_id = request.GET.get("contest_id")
@@ -354,15 +352,19 @@ class ContestProblemAPI(ProblemBase):
         if problem_id:
             try:
                 problem = Problem.objects.get(id=problem_id)
-                ensure_created_by(problem, user)
+                ensure_created_by(problem.contest, user)
             except Problem.DoesNotExist:
                 return self.error("Problem does not exist")
             return self.success(ProblemAdminSerializer(problem).data)
 
         if not contest_id:
             return self.error("Contest id is required")
-
-        problems = Problem.objects.filter(contest_id=contest_id).order_by("-create_time")
+        try:
+            contest = Contest.objects.get(id=contest_id)
+            ensure_created_by(contest, user)
+        except Contest.DoesNotExist:
+            return self.error("Contest does not exist")
+        problems = Problem.objects.filter(contest=contest).order_by("-create_time")
         if user.is_admin():
             problems = problems.filter(contest__created_by=user)
         keyword = request.GET.get("keyword")
@@ -371,7 +373,6 @@ class ContestProblemAPI(ProblemBase):
         return self.success(self.paginate_data(request, problems, ProblemAdminSerializer))
 
     @validate_serializer(EditContestProblemSerializer)
-    @problem_permission_required
     def put(self, request):
         data = request.data
         user = request.user
@@ -388,8 +389,7 @@ class ContestProblemAPI(ProblemBase):
         problem_id = data.pop("id")
 
         try:
-            problem = Problem.objects.get(id=problem_id)
-            ensure_created_by(problem, user)
+            problem = Problem.objects.get(id=problem_id, contest=contest)
         except Problem.DoesNotExist:
             return self.error("Problem does not exist")
 
@@ -417,6 +417,23 @@ class ContestProblemAPI(ProblemBase):
             except ProblemTag.DoesNotExist:
                 tag = ProblemTag.objects.create(name=tag)
             problem.tags.add(tag)
+        return self.success()
+
+    def delete(self, request):
+        id = request.GET.get("id")
+        if not id:
+            return self.error("Invalid parameter, id is required")
+        try:
+            problem = Problem.objects.get(id=id, contest_id__isnull=False)
+        except Problem.DoesNotExist:
+            return self.error("Problem does not exists")
+        ensure_created_by(problem.contest, request.user)
+        if Submission.objects.filter(problem=problem).exists():
+            return self.error("Can't delete the problem as it has submissions")
+        d = os.path.join(settings.TEST_CASE_DIR, problem.test_case_id)
+        if os.path.isdir(d):
+            shutil.rmtree(d, ignore_errors=True)
+        problem.delete()
         return self.success()
 
 
@@ -522,7 +539,7 @@ class ExportProblemAPI(APIView):
         with zipfile.ZipFile(path, "w") as zip_file:
             for index, problem in enumerate(problems):
                 self.process_one_problem(zip_file=zip_file, user=request.user, problem=problem, index=index + 1)
-        delete_files.apply_async((path,), countdown=300)
+        delete_files.send_with_options(args=(path,), delay=300_000)
         resp = FileResponse(open(path, "rb"))
         resp["Content-Type"] = "application/zip"
         resp["Content-Disposition"] = f"attachment;filename=problem-export.zip"
@@ -559,7 +576,7 @@ class ImportProblemAPI(CSRFExemptAPIView, TestCaseZipProcessor):
                         else:
                             problem_info = serializer.data
                             for item in problem_info["template"].keys():
-                                if item not in language_names:
+                                if item not in SysOptions.language_names:
                                     return self.error(f"Unsupported language {item}")
 
                         problem_info["display_id"] = problem_info["display_id"][:24]
@@ -594,7 +611,7 @@ class ImportProblemAPI(CSRFExemptAPIView, TestCaseZipProcessor):
                                                              spj_language=problem_info["spj"][
                                                                  "language"] if spj else None,
                                                              spj_version=rand_str(8) if spj else "",
-                                                             languages=language_names,
+                                                             languages=SysOptions.language_names,
                                                              created_by=request.user,
                                                              visible=False,
                                                              difficulty=Difficulty.MID,
@@ -635,7 +652,7 @@ class FPSProblemImport(CSRFExemptAPIView):
                                input_description=problem_data["input"],
                                output_description=problem_data["output"],
                                hint=problem_data["hint"],
-                               test_case_score=[],
+                               test_case_score=problem_data["test_case_score"],
                                time_limit=time_limit,
                                memory_limit=problem_data["memory_limit"]["value"],
                                samples=problem_data["samples"],
@@ -647,7 +664,7 @@ class FPSProblemImport(CSRFExemptAPIView):
                                spj_language=problem_data["spj"]["language"] if spj else None,
                                spj_version=rand_str(8) if spj else "",
                                visible=False,
-                               languages=language_names,
+                               languages=SysOptions.language_names,
                                created_by=creator,
                                difficulty=Difficulty.MID,
                                test_case_id=problem_data["test_case_id"])
@@ -669,12 +686,16 @@ class FPSProblemImport(CSRFExemptAPIView):
                 test_case_id = rand_str()
                 test_case_dir = os.path.join(settings.TEST_CASE_DIR, test_case_id)
                 os.mkdir(test_case_dir)
-                helper.save_test_case(_problem, test_case_dir)
+                score = []
+                for item in helper.save_test_case(_problem, test_case_dir)["test_cases"].values():
+                    score.append({"score": 0, "input_name": item["input_name"],
+                                  "output_name": item.get("output_name")})
                 problem_data = helper.save_image(_problem, settings.UPLOAD_DIR, settings.UPLOAD_PREFIX)
                 s = FPSProblemSerializer(data=problem_data)
                 if not s.is_valid():
                     return self.error(f"Parse FPS file error: {s.errors}")
                 problem_data = s.data
                 problem_data["test_case_id"] = test_case_id
+                problem_data["test_case_score"] = score
                 self._create_problem(problem_data, request.user)
         return self.success({"import_count": len(problems)})

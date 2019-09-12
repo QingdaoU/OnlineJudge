@@ -1,14 +1,13 @@
 import logging
-
-from celery import shared_task
+import dramatiq
 
 from options.options import SysOptions
-from utils.shortcuts import send_email
+from utils.shortcuts import send_email, DRAMATIQ_WORKER_ARGS
 
 logger = logging.getLogger(__name__)
 
 
-@shared_task
+@dramatiq.actor(**DRAMATIQ_WORKER_ARGS(max_retries=3))
 def send_email_async(from_name, to_email, to_name, subject, content):
     if not SysOptions.smtp_config:
         return

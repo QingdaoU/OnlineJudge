@@ -6,7 +6,7 @@ from .models import JudgeServer
 class EditSMTPConfigSerializer(serializers.Serializer):
     server = serializers.CharField(max_length=128)
     port = serializers.IntegerField(default=25)
-    email = serializers.EmailField(max_length=128)
+    email = serializers.CharField(max_length=256)
     password = serializers.CharField(max_length=128, required=False, allow_null=True, allow_blank=True)
     tls = serializers.BooleanField()
 

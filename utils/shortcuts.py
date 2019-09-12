@@ -81,3 +81,14 @@ def send_email(smtp_config, from_name, to_email, to_name, subject, content):
 
 def get_env(name, default=""):
     return os.environ.get(name, default)
+
+
+def DRAMATIQ_WORKER_ARGS(time_limit=3600_000, max_retries=0, max_age=7200_000):
+    return {"max_retries": max_retries, "time_limit": time_limit, "max_age": max_age}
+
+
+def check_is_id(value):
+    try:
+        return int(value) > 0
+    except Exception:
+        return False

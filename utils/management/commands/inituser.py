@@ -20,7 +20,7 @@ class Command(BaseCommand):
             exit(1)
 
         if action == "create_super_admin":
-            if User.objects.filter(username=username).exists():
+            if User.objects.filter(id=1).exists():
                 self.stdout.write(self.style.SUCCESS(f"User {username} exists, operation ignored"))
                 exit()
 

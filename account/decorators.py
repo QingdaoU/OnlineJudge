@@ -31,19 +31,19 @@ class BasePermissionDecorator(object):
 
 class login_required(BasePermissionDecorator):
     def check_permission(self):
-        return self.request.user.is_authenticated()
+        return self.request.user.is_authenticated
 
 
 class super_admin_required(BasePermissionDecorator):
     def check_permission(self):
         user = self.request.user
-        return user.is_authenticated() and user.is_super_admin()
+        return user.is_authenticated and user.is_super_admin()
 
 
 class admin_role_required(BasePermissionDecorator):
     def check_permission(self):
         user = self.request.user
-        return user.is_authenticated() and user.is_admin_role()
+        return user.is_authenticated and user.is_admin_role()
 
 
 class problem_permission_required(admin_role_required):
@@ -79,14 +79,15 @@ def check_contest_permission(check_type="details"):
             except Contest.DoesNotExist:
                 return self.error("Contest %s doesn't exist" % contest_id)
 
+            # Anonymous
+            if not user.is_authenticated:
+                return self.error("Please login first.")
+
             # creator or owner
-            if user.is_authenticated() and user.is_contest_admin(self.contest):
+            if user.is_contest_admin(self.contest):
                 return func(*args, **kwargs)
 
             if self.contest.contest_type == ContestType.PASSWORD_PROTECTED_CONTEST:
-                # Anonymous
-                if not user.is_authenticated():
-                    return self.error("Please login first.")
                 # password error
                 if self.contest.id not in request.session.get("accessible_contests", []):
                     return self.error("Password is required.")
@@ -109,6 +110,8 @@ def ensure_created_by(obj, user):
     e = APIError(msg=f"{obj.__class__.__name__} does not exist")
     if not user.is_admin_role():
         raise e
+    if user.is_super_admin():
+        return
     if isinstance(obj, Problem):
         if not user.can_mgmt_all_problem() and obj.created_by != user:
             raise e

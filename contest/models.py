@@ -9,18 +9,18 @@ from utils.models import RichTextField
 
 
 class Contest(models.Model):
-    title = models.CharField(max_length=40)
+    title = models.TextField()
     description = RichTextField()
     # show real time rank or cached rank
     real_time_rank = models.BooleanField()
-    password = models.CharField(max_length=30, blank=True, null=True)
+    password = models.TextField(null=True)
     # enum of ContestRuleType
-    rule_type = models.CharField(max_length=36)
+    rule_type = models.TextField()
     start_time = models.DateTimeField()
     end_time = models.DateTimeField()
     create_time = models.DateTimeField(auto_now_add=True)
     last_update_time = models.DateTimeField(auto_now=True)
-    created_by = models.ForeignKey(User)
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE)
     # 是否可见 false的话相当于删除
     visible = models.BooleanField(default=True)
     allowed_ip_ranges = JSONField(default=list)
@@ -47,7 +47,7 @@ class Contest(models.Model):
     def problem_details_permission(self, user):
         return self.rule_type == ContestRuleType.ACM or \
                self.status == ContestStatus.CONTEST_ENDED or \
-               user.is_authenticated() and user.is_contest_admin(self) or \
+               user.is_authenticated and user.is_contest_admin(self) or \
                self.real_time_rank
 
     class Meta:
@@ -56,8 +56,8 @@ class Contest(models.Model):
 
 
 class AbstractContestRank(models.Model):
-    user = models.ForeignKey(User)
-    contest = models.ForeignKey(Contest)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    contest = models.ForeignKey(Contest, on_delete=models.CASCADE)
     submission_number = models.IntegerField(default=0)
 
     class Meta:
@@ -74,6 +74,7 @@ class ACMContestRank(AbstractContestRank):
 
     class Meta:
         db_table = "acm_contest_rank"
+        unique_together = (("user", "contest"),)
 
 
 class OIContestRank(AbstractContestRank):
@@ -84,13 +85,14 @@ class OIContestRank(AbstractContestRank):
 
     class Meta:
         db_table = "oi_contest_rank"
+        unique_together = (("user", "contest"),)
 
 
 class ContestAnnouncement(models.Model):
-    contest = models.ForeignKey(Contest)
-    title = models.CharField(max_length=128)
+    contest = models.ForeignKey(Contest, on_delete=models.CASCADE)
+    title = models.TextField()
     content = RichTextField()
-    created_by = models.ForeignKey(User)
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE)
     visible = models.BooleanField(default=True)
     create_time = models.DateTimeField(auto_now_add=True)
 

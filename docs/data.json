@@ -1,7 +1,100 @@
 {
   "update": [
     {
-      "version": "2017-03-27",
+      "version": "2019-04-05",
+      "level": "Recommend",
+      "title": "2019-04-05",
+      "details": [
+        "Fix bugs in Free Problem Set parser"
+      ]
+    },
+    {
+      "version": "2019-04-03",
+      "level": "Important",
+      "title": "2019-04-03",
+      "details": [
+        "Fix bugs in judge server scheduler"
+      ]
+    },
+    {
+      "version": "2019-03-25",
+      "level": "Recommend",
+      "title": "2019-03-25",
+      "details": [
+        "Update Django to version 2.1 and Python to version 3.7",
+        "Replace celery with dramatiq",
+        "Add problem file IO Mode",
+        "You can add attachments in all editor",
+        "You can upload source code file in submission editor",
+        "Frontend and UI improvements",
+        "Fixed a lot of bugs"
+      ]
+    },
+    {
+      "version": "2018-12-15",
+      "level": "Recommend",
+      "title": "Update at 2018-12-15",
+      "details": [
+        "Fix bugs when root user is renamed",
+        "Use more secure ssl ciphers",
+        "Fix minor bugs in rejudge function and fps related api",
+        "Frontend and UI improvements"
+      ]
+    },
+    {
+      "version": "2018-09-07",
+      "level": "Recommend",
+      "title": "Update at 2018-09-07",
+      "details": [
+        "Fix Problem title overflow, by @queensferryme",
+        "Fix the pagination in problem export page",
+        "Add a gadget to reset code to problem template",
+        "Support for contest submissions download (accepted answer only)",
+        "Progress is preserved when uploading files",
+        "UI improvements"
+      ]
+    },
+    {
+      "version": "2018-08-15",
+      "level": "Important",
+      "title": "Update at 2018-08-15",
+      "details": [
+        "<span style=\"color:  red;\">Fix some vulnerabilities, by @andyliu24 @plusls</span>",
+        "Add export and import problem function (beta), if you have any question, please <a href='https://docs.onlinejudge.me/#/onlinejudge/guide/qq_group'>give us feedback</a>"
+      ]
+    },
+    {
+      "version": "2018-07-15",
+      "level": "Recommend",
+      "title": "Update at 2018-07-15",
+      "details": [
+        "Add Traditional Chinese, by <a href='https://github.com/QingdaoU/OnlineJudgeFE/pull/27'>xdavidwu</a>",
+        "Fix a bug in the navigation bar",
+        "Move language switch to profile settings page"
+      ]
+    },
+    {
+      "version": "2018-06-02",
+      "level": "Recommend",
+      "title": "Update at 2018-06-02",
+      "details": [
+        "Add Simple Chinese, by <a href='https://github.com/QingdaoU/OnlineJudgeFE/issues/22'>hirCodd</a>",
+        "Integrate with katex",
+        "Update libraries to latest version",
+        "The first page in management is changed to dashboard"
+      ]
+    },
+    {
+      "version": "2018-05-25",
+      "level": "Important",
+      "title": "Update at 2018-05-05",
+      "details": [
+        "Fix a bug that user is logged out when re-creating container",
+        "<span style=\"color:  red;\">Fix a bug that JudgeServer may use a lot of memory and then getting stuck(Please update docker-compose.yml at first)</span>"
+      ]
+    },
+    {
+      "version": "2018-03-27",
       "level": "Important",
       "title": "Update at 2018-03-27",
       "details": [
@@ -10,7 +103,7 @@
       ]
     },
     {
-      "version": "2017-03-23",
+      "version": "2018-03-23",
       "level": "Recommend",
       "title": "Update at 2018-03-23",
       "details": [
@@ -22,7 +115,7 @@
       ]
     },
     {
-      "version": "2017-01-04",
+      "version": "2018-01-04",
       "level": "Recommend",
       "title": "Update at 2018-01-04",
       "details": [

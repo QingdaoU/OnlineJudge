@@ -15,9 +15,8 @@ class SubmissionRejudgeAPI(APIView):
             submission = Submission.objects.select_related("problem").get(id=id, contest_id__isnull=True)
         except Submission.DoesNotExist:
             return self.error("Submission does not exists")
-        submission.info = {}
         submission.statistic_info = {}
         submission.save()
 
-        judge_task.delay(submission.id, submission.problem.id)
+        judge_task.send(submission.id, submission.problem.id)
         return self.success()

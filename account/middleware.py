@@ -14,6 +14,7 @@ class APITokenAuthMiddleware(MiddlewareMixin):
             try:
                 request.user = User.objects.get(open_api_appkey=appkey, open_api=True, is_disabled=False)
                 request.csrf_processing_done = True
+                request.auth_method = "api_key"
             except User.DoesNotExist:
                 pass
 
@@ -21,7 +22,7 @@ class APITokenAuthMiddleware(MiddlewareMixin):
 class SessionRecordMiddleware(MiddlewareMixin):
     def process_request(self, request):
         request.ip = request.META.get(settings.IP_HEADER, request.META.get("REMOTE_ADDR"))
-        if request.user.is_authenticated():
+        if request.user.is_authenticated:
             session = request.session
             session["user_agent"] = request.META.get("HTTP_USER_AGENT", "")
             session["ip"] = request.ip
@@ -36,7 +37,7 @@ class AdminRoleRequiredMiddleware(MiddlewareMixin):
     def process_request(self, request):
         path = request.path_info
         if path.startswith("/admin/") or path.startswith("/api/admin/"):
-            if not (request.user.is_authenticated() and request.user.is_admin_role()):
+            if not (request.user.is_authenticated and request.user.is_admin_role()):
                 return JSONResponse.response({"error": "login-required", "data": "Please login in first"})
 
 

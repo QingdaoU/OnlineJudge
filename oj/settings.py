@@ -13,7 +13,6 @@ import os
 import raven
 from copy import deepcopy
 from utils.shortcuts import get_env
-from .custom_settings import *
 
 production_env = get_env("OJ_ENV", "dev") == "production"
 if production_env:
@@ -21,19 +20,28 @@ if production_env:
 else:
     from .dev_settings import *
 
+with open(os.path.join(DATA_DIR, "config", "secret.key"), "r") as f:
+    SECRET_KEY = f.read()
+
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # Applications
-VENDOR_APPS = (
+VENDOR_APPS = [
     'django.contrib.auth',
     'django.contrib.sessions',
     'django.contrib.contenttypes',
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
-    'raven.contrib.django.raven_compat'
-)
-LOCAL_APPS = (
+    'django_dramatiq',
+    'django_dbconn_retry',
+]
+
+if production_env:
+    VENDOR_APPS.append('raven.contrib.django.raven_compat')
+
+
+LOCAL_APPS = [
     'account',
     'announcement',
     'conf',
@@ -43,11 +51,11 @@ LOCAL_APPS = (
     'submission',
     'options',
     'judge',
-)
+]
 
 INSTALLED_APPS = VENDOR_APPS + LOCAL_APPS
 
-MIDDLEWARE_CLASSES = (
+MIDDLEWARE = (
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -162,6 +170,11 @@ LOGGING = {
            'level': 'ERROR',
            'propagate': True,
        },
+        'dramatiq': {
+            'handlers': LOGGING_HANDLERS,
+            'level': 'DEBUG',
+            'propagate': False,
+        },
        '': {
            'handlers': LOGGING_HANDLERS,
            'level': 'WARNING',
@@ -200,11 +213,32 @@ CACHES = {
 SESSION_ENGINE = "django.contrib.sessions.backends.cache"
 SESSION_CACHE_ALIAS = "default"
 
-CELERY_RESULT_BACKEND = f"{REDIS_URL}/2"
-BROKER_URL = f"{REDIS_URL}/3"
-CELERY_TASK_SOFT_TIME_LIMIT = CELERY_TASK_TIME_LIMIT = 180
-CELERY_ACCEPT_CONTENT = ["json"]
-CELERY_TASK_SERIALIZER = "json"
+DRAMATIQ_BROKER = {
+    "BROKER": "dramatiq.brokers.redis.RedisBroker",
+    "OPTIONS": {
+        "url": f"{REDIS_URL}/4",
+    },
+    "MIDDLEWARE": [
+        # "dramatiq.middleware.Prometheus",
+        "dramatiq.middleware.AgeLimit",
+        "dramatiq.middleware.TimeLimit",
+        "dramatiq.middleware.Callbacks",
+        "dramatiq.middleware.Retries",
+        # "django_dramatiq.middleware.AdminMiddleware",
+        "django_dramatiq.middleware.DbConnectionsMiddleware"
+    ]
+}
+
+DRAMATIQ_RESULT_BACKEND = {
+    "BACKEND": "dramatiq.results.backends.redis.RedisBackend",
+    "BACKEND_OPTIONS": {
+        "url": f"{REDIS_URL}/4",
+    },
+    "MIDDLEWARE_OPTIONS": {
+        "result_ttl": None
+    }
+}
+
 RAVEN_CONFIG = {
     'dsn': 'https://b200023b8aed4d708fb593c5e0a6ad3d:1fddaba168f84fcf97e0d549faaeaff0@sentry.io/263057'
 }

@@ -1,12 +1,12 @@
 from .models import Submission
 from utils.api import serializers
-from judge.languages import language_names
+from utils.serializers import LanguageNameChoiceField
 
 
 class CreateSubmissionSerializer(serializers.Serializer):
     problem_id = serializers.IntegerField()
-    language = serializers.ChoiceField(choices=language_names)
-    code = serializers.CharField(max_length=20000)
+    language = LanguageNameChoiceField()
+    code = serializers.CharField(max_length=1024 * 1024)
     contest_id = serializers.IntegerField(required=False)
     captcha = serializers.CharField(required=False)
 
@@ -46,6 +46,6 @@ class SubmissionListSerializer(serializers.ModelSerializer):
 
     def get_show_link(self, obj):
         # 没传user或为匿名user
-        if self.user is None or not self.user.is_authenticated():
+        if self.user is None or not self.user.is_authenticated:
             return False
         return obj.check_user_permission(self.user)

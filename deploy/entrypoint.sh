@@ -3,10 +3,10 @@
 APP=/app
 DATA=/data
 
-mkdir -p $DATA/log $DATA/ssl $DATA/test_case $DATA/public/upload $DATA/public/avatar $DATA/public/website
+mkdir -p $DATA/log $DATA/config $DATA/ssl $DATA/test_case $DATA/public/upload $DATA/public/avatar $DATA/public/website
 
-if [ ! -f "$APP/oj/custom_settings.py" ]; then
-    echo SECRET_KEY=\"$(cat /dev/urandom | head -1 | md5sum | head -c 32)\" >> $APP/oj/custom_settings.py
+if [ ! -f "$DATA/config/secret.key" ]; then
+    echo $(cat /dev/urandom | head -1 | md5sum | head -c 32) > "$DATA/config/secret.key"
 fi
 
 if [ ! -f "$DATA/public/avatar/default.png" ]; then
@@ -37,6 +37,15 @@ else
     sed -i "s/__IP_HEADER__/\$remote_addr/g" api_proxy.conf;
 fi
 
+if [ -z "$MAX_WORKER_NUM" ]; then
+    export CPU_CORE_NUM=$(grep -c ^processor /proc/cpuinfo)
+    if [[ $CPU_CORE_NUM -lt 2 ]]; then
+        export MAX_WORKER_NUM=2
+    else
+        export MAX_WORKER_NUM=$(($CPU_CORE_NUM))
+    fi
+fi
+
 cd $APP/dist
 if [ ! -z "$STATIC_CDN_HOST" ]; then
     find . -name "*.*" -type f -exec sed -i "s/__STATIC_CDN_HOST__/\/$STATIC_CDN_HOST/g" {} \;
@@ -52,12 +61,17 @@ do
     python manage.py migrate --no-input &&
     python manage.py inituser --username=root --password=rootroot --action=create_super_admin &&
     echo "from options.options import SysOptions; SysOptions.judge_server_token='$JUDGE_SERVER_TOKEN'" | python manage.py shell &&
+    echo "from conf.models import JudgeServer; JudgeServer.objects.update(task_number=0)" | python manage.py shell &&
     break
     n=$(($n+1))
     echo "Failed to migrate, going to retry..."
     sleep 8
 done
 
+addgroup -g 12003 spj
+adduser -u 12000 -S -G spj server
 
-chown -R nobody:nogroup $DATA $APP/dist
+chown -R server:spj $DATA $APP/dist
+find $DATA/test_case -type d -exec chmod 710 {} \;
+find $DATA/test_case -type f -exec chmod 640 {} \;
 exec supervisord -c /app/deploy/supervisord.conf

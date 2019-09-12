@@ -8,13 +8,13 @@ from django.contrib import auth
 from django.template.loader import render_to_string
 from django.utils.decorators import method_decorator
 from django.utils.timezone import now
-from django.views.decorators.csrf import ensure_csrf_cookie
+from django.views.decorators.csrf import ensure_csrf_cookie, csrf_exempt
 from otpauth import OtpAuth
 
 from problem.models import Problem
 from utils.constants import ContestRuleType
 from options.options import SysOptions
-from utils.api import APIView, validate_serializer
+from utils.api import APIView, validate_serializer, CSRFExemptAPIView
 from utils.captcha import Captcha
 from utils.shortcuts import rand_str, img2base64, datetime2str
 from ..decorators import login_required
@@ -22,7 +22,7 @@ from ..models import User, UserProfile, AdminType
 from ..serializers import (ApplyResetPasswordSerializer, ResetPasswordSerializer,
                            UserChangePasswordSerializer, UserLoginSerializer,
                            UserRegisterSerializer, UsernameOrEmailCheckSerializer,
-                           RankInfoSerializer, UserChangeEmailSerializer)
+                           RankInfoSerializer, UserChangeEmailSerializer, SSOSerializer)
 from ..serializers import (TwoFactorAuthCodeSerializer, UserProfileSerializer,
                            EditUserProfileSerializer, ImageUploadForm)
 from ..tasks import send_email_async
@@ -35,7 +35,7 @@ class UserProfileAPI(APIView):
         判断是否登录， 若登录返回用户信息
         """
         user = request.user
-        if not user.is_authenticated():
+        if not user.is_authenticated:
             return self.success()
         show_real_name = False
         username = request.GET.get("username")
@@ -102,7 +102,7 @@ class TwoFactorAuthAPI(APIView):
         user.save()
 
         label = f"{SysOptions.website_name_shortcut}:{user.username}"
-        image = qrcode.make(OtpAuth(token).to_uri("totp", label, SysOptions.website_name))
+        image = qrcode.make(OtpAuth(token).to_uri("totp", label, SysOptions.website_name.replace(" ", "")))
         return self.success(img2base64(image))
 
     @login_required
@@ -280,7 +280,7 @@ class UserChangePasswordAPI(APIView):
 class ApplyResetPasswordAPI(APIView):
     @validate_serializer(ApplyResetPasswordSerializer)
     def post(self, request):
-        if request.user.is_authenticated():
+        if request.user.is_authenticated:
             return self.error("You have already logged in, are you kidding me? ")
         data = request.data
         captcha = Captcha(request)
@@ -302,11 +302,11 @@ class ApplyResetPasswordAPI(APIView):
             "link": f"{SysOptions.website_base_url}/reset-password/{user.reset_password_token}"
         }
         email_html = render_to_string("reset_password_email.html", render_data)
-        send_email_async.delay(from_name=SysOptions.website_name_shortcut,
-                               to_email=user.email,
-                               to_name=user.username,
-                               subject=f"Reset your password",
-                               content=email_html)
+        send_email_async.send(from_name=SysOptions.website_name_shortcut,
+                              to_email=user.email,
+                              to_name=user.username,
+                              subject=f"Reset your password",
+                              content=email_html)
         return self.success("Succeeded")
 
 
@@ -411,8 +411,26 @@ class OpenAPIAppkeyAPI(APIView):
     def post(self, request):
         user = request.user
         if not user.open_api:
-            return self.error("Permission denied")
+            return self.error("OpenAPI function is truned off for you")
         api_appkey = rand_str()
         user.open_api_appkey = api_appkey
         user.save()
         return self.success({"appkey": api_appkey})
+
+
+class SSOAPI(CSRFExemptAPIView):
+    @login_required
+    def get(self, request):
+        token = rand_str()
+        request.user.auth_token = token
+        request.user.save()
+        return self.success({"token": token})
+
+    @method_decorator(csrf_exempt)
+    @validate_serializer(SSOSerializer)
+    def post(self, request):
+        try:
+            user = User.objects.get(auth_token=request.data["token"])
+        except User.DoesNotExist:
+            return self.error("User does not exist")
+        return self.success({"username": user.username, "avatar": user.userprofile.avatar, "admin_type": user.admin_type})
