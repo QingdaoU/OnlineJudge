@@ -1,4 +1,4 @@
-from account.decorators import super_admin_required
+from account.decorators import problem_permission_required
 from judge.tasks import judge_task
 # from judge.dispatcher import JudgeDispatcher
 from utils.api import APIView
@@ -6,7 +6,7 @@ from ..models import Submission
 
 
 class SubmissionRejudgeAPI(APIView):
-    @super_admin_required
+    @problem_permission_required
     def get(self, request):
         id = request.GET.get("id")
         if not id:

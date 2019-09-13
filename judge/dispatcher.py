@@ -181,8 +181,20 @@ class JudgeDispatcher(DispatcherBase):
                 self.submission.result = error_test_case[0]["result"]
             else:
                 self.submission.result = JudgeStatus.PARTIALLY_ACCEPTED
-        self.submission.save()
-
+        # 如果該次繳交全對：如程式碼與未曾繳交過，則保留，否則拋棄
+        if self.submission.result == JudgeStatus.ACCEPTED:
+            for past_submission in Submission.objects.filter(user_id = self.submission.user_id)
+                if past_submission.code == self.submission.code :
+                    past_submission.delete()
+                if past_submission.result != JudgeStatus.ACCEPTED:
+                    past_submission.delete()
+            self.submission.save()
+        # 如果該次繳交未對：未曾AC，則保留，否則拋棄
+        else :
+            for past_submission in Submission.objects.filter(user_id = self.submission.user_id)
+                if past_submission.result == JudgeStatus.ACCEPTED :
+                    break
+            self.submission.save()
         if self.contest_id:
             if self.contest.status != ContestStatus.CONTEST_UNDERWAY or \
                     User.objects.get(id=self.submission.user_id).is_contest_admin(self.contest):
