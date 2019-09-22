@@ -72,9 +72,9 @@ int main() {
     "compile": {
         "src_name": "main.cpp",
         "exe_name": "main",
-        "max_cpu_time": 3000,
-        "max_real_time": 10000,
-        "max_memory": 512 * 1024 * 1024,
+        "max_cpu_time": 10000,
+        "max_real_time": 20000,
+        "max_memory": 1024 * 1024 * 1024,
         "compile_command": "/usr/bin/g++ -DONLINE_JUDGE -O2 -w -fmax-errors=3 -std=c++14 {src_path} -lm -o {exe_path}",
     },
     "run": {
@@ -87,8 +87,8 @@ int main() {
 _cpp_lang_spj_compile = {
     "src_name": "spj-{spj_version}.cpp",
     "exe_name": "spj-{spj_version}",
-    "max_cpu_time": 3000,
-    "max_real_time": 5000,
+    "max_cpu_time": 10000,
+    "max_real_time": 20000,
     "max_memory": 1024 * 1024 * 1024,
     "compile_command": "/usr/bin/g++ -DONLINE_JUDGE -O2 -w -fmax-errors=3 -std=c++14 {src_path} -lm -o {exe_path}"
 }
@@ -111,8 +111,8 @@ _java_lang_config = {
     "compile": {
         "src_name": "Main.java",
         "exe_name": "Main",
-        "max_cpu_time": 3000,
-        "max_real_time": 5000,
+        "max_cpu_time": 5000,
+        "max_real_time": 10000,
         "max_memory": -1,
         "compile_command": "/usr/bin/javac {src_path} -d {exe_dir} -encoding UTF8"
     },
