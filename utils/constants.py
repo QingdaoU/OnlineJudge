@@ -31,3 +31,6 @@ class Difficulty(Choices):
     LOW = "Low"
     MID = "Mid"
     HIGH = "High"
+
+
+CONTEST_PASSWORD_SESSION_KEY = "contest_password"
