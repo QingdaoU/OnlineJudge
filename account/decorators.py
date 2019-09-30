@@ -1,7 +1,11 @@
 import functools
+import hashlib
+import time
+
 from problem.models import Problem
 from contest.models import Contest, ContestType, ContestStatus, ContestRuleType
 from utils.api import JSONResponse, APIError
+from utils.constants import CONTEST_PASSWORD_SESSION_KEY
 from .models import ProblemPermission
 
 
@@ -55,6 +59,32 @@ class problem_permission_required(admin_role_required):
         return True
 
 
+def check_contest_password(password, contest_password):
+    if not (password and contest_password):
+        return False
+    if password == contest_password:
+        return True
+    else:
+        # sig#timestamp 这种形式的密码也可以，但是在界面上没提供支持
+        # sig = sha256(contest_password + timestamp)[:8]
+        if "#" in password:
+            s = password.split("#")
+            if len(s) != 2:
+                return False
+            sig, ts = s[0], s[1]
+
+            if sig == hashlib.sha256((contest_password + ts).encode("utf-8")).hexdigest()[:8]:
+                try:
+                    ts = int(ts)
+                except Exception:
+                    return False
+                return int(time.time()) < ts
+            else:
+                return False
+        else:
+            return False
+
+
 def check_contest_permission(check_type="details"):
     """
     只供Class based view 使用，检查用户是否有权进入该contest, check_type 可选 details, problems, ranks, submissions
@@ -89,8 +119,8 @@ def check_contest_permission(check_type="details"):
 
             if self.contest.contest_type == ContestType.PASSWORD_PROTECTED_CONTEST:
                 # password error
-                if self.contest.id not in request.session.get("accessible_contests", []):
-                    return self.error("Password is required.")
+                if not check_contest_password(request.session.get(CONTEST_PASSWORD_SESSION_KEY, {}).get(self.contest.id), self.contest.password):
+                    return self.error("Wrong password or password expired")
 
             # regular user get contest problems, ranks etc. before contest started
             if self.contest.status == ContestStatus.CONTEST_NOT_START and check_type != "details":

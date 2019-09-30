@@ -40,7 +40,7 @@ Follow me:  [https://github.com/Harry-zklcdc/OnlineJudgeDeploy/tree/2.0](https:/
 
 ## Documents
 
-[http://docs.onlinejudge.me/](http://docs.onlinejudge.me/)
+[https://docs.onlinejudge.me/](https://docs.onlinejudge.me/)
 
 ## Screenshots
 

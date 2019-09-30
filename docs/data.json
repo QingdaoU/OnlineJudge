@@ -1,6 +1,16 @@
 {
   "update": [
     {
+      "version": "2019-09-22",
+      "level": "Recommend",
+      "title": "2019-09-22",
+      "details": [
+        "Fix bugs in contest password verification",
+        "Do not delete test case files when contest is deleted",
+        "Update some compiler runtime config"
+      ]
+    },
+    {
       "version": "2019-04-05",
       "level": "Recommend",
       "title": "2019-04-05",

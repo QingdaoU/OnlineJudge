@@ -7,10 +7,10 @@ from django.core.cache import cache
 
 from problem.models import Problem
 from utils.api import APIView, validate_serializer
-from utils.constants import CacheKey
+from utils.constants import CacheKey, CONTEST_PASSWORD_SESSION_KEY
 from utils.shortcuts import datetime2str, check_is_id
 from account.models import AdminType
-from account.decorators import login_required, check_contest_permission
+from account.decorators import login_required, check_contest_permission, check_contest_password
 
 from utils.constants import ContestRuleType, ContestStatus
 from ..models import ContestAnnouncement, Contest, OIContestRank, ACMContestRank
@@ -76,13 +76,13 @@ class ContestPasswordVerifyAPI(APIView):
             contest = Contest.objects.get(id=data["contest_id"], visible=True, password__isnull=False)
         except Contest.DoesNotExist:
             return self.error("Contest does not exist")
-        if contest.password != data["password"]:
-            return self.error("Wrong password")
+        if not check_contest_password(data["password"], contest.password):
+            return self.error("Wrong password or password expired")
 
         # password verify OK.
-        if "accessible_contests" not in request.session:
-            request.session["accessible_contests"] = []
-        request.session["accessible_contests"].append(contest.id)
+        if CONTEST_PASSWORD_SESSION_KEY not in request.session:
+            request.session[CONTEST_PASSWORD_SESSION_KEY] = {}
+        request.session[CONTEST_PASSWORD_SESSION_KEY][contest.id] = data["password"]
         # https://docs.djangoproject.com/en/dev/topics/http/sessions/#when-sessions-are-saved
         request.session.modified = True
         return self.success(True)
@@ -94,7 +94,12 @@ class ContestAccessAPI(APIView):
         contest_id = request.GET.get("contest_id")
         if not contest_id:
             return self.error()
-        return self.success({"access": int(contest_id) in request.session.get("accessible_contests", [])})
+        try:
+            contest = Contest.objects.get(id=contest_id, visible=True, password__isnull=False)
+        except Contest.DoesNotExist:
+            return self.error("Contest does not exist")
+        session_pass = request.session.get(CONTEST_PASSWORD_SESSION_KEY, {}).get(contest.id)
+        return self.success({"access": check_contest_password(session_pass, contest.password)})
 
 
 class ContestRankAPI(APIView):
