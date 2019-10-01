@@ -61,7 +61,8 @@ class IDEDispatcher(object):
     def judge(self):
         if not self.test_case:
             raise ValueError("invalid parameter")
-
+        
+        '''
         if self.language == "C":
             language_config = _c_lang_config
         if self.language == "C With O2":
@@ -76,14 +77,15 @@ class IDEDispatcher(object):
             language_config = _py2_lang_config
         if self.language == "Python3":
             language_config = _py3_lang_config
+        '''
 
-        # sub_config = list(filter(lambda item: self.language == item["name"], SysOptions.languages))[0]
+        sub_config = list(filter(lambda item: self.language == item["name"], SysOptions.languages))[0]
 
         max_cpu_time = 2000
         max_memory = 1024 * 1024 * 128
         output = True
         data = {
-            "language_config": language_config,
+            "language_config": sub_config["config"],
             "src": self.src,
             "max_cpu_time": max_cpu_time,
             "max_memory": max_memory,
