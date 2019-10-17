@@ -38,6 +38,7 @@ class TestCaseZipProcessor(object):
         except zipfile.BadZipFile:
             raise APIError("Bad zip file")
         name_list = zip_file.namelist()
+        dir = self.judge_dir(name_list, dir)        
         test_case_list = self.filter_name_list(name_list, spj=spj, dir=dir)
         if not test_case_list:
             raise APIError("Empty file")
@@ -109,7 +110,24 @@ class TestCaseZipProcessor(object):
                     continue
                 else:
                     return sorted(ret, key=natural_sort_key)
-
+    
+    def judge_dir(self, name_list, dir=""):
+        is_native = True
+        for i, item_i in enumerate(name_list):
+            if "/" not in item_i:
+                return ""
+            if not is_native:
+                break
+            for j, item_j in enumerate(name_list):
+                if (item_i not in item_j):
+                    break
+                if (j == len(name_list) - 1):
+                    is_native = False
+        if not is_native:
+            dir = name_list[0]
+        else:
+            dir = name_list[0].split("/")[0]+"/"
+        return dir
 
 class TestCaseAPI(CSRFExemptAPIView, TestCaseZipProcessor):
     request_parsers = ()
