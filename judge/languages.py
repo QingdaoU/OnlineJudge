@@ -241,11 +241,11 @@ _py3_lang_config = {
 
 languages = [
     {"config": _c_lang_config, "spj": {"compile": _c_lang_spj_compile, "config": _c_lang_spj_config},
-     "name": "C", "description": "GCC 8.3", "content_type": "text/x-csrc"},
-    {"config": _c_o2_lang_config, "name": "C With O2", "description": "GCC 8.3", "content_type": "text/x-csrc"},
+     "name": "C", "description": "GCC 9.2.1", "content_type": "text/x-csrc"},
+    {"config": _c_o2_lang_config, "name": "C With O2", "description": "GCC 9.2.1", "content_type": "text/x-csrc"},
     {"config": _cpp_lang_config, "spj": {"compile": _cpp_lang_spj_compile, "config": _cpp_lang_spj_config},
-     "name": "C++", "description": "G++ 8.3", "content_type": "text/x-c++src"},
-    {"config": _cpp_o2_lang_config, "name": "C++ With O2", "description": "G++ 8.3", "content_type": "text/x-c++src"},
+     "name": "C++", "description": "G++ 9.2.1", "content_type": "text/x-c++src"},
+    {"config": _cpp_o2_lang_config, "name": "C++ With O2", "description": "G++ 9.2.1", "content_type": "text/x-c++src"},
     {"config": _java_lang_config, "name": "Java", "description": "OpenJDK 1.8", "content_type": "text/x-java"},
     {"config": _py2_lang_config, "name": "Python2", "description": "Python 2.7", "content_type": "text/x-python"},
     {"config": _py3_lang_config, "name": "Python3", "description": "Python 3.5", "content_type": "text/x-python"},
