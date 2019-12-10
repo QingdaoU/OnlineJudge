@@ -10,3 +10,8 @@ if __name__ == "__main__":
     sys.stdout.write("Django VERSION " + str(django.VERSION) + "\n")
 
     execute_from_command_line(sys.argv)
+    
+    
+    #commit1
+    
+    #commit1
