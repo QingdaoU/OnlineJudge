@@ -7,7 +7,7 @@
 
 > 
 >
-> #### An onlinejudge system based on Python and Vue. [Demo](http://www.yangzheng.com.cn:84)
+> #### An onlinejudge system based on Python and Vue. [Demo](https://oj.yangzheng.com.cn/)
 
 [中文文档](README-CN.md)
 
