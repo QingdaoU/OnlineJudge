@@ -145,9 +145,13 @@ class FPSHelper(object):
             if input_content:
                 with open(os.path.join(base_dir, str(index + 1) + ".in"), "w", encoding="utf-8") as f:
                     f.write(input_content)
+            else:
+                continue
             if output_content:
                 with open(os.path.join(base_dir, str(index + 1) + ".out"), "w", encoding="utf-8") as f:
                     f.write(output_content)
+            else:
+                continue
             if spj:
                 one_info = {
                     "input_size": len(input_content),
@@ -155,11 +159,11 @@ class FPSHelper(object):
                 }
             else:
                 one_info = {
-                    "input_size": len(input_content) if input_content else -1,
+                    "input_size": len(input_content),
                     "input_name": f"{index + 1}.in",
-                    "output_size": len(output_content) if output_content else -1,
+                    "output_size": len(output_content),
                     "output_name": f"{index + 1}.out",
-                    "stripped_output_md5": hashlib.md5(output_content.rstrip().encode("utf-8")).hexdigest() if output_content else "d41d8cd98f00b204e9800998ecf8427e"
+                    "stripped_output_md5": hashlib.md5(output_content.rstrip().encode("utf-8")).hexdigest()
                 }
             test_cases[index] = one_info
         info = {
