@@ -18,7 +18,7 @@ class FPSParser(object):
         else:
             raise ValueError("You must tell me the file path or directly give me the data for the file")
         version = self._etree.attrib.get("version", "No Version")
-        if version not in ["1.1", "1.2"]:
+        if version not in ["1.0", "1.1", "1.2"]:
             raise ValueError("Unsupported version '" + version + "'")
 
     @property
@@ -73,7 +73,8 @@ class FPSParser(object):
             elif tag == "spj":
                 lang = item.attrib.get("language")
                 if not lang:
-                    raise ValueError("Invalid spj, language name if missed")
+                    continue
+                    # raise ValueError("Invalid spj, language name if missed")
                 problem["spj"] = {"language": lang, "code": item.text}
             elif tag == "img":
                 problem["images"].append({"src": None, "blob": None})
@@ -94,7 +95,10 @@ class FPSParser(object):
                 sample_start = True
             elif tag == "test_input":
                 if not test_case_start:
-                    raise ValueError("Invalid xml, error 'test_input' tag order")
+                    problem["test_cases"][-1]["output"] = item.text
+                    test_case_start = True
+                    continue
+                    # raise ValueError("Invalid xml, error 'test_input' tag order")
                 problem["test_cases"].append({"input": item.text, "output": None})
                 test_case_start = False
             elif tag == "test_output":
@@ -116,7 +120,8 @@ class FPSHelper(object):
             with open(os.path.join(base_dir, file_name), "wb") as f:
                 f.write(img["blob"])
             for item in ["description", "input", "output"]:
-                _problem[item] = _problem[item].replace(img["src"], os.path.join(base_url, file_name))
+                if _problem[item]:
+                    _problem[item] = _problem[item].replace(img["src"], os.path.join(base_url, file_name))
         return _problem
 
     # {
@@ -150,11 +155,11 @@ class FPSHelper(object):
                 }
             else:
                 one_info = {
-                    "input_size": len(input_content),
+                    "input_size": len(input_content) if input_content else -1,
                     "input_name": f"{index + 1}.in",
-                    "output_size": len(output_content),
+                    "output_size": len(output_content) if output_content else -1,
                     "output_name": f"{index + 1}.out",
-                    "stripped_output_md5": hashlib.md5(output_content.rstrip().encode("utf-8")).hexdigest()
+                    "stripped_output_md5": hashlib.md5(output_content.rstrip().encode("utf-8")).hexdigest() if output_content else "d41d8cd98f00b204e9800998ecf8427e"
                 }
             test_cases[index] = one_info
         info = {
@@ -168,13 +173,17 @@ class FPSHelper(object):
 
 if __name__ == "__main__":
     import pprint
+    import errno
 
     parser = FPSParser("fps.xml")
     helper = FPSHelper()
     problems = parser.parse()
     for index, problem in enumerate(problems):
         path = os.path.join("/tmp/", str(index + 1))
-        os.mkdir(path)
+        try:
+            os.mkdir(path)
+        except OSError:
+            pass
         helper.save_test_case(problem, path)
 
         pprint.pprint(helper.save_image(problem, "/tmp", "/static/img"))
