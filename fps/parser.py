@@ -86,12 +86,12 @@ class FPSParser(object):
             elif tag == "sample_input":
                 if not sample_start:
                     raise ValueError("Invalid xml, error 'sample_input' tag order")
-                problem["samples"].append({"input": item.text, "output": None})
+                problem["samples"].append({"input": item.text if item.text else "empty", "output": None})
                 sample_start = False
             elif tag == "sample_output":
                 if sample_start:
                     raise ValueError("Invalid xml, error 'sample_output' tag order")
-                problem["samples"][-1]["output"] = item.text
+                problem["samples"][-1]["output"] = item.text if item.text else "empty"
                 sample_start = True
             elif tag == "test_input":
                 if not test_case_start:
@@ -107,6 +107,11 @@ class FPSParser(object):
                 problem["test_cases"][-1]["output"] = item.text
                 test_case_start = True
 
+        if not problem['input']:
+            problem['input'] = "No Input Description"
+
+        if not problem['output']:
+            problem['output'] = "No Output Description"
         return problem
 
 
@@ -122,6 +127,8 @@ class FPSHelper(object):
             for item in ["description", "input", "output"]:
                 if _problem[item]:
                     _problem[item] = _problem[item].replace(img["src"], os.path.join(base_url, file_name))
+                else:
+                    _problem[item] = "empty"
         return _problem
 
     # {
