@@ -1,4 +1,5 @@
 import os
+import datetime
 from datetime import timedelta
 from importlib import import_module
 
@@ -22,7 +23,8 @@ from ..models import User, UserProfile, AdminType
 from ..serializers import (ApplyResetPasswordSerializer, ResetPasswordSerializer,
                            UserChangePasswordSerializer, UserLoginSerializer,
                            UserRegisterSerializer, UsernameOrEmailCheckSerializer,
-                           RankInfoSerializer, UserChangeEmailSerializer, SSOSerializer)
+                           RankInfoSerializer, UserChangeEmailSerializer, SSOSerializer,
+                           UserSighinSerializer)
 from ..serializers import (TwoFactorAuthCodeSerializer, UserProfileSerializer,
                            EditUserProfileSerializer, ImageUploadForm)
 from ..tasks import send_email_async
@@ -434,3 +436,38 @@ class SSOAPI(CSRFExemptAPIView):
         except User.DoesNotExist:
             return self.error("User does not exist")
         return self.success({"username": user.username, "avatar": user.userprofile.avatar, "admin_type": user.admin_type})
+
+
+class UserSighinAPI(APIView):
+    def get(self, request):
+        if not request.user.is_authenticated:
+            return self.success()
+        username = request.user.username
+        user = User.objects.get(username=username, is_disabled=False)
+        data = UserSighinSerializer(user).data
+        day = datetime.datetime.now()
+        last_sighin_time = datetime.datetime.strptime(str(UserSighinSerializer(user).data["last_sighin_time"]), '%Y-%m-%d')
+        interval = int((day - last_sighin_time).days)
+        if interval == 0:
+            data.update({"sighinstatus": "true"})
+        else:
+            data.update({"sighinstatus": "false"})
+        return self.success(data)
+
+    @login_required
+    def post(self, request):
+        username = request.user.username
+        user = User.objects.get(username=username, is_disabled=False)
+        day = datetime.datetime.now()
+        last_sighin_time = datetime.datetime.strptime(str(UserSighinSerializer(user).data["last_sighin_time"]), '%Y-%m-%d')
+        interval = int((day - last_sighin_time).days)
+        if interval == 0:
+            return self.success("Singined")
+        elif interval == 1:
+            user.continue_sighin_days += 1
+            user.save()
+            return self.success("Success")
+        else:
+            user.continue_sighin_days = 1
+            user.save()
+            return self.success("Success")

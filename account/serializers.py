@@ -67,6 +67,12 @@ class UserSerializer(serializers.ModelSerializer):
                   "create_time", "last_login", "two_factor_auth", "open_api", "is_disabled"]
 
 
+class UserSighinSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ["continue_sighin_days", "last_sighin_time"]
+
+
 class UserProfileSerializer(serializers.ModelSerializer):
     user = UserSerializer()
     real_name = serializers.SerializerMethodField()
