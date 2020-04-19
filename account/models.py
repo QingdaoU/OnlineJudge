@@ -41,7 +41,7 @@ class User(AbstractBaseUser):
     open_api = models.BooleanField(default=False)
     open_api_appkey = models.TextField(null=True)
     is_disabled = models.BooleanField(default=False)
-    last_sighin_time = models.DateField(auto_now=True, null=True)
+    last_sighin_time = models.DateField(null=True)
     continue_sighin_days = models.IntegerField(default=0)
 
     USERNAME_FIELD = "username"
