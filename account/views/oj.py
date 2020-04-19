@@ -446,7 +446,7 @@ class UserSighinAPI(APIView):
         user = User.objects.get(username=username, is_disabled=False)
         data = UserSighinSerializer(user).data
         day = datetime.datetime.now()
-        last_sighin_time = datetime.datetime.strptime(str(UserSighinSerializer(user).data["last_sighin_time"]), '%Y-%m-%d')
+        last_sighin_time = datetime.datetime.strptime(str(UserSighinSerializer(user).data["last_sighin_time"]), "%Y-%m-%d")
         interval = int((day - last_sighin_time).days)
         if interval == 0:
             data.update({"sighinstatus": "true"})
@@ -459,7 +459,7 @@ class UserSighinAPI(APIView):
         username = request.user.username
         user = User.objects.get(username=username, is_disabled=False)
         day = datetime.datetime.now()
-        last_sighin_time = datetime.datetime.strptime(str(UserSighinSerializer(user).data["last_sighin_time"]), '%Y-%m-%d')
+        last_sighin_time = datetime.datetime.strptime(str(UserSighinSerializer(user).data["last_sighin_time"]), "%Y-%m-%d")
         interval = int((day - last_sighin_time).days)
         if interval == 0:
             return self.success("Singined")
