@@ -387,7 +387,12 @@ class UserRankAPI(APIView):
             profiles = profiles.filter(submission_number__gt=0).order_by("-accepted_number", "submission_number")
         else:
             profiles = profiles.filter(total_score__gt=0).order_by("-total_score")
-        return self.success(self.paginate_data(request, profiles, RankInfoSerializer))
+        data = self.paginate_data(request, profiles, RankInfoSerializer)
+        for i in range(0, len(data["results"])):
+            user = User.objects.get(username=data["results"][i]["user"]["username"], is_disabled=False)
+            grade = UserProfileSerializer(user.userprofile, show_real_name=True).data["grade"]
+            data["results"][i].update({"grade": grade})
+        return self.success(data)
 
 
 class ProfileProblemDisplayIDRefreshAPI(APIView):
@@ -475,10 +480,20 @@ class UserSighinAPI(APIView):
         elif interval == 1:
             user.continue_sighin_days += 1
             user.last_sighin_time = day
+            days = [365, 240, 120, 90, 60, 30, 15, 7, 3]
+            experience = [88, 54, 33, 20, 12, 7, 4, 2, 1]
+            score = 1
+            for i in range(0, 9):
+                if user.continue_sighin_days == days[i]:
+                    UserProfile.objects.get(id=user.id).add_experience(this_time_experience=experience[i])
+                    score += experience[i]
+                    break
+            UserProfile.objects.get(id=user.id).add_experience(this_time_experience=1)
             user.save()
-            return self.success("Success")
+            return self.success({"info": "Success", "experience": score})
         else:
             user.continue_sighin_days = 1
             user.last_sighin_time = day
+            UserProfile.objects.get(id=user.id).add_experience(this_time_experience=1)
             user.save()
-            return self.success("Success")
+            return self.success({"info": "Success", "experience": 1})

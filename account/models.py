@@ -103,6 +103,8 @@ class UserProfile(models.Model):
     school = models.TextField(null=True)
     major = models.TextField(null=True)
     language = models.TextField(null=True)
+    grade = models.IntegerField(default=0)
+    experience = models.IntegerField(default=0)
     # for ACM
     accepted_number = models.IntegerField(default=0)
     # for OI
@@ -121,6 +123,17 @@ class UserProfile(models.Model):
     def add_score(self, this_time_score, last_time_score=None):
         last_time_score = last_time_score or 0
         self.total_score = models.F("total_score") - last_time_score + this_time_score
+        self.save()
+
+    def add_experience(self, this_time_experience):
+        self.experience = models.F("experience") + this_time_experience
+        self.save()
+        grade = [10000, 5000, 1000, 500, 200, 100, 0]
+        self.refresh_from_db()
+        for i in range(0, 7):
+            if int(self.experience) >= grade[i]:
+                self.grade = 6 - i
+                break
         self.save()
 
     class Meta:

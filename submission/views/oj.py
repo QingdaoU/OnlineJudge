@@ -1,6 +1,8 @@
 import ipaddress
 
 from account.decorators import login_required, check_contest_permission
+from account.serializers import UserProfileSerializer
+from account.models import User
 from contest.models import ContestStatus, ContestRuleType
 from judge.tasks import judge_task
 from options.options import SysOptions
@@ -152,6 +154,10 @@ class SubmissionListAPI(APIView):
             submissions = submissions.filter(result=result)
         data = self.paginate_data(request, submissions)
         data["results"] = SubmissionListSerializer(data["results"], many=True, user=request.user).data
+        for i in range(0, len(data["results"])):
+            user = User.objects.get(username=data["results"][i]["username"], is_disabled=False)
+            grade = UserProfileSerializer(user.userprofile, show_real_name=False).data["grade"]
+            data["results"][i].update({"grade": grade})
         return self.success(data)
 
 
@@ -192,6 +198,10 @@ class ContestSubmissionListAPI(APIView):
 
         data = self.paginate_data(request, submissions)
         data["results"] = SubmissionListSerializer(data["results"], many=True, user=request.user).data
+        for i in range(0, len(data["results"])):
+            user = User.objects.get(username=data["results"][i]["username"], is_disabled=False)
+            grade = UserProfileSerializer(user.userprofile, show_real_name=True).data["grade"]
+            data["results"][i].update({"grade": grade})
         return self.success(data)
 
 

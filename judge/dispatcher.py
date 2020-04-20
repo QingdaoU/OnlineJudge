@@ -222,6 +222,12 @@ class JudgeDispatcher(DispatcherBase):
                     acm_problems_status[problem_id]["status"] = self.submission.result
                     if self.submission.result == JudgeStatus.ACCEPTED:
                         profile.accepted_number += 1
+                        if problem.difficulty == "High":
+                            profile.add_experience(this_time_experience=15)
+                        if problem.difficulty == "Mid":
+                            profile.add_experience(this_time_experience=8)
+                        if problem.difficulty == "Low":
+                            profile.add_experience(this_time_experience=3)
                 profile.acm_problems_status["problems"] = acm_problems_status
                 profile.save(update_fields=["accepted_number", "acm_problems_status"])
 
@@ -236,6 +242,12 @@ class JudgeDispatcher(DispatcherBase):
                     oi_problems_status[problem_id]["status"] = self.submission.result
                     if self.submission.result == JudgeStatus.ACCEPTED:
                         profile.accepted_number += 1
+                        if problem.difficulty == "High":
+                            profile.add_experience(this_time_experience=15)
+                        if problem.difficulty == "Mid":
+                            profile.add_experience(this_time_experience=8)
+                        if problem.difficulty == "Low":
+                            profile.add_experience(this_time_experience=3)
                 profile.oi_problems_status["problems"] = oi_problems_status
                 profile.save(update_fields=["accepted_number", "oi_problems_status"])
 
