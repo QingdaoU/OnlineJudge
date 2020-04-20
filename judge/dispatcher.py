@@ -304,6 +304,12 @@ class JudgeDispatcher(DispatcherBase):
                                                       "score": score}
                     if self.submission.result == JudgeStatus.ACCEPTED:
                         user_profile.accepted_number += 1
+                        if problem.difficulty == "High":
+                            UserProfile.objects.get(id=self.submission.user_id).add_experience(this_time_experience=15)
+                        if problem.difficulty == "Mid":
+                            UserProfile.objects.get(id=self.submission.user_id).add_experience(this_time_experience=8)
+                        if problem.difficulty == "Low":
+                            UserProfile.objects.get(id=self.submission.user_id).add_experience(this_time_experience=3)
                 elif oi_problems_status[problem_id]["status"] != JudgeStatus.ACCEPTED:
                     # minus last time score, add this time score
                     user_profile.add_score(this_time_score=score,
@@ -312,6 +318,12 @@ class JudgeDispatcher(DispatcherBase):
                     oi_problems_status[problem_id]["status"] = self.submission.result
                     if self.submission.result == JudgeStatus.ACCEPTED:
                         user_profile.accepted_number += 1
+                        if problem.difficulty == "High":
+                            UserProfile.objects.get(id=self.submission.user_id).add_experience(this_time_experience=15)
+                        if problem.difficulty == "Mid":
+                            UserProfile.objects.get(id=self.submission.user_id).add_experience(this_time_experience=8)
+                        if problem.difficulty == "Low":
+                            UserProfile.objects.get(id=self.submission.user_id).add_experience(this_time_experience=3)
                 user_profile.oi_problems_status["problems"] = oi_problems_status
                 user_profile.save(update_fields=["submission_number", "accepted_number", "oi_problems_status"])
 
