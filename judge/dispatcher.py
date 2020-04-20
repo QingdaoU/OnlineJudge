@@ -7,7 +7,7 @@ import requests
 from django.db import transaction, IntegrityError
 from django.db.models import F
 
-from account.models import User
+from account.models import User, UserProfile
 from conf.models import JudgeServer
 from contest.models import ContestRuleType, ACMContestRank, OIContestRank, ContestStatus
 from options.options import SysOptions
@@ -223,11 +223,11 @@ class JudgeDispatcher(DispatcherBase):
                     if self.submission.result == JudgeStatus.ACCEPTED:
                         profile.accepted_number += 1
                         if problem.difficulty == "High":
-                            profile.add_experience(this_time_experience=15)
+                            UserProfile.objects.get(id=self.submission.user_id).add_experience(this_time_experience=15)
                         if problem.difficulty == "Mid":
-                            profile.add_experience(this_time_experience=8)
+                            UserProfile.objects.get(id=self.submission.user_id).add_experience(this_time_experience=8)
                         if problem.difficulty == "Low":
-                            profile.add_experience(this_time_experience=3)
+                            UserProfile.objects.get(id=self.submission.user_id).add_experience(this_time_experience=3)
                 profile.acm_problems_status["problems"] = acm_problems_status
                 profile.save(update_fields=["accepted_number", "acm_problems_status"])
 
@@ -242,12 +242,13 @@ class JudgeDispatcher(DispatcherBase):
                     oi_problems_status[problem_id]["status"] = self.submission.result
                     if self.submission.result == JudgeStatus.ACCEPTED:
                         profile.accepted_number += 1
+                        UserProfile.objects.get(id=self.submission.user_id).add_experience(this_time_experience=3)
                         if problem.difficulty == "High":
-                            profile.add_experience(this_time_experience=15)
+                            UserProfile.objects.get(id=self.submission.user_id).add_experience(this_time_experience=15)
                         if problem.difficulty == "Mid":
-                            profile.add_experience(this_time_experience=8)
+                            UserProfile.objects.get(id=self.submission.user_id).add_experience(this_time_experience=8)
                         if problem.difficulty == "Low":
-                            profile.add_experience(this_time_experience=3)
+                            UserProfile.objects.get(id=self.submission.user_id).add_experience(this_time_experience=3)
                 profile.oi_problems_status["problems"] = oi_problems_status
                 profile.save(update_fields=["accepted_number", "oi_problems_status"])
 
@@ -274,10 +275,22 @@ class JudgeDispatcher(DispatcherBase):
                     acm_problems_status[problem_id] = {"status": self.submission.result, "_id": self.problem._id}
                     if self.submission.result == JudgeStatus.ACCEPTED:
                         user_profile.accepted_number += 1
+                        if problem.difficulty == "High":
+                            UserProfile.objects.get(id=self.submission.user_id).add_experience(this_time_experience=15)
+                        if problem.difficulty == "Mid":
+                            UserProfile.objects.get(id=self.submission.user_id).add_experience(this_time_experience=8)
+                        if problem.difficulty == "Low":
+                            UserProfile.objects.get(id=self.submission.user_id).add_experience(this_time_experience=3)
                 elif acm_problems_status[problem_id]["status"] != JudgeStatus.ACCEPTED:
                     acm_problems_status[problem_id]["status"] = self.submission.result
                     if self.submission.result == JudgeStatus.ACCEPTED:
                         user_profile.accepted_number += 1
+                        if problem.difficulty == "High":
+                            UserProfile.objects.get(id=self.submission.user_id).add_experience(this_time_experience=15)
+                        if problem.difficulty == "Mid":
+                            UserProfile.objects.get(id=self.submission.user_id).add_experience(this_time_experience=8)
+                        if problem.difficulty == "Low":
+                            UserProfile.objects.get(id=self.submission.user_id).add_experience(this_time_experience=3)
                 user_profile.acm_problems_status["problems"] = acm_problems_status
                 user_profile.save(update_fields=["submission_number", "accepted_number", "acm_problems_status"])
 
