@@ -485,15 +485,15 @@ class UserSighinAPI(APIView):
             score = 1
             for i in range(0, 9):
                 if user.continue_sighin_days == days[i]:
-                    UserProfile.objects.get(id=user.id).add_experience(this_time_experience=experience[i])
+                    UserProfile.objects.get(user_id=user.id).add_experience(this_time_experience=experience[i])
                     score += experience[i]
                     break
-            UserProfile.objects.get(id=user.id).add_experience(this_time_experience=1)
+            UserProfile.objects.get(user_id=user.id).add_experience(this_time_experience=1)
             user.save()
             return self.success({"info": "Success", "experience": score})
         else:
             user.continue_sighin_days = 1
             user.last_sighin_time = day
-            UserProfile.objects.get(id=user.id).add_experience(this_time_experience=1)
+            UserProfile.objects.get(user_id=user.id).add_experience(this_time_experience=1)
             user.save()
             return self.success({"info": "Success", "experience": 1})
