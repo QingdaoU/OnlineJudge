@@ -25,6 +25,9 @@
 - Online IDE
 - DIY About Us Page
 - Optional Theme
+- Sighin System
+- Experience system
+- Title System
 - Standard IO/File IO
 
 Main modules are available below:
@@ -46,27 +49,35 @@ Follow me:  [https://github.com/Harry-zklcdc/OnlineJudgeDeploy/tree/2.0](https:/
 
 ### Frontend:
 
-![problem-list](https://user-images.githubusercontent.com/20637881/33372506-402022e4-d539-11e7-8e64-6656f8ceb75a.png)
+![home page](https://raw.githubusercontent.com/Harry-zklcdc/docs/master/image/%E9%A6%96%E9%A1%B5.jpg)
+
+![announcement](https://raw.githubusercontent.com/Harry-zklcdc/docs/master/image/%E5%85%AC%E5%91%8A.jpg)
+
+![problem-list](https://raw.githubusercontent.com/Harry-zklcdc/docs/master/image/%E9%A2%98%E7%9B%AE-%E5%8E%9F%E8%B0%85%E7%BB%BF.jpg)
 
 ![problem-details](https://user-images.githubusercontent.com/20637881/33372507-4061a782-d539-11e7-8835-076ddae6b529.png)
 
 ![statistic-info](https://user-images.githubusercontent.com/20637881/33372508-40a0c6ce-d539-11e7-8d5e-024541b76750.png)
 
-![contest-list](https://user-images.githubusercontent.com/20637881/33372509-40d880dc-d539-11e7-9eba-1f08dcb6b9a0.png)
+![online-IDE](https://raw.githubusercontent.com/Harry-zklcdc/docs/master/image/%E5%9C%A8%E7%BA%BFIDE.jpg)
+
+![FAQ](https://raw.githubusercontent.com/Harry-zklcdc/docs/master/image/%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98-%E5%B0%91%E5%A5%B3%E7%B2%89.jpg)
+
+![contest-list](https://raw.githubusercontent.com/Harry-zklcdc/docs/master/image/%E6%AF%94%E8%B5%9B-%E5%9F%BA%E4%BD%AC%E7%B4%AB.jpg)
 
 You can control the menu and chart status in rankings.
 
 ![acm-rankings](https://user-images.githubusercontent.com/20637881/33372510-41117f68-d539-11e7-9947-70e60bad3cf2.png)
 
-![oi-rankings](https://user-images.githubusercontent.com/20637881/33372511-41d406fa-d539-11e7-9947-7a2a088785b0.png)
+![oi-rankings](https://raw.githubusercontent.com/Harry-zklcdc/docs/master/image/%E6%8E%92%E5%90%8D.jpg)
 
-![status](https://user-images.githubusercontent.com/20637881/33372512-420ba240-d539-11e7-8645-594cac4a0b78.png)
+![status](https://raw.githubusercontent.com/Harry-zklcdc/docs/master/image/状态.jpg)
 
 ![status-details](https://user-images.githubusercontent.com/20637881/33365523-787bd0ea-d523-11e7-953f-dacbf7a506df.png)
 
-![user-home](https://user-images.githubusercontent.com/20637881/33365521-7842d808-d523-11e7-84c1-2e2aa0079f32.png)
+![user-home](https://raw.githubusercontent.com/Harry-zklcdc/docs/master/image/个人中心.jpg)
 
-### Admin: 
+### Admin:
 
 ![admin-users](https://user-images.githubusercontent.com/20637881/33372516-42c34fda-d539-11e7-9f4e-5109477f83be.png)
 
@@ -89,3 +100,4 @@ Modern browsers(chrome, firefox) and Internet Explorer 10+.
 ## License
 
 [MIT](http://opensource.org/licenses/MIT)**
+
