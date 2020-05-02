@@ -1,6 +1,37 @@
 {
   "update": [
     {
+      "version": "2020-05-02",
+      "level": "Recommend",
+      "title": "2020-05-02",
+      "details": [
+        "[Fix] Reduce Liv2d Memory Usage"
+      ]
+    },
+    {
+      "version": "2020-04-26",
+      "level": "Important",
+      "title": "2020-04-26",
+      "details": [
+        "[Fix] Safety Problem",
+        "[Upgrade] Upgrade form QingdaoU/OnlineJudgeFE"
+      ]
+    },
+    {
+      "version": "2020-04-20",
+      "level": "Recommend",
+      "title": "2020-04-20",
+      "details": [
+        "[Add] 稳点经验系统",
+        "[Add] 签到系统",
+        "[Add] 每日一言",
+        "[Add] 等级称号系统",
+        "[Add] 称号信息显示",
+        "[Fix] 问题标签排序",
+        "[Fix] 问题标签“Pick One” 上移"
+      ]
+    },
+    {
       "version": "2019-09-22",
       "level": "Recommend",
       "title": "2019-09-22",
