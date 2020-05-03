@@ -9,7 +9,10 @@
         "[Add] Code Editor Match Bracket",
         "[Fix] Format: Add FAQ missing spaces",
         "[Fix] Chinese Translate",
-        "[Fix] Solve Safty Problem"
+        "[Fix] Solve Safty Problem",
+        "[Fix] Reset Bottom Don't Reset",
+        "[Opt] Upgrade Redis to support Multithreading",
+        "[Opt] Tiny Live2d Docker Image Size"
       ]
     },
     {
