@@ -8,7 +8,7 @@
         "[Add] Online IDE Code Cache",
         "[Add] Code Editor Match Bracket",
         "[Fix] Format: Add FAQ missing spaces",
-        "[Fix] Chinese Translate",
+        "[Fix] Translate",
         "[Fix] Solve Safty Problem",
         "[Fix] Reset Bottom Don't Reset",
         "[Opt] Upgrade Redis to support Multithreading",
