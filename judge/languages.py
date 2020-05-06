@@ -169,7 +169,7 @@ _py3_lang_config = {
     "run": {
         "command": "/usr/bin/python3 {exe_path}",
         "seccomp_rule": "general",
-        "env": default_env
+        "env": default_env + ["PYTHONIOENCODING=utf-8"]
     }
 }
 
