@@ -676,6 +676,10 @@ class FPSProblemImport(CSRFExemptAPIView):
             with tempfile.NamedTemporaryFile("wb") as tf:
                 for chunk in file.chunks(4096):
                     tf.file.write(chunk)
+                
+                tf.file.flush()
+                os.fsync(tf.file)
+                
                 problems = FPSParser(tf.name).parse()
         else:
             return self.error("Parse upload file error")
