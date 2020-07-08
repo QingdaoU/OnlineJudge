@@ -173,6 +173,33 @@ _py3_lang_config = {
     }
 }
 
+_go_lang_config = {
+    "template": """//PREPEND BEGIN
+//PREPEND END
+
+//TEMPLATE BEGIN
+//TEMPLATE END
+
+//APPEND BEGIN
+//APPEND END""",
+    "compile": {
+        "src_name": "main.go",
+        "exe_name": "main",
+        "max_cpu_time": 3000,
+        "max_real_time": 5000,
+        "max_memory": 1024 * 1024 * 1024,
+        "compile_command": "/usr/bin/go build -o {exe_path} {src_path}",
+        "env": ["GOCACHE=/tmp"]
+    },
+    "run": {
+        "command": "{exe_path}",
+        "seccomp_rule": "",
+        # 降低内存占用
+        "env": ["GODEBUG=madvdontneed=1"] + default_env,
+        "memory_limit_check_only": 1
+    }
+}
+
 languages = [
     {"config": _c_lang_config, "spj": {"compile": _c_lang_spj_compile, "config": _c_lang_spj_config},
      "name": "C", "description": "GCC 5.4", "content_type": "text/x-csrc"},
@@ -181,4 +208,5 @@ languages = [
     {"config": _java_lang_config, "name": "Java", "description": "OpenJDK 1.8", "content_type": "text/x-java"},
     {"config": _py2_lang_config, "name": "Python2", "description": "Python 2.7", "content_type": "text/x-python"},
     {"config": _py3_lang_config, "name": "Python3", "description": "Python 3.5", "content_type": "text/x-python"},
+    {"config": _go_lang_config, "name": "Golang 1.14", "description": "Golang 1.14", "content_type": "text/x-go"},
 ]
