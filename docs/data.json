@@ -1,6 +1,15 @@
 {
   "update": [
     {
+      "version": "2020-07-09",
+      "level": "Recommend",
+      "title": "2020-07-09",
+      "details": [
+        "Add Golang language to judge server",
+        "Fix some frontend bugs"
+      ]
+    },
+    {
       "version": "2019-09-22",
       "level": "Recommend",
       "title": "2019-09-22",
