@@ -424,7 +424,7 @@ _py3_lang_config = {
 //APPEND END""",
     "compile": {
         "src_name": "solution.py",
-        "exe_name": "__pycache__/solution.cpython-35.pyc",
+        "exe_name": "__pycache__/solution.cpython-36.pyc",
         "max_cpu_time": 3000,
         "max_real_time": 10000,
         "max_memory": 256 * 1024 * 1024,
@@ -479,6 +479,6 @@ languages = [
     {"config": _cpp_17_o2_lang_config, "name": "C++ 17 With O2", "description": "G++ 9.2.1", "content_type": "text/x-c++src"},
     {"config": _java_lang_config, "name": "Java", "description": "OpenJDK 1.8", "content_type": "text/x-java"},
     {"config": _py2_lang_config, "name": "Python2", "description": "Python 2.7.15+", "content_type": "text/x-python"},
-    {"config": _py3_lang_config, "name": "Python3", "description": "Python 3.5.2", "content_type": "text/x-python"},
+    {"config": _py3_lang_config, "name": "Python3", "description": "Python 3.6", "content_type": "text/x-python"},
     {"config": _go_lang_config, "name": "Golang", "description": "Golang 1.14", "content_type": "text/x-go"},
 ]
