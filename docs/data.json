@@ -1,6 +1,18 @@
 {
   "update": [
     {
+      "version": "2020-07-16",
+      "level": "Recommend",
+      "title": "2020-07-16",
+      "details": [
+        "[Add] Golang language to judge server",
+        "[Add] Support Mobile Device",
+        "[Fix] Chinese Translate",
+        "[Fix] Contest Rank Table Show Problem",
+        "[Fix] Solve Safty Problem"
+      ]
+    },
+    {
       "version": "2020-05-06",
       "level": "Recommend",
       "title": "2020-05-06",
