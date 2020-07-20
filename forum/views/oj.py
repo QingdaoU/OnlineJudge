@@ -2,7 +2,7 @@ from django.db.models import Q
 from utils.api import APIView, validate_serializer
 from account.decorators import login_required
 from forum.models import ForumPost, ForumReply
-from forum.serializers import (CreateEditForumPostSerializer, EditForumPostSerializer, ForumPostSerializer,
+from forum.serializers import (CreateEditForumPostSerializer, ForumPostSerializer,
                                CreateEditForumReplySerializer, EditForumReplySerializer, ForumReplySerializer)
 
 
@@ -39,27 +39,6 @@ class ForumPostAPI(APIView):
                                              is_nice=False,
                                              is_light=False,
                                              author=request.user)
-        return self.success(ForumPostSerializer(forumpost).data)
-
-    @validate_serializer(EditForumPostSerializer)
-    @login_required
-    def put(self, request):
-        """
-        edit ForumPost
-        """
-        data = request.data
-        try:
-            forumpost = ForumPost.objects.get(id=data.pop("id"))
-            username = request.user.username
-            if username != forumpost.author:
-                return self.error("Username doesn't match")
-        except ForumPost.DoesNotExist:
-            return self.error("ForumPost does not exist")
-
-        for k, v in data.items():
-            setattr(forumpost, k, v)
-        forumpost.save()
-
         return self.success(ForumPostSerializer(forumpost).data)
 
     def get(self, request):
@@ -123,13 +102,13 @@ class ForumReplyAPI(APIView):
         data = request.data
         if not data["content"]:
             return self.error("Reply can not be empty")
-        forumreplys = list(ForumReply.objects.select_related("author").filter(fa_id=data["fa_id"]).values())
 
+        forumreplys = ForumReply.objects.select_related("author").filter(fa_id=data["fa_id"]).order_by("-create_time",)
         # 判断楼层
-        if not len(forumreplys):
-            floor = 0
+        if forumreplys.exists():
+            floor = forumreplys.values().first()["floor"] + 1
         else:
-            floor = forumreplys[len(forumreplys) - 1]["floor"] + 1
+            floor = 0
 
         forumreply = ForumReply.objects.create(fa_id=data["fa_id"],
                                                content=data["content"],
