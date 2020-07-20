@@ -23,17 +23,6 @@ class ForumPostSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
-class EditForumPostSerializer(serializers.Serializer):
-    id = serializers.IntegerField()
-    title = serializers.CharField(max_length=64)
-    sort = serializers.IntegerField(min_value=0, max_value=20)
-    son_sort = serializers.IntegerField(min_value=0, max_value=20)
-    content = serializers.CharField(max_length=1024 * 1024 * 8)
-    is_top = serializers.BooleanField()
-    is_nice = serializers.BooleanField()
-    is_light = serializers.BooleanField()
-
-
 class CreateEditForumReplySerializer(serializers.Serializer):
     fa_id = serializers.IntegerField()
     content = serializers.CharField(max_length=1024 * 1024 * 8)
