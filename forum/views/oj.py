@@ -14,9 +14,6 @@ class ForumPostAPI(APIView):
         publish ForumPost
         """
         data = request.data
-
-        print(data)
-
         if data["id"] != -1:
             try:
                 forumpost = ForumPost.objects.get(id=data.pop("id"))
@@ -85,7 +82,7 @@ class ForumPostAPI(APIView):
         if request.GET.get("id"):
             username = request.user.username
             forumpost = ForumPost.objects.get(id=request.GET["id"])
-            if username == forumpost.author:
+            if str(username) == str(forumpost.author):
                 ForumPost.objects.filter(id=request.GET["id"]).delete()
             else:
                 return self.error("Username doesn't match")
