@@ -1,5 +1,7 @@
 from django.db.models import Q
 from utils.api import APIView, validate_serializer
+from utils.cache import cache
+from utils.throttling import TokenBucket
 from account.models import User
 from account.decorators import login_required
 from account.serializers import UserProfileSerializer
@@ -9,12 +11,30 @@ from forum.serializers import (CreateEditForumPostSerializer, ForumPostSerialize
 
 
 class ForumPostAPI(APIView):
+    def throttling(self, request):
+        # 使用 open_api 的请求暂不做限制
+        auth_method = getattr(request, "auth_method", "")
+        if auth_method == "api_key":
+            return
+        user_bucket = TokenBucket(key=str(request.user.username),
+                                  redis_conn=cache,
+                                  capacity=2,
+                                  fill_rate=0.03,
+                                  default_capacity=2)
+        can_consume, wait = user_bucket.consume()
+        if not can_consume:
+            return "Please wait %d seconds" % (int(wait))
+
     @validate_serializer(CreateEditForumPostSerializer)
     @login_required
     def post(self, request):
         """
         publish ForumPost
         """
+        error = self.throttling(request)
+        if error:
+            return self.error(error)
+
         data = request.data
         if data["id"] != -1:
             try:
@@ -102,12 +122,30 @@ class ForumPostAPI(APIView):
 
 
 class ForumReplyAPI(APIView):
+    def throttling(self, request):
+        # 使用 open_api 的请求暂不做限制
+        auth_method = getattr(request, "auth_method", "")
+        if auth_method == "api_key":
+            return
+        user_bucket = TokenBucket(key=str(request.user.username),
+                                  redis_conn=cache,
+                                  capacity=2,
+                                  fill_rate=0.03,
+                                  default_capacity=2)
+        can_consume, wait = user_bucket.consume()
+        if not can_consume:
+            return "Please wait %d seconds" % (int(wait))
+
     @validate_serializer(CreateEditForumReplySerializer)
     @login_required
     def post(self, request):
         """
         publish/edit ForumReply
         """
+        error = self.throttling(request)
+        if error:
+            return self.error(error)
+
         data = request.data
         if not data["content"]:
             return self.error("Reply can not be empty")
