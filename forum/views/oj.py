@@ -92,8 +92,10 @@ class ForumPostAPI(APIView):
             forumpost = ForumPost.objects.get(id=request.GET["forumpost_id"])
             if str(username) == str(forumpost.author):
                 ForumPost.objects.filter(id=request.GET["forumpost_id"]).delete()
+                ForumReply.objects.filter(fa_id=request.GET["forumpost_id"]).delete()
             elif admin_type == "Super Admin":
                 ForumPost.objects.filter(id=request.GET["forumpost_id"]).delete()
+                ForumReply.objects.filter(fa_id=request.GET["forumpost_id"]).delete()
             else:
                 return self.error("Username doesn't match")
         return self.success()
