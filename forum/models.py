@@ -29,7 +29,6 @@ class ForumReply(models.Model):
     author = models.ForeignKey(User, on_delete=models.CASCADE)
     create_time = models.DateTimeField(auto_now_add=True)
     floor = models.IntegerField()
-    is_top = models.BooleanField(default=False)
 
     class Meta:
         db_table = "forumReply"

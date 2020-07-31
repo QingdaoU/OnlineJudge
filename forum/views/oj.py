@@ -5,7 +5,7 @@ from account.decorators import login_required
 from account.serializers import UserProfileSerializer
 from forum.models import ForumPost, ForumReply
 from forum.serializers import (CreateEditForumPostSerializer, ForumPostSerializer,
-                               CreateEditForumReplySerializer, EditForumReplySerializer, ForumReplySerializer)
+                               CreateEditForumReplySerializer, ForumReplySerializer)
 
 
 class ForumPostAPI(APIView):
@@ -116,29 +116,7 @@ class ForumReplyAPI(APIView):
         forumreply = ForumReply.objects.create(fa_id=data["fa_id"],
                                                content=data["content"],
                                                floor=floor,
-                                               is_top=data["is_top"],
                                                author=request.user)
-        return self.success(ForumReplySerializer(forumreply).data)
-
-    @validate_serializer(EditForumReplySerializer)
-    @login_required
-    def put(self, request):
-        """
-        edit ForumReply
-        """
-        data = request.data
-        try:
-            forumreply = ForumReply.objects.get(id=data.pop("id"))
-            username = request.user.username
-            if username != forumreply.author:
-                return self.error("Username doesn't match")
-        except ForumReply.DoesNotExist:
-            return self.error("ForumReply does not exist")
-
-        for k, v in data.items():
-            setattr(forumreply, k, v)
-        forumreply.save()
-
         return self.success(ForumReplySerializer(forumreply).data)
 
     def get(self, request):

@@ -26,7 +26,6 @@ class ForumPostSerializer(serializers.ModelSerializer):
 class CreateEditForumReplySerializer(serializers.Serializer):
     fa_id = serializers.IntegerField()
     content = serializers.CharField(max_length=1024 * 1024 * 8)
-    is_top = serializers.BooleanField()
 
 
 class ForumReplySerializer(serializers.ModelSerializer):
@@ -35,10 +34,3 @@ class ForumReplySerializer(serializers.ModelSerializer):
     class Meta:
         model = ForumReply
         fields = "__all__"
-
-
-class EditForumReplySerializer(serializers.Serializer):
-    id = serializers.IntegerField()
-    fa_id = serializers.IntegerField()
-    content = serializers.CharField(max_length=1024 * 1024 * 8)
-    is_top = serializers.BooleanField()
