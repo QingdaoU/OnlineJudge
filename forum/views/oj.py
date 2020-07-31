@@ -87,8 +87,12 @@ class ForumPostAPI(APIView):
         """
         if request.GET.get("forumpost_id"):
             username = request.user.username
+            user = User.objects.get(username=str(username), is_disabled=False)
+            admin_type = UserProfileSerializer(user.userprofile, show_real_name=False).data["user"]["admin_type"]
             forumpost = ForumPost.objects.get(id=request.GET["forumpost_id"])
             if str(username) == str(forumpost.author):
+                ForumPost.objects.filter(id=request.GET["forumpost_id"]).delete()
+            elif admin_type == "Super Admin":
                 ForumPost.objects.filter(id=request.GET["forumpost_id"]).delete()
             else:
                 return self.error("Username doesn't match")
@@ -143,8 +147,12 @@ class ForumReplyAPI(APIView):
         """
         if request.GET.get("id"):
             username = request.user.username
+            user = User.objects.get(username=str(username), is_disabled=False)
+            admin_type = UserProfileSerializer(user.userprofile, show_real_name=False).data["user"]["admin_type"]
             forumreply = ForumReply.objects.get(id=request.GET["id"])
-            if username == forumreply.author:
+            if str(username) == str(forumreply.author):
+                ForumReply.objects.filter(id=request.GET["id"]).delete()
+            elif admin_type == "Super Admin":
                 ForumReply.objects.filter(id=request.GET["id"]).delete()
             else:
                 return self.error("Username doesn't match")
