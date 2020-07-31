@@ -1,6 +1,8 @@
 from django.db.models import Q
 from utils.api import APIView, validate_serializer
+from account.models import User
 from account.decorators import login_required
+from account.serializers import UserProfileSerializer
 from forum.models import ForumPost, ForumReply
 from forum.serializers import (CreateEditForumPostSerializer, ForumPostSerializer,
                                CreateEditForumReplySerializer, EditForumReplySerializer, ForumReplySerializer)
@@ -18,8 +20,15 @@ class ForumPostAPI(APIView):
             try:
                 forumpost = ForumPost.objects.get(id=data.pop("id"))
                 username = request.user.username
+                user = User.objects.get(username=str(username), is_disabled=False)
+                admin_type = UserProfileSerializer(user.userprofile, show_real_name=False).data["user"]["admin_type"]
                 if str(username) != str(forumpost.author):
-                    return self.error("Username doesn't match")
+                    if admin_type != "Super Admin":
+                        return self.error("Username doesn't match")
+                if admin_type != "Super Admin":
+                    if data["is_top"] or data["is_light"] or data["is_nice"]:
+                        return self.error("User doesn't have permission")
+
             except ForumPost.DoesNotExist:
                 return self.error("ForumPost does not exist")
 
@@ -28,13 +37,14 @@ class ForumPostAPI(APIView):
             forumpost.save()
 
             return self.success(ForumPostSerializer(forumpost).data)
+
         forumpost = ForumPost.objects.create(title=data["title"],
                                              content=data["content"],
                                              sort=data["sort"],
                                              son_sort=data["son_sort"],
-                                             is_top=False,
-                                             is_nice=False,
-                                             is_light=False,
+                                             is_top=data["is_top"],
+                                             is_nice=data["is_light"],
+                                             is_light=data["is_light"],
                                              author=request.user)
         return self.success(ForumPostSerializer(forumpost).data)
 
@@ -55,16 +65,12 @@ class ForumPostAPI(APIView):
         if not limit:
             return self.error("Limit is needed")
 
-        forumposts = ForumPost.objects.select_related("author").filter()
+        forumposts = ForumPost.objects.select_related("author").filter().order_by("-is_top", "-create_time",)
 
         # 按照分区筛选
         sort_text = request.GET.get("sort")
         if sort_text:
             forumposts = forumposts.filter(sort=sort_text)
-            # 按照子分区筛选
-            son_sort_text = request.GET.get("son_sort")
-            if son_sort_text:
-                forumposts = forumposts.filter(son_sort=son_sort_text)
 
         # 搜索的情况
         keyword = request.GET.get("keyword", "").strip()
@@ -79,11 +85,11 @@ class ForumPostAPI(APIView):
         """
         delete ForumPost
         """
-        if request.GET.get("id"):
+        if request.GET.get("forumpost_id"):
             username = request.user.username
-            forumpost = ForumPost.objects.get(id=request.GET["id"])
+            forumpost = ForumPost.objects.get(id=request.GET["forumpost_id"])
             if str(username) == str(forumpost.author):
-                ForumPost.objects.filter(id=request.GET["id"]).delete()
+                ForumPost.objects.filter(id=request.GET["forumpost_id"]).delete()
             else:
                 return self.error("Username doesn't match")
         return self.success()

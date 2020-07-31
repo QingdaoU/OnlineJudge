@@ -10,9 +10,9 @@ class CreateEditForumPostSerializer(serializers.Serializer):
     sort = serializers.IntegerField(min_value=0, max_value=20)
     son_sort = serializers.IntegerField(min_value=0, max_value=20)
     content = serializers.CharField(max_length=1024 * 1024 * 8)
-    # is_top = serializers.BooleanField()
-    # is_nice = serializers.BooleanField()
-    # is_light = serializers.BooleanField()
+    is_top = serializers.BooleanField()
+    is_nice = serializers.BooleanField()
+    is_light = serializers.BooleanField()
 
 
 class ForumPostSerializer(serializers.ModelSerializer):
@@ -26,7 +26,6 @@ class ForumPostSerializer(serializers.ModelSerializer):
 class CreateEditForumReplySerializer(serializers.Serializer):
     fa_id = serializers.IntegerField()
     content = serializers.CharField(max_length=1024 * 1024 * 8)
-    # floor = serializers.IntegerField()
     is_top = serializers.BooleanField()
 
 
@@ -42,5 +41,4 @@ class EditForumReplySerializer(serializers.Serializer):
     id = serializers.IntegerField()
     fa_id = serializers.IntegerField()
     content = serializers.CharField(max_length=1024 * 1024 * 8)
-    # floor = serializers.IntegerField()
     is_top = serializers.BooleanField()
