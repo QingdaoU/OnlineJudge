@@ -215,6 +215,17 @@ class SubmissionExistsAPI(APIView):
 
 
 class IDEAPI(APIView):
+    def throttling(self, request):
+        # 使用 open_api 的请求暂不做限制
+        auth_method = getattr(request, "auth_method", "")
+        if auth_method == "api_key":
+            return
+        user_bucket = TokenBucket(key=str(request.user.id),
+                                  redis_conn=cache, **SysOptions.throttling["user"])
+        can_consume, wait = user_bucket.consume()
+        if not can_consume:
+            return "Please wait %d seconds" % (int(wait))
+
     @login_required
     def post(self, request):
         data = request.data
@@ -222,6 +233,9 @@ class IDEAPI(APIView):
         if data.get("captcha"):
             if not Captcha(request).check(data["captcha"]):
                 return self.error("Invalid captcha")
+        error = self.throttling(request)
+        if error:
+            return self.error(error)
 
         language = data["language"]
         src = data["code"]
