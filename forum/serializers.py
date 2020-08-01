@@ -8,7 +8,6 @@ class CreateEditForumPostSerializer(serializers.Serializer):
     id = serializers.IntegerField()
     title = serializers.CharField(max_length=64)
     sort = serializers.IntegerField(min_value=0, max_value=20)
-    son_sort = serializers.IntegerField(min_value=0, max_value=20)
     content = serializers.CharField(max_length=1024 * 1024 * 8)
     is_top = serializers.BooleanField()
     is_nice = serializers.BooleanField()

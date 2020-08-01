@@ -7,7 +7,6 @@ from utils.models import RichTextField
 class ForumPost(models.Model):
     title = models.TextField()
     sort = models.IntegerField()
-    son_sort = models.IntegerField()
     # HTML
     content = RichTextField()
     author = models.ForeignKey(User, on_delete=models.CASCADE)
