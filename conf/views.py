@@ -92,7 +92,7 @@ class WebsiteConfigAPI(APIView):
         ret = {key: getattr(SysOptions, key) for key in
                ["website_base_url", "website_name", "website_name_shortcut",
                 "website_footer", "allow_register", "submission_list_show_all",
-                "forum_sort"]}
+                "forum_sort", "allow_forum_post", "allow_forum_reply"]}
         return self.success(ret)
 
     @super_admin_required

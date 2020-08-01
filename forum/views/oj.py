@@ -5,6 +5,7 @@ from utils.throttling import TokenBucket
 from account.models import User
 from account.decorators import login_required
 from account.serializers import UserProfileSerializer
+from options.models import SysOptions
 from forum.models import ForumPost, ForumReply
 from forum.serializers import (CreateEditForumPostSerializer, ForumPostSerializer,
                                CreateEditForumReplySerializer, ForumReplySerializer)
@@ -31,9 +32,14 @@ class ForumPostAPI(APIView):
         """
         publish ForumPost
         """
+
         error = self.throttling(request)
         if error:
             return self.error(error)
+
+        allow_post = SysOptions.objects.get(key="allow_forum_post").value
+        if not allow_post:
+            return self.error("Don't allow to post")
 
         data = request.data
         if data["id"] != -1:
@@ -47,6 +53,9 @@ class ForumPostAPI(APIView):
                         return self.error("Username doesn't match")
                 if admin_type != "Super Admin":
                     if data["is_top"] or data["is_light"] or data["is_nice"]:
+                        return self.error("User doesn't have permission")
+                    permission = SysOptions.objects.get(key="forum_sort").value[data["sort"] - 1]["permission"]
+                    if permission == "Super Admin":
                         return self.error("User doesn't have permission")
 
             except ForumPost.DoesNotExist:
@@ -144,6 +153,10 @@ class ForumReplyAPI(APIView):
         error = self.throttling(request)
         if error:
             return self.error(error)
+
+        allow_reply = SysOptions.objects.get(key="allow_forum_reply").value
+        if not allow_reply:
+            return self.error("Don't allow to reply")
 
         data = request.data
         if not data["content"]:

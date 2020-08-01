@@ -26,6 +26,9 @@ class CreateEditWebsiteConfigSerializer(serializers.Serializer):
     website_footer = serializers.CharField(max_length=1024 * 1024)
     allow_register = serializers.BooleanField()
     submission_list_show_all = serializers.BooleanField()
+    forum_sort = serializers.ListField(allow_empty=False)
+    allow_forum_post = serializers.BooleanField()
+    allow_forum_reply = serializers.BooleanField()
 
 
 class JudgeServerSerializer(serializers.ModelSerializer):
