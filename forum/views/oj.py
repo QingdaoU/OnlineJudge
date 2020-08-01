@@ -61,7 +61,6 @@ class ForumPostAPI(APIView):
         forumpost = ForumPost.objects.create(title=data["title"],
                                              content=data["content"],
                                              sort=data["sort"],
-                                             son_sort=data["son_sort"],
                                              is_top=data["is_top"],
                                              is_nice=data["is_light"],
                                              is_light=data["is_light"],
@@ -88,9 +87,9 @@ class ForumPostAPI(APIView):
         forumposts = ForumPost.objects.select_related("author").filter().order_by("-is_top", "-create_time",)
 
         # 按照分区筛选
-        sort_text = request.GET.get("sort")
-        if sort_text:
-            forumposts = forumposts.filter(sort=sort_text)
+        sort = request.GET.get("sort")
+        if sort:
+            forumposts = forumposts.filter(sort=sort)
 
         # 搜索的情况
         keyword = request.GET.get("keyword", "").strip()

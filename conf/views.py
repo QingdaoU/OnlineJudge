@@ -91,7 +91,8 @@ class WebsiteConfigAPI(APIView):
     def get(self, request):
         ret = {key: getattr(SysOptions, key) for key in
                ["website_base_url", "website_name", "website_name_shortcut",
-                "website_footer", "allow_register", "submission_list_show_all"]}
+                "website_footer", "allow_register", "submission_list_show_all",
+                "forum_sort"]}
         return self.success(ret)
 
     @super_admin_required
