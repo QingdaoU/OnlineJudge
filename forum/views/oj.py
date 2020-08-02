@@ -171,7 +171,11 @@ class ForumReplyAPI(APIView):
                                                content=data["content"],
                                                floor=floor,
                                                author=request.user)
-        return self.success(ForumReplySerializer(forumreply).data)
+        data = ForumReplySerializer(forumreply).data
+        user = User.objects.get(username=data["author"]["username"], is_disabled=False)
+        userprofile = UserProfileSerializer(user.userprofile, show_real_name=False).data
+        data["author"].update({"grade": userprofile["grade"], "title": userprofile["user"]["title"], "title_color": userprofile["user"]["title_color"]})
+        return self.success(data)
 
     def get(self, request):
         """
