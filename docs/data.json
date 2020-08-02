@@ -1,9 +1,30 @@
 {
   "update": [
     {
+      "version": "2020-08-02",
+      "level": "Recommend",
+      "title": "v1.3.10.8.1",
+      "details": [
+        "[Add] Forum System",
+        "[Add] Forum Post / Reply",
+        "[Add] Top / Light / Star",
+        "[Add] Forum Sort and Sort's posting permission",
+        "[Add] Overall situation Post / Reply permission, and can Open / Close Forum",
+        "[Add] Import Realname when importing users",
+        "[Add] Experience Rank",
+        "[Add] Custom User Title/Color",
+        "[Add] Sighin WebsiteName auto Get",
+        "[Fix] Safety Problem",
+        "[Fix] Translation",
+        "[Fix] User Grade show problem",
+        "[Fix] Theme Show Problem",
+        "[Fix] Golang Code Highlight"
+      ]
+    },
+    {
       "version": "2020-07-16",
       "level": "Recommend",
-      "title": "2020-07-16",
+      "title": "v1.3.10.7.1",
       "details": [
         "[Add] Golang language to judge server",
         "[Add] Support Mobile Device",
@@ -15,7 +36,7 @@
     {
       "version": "2020-05-06",
       "level": "Recommend",
-      "title": "2020-05-06",
+      "title": "v1.3.10.6.5",
       "details": [
         "[Add] Editor add more Function",
         "[Fix] Python3 Chinese Character Support",
@@ -26,7 +47,7 @@
     {
       "version": "2020-05-04",
       "level": "Important",
-      "title": "2020-05-04",
+      "title": "v1.3.10.6.4.4",
       "details": [
         "[Fix] Translate",
         "[Fix] Remove Contest Announcements Sighin Panel"
@@ -35,7 +56,7 @@
     {
       "version": "2020-05-03",
       "level": "Recommend",
-      "title": "2020-05-03",
+      "title": "v1.3.10.6.4.3",
       "details": [
         "[Add] Online IDE Code Cache",
         "[Add] Code Editor Match Bracket",
@@ -51,7 +72,7 @@
     {
       "version": "2020-05-02",
       "level": "Recommend",
-      "title": "2020-05-02",
+      "title": "v1.3.10.6.4.1",
       "details": [
         "[Fix] Reduce Liv2d Memory Usage"
       ]
@@ -59,7 +80,7 @@
     {
       "version": "2020-04-26",
       "level": "Important",
-      "title": "2020-04-26",
+      "title": "v1.3.10.6.3.1",
       "details": [
         "[Fix] Safety Problem",
         "[Upgrade] Upgrade form QingdaoU/OnlineJudgeFE"
