@@ -190,8 +190,8 @@ class ForumReplyAPI(APIView):
         data = self.paginate_data(request, forumreplys, ForumReplySerializer)
         for i in range(0, len(data["results"])):
             user = User.objects.get(username=data["results"][i]["author"]["username"], is_disabled=False)
-            grade = UserProfileSerializer(user.userprofile, show_real_name=True).data["grade"]
-            data["results"][i]["author"].update({"grade": grade})
+            userprofile = UserProfileSerializer(user.userprofile, show_real_name=False).data
+            data["results"][i]["author"].update({"grade": userprofile["grade"], "title": userprofile["user"]["title"], "title_color": userprofile["user"]["title_color"]})
         return self.success(data)
 
     @login_required

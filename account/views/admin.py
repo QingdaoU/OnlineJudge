@@ -92,6 +92,16 @@ class UserAdminAPI(APIView):
 
         user.two_factor_auth = data["two_factor_auth"]
 
+        if data["title"]:
+            user.title = data["title"]
+            if data["title_color"]:
+                user.title_color = data["title_color"]
+            else:
+                user.title_color = "#222f3e"
+        else:
+            user.title = None
+            user.title_color = None
+
         user.save()
         if pre_username != user.username:
             Submission.objects.filter(username=pre_username).update(username=user.username)

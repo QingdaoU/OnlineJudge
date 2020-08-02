@@ -156,8 +156,8 @@ class SubmissionListAPI(APIView):
         data["results"] = SubmissionListSerializer(data["results"], many=True, user=request.user).data
         for i in range(0, len(data["results"])):
             user = User.objects.get(username=data["results"][i]["username"], is_disabled=False)
-            grade = UserProfileSerializer(user.userprofile, show_real_name=False).data["grade"]
-            data["results"][i].update({"grade": grade})
+            userprofile = UserProfileSerializer(user.userprofile, show_real_name=False).data
+            data["results"][i].update({"grade": userprofile["grade"], "title": userprofile["user"]["title"], "title_color": userprofile["user"]["title_color"]})
         return self.success(data)
 
 

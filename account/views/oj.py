@@ -390,8 +390,8 @@ class UserRankAPI(APIView):
         data = self.paginate_data(request, profiles, RankInfoSerializer)
         for i in range(0, len(data["results"])):
             user = User.objects.get(username=data["results"][i]["user"]["username"], is_disabled=False)
-            grade = UserProfileSerializer(user.userprofile, show_real_name=True).data["grade"]
-            data["results"][i].update({"grade": grade})
+            userprofile = UserProfileSerializer(user.userprofile, show_real_name=False).data
+            data["results"][i].update({"grade": userprofile["grade"], "title": userprofile["user"]["title"], "title_color": userprofile["user"]["title_color"]})
         return self.success(data)
 
 
