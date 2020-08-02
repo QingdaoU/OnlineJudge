@@ -46,12 +46,11 @@ class ForumPostAPI(APIView):
             try:
                 forumpost = ForumPost.objects.get(id=data.pop("id"))
                 username = request.user.username
-                user = User.objects.get(username=str(username), is_disabled=False)
-                admin_type = UserProfileSerializer(user.userprofile, show_real_name=False).data["user"]["admin_type"]
+                is_super_admin = User.objects.get(username=str(username), is_disabled=False).is_super_admin()
                 if str(username) != str(forumpost.author):
-                    if admin_type != "Super Admin":
+                    if not is_super_admin:
                         return self.error("Username doesn't match")
-                if admin_type != "Super Admin":
+                if not is_super_admin:
                     if data["is_top"] or data["is_light"] or data["is_nice"]:
                         return self.error("User doesn't have permission")
                     permission = SysOptions.objects.get(key="forum_sort").value[data["sort"] - 1]["permission"]
@@ -115,13 +114,12 @@ class ForumPostAPI(APIView):
         """
         if request.GET.get("forumpost_id"):
             username = request.user.username
-            user = User.objects.get(username=str(username), is_disabled=False)
-            admin_type = UserProfileSerializer(user.userprofile, show_real_name=False).data["user"]["admin_type"]
+            is_super_admin = User.objects.get(username=str(username), is_disabled=False).is_super_admin()
             forumpost = ForumPost.objects.get(id=request.GET["forumpost_id"])
             if str(username) == str(forumpost.author):
                 ForumPost.objects.filter(id=request.GET["forumpost_id"]).delete()
                 ForumReply.objects.filter(fa_id=request.GET["forumpost_id"]).delete()
-            elif admin_type == "Super Admin":
+            elif is_super_admin:
                 ForumPost.objects.filter(id=request.GET["forumpost_id"]).delete()
                 ForumReply.objects.filter(fa_id=request.GET["forumpost_id"]).delete()
             else:
@@ -203,12 +201,14 @@ class ForumReplyAPI(APIView):
         """
         if request.GET.get("id"):
             username = request.user.username
-            user = User.objects.get(username=str(username), is_disabled=False)
-            admin_type = UserProfileSerializer(user.userprofile, show_real_name=False).data["user"]["admin_type"]
+            is_super_admin = User.objects.get(username=str(username), is_disabled=False).is_super_admin()
             forumreply = ForumReply.objects.get(id=request.GET["id"])
+            forumoost = ForumPost.objects.get(id=forumreply.fa_id)
             if str(username) == str(forumreply.author):
                 ForumReply.objects.filter(id=request.GET["id"]).delete()
-            elif admin_type == "Super Admin":
+            elif str(username) == str(forumoost.author.username):
+                ForumReply.objects.filter(id=request.GET["id"]).delete()
+            elif is_super_admin:
                 ForumReply.objects.filter(id=request.GET["id"]).delete()
             else:
                 return self.error("Username doesn't match")
