@@ -12,10 +12,9 @@ from forum.serializers import (CreateEditForumPostSerializer, ForumPostSerialize
 
 
 class ForumPostAPI(APIView):
-    def throttling(self, request):
-        # 使用 open_api 的请求暂不做限制
-        auth_method = getattr(request, "auth_method", "")
-        if auth_method == "api_key":
+    def throttling(self, request, is_super_admin):
+        # 超级管理员 的请求暂不做限制
+        if is_super_admin:
             return
         user_bucket = TokenBucket(key=str(request.user.username),
                                   redis_conn=cache,
@@ -32,8 +31,10 @@ class ForumPostAPI(APIView):
         """
         publish ForumPost
         """
+        username = request.user.username
+        is_super_admin = User.objects.get(username=str(username), is_disabled=False).is_super_admin()
 
-        error = self.throttling(request)
+        error = self.throttling(request, is_super_admin)
         if error:
             return self.error(error)
 
@@ -45,8 +46,6 @@ class ForumPostAPI(APIView):
         if data["id"] != -1:
             try:
                 forumpost = ForumPost.objects.get(id=data.pop("id"))
-                username = request.user.username
-                is_super_admin = User.objects.get(username=str(username), is_disabled=False).is_super_admin()
                 if str(username) != str(forumpost.author):
                     if not is_super_admin:
                         return self.error("Username doesn't match")
@@ -69,9 +68,9 @@ class ForumPostAPI(APIView):
         forumpost = ForumPost.objects.create(title=data["title"],
                                              content=data["content"],
                                              sort=data["sort"],
-                                             is_top=data["is_top"],
-                                             is_nice=data["is_light"],
-                                             is_light=data["is_light"],
+                                             is_top=False,
+                                             is_nice=False,
+                                             is_light=False,
                                              author=request.user)
         return self.success(ForumPostSerializer(forumpost).data)
 
@@ -128,10 +127,9 @@ class ForumPostAPI(APIView):
 
 
 class ForumReplyAPI(APIView):
-    def throttling(self, request):
-        # 使用 open_api 的请求暂不做限制
-        auth_method = getattr(request, "auth_method", "")
-        if auth_method == "api_key":
+    def throttling(self, request, is_super_admin):
+        # 超级管理员 的请求暂不做限制
+        if is_super_admin:
             return
         user_bucket = TokenBucket(key=str(request.user.username),
                                   redis_conn=cache,
@@ -148,7 +146,10 @@ class ForumReplyAPI(APIView):
         """
         publish/edit ForumReply
         """
-        error = self.throttling(request)
+        username = request.user.username
+        is_super_admin = User.objects.get(username=str(username), is_disabled=False).is_super_admin()
+
+        error = self.throttling(request, is_super_admin)
         if error:
             return self.error(error)
 
