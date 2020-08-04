@@ -183,18 +183,18 @@ class ForumReplyAPI(APIView):
         user = User.objects.get(username=data["author"]["username"], is_disabled=False)
         userprofile = UserProfileSerializer(user.userprofile, show_real_name=False).data
         data["author"].update({"grade": userprofile["grade"], "title": userprofile["user"]["title"], "title_color": userprofile["user"]["title_color"]})
+        forumpost = ForumPostSerializer(ForumPost.objects.select_related("author").get(id=data["fa_id"])).data
+        author = User.objects.get(username=forumpost["author"]["username"], is_disabled=False)
         render_data = {
-            "username": user.username,
+            "username": author.username,
             "website_name": SysOptions.website_name,
-            "title": ForumPostSerializer(ForumPost.objects.select_related("author").get(id=data["fa_id"])).data["title"],
+            "title": forumpost["title"],
             "link": f"{SysOptions.website_base_url}/Forum/{data['fa_id']}"
         }
         email_html = render_to_string("reply_email.html", render_data)
-        if not SysOptions.smtp_config:
-            return self.success(data)
         send_email_async.send(from_name=SysOptions.website_name_shortcut,
-                              to_email=user.email,
-                              to_name=user.username,
+                              to_email=author.email,
+                              to_name=author.username,
                               subject=f"Your Post recepted a reply",
                               content=email_html)
         return self.success(data)
