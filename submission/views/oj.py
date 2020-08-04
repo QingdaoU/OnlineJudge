@@ -200,8 +200,8 @@ class ContestSubmissionListAPI(APIView):
         data["results"] = SubmissionListSerializer(data["results"], many=True, user=request.user).data
         for i in range(0, len(data["results"])):
             user = User.objects.get(username=data["results"][i]["username"], is_disabled=False)
-            grade = UserProfileSerializer(user.userprofile, show_real_name=True).data["grade"]
-            data["results"][i].update({"grade": grade})
+            userprofile = UserProfileSerializer(user.userprofile, show_real_name=True).data
+            data["results"][i].update({"grade": userprofile["grade"], "title": userprofile["user"]["title"], "title_color": userprofile["user"]["title_color"]})
         return self.success(data)
 
 
