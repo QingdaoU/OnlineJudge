@@ -1,0 +1,28 @@
+<div>
+    <table cellpadding="0" align="center"
+           style="overflow:hidden;background:#fff;margin:0 auto;text-align:left;position:relative;font-size:14px; font-family:'lucida Grande',Verdana;line-height:1.5;box-shadow:0 0 3px #ccc;border:1px solid #ccc;border-radius:5px;border-collapse:collapse;">
+        <tbody>
+        <tr>
+            <th valign="middle"
+                style="height:38px;color:#fff; font-size:14px;line-height:38px; font-weight:bold;text-align:left;padding:10px 24px 6px; border-bottom:1px solid #467ec3;background:#518bcb;border-radius:5px 5px 0 0;">
+            {{ website_name }}</th>
+        </tr>
+        <tr>
+            <td>
+                <div style="padding:20px 35px 40px;">
+                    <h2 style="font-weight:bold;margin-bottom:5px;font-size:14px;">Hello, {{ username }}:</h2>
+                    <p style="margin-top:20px">
+                    Your Post 《<a href="{{ link }}">{{ title }}</a>》 recepted a reply:
+                    </p>
+                    <p style="margin-top:20px">
+                    Please click the <a href="{{ link }}">{{ link }}</a> to see more.
+                    </p>
+                    <p style="margin-left:2em;"></p>
+                    <p style="text-indent:0;text-align:right;">{{ website_name }}</p>
+                </div>
+            </td>
+        </tr>
+
+        </tbody>
+    </table>
+</div>

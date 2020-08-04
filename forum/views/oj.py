@@ -1,14 +1,16 @@
 from django.db.models import Q
+from django.template.loader import render_to_string
 from utils.api import APIView, validate_serializer
 from utils.cache import cache
 from utils.throttling import TokenBucket
 from account.models import User
 from account.decorators import login_required
 from account.serializers import UserProfileSerializer
-from options.models import SysOptions
+from options.options import SysOptions
 from forum.models import ForumPost, ForumReply
 from forum.serializers import (CreateEditForumPostSerializer, ForumPostSerializer,
                                CreateEditForumReplySerializer, ForumReplySerializer)
+from account.tasks import send_email_async
 
 
 class ForumPostAPI(APIView):
@@ -38,7 +40,7 @@ class ForumPostAPI(APIView):
         if error:
             return self.error(error)
 
-        allow_post = SysOptions.objects.get(key="allow_forum_post").value
+        allow_post = SysOptions.allow_forum_post
         if not allow_post:
             return self.error("Don't allow to post")
 
@@ -52,7 +54,7 @@ class ForumPostAPI(APIView):
                 if not is_super_admin:
                     if data["is_top"] or data["is_light"] or data["is_nice"]:
                         return self.error("User doesn't have permission")
-                    permission = SysOptions.objects.get(key="forum_sort").value[data["sort"] - 1]["permission"]
+                    permission = SysOptions.forum_sort[data["sort"] - 1]["permission"]
                     if permission == "Super Admin":
                         return self.error("User doesn't have permission")
 
@@ -64,6 +66,11 @@ class ForumPostAPI(APIView):
             forumpost.save()
 
             return self.success(ForumPostSerializer(forumpost).data)
+
+        if not is_super_admin:
+            permission = SysOptions.forum_sort[data["sort"] - 1]["permission"]
+            if permission == "Super Admin":
+                return self.error("User doesn't have permission")
 
         forumpost = ForumPost.objects.create(title=data["title"],
                                              content=data["content"],
@@ -153,7 +160,7 @@ class ForumReplyAPI(APIView):
         if error:
             return self.error(error)
 
-        allow_reply = SysOptions.objects.get(key="allow_forum_reply").value
+        allow_reply = SysOptions.allow_forum_reply
         if not allow_reply:
             return self.error("Don't allow to reply")
 
@@ -176,6 +183,20 @@ class ForumReplyAPI(APIView):
         user = User.objects.get(username=data["author"]["username"], is_disabled=False)
         userprofile = UserProfileSerializer(user.userprofile, show_real_name=False).data
         data["author"].update({"grade": userprofile["grade"], "title": userprofile["user"]["title"], "title_color": userprofile["user"]["title_color"]})
+        render_data = {
+            "username": user.username,
+            "website_name": SysOptions.website_name,
+            "title": ForumPostSerializer(ForumPost.objects.select_related("author").get(id=data["fa_id"])).data["title"],
+            "link": f"{SysOptions.website_base_url}/Forum/{data['fa_id']}"
+        }
+        email_html = render_to_string("reply_email.html", render_data)
+        if not SysOptions.smtp_config:
+            return self.success(data)
+        send_email_async.send(from_name=SysOptions.website_name_shortcut,
+                              to_email=user.email,
+                              to_name=user.username,
+                              subject=f"Your Post recepted a reply",
+                              content=email_html)
         return self.success(data)
 
     def get(self, request):
