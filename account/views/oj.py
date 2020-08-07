@@ -392,11 +392,11 @@ class UserRankAPI(APIView):
         data = self.paginate_data(request, profiles, RankInfoSerializer)
         for i in range(0, len(data["results"])):
             try:
-                user = User.objects.get(username=data["results"][i]["user"]["username"], is_disabled=False)
+                user = User.objects.get(id=data["results"][i]["user"]["id"], is_disabled=False)
                 userprofile = UserProfileSerializer(user.userprofile, show_real_name=False).data
                 data["results"][i].update({"grade": userprofile["grade"], "title": userprofile["user"]["title"], "title_color": userprofile["user"]["title_color"]})
             except Exception:
-                pass
+                data["results"][i].update({"grade": 0, "title": None, "title_color": None})
         return self.success(data)
 
 

@@ -192,9 +192,9 @@ class ContestRankAPI(APIView):
         page_qs["results"] = serializer(page_qs["results"], many=True, is_contest_admin=is_contest_admin).data
         for i in range(0, len(page_qs["results"])):
             try:
-                user = User.objects.get(username=page_qs["results"][i]["user"]["username"], is_disabled=False)
+                user = User.objects.get(id=page_qs["results"][i]["user"]["id"], is_disabled=False)
                 userprofile = UserProfileSerializer(user.userprofile, show_real_name=True).data
                 page_qs["results"][i].update({"grade": userprofile["grade"], "title": userprofile["user"]["title"], "title_color": userprofile["user"]["title_color"]})
             except Exception:
-                pass
+                page_qs["results"][i].update({"grade": 0, "title": None, "title_color": None})
         return self.success(page_qs)

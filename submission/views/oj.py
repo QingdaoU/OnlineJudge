@@ -156,11 +156,11 @@ class SubmissionListAPI(APIView):
         data["results"] = SubmissionListSerializer(data["results"], many=True, user=request.user).data
         for i in range(0, len(data["results"])):
             try:
-                user = User.objects.get(username=data["results"][i]["username"], is_disabled=False)
+                user = User.objects.get(id=data["results"][i]["user_id"], is_disabled=False)
                 userprofile = UserProfileSerializer(user.userprofile, show_real_name=False).data
                 data["results"][i].update({"grade": userprofile["grade"], "title": userprofile["user"]["title"], "title_color": userprofile["user"]["title_color"]})
             except Exception:
-                pass
+                data["results"][i].update({"grade": 0, "title": None, "title_color": None})
         return self.success(data)
 
 
@@ -203,11 +203,11 @@ class ContestSubmissionListAPI(APIView):
         data["results"] = SubmissionListSerializer(data["results"], many=True, user=request.user).data
         for i in range(0, len(data["results"])):
             try:
-                user = User.objects.get(username=data["results"][i]["username"], is_disabled=False)
+                user = User.objects.get(id=data["results"][i]["user_id"], is_disabled=False)
                 userprofile = UserProfileSerializer(user.userprofile, show_real_name=True).data
                 data["results"][i].update({"grade": userprofile["grade"], "title": userprofile["user"]["title"], "title_color": userprofile["user"]["title_color"]})
             except Exception:
-                pass
+                data["results"][i].update({"grade": 0, "title": None, "title_color": None})
         return self.success(data)
 
 

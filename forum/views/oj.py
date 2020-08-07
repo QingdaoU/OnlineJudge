@@ -182,11 +182,11 @@ class ForumReplyAPI(APIView):
         data = ForumReplySerializer(forumreply).data
 
         try:
-            user = User.objects.get(username=data["author"]["username"], is_disabled=False)
+            user = User.objects.get(id=data["author"]["id"], is_disabled=False)
             userprofile = UserProfileSerializer(user.userprofile, show_real_name=False).data
             data["author"].update({"grade": userprofile["grade"], "title": userprofile["user"]["title"], "title_color": userprofile["user"]["title_color"]})
         except Exception:
-            pass
+            data["author"].update({"grade": 0, "title": None, "title_color": None})
 
         forumpost = ForumPostSerializer(ForumPost.objects.select_related("author").get(id=data["fa_id"])).data
         author = User.objects.get(username=forumpost["author"]["username"], is_disabled=False)
@@ -221,11 +221,11 @@ class ForumReplyAPI(APIView):
         data = self.paginate_data(request, forumreplys, ForumReplySerializer)
         for i in range(0, len(data["results"])):
             try:
-                user = User.objects.get(username=data["results"][i]["author"]["username"], is_disabled=False)
+                user = User.objects.get(id=data["results"][i]["author"]["id"], is_disabled=False)
                 userprofile = UserProfileSerializer(user.userprofile, show_real_name=False).data
                 data["results"][i]["author"].update({"grade": userprofile["grade"], "title": userprofile["user"]["title"], "title_color": userprofile["user"]["title_color"]})
             except Exception:
-                pass
+                data["results"][i]["author"].update({"grade": 0, "title": None, "title_color": None})
         return self.success(data)
 
     @login_required
