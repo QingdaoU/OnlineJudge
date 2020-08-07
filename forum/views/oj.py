@@ -180,9 +180,14 @@ class ForumReplyAPI(APIView):
                                                floor=floor,
                                                author=request.user)
         data = ForumReplySerializer(forumreply).data
-        user = User.objects.get(username=data["author"]["username"], is_disabled=False)
-        userprofile = UserProfileSerializer(user.userprofile, show_real_name=False).data
-        data["author"].update({"grade": userprofile["grade"], "title": userprofile["user"]["title"], "title_color": userprofile["user"]["title_color"]})
+
+        try:
+            user = User.objects.get(username=data["author"]["username"], is_disabled=False)
+            userprofile = UserProfileSerializer(user.userprofile, show_real_name=False).data
+            data["author"].update({"grade": userprofile["grade"], "title": userprofile["user"]["title"], "title_color": userprofile["user"]["title_color"]})
+        except Exception:
+            pass
+
         forumpost = ForumPostSerializer(ForumPost.objects.select_related("author").get(id=data["fa_id"])).data
         author = User.objects.get(username=forumpost["author"]["username"], is_disabled=False)
         render_data = {
@@ -215,9 +220,12 @@ class ForumReplyAPI(APIView):
 
         data = self.paginate_data(request, forumreplys, ForumReplySerializer)
         for i in range(0, len(data["results"])):
-            user = User.objects.get(username=data["results"][i]["author"]["username"], is_disabled=False)
-            userprofile = UserProfileSerializer(user.userprofile, show_real_name=False).data
-            data["results"][i]["author"].update({"grade": userprofile["grade"], "title": userprofile["user"]["title"], "title_color": userprofile["user"]["title_color"]})
+            try:
+                user = User.objects.get(username=data["results"][i]["author"]["username"], is_disabled=False)
+                userprofile = UserProfileSerializer(user.userprofile, show_real_name=False).data
+                data["results"][i]["author"].update({"grade": userprofile["grade"], "title": userprofile["user"]["title"], "title_color": userprofile["user"]["title_color"]})
+            except Exception:
+                pass
         return self.success(data)
 
     @login_required
