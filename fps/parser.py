@@ -53,7 +53,7 @@ class FPSParser(object):
                     raise ValueError("Invalid time limit unit")
                 problem["time_limit"]["unit"] = item.attrib.get("unit", "s")
                 value = 0
-                if self.version != '1.1':
+                if self.version != "1.1":
                     value = float(item.text)
                 else:
                     value = int(item.text)
