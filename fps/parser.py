@@ -17,9 +17,9 @@ class FPSParser(object):
             self._ertree = ET.fromstring(string_data).getroot()
         else:
             raise ValueError("You must tell me the file path or directly give me the data for the file")
-        version = self._etree.attrib.get("version", "No Version")
-        if version not in ["1.1", "1.2"]:
-            raise ValueError("Unsupported version '" + version + "'")
+        self.version = self._etree.attrib.get("version", "No Version")
+        if self.version not in ["1.1", "1.2"]:
+            raise ValueError("Unsupported version '" + self.version + "'")
 
     @property
     def etree(self):
@@ -52,7 +52,11 @@ class FPSParser(object):
                 if unit not in ["s", "ms"]:
                     raise ValueError("Invalid time limit unit")
                 problem["time_limit"]["unit"] = item.attrib.get("unit", "s")
-                value = int(item.text)
+                value = 0
+                if self.version != "1.1":
+                    value = float(item.text)
+                else:
+                    value = int(item.text)
                 if value <= 0:
                     raise ValueError("Invalid time limit value")
                 problem["time_limit"]["value"] = value
