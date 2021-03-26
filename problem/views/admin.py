@@ -1,7 +1,7 @@
 import hashlib
 import json
 import os
-import shutil
+# import shutil
 import tempfile
 import zipfile
 from wsgiref.util import FileWrapper
@@ -676,10 +676,10 @@ class FPSProblemImport(CSRFExemptAPIView):
             with tempfile.NamedTemporaryFile("wb") as tf:
                 for chunk in file.chunks(4096):
                     tf.file.write(chunk)
-                
+
                 tf.file.flush()
                 os.fsync(tf.file)
-                
+
                 problems = FPSParser(tf.name).parse()
         else:
             return self.error("Parse upload file error")

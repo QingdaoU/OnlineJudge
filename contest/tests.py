@@ -79,7 +79,7 @@ class ContestAPITest(APITestCase):
         self.create_user("test", "test123")
         url = self.reverse("contest_password_api")
         resp = self.client.post(url, {"contest_id": self.contest.id, "password": "error_password"})
-        self.assertDictEqual(resp.data, {"error": "error", "data": "Wrong password"})
+        self.assertDictEqual(resp.data, {"error": "error", "data": "Wrong password or password expired"})
 
         resp = self.client.post(url, {"contest_id": self.contest.id, "password": DEFAULT_CONTEST_DATA["password"]})
         self.assertSuccess(resp)
