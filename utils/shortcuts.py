@@ -6,7 +6,8 @@ from base64 import b64encode
 from io import BytesIO
 
 from django.utils.crypto import get_random_string
-from envelopes import Envelope
+from django.core.mail import get_connection, EmailMessage
+from email.utils import formataddr
 
 
 def rand_str(length=32, type="lower_hex"):
@@ -68,15 +69,18 @@ def natural_sort_key(s, _nsre=re.compile(r"(\d+)")):
 
 
 def send_email(smtp_config, from_name, to_email, to_name, subject, content):
-    envelope = Envelope(from_addr=(smtp_config["email"], from_name),
-                        to_addr=(to_email, to_name),
-                        subject=subject,
-                        html_body=content)
-    return envelope.send(smtp_config["server"],
-                         login=smtp_config["email"],
-                         password=smtp_config["password"],
-                         port=smtp_config["port"],
-                         tls=smtp_config["tls"])
+    conn = get_connection(host=smtp_config["server"],
+                          port=smtp_config["port"],
+                          username=smtp_config["email"],
+                          password=smtp_config["password"],
+                          use_tls=smtp_config["tls"])
+    msg = EmailMessage(subject=subject,
+                       body=content,
+                       from_email=formataddr((from_name, smtp_config['email'])),
+                       to=[formataddr((to_name, to_email))],
+                       connection=conn)
+    msg.content_subtype = "html"
+    return msg.send()
 
 
 def get_env(name, default=""):
