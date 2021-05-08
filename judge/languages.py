@@ -189,7 +189,7 @@ _go_lang_config = {
         "max_real_time": 5000,
         "max_memory": 1024 * 1024 * 1024,
         "compile_command": "/usr/bin/go build -o {exe_path} {src_path}",
-        "env": ["GOCACHE=/tmp"]
+        "env": ["GOCACHE=/tmp", "GOPATH=/tmp/go"]
     },
     "run": {
         "command": "{exe_path}",
@@ -197,6 +197,23 @@ _go_lang_config = {
         # 降低内存占用
         "env": ["GODEBUG=madvdontneed=1"] + default_env,
         "memory_limit_check_only": 1
+    }
+}
+
+_php_lang_config = {
+    "template": """//PREPEND BEGIN
+//PREPEND END
+
+//TEMPLATE BEGIN
+//TEMPLATE END
+
+//APPEND BEGIN
+//APPEND END""",
+    "run": {
+        "exe_name": "solution.php",
+        "command": "/usr/bin/php {exe_path}",
+        "seccomp_rule": "",
+        "env": default_env
     }
 }
 
@@ -208,5 +225,6 @@ languages = [
     {"config": _java_lang_config, "name": "Java", "description": "OpenJDK 1.8", "content_type": "text/x-java"},
     {"config": _py2_lang_config, "name": "Python2", "description": "Python 2.7", "content_type": "text/x-python"},
     {"config": _py3_lang_config, "name": "Python3", "description": "Python 3.6", "content_type": "text/x-python"},
-    {"config": _go_lang_config, "name": "Golang", "description": "Golang 1.14", "content_type": "text/x-go"},
+    {"config": _go_lang_config, "name": "Golang", "description": "Golang 1.16", "content_type": "text/x-go"},
+    {"config": _php_lang_config, "name": "PHP", "description": "PHP 8.0", "content_type": "text/x-php"},
 ]
