@@ -213,18 +213,38 @@ _php_lang_config = {
         "exe_name": "solution.php",
         "command": "/usr/bin/php {exe_path}",
         "seccomp_rule": "",
-        "env": default_env
+        "env": default_env,
+        "memory_limit_check_only": 1
+    }
+}
+
+_js_lang_config = {
+    "template": """//PREPEND BEGIN
+//PREPEND END
+
+//TEMPLATE BEGIN
+//TEMPLATE END
+
+//APPEND BEGIN
+//APPEND END""",
+    "run": {
+        "exe_name": "solution.js",
+        "command": "/usr/bin/node {exe_path}",
+        "seccomp_rule": "",
+        "env": ["NO_COLOR=true"] + default_env,
+        "memory_limit_check_only": 1
     }
 }
 
 languages = [
     {"config": _c_lang_config, "spj": {"compile": _c_lang_spj_compile, "config": _c_lang_spj_config},
-     "name": "C", "description": "GCC 5.4", "content_type": "text/x-csrc"},
+     "name": "C", "description": "GCC 7.5", "content_type": "text/x-csrc"},
     {"config": _cpp_lang_config, "spj": {"compile": _cpp_lang_spj_compile, "config": _cpp_lang_spj_config},
-     "name": "C++", "description": "G++ 5.4", "content_type": "text/x-c++src"},
+     "name": "C++", "description": "G++ 7.5", "content_type": "text/x-c++src"},
     {"config": _java_lang_config, "name": "Java", "description": "OpenJDK 1.8", "content_type": "text/x-java"},
     {"config": _py2_lang_config, "name": "Python2", "description": "Python 2.7", "content_type": "text/x-python"},
     {"config": _py3_lang_config, "name": "Python3", "description": "Python 3.6", "content_type": "text/x-python"},
     {"config": _go_lang_config, "name": "Golang", "description": "Golang 1.16", "content_type": "text/x-go"},
     {"config": _php_lang_config, "name": "PHP", "description": "PHP 8.0", "content_type": "text/x-php"},
+    {"config": _js_lang_config, "name": "JavaScript", "description": "JavaScript (NodeJs 14.16)", "content_type": "text/x-javascript"}
 ]
