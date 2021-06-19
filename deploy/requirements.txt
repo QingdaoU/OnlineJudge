@@ -1,7 +1,7 @@
 certifi==2019.3.9
 chardet==3.0.4
 coverage==4.5.3
-Django==2.1.7
+Django==2.2.24
 django-redis==4.10.0
 djangorestframework==3.11.2
 entrypoints==0.3
