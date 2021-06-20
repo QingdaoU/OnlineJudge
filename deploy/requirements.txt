@@ -23,7 +23,7 @@ pytz==2018.9
 qrcode==6.1
 raven==6.10.0
 redis==3.2.0
-requests==2.21.0
+requests==2.25.1
 six==1.12.0
 urllib3==1.26.5
 XlsxWriter==1.1.5
