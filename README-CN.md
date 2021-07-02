@@ -34,7 +34,7 @@
 
 ## 文档
 
-[https://docs.onlinejudge.me/](https://docs.onlinejudge.me/)
+[http://opensource.qduoj.com/](http://opensource.qduoj.com/)
 
 ## 截图
 
