@@ -43,7 +43,7 @@ Follow me:  [https://github.com/Harry-zklcdc/OnlineJudgeDeploy/tree/2.0](https:/
 
 ## Documents
 
-[https://docs.onlinejudge.me/](https://docs.onlinejudge.me/)
+[http://opensource.qduoj.com/](http://opensource.qduoj.com/)
 
 ## Screenshots
 

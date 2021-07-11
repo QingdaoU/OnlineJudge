@@ -9,7 +9,11 @@ from contest.models import ContestRuleType
 
 class ProblemTagAPI(APIView):
     def get(self, request):
-        tags = ProblemTag.objects.annotate(problem_count=Count("problem")).filter(problem_count__gt=0)
+        qs = ProblemTag.objects
+        keyword = request.GET.get("keyword")
+        if keyword:
+            qs = ProblemTag.objects.filter(name__icontains=keyword)
+        tags = qs.annotate(problem_count=Count("problem")).filter(problem_count__gt=0)
         return self.success(TagSerializer(tags, many=True).data)
 
 
