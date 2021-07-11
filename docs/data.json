@@ -1,6 +1,23 @@
 {
   "update": [
     {
+      "version": "2021-07-11",
+      "level": "Important",
+      "title": "v1.3.11.0.0",
+      "details": [
+        "[Add] Global programming language Cache",
+        "[Fix] Safety Problem",
+        "[Fix] CDN",
+        "[Fix] Translation",
+        "[Fix] UI",
+        "[Fix] Code Format",
+        "[Upgrade] Node.js to v12.16.1",
+        "[Upgrade] iview to 4.6.1",
+        "[Upgrade] Upgrade form QingdaoU/OnlineJudgeFE",
+        "[Upgrade] Upgrade form QingdaoU/OnlineJudge"
+      ]
+    },
+    {
       "version": "2020-08-02",
       "level": "Recommend",
       "title": "v1.3.10.8.1",
