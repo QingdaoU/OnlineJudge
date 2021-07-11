@@ -437,6 +437,53 @@ _py3_lang_config = {
     }
 }
 
+_pypy2_lang_config = {
+    "template": """//PREPEND BEGIN
+//PREPEND END
+
+//TEMPLATE BEGIN
+//TEMPLATE END
+
+//APPEND BEGIN
+//APPEND END""",
+    "compile": {
+        "src_name": "solution.py",
+        "exe_name": "solution.py",
+        "max_cpu_time": 3000,
+        "max_real_time": 10000,
+        "max_memory": 256 * 1024 * 1024,
+        "compile_command": "/usr/bin/pypy -m py_compile {src_path}",
+    },
+    "run": {
+        "command": "/usr/bin/pypy {exe_path}",
+        "seccomp_rule": "general",
+        "env": default_env
+    }
+}
+_pypy3_lang_config = {
+    "template": """//PREPEND BEGIN
+//PREPEND END
+
+//TEMPLATE BEGIN
+//TEMPLATE END
+
+//APPEND BEGIN
+//APPEND END""",
+    "compile": {
+        "src_name": "solution.py",
+        "exe_name": "solution.py",
+        "max_cpu_time": 3000,
+        "max_real_time": 10000,
+        "max_memory": 256 * 1024 * 1024,
+        "compile_command": "/usr/bin/pypy3 -m py_compile {src_path}",
+    },
+    "run": {
+        "command": "/usr/bin/pypy3 {exe_path}",
+        "seccomp_rule": "general",
+        "env": default_env + ["PYTHONIOENCODING=utf-8"]
+    }
+}
+
 _go_lang_config = {
     "template": """//PREPEND BEGIN
 //PREPEND END
@@ -480,5 +527,7 @@ languages = [
     {"config": _java_lang_config, "name": "Java", "description": "OpenJDK 1.8", "content_type": "text/x-java"},
     {"config": _py2_lang_config, "name": "Python2", "description": "Python 2.7.17", "content_type": "text/x-python"},
     {"config": _py3_lang_config, "name": "Python3", "description": "Python 3.6.9", "content_type": "text/x-python"},
+    {"config": _pypy2_lang_config, "name": "Pypy2", "description": "Python 2.7.18 with PyPy 7.3.5", "content_type": "text/x-python"},
+    {"config": _pypy3_lang_config, "name": "Pypy3", "description": "Python 3.7.10 with PyPy 7.3.5", "content_type": "text/x-python"},
     {"config": _go_lang_config, "name": "Golang", "description": "Golang 1.14", "content_type": "text/x-go"},
 ]
