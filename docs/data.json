@@ -6,6 +6,7 @@
       "title": "v1.3.11.0.0",
       "details": [
         "[Add] Global programming language Cache",
+        "[Add] JudgeServer Support Pypy",
         "[Fix] Safety Problem",
         "[Fix] CDN",
         "[Fix] Translation",
