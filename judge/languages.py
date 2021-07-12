@@ -521,7 +521,7 @@ _go_lang_config = {
         "max_real_time": 5000,
         "max_memory": 1024 * 1024 * 1024,
         "compile_command": "/usr/bin/go build -o {exe_path} {src_path}",
-        "env": ["GOCACHE=/tmp"]
+        "env": ["GOCACHE=/tmp", "GOPATH=/tmp/go"]
     },
     "run": {
         "command": "{exe_path}",
