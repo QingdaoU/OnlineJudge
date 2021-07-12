@@ -3,7 +3,7 @@
     {
       "version": "2021-07-11",
       "level": "Important",
-      "title": "v1.3.11.0.0",
+      "title": "v1.3.11.0.1",
       "details": [
         "[Add] Global programming language Cache",
         "[Add] JudgeServer Support Pypy, Node.js, PHP",
