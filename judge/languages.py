@@ -446,20 +446,15 @@ _pypy2_lang_config = {
 
 //APPEND BEGIN
 //APPEND END""",
-    "compile": {
-        "src_name": "solution.py",
-        "exe_name": "solution.py",
-        "max_cpu_time": 3000,
-        "max_real_time": 10000,
-        "max_memory": 256 * 1024 * 1024,
-        "compile_command": "/usr/bin/pypy -m py_compile {src_path}",
-    },
     "run": {
+        "exe_name": "solution.py",
         "command": "/usr/bin/pypy {exe_path}",
-        "seccomp_rule": "general",
-        "env": default_env
+        "seccomp_rule": "",
+        "env": default_env,
+        "memory_limit_check_only": 1
     }
 }
+
 _pypy3_lang_config = {
     "template": """//PREPEND BEGIN
 //PREPEND END
@@ -469,18 +464,12 @@ _pypy3_lang_config = {
 
 //APPEND BEGIN
 //APPEND END""",
-    "compile": {
-        "src_name": "solution.py",
-        "exe_name": "solution.py",
-        "max_cpu_time": 3000,
-        "max_real_time": 10000,
-        "max_memory": 256 * 1024 * 1024,
-        "compile_command": "/usr/bin/pypy3 -m py_compile {src_path}",
-    },
     "run": {
+        "exe_name": "solution.py",
         "command": "/usr/bin/pypy3 {exe_path}",
-        "seccomp_rule": "general",
-        "env": default_env + ["PYTHONIOENCODING=utf-8"]
+        "seccomp_rule": "",
+        "env": default_env + ["PYTHONIOENCODING=utf-8"],
+        "memory_limit_check_only": 1
     }
 }
 
