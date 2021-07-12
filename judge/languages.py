@@ -546,7 +546,7 @@ languages = [
     {"config": _cpp_17_lang_config, "name": "C++ 17", "description": "G++ 9.3.0", "content_type": "text/x-c++src"},
     {"config": _cpp_17_o2_lang_config, "name": "C++ 17 With O2", "description": "G++ 9.3.0", "content_type": "text/x-c++src"},
     {"config": _java_lang_config, "name": "Java", "description": "OpenJDK 1.8", "content_type": "text/x-java"},
-    {"config": _js_lang_config, "name": "JavaScript", "description": "JavaScript (NodeJs 14.16)", "content_type": "text/x-javascript"},
+    {"config": _js_lang_config, "name": "JavaScript", "description": "JavaScript (Node.Js 14.16)", "content_type": "text/typescript"},
     {"config": _php_lang_config, "name": "PHP", "description": "PHP 8.0", "content_type": "text/x-php"},
     {"config": _py2_lang_config, "name": "Python2", "description": "Python 2.7.17", "content_type": "text/x-python"},
     {"config": _py3_lang_config, "name": "Python3", "description": "Python 3.6.9", "content_type": "text/x-python"},
