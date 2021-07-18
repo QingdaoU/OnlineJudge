@@ -1,6 +1,16 @@
 {
   "update": [
     {
+      "version": "2021-07-18",
+      "level": "Recommend",
+      "title": "v1.3.11.0.2",
+      "details": [
+        "[Fix] UI",
+        "[Fix] Fix missing icons",
+        "[Fix] Fix missing Alert"
+      ]
+    },
+    {
       "version": "2021-07-11",
       "level": "Important",
       "title": "v1.3.11.0.1",
