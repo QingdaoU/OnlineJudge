@@ -7,8 +7,6 @@
 
 > #### An onlinejudge system based on Python and Vue. [Demo](https://qduoj.com)
 
-[中文文档](README-CN.md)
-
 ## Overview
 
 + Based on Docker; One-click deployment
