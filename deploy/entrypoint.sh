@@ -20,7 +20,7 @@ fi
 SSL="$DATA/ssl"
 if [ ! -f "$SSL/server.key" ]; then
     openssl req -x509 -newkey rsa:2048 -keyout "$SSL/server.key" -out "$SSL/server.crt" -days 1000 \
-        -subj "/C=CN/ST=Beijing/L=Beijing/O=Beijing OnlineJudge Technology Co., Ltd./OU=Service Infrastructure Department/CN=`hostname`" -nodes
+        -subj "/C=MX/CN=devcam" -nodes
 fi
 
 cd $APP/deploy/nginx
