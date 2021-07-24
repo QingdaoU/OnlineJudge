@@ -12,5 +12,3 @@ script:
     - flake8 .
     - coverage run --include="$PWD/*" manage.py test
     - coverage report
-notifications:
-    slack: onlinejudgeteam:BzBz8UFgmS5crpiblof17K2W

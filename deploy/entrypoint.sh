@@ -17,12 +17,11 @@ if [ ! -f "$DATA/public/website/favicon.ico" ]; then
     cp data/public/website/favicon.ico $DATA/public/website
 fi
 
-# disable SSL since it will be handled by the top level nginx server
-# SSL="$DATA/ssl"
-# if [ ! -f "$SSL/server.key" ]; then
-    # openssl req -x509 -newkey rsa:2048 -keyout "$SSL/server.key" -out "$SSL/server.crt" -days 1000 \
-        # -subj "/C=CN/ST=Beijing/L=Beijing/O=Beijing OnlineJudge Technology Co., Ltd./OU=Service Infrastructure Department/CN=`hostname`" -nodes
-# fi
+SSL="$DATA/ssl"
+if [ ! -f "$SSL/server.key" ]; then
+    openssl req -x509 -newkey rsa:2048 -keyout "$SSL/server.key" -out "$SSL/server.crt" -days 1000 \
+        -subj "/C=CN/ST=Beijing/L=Beijing/O=Beijing OnlineJudge Technology Co., Ltd./OU=Service Infrastructure Department/CN=`hostname`" -nodes
+fi
 
 cd $APP/deploy/nginx
 ln -sf locations.conf https_locations.conf
