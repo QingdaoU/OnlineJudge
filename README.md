@@ -3,7 +3,7 @@
 [![Python](https://img.shields.io/badge/python-3.6.2-blue.svg?style=flat-square)](https://www.python.org/downloads/release/python-362/)
 [![Django](https://img.shields.io/badge/django-1.11.4-blue.svg?style=flat-square)](https://www.djangoproject.com/)
 [![Django Rest Framework](https://img.shields.io/badge/django_rest_framework-3.4.0-blue.svg?style=flat-square)](http://www.django-rest-framework.org/)
-[![Build Status](https://travis-ci.org/QingdaoU/OnlineJudge.svg?branch=master)](https://travis-ci.org/QingdaoU/OnlineJudge)
+[![Build Status](https://travis-ci.org/DevCam/OnlineJudge.svg?branch=master)](https://travis-ci.org/QingdaoU/OnlineJudge)
 
 > #### An onlinejudge system based on Python and Vue. [Demo](https://qduoj.com)
 
@@ -19,20 +19,16 @@
 + Markdown & MathJax support
 + Contest participants IP limit(CIDR)
 
-Main modules are available below:
+Main modules are available below (redirected to forked modules, consider using the originals):
 
-+ Backend(Django): [https://github.com/QingdaoU/OnlineJudge](https://github.com/QingdaoU/OnlineJudge)
-+ Frontend(Vue): [https://github.com/QingdaoU/OnlineJudgeFE](https://github.com/QingdaoU/OnlineJudgeFE)
-+ Judger Sandbox(Seccomp): [https://github.com/QingdaoU/Judger](https://github.com/QingdaoU/Judger)
-+ JudgeServer(A wrapper for Judger): [https://github.com/QingdaoU/JudgeServer](https://github.com/QingdaoU/JudgeServer)
++ Backend(Django): [https://github.com/devcam/OnlineJudge](https://github.com/devcam/OnlineJudge)
++ Frontend(Vue): [https://github.com/devcam/OnlineJudgeFE](https://github.com/devcam/OnlineJudgeFE)
++ Judger Sandbox(Seccomp): [https://github.com/devcam/Judger](https://github.com/devcam/Judger)
++ JudgeServer(A wrapper for Judger): [https://github.com/devcam/JudgeServer](https://github.com/devcam/JudgeServer)
 
 ## Installation
 
 Follow me:  [https://github.com/QingdaoU/OnlineJudgeDeploy/tree/2.0](https://github.com/QingdaoU/OnlineJudgeDeploy/tree/2.0)
-
-## Documents
-
-[http://opensource.qduoj.com/](http://opensource.qduoj.com/)
 
 ## Screenshots
 
