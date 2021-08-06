@@ -5,6 +5,16 @@
       "level": "Recommend",
       "title": "v1.3.11.0.2",
       "details": [
+        "[Beautify] Markdown",
+        "[Opt] Live2D Support CDN",
+        "[Opt] Code Highlight"
+      ]
+    },
+    {
+      "version": "2021-07-18",
+      "level": "Recommend",
+      "title": "v1.3.11.0.2",
+      "details": [
         "[Fix] UI",
         "[Fix] Fix missing icons",
         "[Fix] Fix missing Alert"
