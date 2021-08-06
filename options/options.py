@@ -103,6 +103,9 @@ class OptionKeys:
     judge_server_token = "judge_server_token"
     throttling = "throttling"
     languages = "languages"
+    forum_sort = "forum_sort"
+    allow_forum_post = "allow_forum_post"
+    allow_forum_reply = "allow_forum_reply"
 
 
 class OptionDefaultValue:
@@ -117,6 +120,12 @@ class OptionDefaultValue:
     throttling = {"ip": {"capacity": 100, "fill_rate": 0.1, "default_capacity": 50},
                   "user": {"capacity": 20, "fill_rate": 0.03, "default_capacity": 10}}
     languages = languages
+    forum_sort = [{"name": "提问版", "permission": "All"},
+                  {"name": "题解版", "permission": "All"},
+                  {"name": "灌水版", "permission": "All"},
+                  {"name": "站务版", "permission": "Super Admin"}]
+    allow_forum_post = True
+    allow_forum_reply = True
 
 
 class _SysOptionsMeta(type):
@@ -275,6 +284,30 @@ class _SysOptionsMeta(type):
 
     def reset_languages(cls):
         cls.languages = languages
+
+    @my_property
+    def forum_sort(cls):
+        return cls._get_option(OptionKeys.forum_sort)
+
+    @forum_sort.setter
+    def forum_sort(cls, value):
+        cls._set_option(OptionKeys.forum_sort, value)
+
+    @my_property
+    def allow_forum_post(cls):
+        return cls._get_option(OptionKeys.allow_forum_post)
+
+    @allow_forum_post.setter
+    def allow_forum_post(cls, value):
+        cls._set_option(OptionKeys.allow_forum_post, value)
+
+    @my_property
+    def allow_forum_reply(cls):
+        return cls._get_option(OptionKeys.allow_forum_reply)
+
+    @allow_forum_reply.setter
+    def allow_forum_reply(cls, value):
+        cls._set_option(OptionKeys.allow_forum_reply, value)
 
 
 class SysOptions(metaclass=_SysOptionsMeta):

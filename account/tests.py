@@ -574,8 +574,8 @@ class AdminUserTest(APITestCase):
         self.assertEqual(User.objects.get(id=self.regular_user.id).open_api_appkey, key)
 
     def test_import_users(self):
-        data = {"users": [["user1", "pass1", "eami1@e.com"],
-                          ["user2", "pass3", "eamil3@e.com"]]
+        data = {"users": [["user1", "pass1", "eami1@e.com", "user1"],
+                          ["user2", "pass3", "eamil3@e.com", "user2"]]
                 }
         resp = self.client.post(self.url, data)
         self.assertSuccess(resp)
@@ -583,8 +583,8 @@ class AdminUserTest(APITestCase):
         self.assertEqual(User.objects.all().count(), 4)
 
     def test_import_duplicate_user(self):
-        data = {"users": [["user1", "pass1", "eami1@e.com"],
-                          ["user1", "pass1", "eami1@e.com"]]
+        data = {"users": [["user1", "pass1", "eami1@e.com", "user1"],
+                          ["user1", "pass1", "eami1@e.com", "user1"]]
                 }
         resp = self.client.post(self.url, data)
         self.assertFailed(resp, "DETAIL:  Key (username)=(user1) already exists.")

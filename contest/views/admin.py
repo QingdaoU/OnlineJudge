@@ -11,7 +11,7 @@ from account.models import User
 from submission.models import Submission, JudgeStatus
 from utils.api import APIView, validate_serializer
 from utils.cache import cache
-from utils.constants import CacheKey
+from utils.constants import CacheKey, ContestRuleType
 from utils.shortcuts import rand_str
 from utils.tasks import delete_files
 from ..models import Contest, ContestAnnouncement, ACMContestRank
@@ -19,6 +19,7 @@ from ..serializers import (ContestAnnouncementSerializer, ContestAdminSerializer
                            CreateConetestSeriaizer, CreateContestAnnouncementSerializer,
                            EditConetestSeriaizer, EditContestAnnouncementSerializer,
                            ACMContesHelperSerializer, )
+from django.utils.encoding import escape_uri_path
 
 
 class ContestAPI(APIView):
@@ -200,10 +201,13 @@ class DownloadContestSubmissions(APIView):
         problem_ids = contest.problem_set.all().values_list("id", "_id")
         id2display_id = {k[0]: k[1] for k in problem_ids}
         ac_map = {k[0]: False for k in problem_ids}
-        submissions = Submission.objects.filter(contest=contest, result=JudgeStatus.ACCEPTED).order_by("-create_time")
+        if contest.rule_type == ContestRuleType.OI:
+            submissions = Submission.objects.filter(contest=contest).order_by("-create_time")
+        else:
+            submissions = Submission.objects.filter(contest=contest, result=JudgeStatus.ACCEPTED).order_by("-create_time")
         user_ids = submissions.values_list("user_id", flat=True)
         users = User.objects.filter(id__in=user_ids)
-        path = f"/tmp/{rand_str()}.zip"
+        path = f"/tmp/{contest.title}-{rand_str()}.zip"
         with zipfile.ZipFile(path, "w") as zip_file:
             for user in users:
                 if user.is_admin_role() and exclude_admin:
@@ -214,7 +218,22 @@ class DownloadContestSubmissions(APIView):
                     problem_id = submission.problem_id
                     if user_ac_map[problem_id]:
                         continue
-                    file_name = f"{user.username}_{id2display_id[submission.problem_id]}.txt"
+                    suffix = "cpp"
+                    if submission.language == "Java":
+                        suffix = "java"
+                    elif submission.language == "C":
+                        suffix = "c"
+                    elif submission.language == "Python2":
+                        suffix = "py"
+                    elif submission.language == "Python3":
+                        suffix = "py"
+
+                    file_name = f"{user.username}/{user.username}_{id2display_id[submission.problem_id]}"
+                    if contest.rule_type == ContestRuleType.OI:
+                        statistic_info = submission.statistic_info
+                        score = statistic_info["score"]
+                        file_name = file_name + f"_{score}"
+                    file_name = file_name + "." + suffix
                     compression = zipfile.ZIP_DEFLATED
                     zip_file.writestr(zinfo_or_arcname=f"{file_name}",
                                       data=submission.code,
@@ -237,5 +256,6 @@ class DownloadContestSubmissions(APIView):
         delete_files.send_with_options(args=(zip_path,), delay=300_000)
         resp = FileResponse(open(zip_path, "rb"))
         resp["Content-Type"] = "application/zip"
-        resp["Content-Disposition"] = f"attachment;filename={os.path.basename(zip_path)}"
+        file_name = os.path.basename(zip_path)
+        resp["Content-Disposition"] = f"attachment;filename={escape_uri_path(file_name)}"
         return resp

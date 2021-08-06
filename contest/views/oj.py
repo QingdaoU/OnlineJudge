@@ -9,7 +9,8 @@ from problem.models import Problem
 from utils.api import APIView, validate_serializer
 from utils.constants import CacheKey, CONTEST_PASSWORD_SESSION_KEY
 from utils.shortcuts import datetime2str, check_is_id
-from account.models import AdminType
+from account.models import AdminType, User
+from account.serializers import UserProfileSerializer
 from account.decorators import login_required, check_contest_permission, check_contest_password
 
 from utils.constants import ContestRuleType, ContestStatus
@@ -189,4 +190,11 @@ class ContestRankAPI(APIView):
 
         page_qs = self.paginate_data(request, qs)
         page_qs["results"] = serializer(page_qs["results"], many=True, is_contest_admin=is_contest_admin).data
+        for i in range(0, len(page_qs["results"])):
+            try:
+                user = User.objects.get(id=page_qs["results"][i]["user"]["id"], is_disabled=False)
+                userprofile = UserProfileSerializer(user.userprofile, show_real_name=True).data
+                page_qs["results"][i].update({"grade": userprofile["grade"], "title": userprofile["user"]["title"], "title_color": userprofile["user"]["title_color"]})
+            except Exception:
+                page_qs["results"][i].update({"grade": 0, "title": None, "title_color": None})
         return self.success(page_qs)

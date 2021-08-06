@@ -1,12 +1,143 @@
 {
   "update": [
     {
-      "version": "2020-07-09",
+      "version": "2021-08-06",
       "level": "Recommend",
-      "title": "2020-07-09",
+      "title": "v1.3.11.0.3",
       "details": [
-        "Add Golang language to judge server",
-        "Fix some frontend bugs"
+        "[Beautify] Markdown",
+        "[Opt] Live2D Support CDN",
+        "[Opt] Code Highlight"
+      ]
+    },
+    {
+      "version": "2021-07-18",
+      "level": "Recommend",
+      "title": "v1.3.11.0.2",
+      "details": [
+        "[Fix] UI",
+        "[Fix] Fix missing icons",
+        "[Fix] Fix missing Alert"
+      ]
+    },
+    {
+      "version": "2021-07-11",
+      "level": "Important",
+      "title": "v1.3.11.0.1",
+      "details": [
+        "[Add] Global programming language Cache",
+        "[Add] JudgeServer Support Pypy, Node.js, PHP",
+        "[Add] Node.js, PHP Highlight",
+        "[Fix] Safety Problem",
+        "[Fix] CDN",
+        "[Fix] Translation",
+        "[Fix] UI",
+        "[Fix] Code Format",
+        "[Upgrade] Node.js to v12.16.1",
+        "[Upgrade] iview to 4.6.1",
+        "[Upgrade] Upgrade form QingdaoU/OnlineJudgeFE",
+        "[Upgrade] Upgrade form QingdaoU/OnlineJudge"
+      ]
+    },
+    {
+      "version": "2020-08-02",
+      "level": "Recommend",
+      "title": "v1.3.10.8.1",
+      "details": [
+        "[Add] Forum System",
+        "[Add] Forum Post / Reply",
+        "[Add] Top / Light / Star",
+        "[Add] Forum Sort and Sort's posting permission",
+        "[Add] Overall situation Post / Reply permission, and can Open / Close Forum",
+        "[Add] Send Email when recepting a reply ",
+        "[Add] Import Realname when importing users",
+        "[Add] Experience Rank",
+        "[Add] Custom User Title/Color",
+        "[Add] Sighin WebsiteName auto Get",
+        "[Fix] Safety Problem",
+        "[Fix] Translation",
+        "[Fix] User Grade show problem",
+        "[Fix] Theme Show Problem",
+        "[Fix] Golang Code Highlight"
+      ]
+    },
+    {
+      "version": "2020-07-16",
+      "level": "Recommend",
+      "title": "v1.3.10.7.1",
+      "details": [
+        "[Add] Golang language to judge server",
+        "[Add] Support Mobile Device",
+        "[Fix] Chinese Translate",
+        "[Fix] Contest Rank Table Show Problem",
+        "[Fix] Solve Safty Problem"
+      ]
+    },
+    {
+      "version": "2020-05-06",
+      "level": "Recommend",
+      "title": "v1.3.10.6.5",
+      "details": [
+        "[Add] Editor add more Function",
+        "[Fix] Python3 Chinese Character Support",
+        "[Fix] Table Support",
+        "[Fix] Katex Multiline Formula Support"
+      ]
+    },
+    {
+      "version": "2020-05-04",
+      "level": "Important",
+      "title": "v1.3.10.6.4.4",
+      "details": [
+        "[Fix] Translate",
+        "[Fix] Remove Contest Announcements Sighin Panel"
+      ]
+    },
+    {
+      "version": "2020-05-03",
+      "level": "Recommend",
+      "title": "v1.3.10.6.4.3",
+      "details": [
+        "[Add] Online IDE Code Cache",
+        "[Add] Code Editor Match Bracket",
+        "[Fix] Format: Add FAQ missing spaces",
+        "[Fix] Chinese Translate",
+        "[Fix] Solve Safty Problem",
+        "[Fix] Reset Bottom Don't Reset",
+        "[Fix] Remove Contest Announcements Sighin Panel",
+        "[Opt] Upgrade Redis to support Multithreading",
+        "[Opt] Tiny Live2d Docker Image Size"
+      ]
+    },
+    {
+      "version": "2020-05-02",
+      "level": "Recommend",
+      "title": "v1.3.10.6.4.1",
+      "details": [
+        "[Fix] Reduce Liv2d Memory Usage"
+      ]
+    },
+    {
+      "version": "2020-04-26",
+      "level": "Important",
+      "title": "v1.3.10.6.3.1",
+      "details": [
+        "[Fix] Safety Problem",
+        "[Upgrade] Upgrade form QingdaoU/OnlineJudgeFE"
+      ]
+    },
+    {
+      "version": "2020-04-20",
+      "level": "Recommend",
+      "title": "2020-04-20",
+      "details": [
+        "[Add] 稳点经验系统",
+        "[Add] 签到系统",
+        "[Add] 每日一言",
+        "[Add] 等级称号系统",
+        "[Add] 称号信息显示",
+        "[Fix] 问题标签排序",
+        "[Fix] 问题标签“Pick One” 上移"
       ]
     },
     {

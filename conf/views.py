@@ -91,7 +91,8 @@ class WebsiteConfigAPI(APIView):
     def get(self, request):
         ret = {key: getattr(SysOptions, key) for key in
                ["website_base_url", "website_name", "website_name_shortcut",
-                "website_footer", "allow_register", "submission_list_show_all"]}
+                "website_footer", "allow_register", "submission_list_show_all",
+                "forum_sort", "allow_forum_post", "allow_forum_reply"]}
         return self.success(ret)
 
     @super_admin_required
@@ -211,7 +212,7 @@ class TestCasePruneAPI(APIView):
 class ReleaseNotesAPI(APIView):
     def get(self, request):
         try:
-            resp = requests.get("https://raw.githubusercontent.com/QingdaoU/OnlineJudge/master/docs/data.json?_=" + str(time.time()),
+            resp = requests.get("https://gitee.com/zklcdc/OnlineJudge/raw/master/docs/data.json?_=" + str(time.time()),
                                 timeout=3)
             releases = resp.json()
         except (RequestException, ValueError):

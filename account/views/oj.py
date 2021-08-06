@@ -1,4 +1,6 @@
 import os
+import time
+import datetime
 from datetime import timedelta
 from importlib import import_module
 
@@ -22,7 +24,8 @@ from ..models import User, UserProfile, AdminType
 from ..serializers import (ApplyResetPasswordSerializer, ResetPasswordSerializer,
                            UserChangePasswordSerializer, UserLoginSerializer,
                            UserRegisterSerializer, UsernameOrEmailCheckSerializer,
-                           RankInfoSerializer, UserChangeEmailSerializer, SSOSerializer)
+                           RankInfoSerializer, UserChangeEmailSerializer, SSOSerializer,
+                           UserSighinSerializer)
 from ..serializers import (TwoFactorAuthCodeSerializer, UserProfileSerializer,
                            EditUserProfileSerializer, ImageUploadForm)
 from ..tasks import send_email_async
@@ -382,9 +385,19 @@ class UserRankAPI(APIView):
             .select_related("user")
         if rule_type == ContestRuleType.ACM:
             profiles = profiles.filter(submission_number__gt=0).order_by("-accepted_number", "submission_number")
-        else:
+        elif rule_type == ContestRuleType.OI:
             profiles = profiles.filter(total_score__gt=0).order_by("-total_score")
-        return self.success(self.paginate_data(request, profiles, RankInfoSerializer))
+        else:
+            profiles = profiles.filter(experience__gt=0).order_by("-experience")
+        data = self.paginate_data(request, profiles, RankInfoSerializer)
+        for i in range(0, len(data["results"])):
+            try:
+                user = User.objects.get(id=data["results"][i]["user"]["id"], is_disabled=False)
+                userprofile = UserProfileSerializer(user.userprofile, show_real_name=False).data
+                data["results"][i].update({"grade": userprofile["grade"], "title": userprofile["user"]["title"], "title_color": userprofile["user"]["title_color"]})
+            except Exception:
+                data["results"][i].update({"grade": 0, "title": None, "title_color": None})
+        return self.success(data)
 
 
 class ProfileProblemDisplayIDRefreshAPI(APIView):
@@ -434,3 +447,59 @@ class SSOAPI(CSRFExemptAPIView):
         except User.DoesNotExist:
             return self.error("User does not exist")
         return self.success({"username": user.username, "avatar": user.userprofile.avatar, "admin_type": user.admin_type})
+
+
+class UserSighinAPI(APIView):
+    def get(self, request):
+        if not request.user.is_authenticated:
+            return self.success()
+        username = request.user.username
+        user = User.objects.get(username=username, is_disabled=False)
+        data = UserSighinSerializer(user).data
+        day = datetime.datetime.now()
+        if not data["last_sighin_time"]:
+            return self.success()
+        last_sighin_time = datetime.datetime.strptime(str(data["last_sighin_time"]), "%Y-%m-%d")
+        interval = int((day - last_sighin_time).days)
+        if interval == 0:
+            data.update({"sighinstatus": "true"})
+        elif interval == 1:
+            data.update({"sighinstatus": "false"})
+        else:
+            data.update({"sighinstatus": "false"})
+            data.update({"continue_sighin_days": 0})
+        return self.success(data)
+
+    @login_required
+    def post(self, request):
+        username = request.user.username
+        user = User.objects.get(username=username, is_disabled=False)
+        data = UserSighinSerializer(user).data
+        day = datetime.datetime.strptime(str(time.strftime("%Y-%m-%d", time.localtime())), "%Y-%m-%d")
+        if not data["last_sighin_time"]:
+            last_sighin_time = datetime.datetime.strptime("1970-01-01", "%Y-%m-%d")
+        else:
+            last_sighin_time = datetime.datetime.strptime(str(data["last_sighin_time"]), "%Y-%m-%d")
+        interval = int((day - last_sighin_time).days)
+        if interval == 0:
+            return self.success("Singined")
+        elif interval == 1:
+            user.continue_sighin_days += 1
+            user.last_sighin_time = day
+            days = [365, 240, 120, 90, 60, 30, 15, 7, 3]
+            experience = [88, 54, 33, 20, 12, 7, 4, 2, 1]
+            score = 1
+            for i in range(0, 9):
+                if user.continue_sighin_days == days[i]:
+                    UserProfile.objects.get(user_id=user.id).add_experience(this_time_experience=experience[i])
+                    score += experience[i]
+                    break
+            UserProfile.objects.get(user_id=user.id).add_experience(this_time_experience=1)
+            user.save()
+            return self.success({"info": "Success", "experience": score})
+        else:
+            user.continue_sighin_days = 1
+            user.last_sighin_time = day
+            UserProfile.objects.get(user_id=user.id).add_experience(this_time_experience=1)
+            user.save()
+            return self.success({"info": "Success", "experience": 1})

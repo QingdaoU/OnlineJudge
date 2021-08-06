@@ -41,6 +41,12 @@ class User(AbstractBaseUser):
     open_api = models.BooleanField(default=False)
     open_api_appkey = models.TextField(null=True)
     is_disabled = models.BooleanField(default=False)
+    # Sigh in
+    last_sighin_time = models.DateField(default="1970-01-01")
+    continue_sighin_days = models.IntegerField(default=0)
+    # Title Call On
+    title = models.TextField(null=True)
+    title_color = models.TextField(null=True)
 
     USERNAME_FIELD = "username"
     REQUIRED_FIELDS = []
@@ -61,6 +67,12 @@ class User(AbstractBaseUser):
 
     def is_contest_admin(self, contest):
         return self.is_authenticated and (contest.created_by == self or self.admin_type == AdminType.SUPER_ADMIN)
+
+    def sighin_time(self):
+        return self.last_sighin_time
+
+    def continue_days(self):
+        return self.continue_sighin_days
 
     class Meta:
         db_table = "user"
@@ -95,6 +107,8 @@ class UserProfile(models.Model):
     school = models.TextField(null=True)
     major = models.TextField(null=True)
     language = models.TextField(null=True)
+    grade = models.IntegerField(default=0)
+    experience = models.IntegerField(default=0)
     # for ACM
     accepted_number = models.IntegerField(default=0)
     # for OI
@@ -113,6 +127,17 @@ class UserProfile(models.Model):
     def add_score(self, this_time_score, last_time_score=None):
         last_time_score = last_time_score or 0
         self.total_score = models.F("total_score") - last_time_score + this_time_score
+        self.save()
+
+    def add_experience(self, this_time_experience):
+        self.experience = models.F("experience") + this_time_experience
+        self.save()
+        grade = [10000, 5000, 1000, 500, 200, 100, 0]
+        self.refresh_from_db()
+        for i in range(0, 7):
+            if int(self.experience) >= grade[i]:
+                self.grade = 6 - i
+                break
         self.save()
 
     class Meta:

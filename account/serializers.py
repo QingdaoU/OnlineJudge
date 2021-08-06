@@ -54,7 +54,8 @@ class UserAdminSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ["id", "username", "email", "admin_type", "problem_permission", "real_name",
-                  "create_time", "last_login", "two_factor_auth", "open_api", "is_disabled"]
+                  "create_time", "last_login", "two_factor_auth", "open_api", "is_disabled",
+                  "title", "title_color"]
 
     def get_real_name(self, obj):
         return obj.userprofile.real_name
@@ -64,7 +65,14 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ["id", "username", "email", "admin_type", "problem_permission",
-                  "create_time", "last_login", "two_factor_auth", "open_api", "is_disabled"]
+                  "create_time", "last_login", "two_factor_auth", "open_api", "is_disabled",
+                  "title", "title_color"]
+
+
+class UserSighinSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ["continue_sighin_days", "last_sighin_time"]
 
 
 class UserProfileSerializer(serializers.ModelSerializer):
@@ -95,6 +103,8 @@ class EditUserSerializer(serializers.Serializer):
     open_api = serializers.BooleanField()
     two_factor_auth = serializers.BooleanField()
     is_disabled = serializers.BooleanField()
+    title = serializers.CharField(max_length=6, allow_blank=True, allow_null=True, required=False)
+    title_color = serializers.CharField(max_length=24, allow_blank=True, allow_null=True, required=False)
 
 
 class EditUserProfileSerializer(serializers.Serializer):

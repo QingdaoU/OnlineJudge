@@ -72,6 +72,7 @@ data/public/avatar/*
 !data/public/avatar/default.png
 data/config/*
 !data/config/.gitkeep
+plugin/live2d/model/*
 
 http_locations.conf
 https_locations.conf
