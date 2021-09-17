@@ -193,7 +193,7 @@ class JudgeDispatcher(DispatcherBase):
                 self.update_contest_problem_status()
                 self.update_contest_rank()
         else:
-            if self.last_result:
+            if self.last_result is not None:
                 self.update_problem_status_rejudge()
             else:
                 self.update_problem_status()
