@@ -1,6 +1,16 @@
 {
   "update": [
     {
+      "version": "2021-09-28",
+      "level": "Recommend",
+      "title": "2021-09-28",
+      "details": [
+        "修复 Golang 编译运行的一些问题",
+        "支持 JavaScript 语言",
+        "增加了一些语言的编辑器语法高亮配置"
+      ]
+    },
+    {
       "version": "2021-08-07",
       "level": "Recommend",
       "title": "2021-08-07",
