@@ -6,7 +6,7 @@
       "title": "2021-09-28",
       "details": [
         "修复 Golang 编译运行的一些问题",
-        "支持 JavaScript 语言",
+        "支持 JavaScript 语言，注意，升级后需要按照 <a href='https://opensource.qduoj.com/#/onlinejudge/guide/update_compile_options'>文档</a>来 reset_languages，如果有自定义配置将会被重置，需要先备份。",
         "增加了一些语言的编辑器语法高亮配置"
       ]
     },
