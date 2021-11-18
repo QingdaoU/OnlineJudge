@@ -1,16 +1,20 @@
 language: python
 python:
-    - "3.6"
+    - "3.8"
 services:
     - docker
+    - postgresql
 install:
+    - pip install psycopg2
     - pip install -r deploy/requirements.txt
     - echo `cat /dev/urandom | head -1 | md5sum | head -c 32` > data/config/secret.key
     - ./init_db.sh
 script:
     - docker ps -a
-    - flake8 .
+    - flake8 --config=./.flake8 .
     - coverage run --include="$PWD/*" manage.py test
     - coverage report
 notifications:
-    slack: onlinejudgeteam:BzBz8UFgmS5crpiblof17K2W
+    email:
+        - beichi.dev@gmail.com
+        - 841734459@qq.com

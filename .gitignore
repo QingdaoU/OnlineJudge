@@ -77,3 +77,5 @@ http_locations.conf
 https_locations.conf
 
 venv/
+#test docker-compose
+docker-compose.yml
