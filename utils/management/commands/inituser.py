@@ -36,7 +36,7 @@ class Command(BaseCommand):
                 user = User.objects.get(username=username)
                 user.set_password(password)
                 user.save()
-                self.stdout.write(self.style.SUCCESS(f"Password is rested"))
+                self.stdout.write(self.style.SUCCESS("Password is rested"))
             except User.DoesNotExist:
                 self.stdout.write(self.style.ERROR(f"User {username} doesnot exist, operation ignored"))
                 exit(1)

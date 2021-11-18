@@ -305,7 +305,7 @@ class ApplyResetPasswordAPI(APIView):
         send_email_async.send(from_name=SysOptions.website_name_shortcut,
                               to_email=user.email,
                               to_name=user.username,
-                              subject=f"Reset your password",
+                              subject="Reset your password",
                               content=email_html)
         return self.success("Succeeded")
 
