@@ -71,7 +71,7 @@ class WebsiteConfigAPITest(APITestCase):
                 "allow_register": True, "submission_list_show_all": False}
         resp = self.client.post(url, data=data)
         self.assertSuccess(resp)
-        self.assertEqual(SysOptions.website_footer, "<img src=\"#\" />")
+        self.assertEqual(SysOptions.website_footer, '<img src="#" />')
 
     def test_get_website_config(self):
         # do not need to login

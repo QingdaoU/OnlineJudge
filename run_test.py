@@ -21,7 +21,7 @@ print("running flake8...")
 if os.system("flake8 --statistics ."):
     exit()
 
-ret = os.system("coverage run --include=\"$PWD/*\" manage.py test {module} --settings={setting}".format(module=test_module, setting=setting))
+ret = os.system('coverage run --include="$PWD/*" manage.py test {module} --settings={setting}'.format(module=test_module, setting=setting))
 
 if not ret and is_coverage:
     os.system("coverage html && open htmlcov/index.html")

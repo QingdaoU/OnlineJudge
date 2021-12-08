@@ -542,7 +542,7 @@ class ExportProblemAPI(APIView):
         delete_files.send_with_options(args=(path,), delay=300_000)
         resp = FileResponse(open(path, "rb"))
         resp["Content-Type"] = "application/zip"
-        resp["Content-Disposition"] = f"attachment;filename=problem-export.zip"
+        resp["Content-Disposition"] = "attachment;filename=problem-export.zip"
         return resp
 
 

@@ -244,3 +244,5 @@ RAVEN_CONFIG = {
 }
 
 IP_HEADER = "HTTP_X_REAL_IP"
+
+DEFAULT_AUTO_FIELD='django.db.models.AutoField'

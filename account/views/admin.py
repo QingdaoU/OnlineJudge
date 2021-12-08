@@ -151,7 +151,7 @@ class GenerateUserAPI(APIView):
             raw_data = f.read()
         os.remove(file_path)
         response = HttpResponse(raw_data)
-        response["Content-Disposition"] = f"attachment; filename=users.xlsx"
+        response["Content-Disposition"] = "attachment; filename=users.xlsx"
         response["Content-Type"] = "application/xlsx"
         return response
 
