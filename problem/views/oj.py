@@ -38,20 +38,33 @@ class ProblemAPI(APIView):
             if results is not None:
                 problems = results
             else:
-                problems = [queryset_values, ]
+                problems = [
+                    queryset_values,
+                ]
             for problem in problems:
                 if problem["rule_type"] == ProblemRuleType.ACM:
-                    problem["my_status"] = acm_problems_status.get(str(problem["id"]), {}).get("status")
+                    problem["my_status"] = acm_problems_status.get(
+                        str(problem["id"]), {}
+                    ).get("status")
                 else:
-                    problem["my_status"] = oi_problems_status.get(str(problem["id"]), {}).get("status")
+                    problem["my_status"] = oi_problems_status.get(
+                        str(problem["id"]), {}
+                    ).get("status")
 
     def get(self, request):
         # 问题详情页
         problem_id = request.GET.get("problem_id")
+
         if problem_id:
             try:
-                problem = Problem.objects.select_related("created_by") \
-                    .get(_id=problem_id, contest_id__isnull=True, visible=True)
+                if request.user.is_admin_role:
+                    problem = Problem.objects.select_related("created_by").get(
+                        _id=problem_id, contest_id__isnull=True
+                    )
+                else:
+                    problem = Problem.objects.select_related("created_by").get(
+                        _id=problem_id, contest_id__isnull=True, visible=True
+                    )
                 problem_data = ProblemSerializer(problem).data
                 self._add_problem_status(request, problem_data)
                 return self.success(problem_data)
@@ -62,7 +75,9 @@ class ProblemAPI(APIView):
         if not limit:
             return self.error("Limit is needed")
 
-        problems = Problem.objects.select_related("created_by").filter(contest_id__isnull=True, visible=True)
+        problems = Problem.objects.select_related("created_by").filter(
+            contest_id__isnull=True, visible=True
+        )
         # 按照标签筛选
         tag_text = request.GET.get("tag")
         if tag_text:
@@ -71,7 +86,9 @@ class ProblemAPI(APIView):
         # 搜索的情况
         keyword = request.GET.get("keyword", "").strip()
         if keyword:
-            problems = problems.filter(Q(title__icontains=keyword) | Q(_id__icontains=keyword))
+            problems = problems.filter(
+                Q(title__icontains=keyword) | Q(_id__icontains=keyword)
+            )
 
         # 难度筛选
         difficulty = request.GET.get("difficulty")
@@ -88,30 +105,41 @@ class ContestProblemAPI(APIView):
         if request.user.is_authenticated:
             profile = request.user.userprofile
             if self.contest.rule_type == ContestRuleType.ACM:
-                problems_status = profile.acm_problems_status.get("contest_problems", {})
+                problems_status = profile.acm_problems_status.get(
+                    "contest_problems", {}
+                )
             else:
                 problems_status = profile.oi_problems_status.get("contest_problems", {})
             for problem in queryset_values:
-                problem["my_status"] = problems_status.get(str(problem["id"]), {}).get("status")
+                problem["my_status"] = problems_status.get(str(problem["id"]), {}).get(
+                    "status"
+                )
 
     @check_contest_permission(check_type="problems")
     def get(self, request):
         problem_id = request.GET.get("problem_id")
         if problem_id:
             try:
-                problem = Problem.objects.select_related("created_by").get(_id=problem_id,
-                                                                           contest=self.contest,
-                                                                           visible=True)
+                problem = Problem.objects.select_related("created_by").get(
+                    _id=problem_id, contest=self.contest, visible=True
+                )
             except Problem.DoesNotExist:
                 return self.error("Problem does not exist.")
             if self.contest.problem_details_permission(request.user):
                 problem_data = ProblemSerializer(problem).data
-                self._add_problem_status(request, [problem_data, ])
+                self._add_problem_status(
+                    request,
+                    [
+                        problem_data,
+                    ],
+                )
             else:
                 problem_data = ProblemSafeSerializer(problem).data
             return self.success(problem_data)
 
-        contest_problems = Problem.objects.select_related("created_by").filter(contest=self.contest, visible=True)
+        contest_problems = Problem.objects.select_related("created_by").filter(
+            contest=self.contest, visible=True
+        )
         if self.contest.problem_details_permission(request.user):
             data = ProblemSerializer(contest_problems, many=True).data
             self._add_problem_status(request, data)
