@@ -57,7 +57,7 @@ class ProblemAPI(APIView):
 
         if problem_id:
             try:
-                if request.user.is_admin_role:
+                if request.user.is_admin_role():
                     problem = Problem.objects.select_related("created_by").get(
                         _id=problem_id, contest_id__isnull=True
                     )

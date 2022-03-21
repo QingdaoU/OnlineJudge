@@ -74,7 +74,7 @@ class SubmissionAPI(APIView):
             return self.error(error)
 
         try:
-            if request.user.is_admin_role:
+            if request.user.is_admin_role():
                 problem = Problem.objects.get(
                     id=data["problem_id"], contest_id=data.get("contest_id")
                 )
@@ -172,9 +172,14 @@ class SubmissionListAPI(APIView):
         username = request.GET.get("username")
         if problem_id:
             try:
-                problem = Problem.objects.get(
-                    _id=problem_id, contest_id__isnull=True, visible=True
-                )
+                if request.user.is_admin_role():
+                    problem = Problem.objects.get(
+                        _id=problem_id, contest_id__isnull=True
+                    )
+                else:
+                    problem = Problem.objects.get(
+                        _id=problem_id, contest_id__isnull=True, visible=True
+                    )
             except Problem.DoesNotExist:
                 return self.error("Problem doesn't exist")
             submissions = submissions.filter(problem=problem)
@@ -184,6 +189,11 @@ class SubmissionListAPI(APIView):
             submissions = submissions.filter(username__icontains=username)
         if result:
             submissions = submissions.filter(result=result)
+        try:
+            if not request.user.is_admin_role():
+                submissions = submissions.filter(problem__visible=True)
+        except:
+            submissions = submissions.filter(problem__visible=True)
         data = self.paginate_data(request, submissions)
         data["results"] = SubmissionListSerializer(
             data["results"], many=True, user=request.user
