@@ -396,7 +396,9 @@ class JudgeDispatcher(DispatcherBase):
         current_score = self.submission.statistic_info["score"]
         last_score = rank.submission_info.get(problem_id)
         if last_score:
-            rank.total_score = rank.total_score - last_score + current_score
+            # rank.total_score = rank.total_score - last_score + current_score
+            rank.total_score = max(rank.total_score - last_score + current_score, rank.total_score)
+            current_score = max(current_score, last_score)
         else:
             rank.total_score = rank.total_score + current_score
         rank.submission_info[problem_id] = current_score
