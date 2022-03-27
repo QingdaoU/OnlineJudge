@@ -313,7 +313,7 @@ class JudgeDispatcher(DispatcherBase):
                     contest_problems_status[problem_id] = {"status": self.submission.result,
                                                            "_id": self.problem._id,
                                                            "score": score}
-                else:
+                elif contest_problems_status[problem_id]["status"] != JudgeStatus.ACCEPTED:
                     contest_problems_status[problem_id]["score"] = score
                     contest_problems_status[problem_id]["status"] = self.submission.result
                 user_profile.oi_problems_status["contest_problems"] = contest_problems_status
