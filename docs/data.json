@@ -5,6 +5,7 @@
       "level": "Important",
       "title": "2021-11-20",
       "details": [
+        "<span style=\"color:  red;\">升级 django-dramatiq 至 0.10.0，解决数据库连接无法释放的问题</span>",
         "django2.x即将停止支持，更新django到3.x LTS，相应地更新了全部相关依赖",
         "合并底包版本到python3.8-alpine3.14，为移除python2做准备",
         "按上游包的生产环境规范，修改依赖psycopg2_binary为psycopg2",
