@@ -143,7 +143,10 @@ class SubmissionListAPI(APIView):
             except Problem.DoesNotExist:
                 return self.error("Problem doesn't exist")
             submissions = submissions.filter(problem=problem)
-        if (myself and myself == "1") or not SysOptions.submission_list_show_all:
+        if not SysOptions.submission_list_show_all:
+            if request.user.is_anonymous or not request.user.is_admin_role():
+                submissions = submissions.filter(user_id=request.user.id)
+        if myself and myself == "1":
             submissions = submissions.filter(user_id=request.user.id)
         elif username:
             submissions = submissions.filter(username__icontains=username)
