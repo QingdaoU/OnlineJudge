@@ -68,21 +68,6 @@ class User(AbstractBaseUser):
 
 class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    # acm_problems_status examples:
-    # {
-    #     "problems": {
-    #         "1": {
-    #             "status": JudgeStatus.ACCEPTED,
-    #             "_id": "1000"
-    #         }
-    #     },
-    #     "contest_problems": {
-    #         "1": {
-    #             "status": JudgeStatus.ACCEPTED,
-    #             "_id": "1000"
-    #         }
-    #     }
-    # }
     acm_problems_status = JSONField(default=dict)
     # like acm_problems_status, merely add "score" field
     oi_problems_status = JSONField(default=dict)
