@@ -10,14 +10,13 @@ _c_lang_config = {
 
 //TEMPLATE BEGIN
 int add(int a, int b) {
-  // Please fill this blank
-  return ___________;
+  // code
 }
 //TEMPLATE END
 
 //APPEND BEGIN
 int main() {
-  printf("%d", add(1, 2));
+  printf("%d\n", add(1, 2));
   return 0;
 }
 //APPEND END""",
@@ -58,14 +57,13 @@ _cpp_lang_config = {
 
 //TEMPLATE BEGIN
 int add(int a, int b) {
-  // Please fill this blank
-  return ___________;
+  // code
 }
 //TEMPLATE END
 
 //APPEND BEGIN
 int main() {
-  std::cout << add(1, 2);
+  std::cout << add(1, 2) << std::endl;
   return 0;
 }
 //APPEND END""",
@@ -101,12 +99,20 @@ _cpp_lang_spj_config = {
 
 _java_lang_config = {
     "template": """//PREPEND BEGIN
+class Main {
 //PREPEND END
 
 //TEMPLATE BEGIN
+  static int add(int a, int b) {
+    // code
+  }
 //TEMPLATE END
 
 //APPEND BEGIN
+  public static void main(String [] args) {
+    System.out.println(add(1, 2));
+  }
+}
 //APPEND END""",
     "compile": {
         "src_name": "Main.java",
@@ -154,9 +160,13 @@ _py3_lang_config = {
 //PREPEND END
 
 //TEMPLATE BEGIN
+def add(a, b):
+  # code
+
 //TEMPLATE END
 
 //APPEND BEGIN
+print(add(1, 2))
 //APPEND END""",
     "compile": {
         "src_name": "solution.py",
@@ -175,12 +185,21 @@ _py3_lang_config = {
 
 _go_lang_config = {
     "template": """//PREPEND BEGIN
+package main
+
+import "fmt"
 //PREPEND END
 
 //TEMPLATE BEGIN
+func add(a int, b int) int {
+	// code
+}
 //TEMPLATE END
 
 //APPEND BEGIN
+func main() {
+	fmt.Println(add(1, 2))
+}
 //APPEND END""",
     "compile": {
         "src_name": "main.go",
@@ -205,9 +224,13 @@ _node_lang_config = {
 //PREPEND END
 
 //TEMPLATE BEGIN
+function add(a, b) {
+  // code
+}
 //TEMPLATE END
 
 //APPEND BEGIN
+console.log(add(1, 2))
 //APPEND END""",
     "compile": {
         "src_name": "main.js",
@@ -221,7 +244,6 @@ _node_lang_config = {
     "run": {
         "command": "/usr/bin/node {exe_path}",
         "seccomp_rule": "node",
-        # 降低内存占用
         "env": default_env,
         "memory_limit_check_only": 1
     }
