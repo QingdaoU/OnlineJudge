@@ -31,6 +31,6 @@ COPY ./ /app/
 COPY --from=downloader --link /app/dist/ /app/dist/
 RUN chmod -R u=rwX,go=rX ./ && chmod +x ./deploy/entrypoint.sh
 
-HEALTHCHECK CMD python3 /app/deploy/health_check.py
+HEALTHCHECK --interval=5s CMD [ "/usr/local/bin/python3", "/app/deploy/health_check.py" ]
 EXPOSE 8000
 ENTRYPOINT [ "/app/deploy/entrypoint.sh" ]
