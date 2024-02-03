@@ -17,7 +17,7 @@ jobs:
       uses: docker/metadata-action@v5
       with:
         images: |
-          ghcr.io/qingdaou/oj-web
+          ghcr.io/qingdaou/oj-backend
         tags: |
           type=semver,pattern={{version}}
           type=semver,pattern={{major}}.{{minor}}
