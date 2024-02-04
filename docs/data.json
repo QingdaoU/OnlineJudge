@@ -1,6 +1,22 @@
 {
   "update": [
     {
+      "version": "2024-02-04",
+      "level": "Important",
+      "title": "OnlineJudge 1.16.0 更新",
+      "details": [
+        "更新基底映像档，从 `python:3.8-alpine3.14` 改为 `python:3.12-alpine`。",
+        "更新评测的程序语言版本：",
+        "C/C++: GCC 13",
+        "Java: Temurin 21",
+        "Python 2: 移除",
+        "Python 3: CPython 3.12",
+        "Golang: Golang 1.22",
+        "Node.js: Node.js 20",
+        "PHP: 暫時移除"
+      ]
+    },
+    {
       "version": "2021-11-20",
       "level": "Important",
       "title": "2021-11-20",
