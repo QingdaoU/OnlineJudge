@@ -132,7 +132,7 @@ class ContestRankAPI(APIView):
         else:
             serializer = ACMContestRankSerializer
 
-        if force_refresh == "1" and is_contest_admin:
+        if is_contest_admin:
             qs = self.get_rank()
         else:
             cache_key = f"{CacheKey.contest_rank_cache}:{self.contest.id}"
