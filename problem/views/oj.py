@@ -111,7 +111,27 @@ class ContestProblemAPI(APIView):
                 problem_data = ProblemSafeSerializer(problem).data
             return self.success(problem_data)
 
-        contest_problems = Problem.objects.select_related("created_by").filter(contest=self.contest, visible=True)
+        # Random problems for every students in contest
+        random.seed(request.user.id + self.contest.id)
+
+        query_set = Problem.objects.select_related("created_by").filter(contest=self.contest, visible=True).all()
+        low_problems_query_set = query_set.filter(difficulty='Low')
+        low_problems_query_set_id = list(low_problems_query_set.values_list('_id', flat=True))
+        low_selected_id = random.sample(low_problems_query_set_id, 3)
+        contest_low_problems = low_problems_query_set.filter(_id__in=low_selected_id)
+
+        mid_problems_query_set = query_set.filter(difficulty='Mid')
+        mid_problems_query_set_id = list(mid_problems_query_set.values_list('_id', flat=True))
+        mid_selected_id = random.sample(mid_problems_query_set_id, 2)
+        contest_mid_problems = mid_problems_query_set.filter(_id__in=mid_selected_id)
+
+        high_problems_query_set = query_set.filter(difficulty='High')
+        high_problems_query_set_id = list(high_problems_query_set.values_list('_id', flat=True))
+        high_selected_id = random.sample(high_problems_query_set_id, 0)
+        contest_high_problems = high_problems_query_set.filter(_id__in=high_selected_id)
+
+        contest_problems = contest_low_problems | contest_mid_problems | contest_high_problems
+
         if self.contest.problem_details_permission(request.user):
             data = ProblemSerializer(contest_problems, many=True).data
             self._add_problem_status(request, data)
