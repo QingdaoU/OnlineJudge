@@ -2,10 +2,14 @@ import hashlib
 import json
 import logging
 from urllib.parse import urljoin
+from datetime import timedelta
 
 import requests
 from django.db import transaction, IntegrityError
 from django.db.models import F
+from django.db.models.expressions import ExpressionWrapper
+from django.db.models.fields import FloatField
+from django.utils import timezone
 
 from account.models import User
 from conf.models import JudgeServer
@@ -37,9 +41,9 @@ class ChooseJudgeServer:
 
     def __enter__(self) -> [JudgeServer, None]:
         with transaction.atomic():
-            servers = JudgeServer.objects.select_for_update().filter(is_disabled=False).order_by("task_number")
-            servers = [s for s in servers if s.status == "normal"]
-            for server in servers:
+            health_time = timezone.now() - timedelta(seconds=6)
+            server = JudgeServer.objects.select_for_update().filter(is_disabled=False, last_heartbeat__gt=health_time).annotate(percent=ExpressionWrapper((1.0000 * F('task_number')) / F('cpu_core'), output_field=FloatField())).order_by("percent").first()
+            if server:
                 if server.task_number <= server.cpu_core * 2:
                     server.task_number = F("task_number") + 1
                     server.save(update_fields=["task_number"])
