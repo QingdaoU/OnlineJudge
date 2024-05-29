@@ -54,6 +54,7 @@ class Problem(models.Model):
     languages = JSONField()
     template = JSONField()
     create_time = models.DateTimeField(auto_now_add=True)
+    pe_ignored = models.BooleanField(default=False)
     # we can not use auto_now here
     last_update_time = models.DateTimeField(null=True)
     created_by = models.ForeignKey(User, on_delete=models.CASCADE)
