@@ -172,6 +172,10 @@ class JudgeDispatcher(DispatcherBase):
             resp["data"].sort(key=lambda x: int(x["test_case"]))
             self.submission.info = resp
             self._compute_statistic_info(resp["data"])
+            if self.problem.pe_ignored:
+                for case in resp["data"]:
+                    if case["result"] is JudgeStatus.PRESNTATION_ERROR:
+                        case["result"] = 0
             error_test_case = list(filter(lambda case: case["result"] != 0, resp["data"]))
             # ACM模式下,多个测试点全部正确则AC，否则取第一个错误的测试点的状态
             # OI模式下, 若多个测试点全部正确则AC， 若全部错误则取第一个错误测试点状态，否则为部分正确

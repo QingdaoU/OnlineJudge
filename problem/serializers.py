@@ -65,6 +65,7 @@ class CreateOrEditProblemSerializer(serializers.Serializer):
     spj_code = serializers.CharField(allow_blank=True, allow_null=True)
     spj_compile_ok = serializers.BooleanField(default=False)
     visible = serializers.BooleanField()
+    pe_ignored = serializers.BooleanField()
     difficulty = serializers.ChoiceField(choices=Difficulty.choices())
     tags = serializers.ListField(child=serializers.CharField(max_length=32), allow_empty=False)
     hint = serializers.CharField(allow_blank=True, allow_null=True)
