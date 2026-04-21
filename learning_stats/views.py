@@ -311,7 +311,6 @@ def get_hot_recommendations(user, limit=20):
     return recs
 
 @login_required
-@login_required
 def learning_path(request):
     user = request.user
     username = user.username
@@ -387,3 +386,31 @@ def enrich_path_with_problems(path_topics, username):
         else:
             enriched.append({'topic': topic, 'problem': None})
     return enriched
+
+from django.http import JsonResponse
+from utils.neo4j_client import neo4j_client
+
+def knowledge_graph_overview(request):
+    """
+    返回知识图谱概览数据，用于首页可视化
+    优化版：直接返回所有节点和边，避免复杂循环
+    """
+    # 查询所有节点（限制最多返回200个节点，防止前端渲染卡顿）
+    nodes_query = """
+    MATCH (t:Topic)
+    RETURN DISTINCT t.name AS name
+    LIMIT 200
+    """
+    nodes_result = neo4j_client.run_query(nodes_query)
+    nodes = [{'name': record['name']} for record in nodes_result]
+
+    # 查询所有边（只保留两端节点都存在的边）
+    edges_query = """
+    MATCH (t1:Topic)-[:PREREQUISITE_OF]->(t2:Topic)
+    RETURN DISTINCT t1.name AS source, t2.name AS target
+    LIMIT 500
+    """
+    edges_result = neo4j_client.run_query(edges_query)
+    edges = [{'source': record['source'], 'target': record['target']} for record in edges_result]
+
+    return JsonResponse({'nodes': nodes, 'edges': edges})

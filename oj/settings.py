@@ -10,7 +10,10 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/1.8/ref/settings/
 """
 import os
-import raven
+try:
+    import raven
+except ImportError:
+    pass
 from copy import deepcopy
 from utils.shortcuts import get_env
 
@@ -54,6 +57,7 @@ LOCAL_APPS = [
     'spark_ai',
     'learning_stats',
     'knowledge_graph',
+    'lesson_plan',
 ]
 
 INSTALLED_APPS = VENDOR_APPS + LOCAL_APPS 

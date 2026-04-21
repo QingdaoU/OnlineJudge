@@ -1,7 +1,7 @@
 from django.conf.urls import include, url
 from django.urls import path
 
-from learning_stats.views import learning_stats, recommend, learning_trend, learning_path
+from learning_stats.views import learning_stats, recommend, learning_trend, learning_path, knowledge_graph_overview
 
 urlpatterns = [
     url(r"^api/", include("account.urls.oj")),
@@ -22,4 +22,7 @@ urlpatterns = [
     path('api/recommend/', recommend, name='recommend'),
     path('api/learning-trend/', learning_trend, name='learning-trend'),
     path('api/learning-path/', learning_path, name='learning_path'),
+    path('api/knowledge-graph/', knowledge_graph_overview, name='knowledge_graph_overview'),
+    url(r"^api/", include("lesson_plan.urls.oj")),
+    url(r"^api/admin/", include("lesson_plan.urls.admin")),
 ]
