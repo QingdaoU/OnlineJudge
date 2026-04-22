@@ -206,83 +206,142 @@ def recommend(request):
 def get_graph_recommendations(username, limit=20):
     client = neo4j_client
     recs = []
+    seen_ids = set()
 
-    # 1. 内容召回
-    content_query = """
+    def add_rec(problem_id, reason, score):
+        if problem_id not in seen_ids:
+            seen_ids.add(problem_id)
+            recs.append({'id': problem_id, 'reason': reason, 'score': score})
+
+    # 1. 前置知识点推荐（学完前置知识点后推荐当前知识点）
+    prereq_query = """
     MATCH (u:User {username: $username})-[:SUBMITTED]->(s:Submission)-[:FOR]->(p:Problem)-[:BELONGS_TO]->(t:Topic)
     WHERE s.result = '0'
-    WITH u, t, count(s) AS ac_count ORDER BY ac_count DESC LIMIT 3
-    MATCH (t)<-[:BELONGS_TO]-(rec:Problem)
+    WITH u, t, count(DISTINCT s) AS ac_count
+    WHERE ac_count >= 2
+    MATCH (t)-[:PREREQUISITE_OF]->(next_topic:Topic)
+    MATCH (next_topic)<-[:BELONGS_TO]-(rec:Problem)
     WHERE NOT EXISTS { MATCH (u)-[:SUBMITTED]->(:Submission)-[:FOR]->(rec) }
-    RETURN DISTINCT rec.problem_id AS id, rec._id AS display_id, rec.title AS title, 
-           t.name AS reason_tag
-    LIMIT $limit
+    RETURN DISTINCT rec.problem_id AS id, rec._id AS display_id, rec.title AS title,
+           t.name AS mastered_topic, next_topic.name AS next_topic,
+           rec.accepted_number AS ac_num
+    ORDER BY rec.accepted_number DESC
+    LIMIT 10
     """
     try:
-        result = client.run_query(content_query, {'username': username, 'limit': limit})
+        result = client.run_query(prereq_query, {'username': username})
         for r in result:
-            recs.append({
-                'id': r['id'],
-                'reason': f"基于您常做的「{r['reason_tag']}」题目推荐"
-            })
+            add_rec(r['id'], f"您已掌握「{r['mastered_topic']}」，推荐学习「{r['next_topic']}」", score=90)
     except Exception as e:
-        logger.error(f"内容召回查询失败: {e}")
+        logger.error(f"前置知识点推荐查询失败: {e}")
 
-    # 2. 薄弱点召回
-    if len(recs) < limit:
-        weak_query = """
-        MATCH (u:User {username: $username})-[:SUBMITTED]->(s:Submission)-[:FOR]->(p:Problem)-[:BELONGS_TO]->(t:Topic)
-        WITH u, t, count(s) AS total, 
-             sum(CASE WHEN s.result <> '0' THEN 1 ELSE 0 END) AS wrong
-        WHERE total >= 3
-        WITH t, wrong * 1.0 / total AS error_rate 
-        ORDER BY error_rate DESC LIMIT 1
-        MATCH (t)<-[:BELONGS_TO]-(rec:Problem)
-        WHERE NOT EXISTS { 
-            MATCH (u)-[:SUBMITTED]->(sub:Submission)-[:FOR]->(rec) 
-            WHERE sub.result = '0' 
-        }
-        RETURN DISTINCT rec.problem_id AS id, rec._id AS display_id, rec.title AS title,
-               t.name AS reason_tag
-        LIMIT $limit
-        """
-        try:
-            result = client.run_query(weak_query, {'username': username, 'limit': limit - len(recs)})
-            for r in result:
-                recs.append({
-                    'id': r['id'],
-                    'reason': f"巩固薄弱知识点「{r['reason_tag']}」"
-                })
-        except Exception as e:
-            logger.error(f"薄弱点召回查询失败: {e}")
+    # 2. 薄弱知识点巩固（错误率高且提交数足够的知识点）
+    weak_query = """
+    MATCH (u:User {username: $username})-[:SUBMITTED]->(s:Submission)-[:FOR]->(p:Problem)-[:BELONGS_TO]->(t:Topic)
+    WITH u, t, count(s) AS total,
+         sum(CASE WHEN s.result = '0' THEN 1 ELSE 0 END) AS ac_count
+    WHERE total >= 3
+    WITH t, total, ac_count, (total - ac_count) * 1.0 / total AS error_rate
+    WHERE error_rate > 0.3
+    ORDER BY error_rate DESC, total DESC
+    LIMIT 3
+    MATCH (t)<-[:BELONGS_TO]-(rec:Problem)
+    WHERE NOT EXISTS {
+        MATCH (u)-[:SUBMITTED]->(sub:Submission)-[:FOR]->(rec)
+        WHERE sub.result = '0'
+    }
+    RETURN DISTINCT rec.problem_id AS id, rec._id AS display_id, rec.title AS title,
+           t.name AS weak_topic, rec.difficulty AS difficulty,
+           rec.accepted_number AS ac_num
+    ORDER BY rec.accepted_number DESC
+    LIMIT 10
+    """
+    try:
+        result = client.run_query(weak_query, {'username': username})
+        for r in result:
+            add_rec(r['id'], f"巩固薄弱知识点「{r['weak_topic']}」", score=85)
+    except Exception as e:
+        logger.error(f"薄弱知识点巩固查询失败: {e}")
 
-    # 3. 协同过滤召回
-    if len(recs) < limit:
-        cf_query = """
-        MATCH (u:User {username: $username})-[:SUBMITTED]->(s1:Submission)-[:FOR]->(p:Problem)
-        WHERE s1.result = '0'
-        WITH u, collect(DISTINCT p) AS u_ac
-        // 找到与 u 有共同 AC 题目的其他用户，并按共同题目数排序
-        MATCH (other:User)-[:SUBMITTED]->(s2:Submission)-[:FOR]->(p)
-        WHERE s2.result = '0' AND other <> u AND p IN u_ac
-        WITH u, u_ac, other, count(DISTINCT p) AS common ORDER BY common DESC LIMIT 5
-        // 推荐这些相似用户 AC 但 u 未做过的题目
-        MATCH (other)-[:SUBMITTED]->(s3:Submission)-[:FOR]->(rec:Problem)
-        WHERE s3.result = '0' AND NOT rec IN u_ac
-        RETURN DISTINCT rec.problem_id AS id, rec._id AS display_id, rec.title AS title
-        LIMIT $limit
-        """
-        try:
-            result = client.run_query(cf_query, {'username': username, 'limit': limit - len(recs)})
-            for r in result:
-                recs.append({
-                    'id': r['id'],
-                    'reason': "与您学习路径相似的用户也做了此题"
-                })
-        except Exception as e:
-            logger.error(f"协同过滤查询失败: {e}")
+    # 3. 擅长知识点拓展（基于用户AC最多的知识点推荐同难度新题）
+    strength_query = """
+    MATCH (u:User {username: $username})-[:SUBMITTED]->(s:Submission)-[:FOR]->(p:Problem)-[:BELONGS_TO]->(t:Topic)
+    WHERE s.result = '0'
+    WITH u, t, p, count(s) AS ac_count
+    WHERE ac_count >= 1
+    WITH u, t, collect(DISTINCT p.difficulty) AS difficulties, ac_count
+    ORDER BY ac_count DESC
+    LIMIT 3
+    UNWIND difficulties AS diff
+    MATCH (t)<-[:BELONGS_TO]-(rec:Problem)
+    WHERE rec.difficulty IN difficulties
+    AND NOT EXISTS { MATCH (u)-[:SUBMITTED]->(:Submission)-[:FOR]->(rec) }
+    RETURN DISTINCT rec.problem_id AS id, rec._id AS display_id, rec.title AS title,
+           t.name AS strength_topic, rec.difficulty AS difficulty
+    ORDER BY rec.accepted_number DESC
+    LIMIT 10
+    """
+    try:
+        result = client.run_query(strength_query, {'username': username})
+        for r in result:
+            add_rec(r['id'], f"拓展擅长知识点「{r['strength_topic']}」的同难度题目", score=75)
+    except Exception as e:
+        logger.error(f"擅长知识点拓展查询失败: {e}")
 
-    return recs
+    # 4. 协同过滤召回（相似用户推荐）
+    cf_query = """
+    MATCH (u:User {username: $username})-[:SUBMITTED]->(s1:Submission)-[:FOR]->(p:Problem)
+    WHERE s1.result = '0'
+    WITH u, collect(DISTINCT p) AS u_ac
+    MATCH (other:User)-[:SUBMITTED]->(s2:Submission)-[:FOR]->(p)
+    WHERE s2.result = '0' AND other <> u AND p IN u_ac
+    WITH u, u_ac, other, count(DISTINCT p) AS common
+    WHERE common >= 2
+    ORDER BY common DESC
+    LIMIT 5
+    MATCH (other)-[:SUBMITTED]->(s3:Submission)-[:FOR]->(rec:Problem)
+    WHERE s3.result = '0' AND NOT rec IN u_ac
+    RETURN DISTINCT rec.problem_id AS id, rec._id AS display_id, rec.title AS title
+    ORDER BY rec.accepted_number DESC
+    LIMIT 10
+    """
+    try:
+        result = client.run_query(cf_query, {'username': username})
+        for r in result:
+            add_rec(r['id'], "与您学习路径相似的用户也做了此题", score=65)
+    except Exception as e:
+        logger.error(f"协同过滤查询失败: {e}")
+
+    # 5. 难度递进推荐（从用户已AC的题目难度出发推荐更高难度）
+    progression_query = """
+    MATCH (u:User {username: $username})-[:SUBMITTED]->(s:Submission)-[:FOR]->(p:Problem)
+    WHERE s.result = '0'
+    WITH u, collect(DISTINCT p.difficulty) AS user_difficulties
+    UNWIND user_difficulties AS diff
+    WITH u, diff
+    ORDER BY diff
+    WITH u, collect(diff)[-1] AS max_diff
+    MATCH (rec:Problem)
+    WHERE NOT EXISTS { MATCH (u)-[:SUBMITTED]->(:Submission)-[:FOR]->(rec) }
+    AND (
+        (max_diff = 'Low' AND rec.difficulty IN ['Low', 'Mid']) OR
+        (max_diff = 'Mid' AND rec.difficulty IN ['Mid', 'High'])
+    )
+    RETURN rec.problem_id AS id, rec._id AS display_id, rec.title AS title,
+           rec.difficulty AS difficulty
+    ORDER BY rec.accepted_number DESC
+    LIMIT 10
+    """
+    try:
+        result = client.run_query(progression_query, {'username': username})
+        for r in result:
+            add_rec(r['id'], f"挑战更高难度「{r['difficulty']}」的题目", score=60)
+    except Exception as e:
+        logger.error(f"难度递进推荐查询失败: {e}")
+
+    # 按分数降序排序后返回
+    recs.sort(key=lambda x: x['score'], reverse=True)
+    return recs[:limit]
 
 def get_hot_recommendations(user, limit=20):
     done_ids = Submission.objects.filter(user_id=user.id).values_list('problem_id', flat=True).distinct()

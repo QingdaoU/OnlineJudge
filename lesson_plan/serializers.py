@@ -44,6 +44,7 @@ class CreateLessonPlanSerializer(serializers.Serializer):
 
 
 class UpdateLessonPlanSerializer(serializers.Serializer):
+    id = serializers.IntegerField()
     title = serializers.CharField(required=False)
     description = serializers.CharField(required=False, allow_blank=True)
     content = serializers.CharField(required=False)

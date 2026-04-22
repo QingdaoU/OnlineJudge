@@ -58,6 +58,7 @@ LOCAL_APPS = [
     'learning_stats',
     'knowledge_graph',
     'lesson_plan',
+    'dashboard',
 ]
 
 INSTALLED_APPS = VENDOR_APPS + LOCAL_APPS 
@@ -260,3 +261,5 @@ SPARKAI_API_KEY = os.environ.get('SPARKAI_API_KEY', '89c58c9ff806b199ebb047b5781
 SPARKAI_API_SECRET = os.environ.get('SPARKAI_API_SECRET', 'YmRlMzg1ZWY3NTU0YTFmZmI1ODJiNjE4')
 SPARKAI_URL = os.environ.get('SPARKAI_URL', 'wss://spark-api.xf-yun.com/chat/pro-128k')
 SPARKAI_DOMAIN = os.environ.get('SPARKAI_DOMAIN', 'pro-128k')
+
+DEBUG = True

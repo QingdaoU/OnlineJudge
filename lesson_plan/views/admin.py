@@ -1,4 +1,6 @@
 from django.db import transaction
+import os
+from django.conf import settings
 from account.decorators import login_required, admin_role_required
 from utils.api import APIView, validate_serializer
 from lesson_plan.models import LessonPlan, LessonPlanProblem
@@ -80,6 +82,11 @@ class LessonPlanAdminAPI(APIView):
         if "content" in data:
             lesson_plan.content = data["content"]
         if "pdf_file" in data:
+            old_pdf = lesson_plan.pdf_file
+            if old_pdf and old_pdf != data["pdf_file"]:
+                old_pdf_path = os.path.join(settings.UPLOAD_DIR, os.path.basename(old_pdf))
+                if os.path.isfile(old_pdf_path):
+                    os.remove(old_pdf_path)
             lesson_plan.pdf_file = data["pdf_file"]
         if "cover_image" in data:
             lesson_plan.cover_image = data["cover_image"]
@@ -109,6 +116,10 @@ class LessonPlanAdminAPI(APIView):
             return self.error("Lesson plan id is required")
         try:
             lesson_plan = LessonPlan.objects.get(id=lesson_plan_id)
+            if lesson_plan.pdf_file:
+                pdf_path = os.path.join(settings.UPLOAD_DIR, os.path.basename(lesson_plan.pdf_file))
+                if os.path.isfile(pdf_path):
+                    os.remove(pdf_path)
             lesson_plan.delete()
             return self.success()
         except LessonPlan.DoesNotExist:
