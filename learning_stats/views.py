@@ -411,10 +411,10 @@ def get_user_weakest_topic(username):
     return result[0]['topic'] if result else None
 
 def get_shortest_path(start_topic, end_topic):
-    """查询两个知识点之间的最短路径"""
+    """查询两个知识点之间的最短路径（使用无向查询）"""
     query = """
     MATCH (start:Topic {name: $start}), (end:Topic {name: $end})
-    MATCH path = shortestPath((start)-[:PREREQUISITE_OF*..4]->(end))
+    MATCH path = shortestPath((start)-[:PREREQUISITE_OF*..10]-(end))
     RETURN nodes(path) AS nodes
     """
     result = neo4j_client.run_query(query, {'start': start_topic, 'end': end_topic})

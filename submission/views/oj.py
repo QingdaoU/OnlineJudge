@@ -10,10 +10,11 @@ from utils.api import APIView, validate_serializer
 from utils.cache import cache
 from utils.captcha import Captcha
 from utils.throttling import TokenBucket
-from ..models import Submission
+from ..models import Submission, CodeRun
 from ..serializers import (CreateSubmissionSerializer, SubmissionModelSerializer,
-                           ShareSubmissionSerializer)
+                           ShareSubmissionSerializer, CodeRunSerializer, CodeRunModelSerializer)
 from ..serializers import SubmissionSafeModelSerializer, SubmissionListSerializer
+from judge.tasks import judge_task, code_run_task
 
 
 class SubmissionAPI(APIView):
@@ -201,3 +202,40 @@ class SubmissionExistsAPI(APIView):
         return self.success(request.user.is_authenticated and
                             Submission.objects.filter(problem_id=request.GET["problem_id"],
                                                       user_id=request.user.id).exists())
+
+
+class CodeRunAPI(APIView):
+    def throttling(self, request):
+        user_bucket = TokenBucket(key=str(request.user.id),
+                                  redis_conn=cache, **SysOptions.throttling["user"])
+        can_consume, wait = user_bucket.consume()
+        if not can_consume:
+            return "Please wait %d seconds" % (int(wait))
+
+    @validate_serializer(CodeRunSerializer)
+    @login_required
+    def post(self, request):
+        data = request.data
+        error = self.throttling(request)
+        if error:
+            return self.error(error)
+
+        code_run = CodeRun.objects.create(user_id=request.user.id,
+                                          username=request.user.username,
+                                          language=data["language"],
+                                          code=data["code"],
+                                          ip=request.session.get("ip"))
+        code_run_task.send(code_run.id)
+        return self.success({"code_run_id": code_run.id})
+
+    @login_required
+    def get(self, request):
+        code_run_id = request.GET.get("id")
+        if not code_run_id:
+            return self.error("Parameter id doesn't exist")
+        try:
+            code_run = CodeRun.objects.get(id=code_run_id, user_id=request.user.id)
+        except CodeRun.DoesNotExist:
+            return self.error("Code run doesn't exist")
+
+        return self.success(CodeRunModelSerializer(code_run).data)
