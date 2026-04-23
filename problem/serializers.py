@@ -275,3 +275,20 @@ class FPSProblemSerializer(serializers.Serializer):
     template = serializers.ListField(child=serializers.DictField(), allow_empty=True, allow_null=True)
     append = serializers.ListField(child=serializers.DictField(), allow_empty=True, allow_null=True)
     prepend = serializers.ListField(child=serializers.DictField(), allow_empty=True, allow_null=True)
+
+# ai生成题目序列化器
+class GenerateProblemWithAISerializer(serializers.Serializer):
+    prompt = serializers.CharField(max_length=1024, help_text="教师输入的提示词")
+
+class GeneratedProblemSerializer(serializers.Serializer):
+    title = serializers.CharField(max_length=128)
+    description = serializers.CharField()
+    input_description = serializers.CharField()
+    output_description = serializers.CharField()
+    hint = serializers.CharField(allow_blank=True, required=False)
+    samples = serializers.ListField(child=CreateSampleSerializer())
+    tags = serializers.ListField(child=serializers.CharField(max_length=32))
+    difficulty = serializers.ChoiceField(choices=Difficulty.choices())
+    source = serializers.CharField(max_length=256, allow_blank=True, required=False)
+    time_limit = serializers.IntegerField(min_value=1, max_value=60000, required=False)
+    memory_limit = serializers.IntegerField(min_value=1, max_value=1024, required=False)

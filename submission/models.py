@@ -22,6 +22,26 @@ class JudgeStatus:
     PARTIALLY_ACCEPTED = 8
 
 
+class CodeRun(models.Model):
+    id = models.TextField(default=rand_str, primary_key=True, db_index=True)
+    create_time = models.DateTimeField(auto_now_add=True)
+    user_id = models.IntegerField(db_index=True)
+    username = models.TextField()
+    code = models.TextField()
+    language = models.TextField()
+    result = models.IntegerField(db_index=True, default=JudgeStatus.PENDING)
+    info = JSONField(default=dict)
+    statistic_info = JSONField(default=dict)
+    ip = models.TextField(null=True)
+
+    class Meta:
+        db_table = "code_run"
+        ordering = ("-create_time",)
+
+    def __str__(self):
+        return self.id
+
+
 class Submission(models.Model):
     id = models.TextField(default=rand_str, primary_key=True, db_index=True)
     contest = models.ForeignKey(Contest, null=True, on_delete=models.CASCADE)

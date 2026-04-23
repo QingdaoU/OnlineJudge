@@ -20,3 +20,5 @@ python-dateutil==2.8.2
 qrcode==7.4.2
 raven==6.10.0
 XlsxWriter==3.1.9
+spark-ai-python==0.4.5
+neo4j-driver==5.28.1

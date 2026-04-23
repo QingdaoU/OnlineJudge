@@ -1,4 +1,4 @@
-from .models import Submission
+from .models import Submission, CodeRun
 from utils.api import serializers
 from utils.serializers import LanguageNameChoiceField
 
@@ -9,6 +9,17 @@ class CreateSubmissionSerializer(serializers.Serializer):
     code = serializers.CharField(max_length=1024 * 1024)
     contest_id = serializers.IntegerField(required=False)
     captcha = serializers.CharField(required=False)
+
+
+class CodeRunSerializer(serializers.Serializer):
+    language = LanguageNameChoiceField()
+    code = serializers.CharField(max_length=1024 * 1024)
+
+
+class CodeRunModelSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CodeRun
+        fields = "__all__"
 
 
 class ShareSubmissionSerializer(serializers.Serializer):

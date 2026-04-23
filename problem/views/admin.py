@@ -29,6 +29,9 @@ from ..serializers import (CreateContestProblemSerializer, CompileSPJSerializer,
                            ExportProblemRequestSerialzier, UploadProblemForm, ImportProblemSerializer,
                            FPSProblemSerializer)
 from ..utils import TEMPLATE_BASE, build_problem_template
+from ..serializers import GenerateProblemWithAISerializer, GeneratedProblemSerializer
+from ..utils.ai import generate_problem_by_ai
+from rest_framework.permissions import IsAdminUser
 
 
 class TestCaseZipProcessor(object):
@@ -703,3 +706,22 @@ class FPSProblemImport(CSRFExemptAPIView):
                 problem_data["test_case_score"] = score
                 self._create_problem(problem_data, request.user)
         return self.success({"import_count": len(problems)})
+
+# ai生成题目
+class ProblemGenerateWithAIAPI(APIView):
+    # permission_classes = [IsAdminUser]  # 只允许 admin 和 superadmin
+
+    def post(self, request):
+        serializer = GenerateProblemWithAISerializer(data=request.data)
+        if not serializer.is_valid():
+            return self.error(serializer.errors)
+        prompt = serializer.validated_data['prompt']
+        try:
+            generated = generate_problem_by_ai(prompt)
+        except Exception as e:
+            return self.error(f"AI 生成失败: {str(e)}")
+        # 验证生成的字段是否符合预期
+        validate_serializer = GeneratedProblemSerializer(data=generated)
+        if not validate_serializer.is_valid():
+            return self.error(f"AI 返回数据格式错误: {validate_serializer.errors}")
+        return self.success(generated)

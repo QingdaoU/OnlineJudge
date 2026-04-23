@@ -1,3 +1,9 @@
+"""
+判题 token 不是从环境变量读取的，而是存储在数据库的 SysOptions 表中。
+项目代码 DispatcherBase.__init__ 中使用了 SysOptions.judge_server_token 来生成 token，
+而环境变量 JUDGE_SERVER_TOKEN 被忽略了。
+"""
+
 import hashlib
 import json
 import logging

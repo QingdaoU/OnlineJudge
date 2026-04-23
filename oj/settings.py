@@ -10,7 +10,10 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/1.8/ref/settings/
 """
 import os
-import raven
+try:
+    import raven
+except ImportError:
+    pass
 from copy import deepcopy
 from utils.shortcuts import get_env
 
@@ -51,9 +54,14 @@ LOCAL_APPS = [
     'submission',
     'options',
     'judge',
+    'spark_ai',
+    'learning_stats',
+    'knowledge_graph',
+    'lesson_plan',
+    'dashboard',
 ]
 
-INSTALLED_APPS = VENDOR_APPS + LOCAL_APPS
+INSTALLED_APPS = VENDOR_APPS + LOCAL_APPS 
 
 MIDDLEWARE = (
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -246,3 +254,12 @@ RAVEN_CONFIG = {
 IP_HEADER = "HTTP_X_REAL_IP"
 
 DEFAULT_AUTO_FIELD='django.db.models.AutoField'
+import os
+
+SPARKAI_APP_ID = os.environ.get('SPARKAI_APP_ID', '073e07dd')
+SPARKAI_API_KEY = os.environ.get('SPARKAI_API_KEY', '89c58c9ff806b199ebb047b5781051fe')
+SPARKAI_API_SECRET = os.environ.get('SPARKAI_API_SECRET', 'YmRlMzg1ZWY3NTU0YTFmZmI1ODJiNjE4')
+SPARKAI_URL = os.environ.get('SPARKAI_URL', 'wss://spark-api.xf-yun.com/chat/pro-128k')
+SPARKAI_DOMAIN = os.environ.get('SPARKAI_DOMAIN', 'pro-128k')
+
+DEBUG = True
